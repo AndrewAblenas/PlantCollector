@@ -1,0 +1,36 @@
+buildscript {
+    repositories {
+        google()
+        jcenter()
+    }
+
+    dependencies {
+        //this was 3.2.1
+        classpath 'com.android.tools.build:gradle:3.5.1'
+        //this was 4.2.0
+        classpath 'com.google.gms:google-services:4.3.2'
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        jcenter()
+    }
+//    Added this code due to an issue with the image picker plugin
+//    configurations.all {
+//        resolutionStrategy.force "androidx.core:core:1.0.2"
+//    }
+}
+
+rootProject.buildDir = '../build'
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+subprojects {
+    project.evaluationDependsOn(':app')
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}

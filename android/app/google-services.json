@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "287185454925",
+    "firebase_url": "https://plant-collector-15db2.firebaseio.com",
+    "project_id": "plant-collector-15db2",
+    "storage_bucket": "plant-collector-15db2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:287185454925:android:11c376ced41e59eb2c1904",
+        "android_client_info": {
+          "package_name": "com.ablenas.plant_collector"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "287185454925-tlrn6e35nu6obgt6665utotk0it0h0ag.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBrhY5ftmkdgGgY2PehoDh1sOXEXjEbLss"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "287185454925-tlrn6e35nu6obgt6665utotk0it0h0ag.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
