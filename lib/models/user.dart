@@ -10,6 +10,7 @@ class UserAuth extends ChangeNotifier {
   bool showPasswordReset;
   int signInAttempts;
   bool passwordHelper;
+  String error;
 
   //*****************HELPERS*****************
 
@@ -50,16 +51,27 @@ class UserAuth extends ChangeNotifier {
     return state;
   }
 
-  //*****************USER METHODS*****************
+  //*****************USER METHODS*****************//
 
   //REGISTER THE USER
   Future<FirebaseUser> userRegister() async {
     if (email != null && passwordHelper == true) {
-      AuthResult result = await _firebaseAuth.createUserWithEmailAndPassword(
-          email: email, password: password);
-      signedInUser = result.user;
-      email = null;
-      password = null;
+      try {
+        AuthResult result = await _firebaseAuth.createUserWithEmailAndPassword(
+            email: email, password: password);
+        try {
+          signedInUser = result.user;
+          email = null;
+          password = null;
+        } catch (e) {
+          print(e);
+        }
+      } catch (e) {
+        print(e);
+        if (e.toString().contains('EMAIL_ALREADY_IN_USE')) {
+          error = '\n\nEMAIL ALREADY IN USE';
+        }
+      }
     } else {
       signedInUser = null;
     }
@@ -100,7 +112,7 @@ class UserAuth extends ChangeNotifier {
     return _firebaseAuth.signOut();
   }
 
-  //SIGN OUT USER
+  //SEND PASSWORD RESET
   Future<void> sendPasswordReset() async {
     return _firebaseAuth.sendPasswordResetEmail(email: email);
   }

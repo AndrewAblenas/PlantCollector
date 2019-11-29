@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
+import 'package:plant_collector/widgets/container_card.dart';
 
 class ButtonAdd extends StatelessWidget {
   final String buttonText;
@@ -12,46 +13,38 @@ class ButtonAdd extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.all(5.0),
-      child: RaisedButton(
-          textColor: AppTextColor.white,
-          color: buttonColor,
-          elevation: 5.0,
-          hoverElevation: 10.0,
-          padding: EdgeInsets.all(10.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Icon(
-                Icons.add,
-                size: AppTextSize.huge * MediaQuery.of(context).size.width,
+    return ContainerCard(
+      child: FlatButton(
+        padding: EdgeInsets.symmetric(vertical: 10.0),
+        textColor: AppTextColor.white,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text(
+              '+   $buttonText',
+              style: TextStyle(
+                color: AppTextColor.white,
+                fontSize: AppTextSize.huge * MediaQuery.of(context).size.width,
+                fontWeight: AppTextWeight.medium,
+                shadows: kShadowText,
               ),
-              Text(
-                '  $buttonText',
-                style: TextStyle(
-                  color: AppTextColor.white,
-                  fontSize:
-                      AppTextSize.huge * MediaQuery.of(context).size.width,
-                  fontWeight: AppTextWeight.medium,
-                  shadows: kShadowText,
-                ),
-              ),
-            ],
-          ),
-          onPressed: () {
-            if (onPress != null) {
-              onPress();
-            }
-            if (dialog != null) {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return dialog;
-                },
-              );
-            }
-          }),
+            ),
+          ],
+        ),
+        onPressed: () {
+          if (onPress != null) {
+            onPress();
+          }
+          if (dialog != null) {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return dialog;
+              },
+            );
+          }
+        },
+      ),
     );
   }
 }

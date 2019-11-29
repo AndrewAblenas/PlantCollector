@@ -10,13 +10,16 @@ const Color kGreenLight = Color(0xFFA0cc78);
 const Color kBackgroundLight = Colors.white;
 const Color kDialogBackground = kGreenLight;
 //Group Colors
-const List<Color> groupColors = [
+const List<Color> kGroupColors = [
   kGreenDark,
   kGreenMedium,
   kGreenLight,
   Colors.blueAccent,
   Colors.lightBlue,
   Colors.cyan,
+  Colors.deepOrangeAccent,
+  Colors.orange,
+  Colors.orangeAccent,
 ];
 //Convert DB RGB color to color opacity isn't stored so set to 1
 Color convertColor({@required List<dynamic> storedColor}) {

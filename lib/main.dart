@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/builders_general.dart';
 import 'package:plant_collector/models/user.dart';
+import 'package:plant_collector/screens/chat/chat.dart';
+import 'package:plant_collector/screens/connections/connections.dart';
 import 'package:plant_collector/screens/library/library.dart';
 import 'package:plant_collector/screens/login/login.dart';
 import 'package:plant_collector/screens/login/register.dart';
@@ -58,14 +60,21 @@ class PlantCollector extends StatelessWidget {
         'loading': (context) => LoadingScreen(),
         'about': (context) => AboutScreen(),
         'route': (context) => RouteScreen(),
-        'library': (context) => LibraryScreen(),
+        'library': (context) => LibraryScreen(
+              userID: null,
+              connectionLibrary: false,
+            ),
         'login': (context) => LoginScreen(),
         'register': (context) => RegisterScreen(),
-        'plant': (context) =>
-            PlantScreen(plantID: null, forwardingCollectionID: null),
+        'plant': (context) => PlantScreen(
+            connectionLibrary: null,
+            plantID: null,
+            forwardingCollectionID: null),
         'image': (context) => ImageScreen(),
         'settings': (context) => SettingsScreen(),
         'account': (context) => AccountScreen(),
+        'connections': (context) => ConnectionsScreen(),
+        'chat': (context) => ChatScreen(connectionMap: null),
       },
     );
   }

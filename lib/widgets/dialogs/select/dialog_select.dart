@@ -20,18 +20,28 @@ class DialogSelect extends StatelessWidget {
       list: <Widget>[
         Container(
             decoration: BoxDecoration(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(
+                  10.0,
+                ),
+                topRight: Radius.circular(
+                  10.0,
+                ),
+              ),
               color: kGreenMedium,
               border: Border.all(
                 color: kGreenDark,
                 width: 1.0,
               ),
             ),
-            height: 75.0 * MediaQuery.of(context).size.width * kTextScale,
-            width: 280.0 * MediaQuery.of(context).size.width * kTextScale,
+            height: 125.0 * MediaQuery.of(context).size.width * kScaleFactor,
+            width: 280.0 * MediaQuery.of(context).size.width * kScaleFactor,
             child: Scrollbar(
               child: ListView(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 10.0,
+                padding: EdgeInsets.only(
+                  top: 5.0,
+                  left: 10.0,
+                  right: 10.0,
                 ),
                 children: menuItems,
               ),

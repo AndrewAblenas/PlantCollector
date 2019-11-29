@@ -13,8 +13,8 @@ class DialogInput extends StatelessWidget {
   final Function onChangeInput;
   final Function onPressedCancel;
   DialogInput(
-      {this.title,
-      this.text,
+      {@required this.title,
+      @required this.text,
       this.onPressedSubmit,
       this.hintText,
       @required this.onChangeInput,

@@ -6,22 +6,41 @@ import 'dart:core';
 class User {
   //VARIABLES
   final String userID;
-  final String userFirstName;
-  final String userLastName;
+  final String userName;
   final String userEmail;
+  final String userAvatar;
+  final String userBackground;
+  final String userTotalPlants;
+  final String userTotalCollections;
+  final String userTotalGroups;
+//  final List<String> userRequestsList;
+//  final List<String> userConnectionsList;
+  //Constructor
   User({
     @required this.userID,
-    this.userFirstName,
-    this.userLastName,
+    this.userName,
     @required this.userEmail,
+    this.userAvatar,
+    this.userBackground,
+    this.userTotalPlants,
+    this.userTotalCollections,
+    this.userTotalGroups,
+//      this.userRequestsList,
+//      this.userConnectionsList
   });
   //CONVERT USER TO MAP
   Map<String, dynamic> toMap() {
     return {
-      '$kUserID': userID ?? '',
-      '$kUserFirstName': userFirstName ?? '',
-      '$kUserLastName': userLastName ?? '',
-      '$kUserEmail': userEmail ?? '',
+      kUserID: userID,
+      kUserName: userName,
+      kUserEmail: userEmail,
+      kUserAvatar: userAvatar,
+      kUserBackground: userBackground,
+      kUserTotalPlants: userTotalPlants,
+      kUserTotalCollections: userTotalCollections,
+      kUserTotalGroups: userTotalGroups,
+//      kUserRequestsList: userRequestsList,
+//      kUserConnectionsList: userConnectionsList,
     };
   }
 }
@@ -30,9 +49,15 @@ class User {
 User userFromMap({@required userMap}) {
   return User(
     userID: userMap[kUserID],
-    userFirstName: userMap[kUserFirstName],
-    userLastName: userMap[kUserLastName],
+    userName: userMap[kUserName],
     userEmail: userMap[kUserEmail],
+    userAvatar: userMap[kUserAvatar],
+    userBackground: userMap[kUserAvatar],
+    userTotalPlants: userMap[kUserTotalPlants],
+    userTotalCollections: userMap[kUserTotalCollections],
+    userTotalGroups: userMap[kUserTotalGroups],
+//    userRequestsList: userMap[kUserRequestsList],
+//    userConnectionsList: userMap[kUserConnectionsList],
   );
 }
 
@@ -170,7 +195,6 @@ class Group {
       this.groupOrder,
       this.groupColor});
 
-  //Methods
   //Convert group to map
   Map<String, dynamic> toMap() {
     return {
@@ -202,5 +226,47 @@ Map groupMapFromSnapshot({@required Map groupMap}) {
     kGroupCollectionList: groupMap[kGroupCollectionList],
     kGroupOrder: groupMap[kGroupOrder],
     kGroupColor: groupMap[kGroupColor],
+  };
+}
+
+//CONNECTIONS CLASS
+class Connection {
+  //Variables
+  final String connectionID;
+  final bool connectionShare;
+  final bool connectionChat;
+
+  //Constructor
+  Connection({
+    @required this.connectionID,
+    this.connectionShare,
+    this.connectionChat,
+  });
+
+  //Convert connection to map
+  Map<String, dynamic> toMap() {
+    return {
+      '$kConnectionID': connectionID,
+      '$kConnectionShare': connectionShare,
+      '$kConnectionChat': connectionChat,
+    };
+  }
+}
+
+//Connection from map
+Connection connectionFromMap({@required Map connectionMap}) {
+  return Connection(
+    connectionID: connectionMap[kConnectionID],
+    connectionShare: connectionMap[kConnectionShare],
+    connectionChat: connectionMap[kConnectionChat],
+  );
+}
+
+//GROUP MAP CONSTRUCTOR FROM SNAPSHOT
+Map connectionMapFromSnapshot({@required Map connectionMap}) {
+  return {
+    kConnectionID: connectionMap[kConnectionID],
+    kConnectionShare: connectionMap[kConnectionShare],
+    kConnectionChat: connectionMap[kConnectionChat],
   };
 }

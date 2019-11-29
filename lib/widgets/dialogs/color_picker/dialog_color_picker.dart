@@ -39,17 +39,23 @@ class DialogColorPicker extends StatelessWidget {
               height: 20.0,
             ),
             Container(
-              height: 200,
-              width: 300,
+//              decoration: BoxDecoration(
+//                border: Border.all(
+//                  color: kGreenDark,
+//                  width: 1.0,
+//                ),
+//              ),
+              height: 220 * MediaQuery.of(context).size.width * kScaleFactor,
+              width: 300 * MediaQuery.of(context).size.width * kScaleFactor,
               child: ListView(
-                shrinkWrap: true,
                 primary: false,
                 children: <Widget>[
                   GridView.count(
                     crossAxisCount: 3,
+                    primary: false,
                     shrinkWrap: true,
                     children: Provider.of<UIBuilders>(context).colorButtonsList(
-                        colors: groupColors,
+                        colors: kGroupColors,
                         onPress: onPressed,
                         groupID: groupID),
                   ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
+import 'package:plant_collector/widgets/container_card.dart';
 import 'package:plant_collector/widgets/dialogs/dialog_input.dart';
 import 'package:provider/provider.dart';
 import 'package:plant_collector/models/cloud_db.dart';
@@ -19,14 +20,7 @@ class SettingsCard extends StatelessWidget {
       this.dialogText});
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 3.0),
-      margin: EdgeInsets.symmetric(horizontal: 5.0, vertical: 3.0),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(3.0),
-        boxShadow: kShadowBox,
-        color: kGreenDark,
-      ),
+    return ContainerCard(
       child: FlatButton(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -42,7 +36,7 @@ class SettingsCard extends StatelessWidget {
               ),
             ),
             SizedBox(
-              width: 5.0 * MediaQuery.of(context).size.width * kTextScale,
+              width: 5.0 * MediaQuery.of(context).size.width * kScaleFactor,
             ),
             Text(
               '$cardLabel:  ',

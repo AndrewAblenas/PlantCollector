@@ -20,10 +20,10 @@ class CollectionAddPlant extends StatelessWidget {
         child: CircleAvatar(
           foregroundColor: kGreenDark,
           backgroundColor: Colors.white,
-          radius: 20.0 * MediaQuery.of(context).size.width * kTextScale,
+          radius: 20.0 * MediaQuery.of(context).size.width * kScaleFactor,
           child: Icon(
             Icons.add,
-            size: 35.0 * MediaQuery.of(context).size.width * kTextScale,
+            size: 35.0 * MediaQuery.of(context).size.width * kScaleFactor,
           ),
         ),
         onPressed: () {

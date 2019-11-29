@@ -5,13 +5,14 @@ import 'package:plant_collector/models/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:plant_collector/models/cloud_store.dart';
 import 'package:plant_collector/models/cloud_db.dart';
-import 'package:plant_collector/models/user.dart';
 import 'dart:io';
 import 'package:plant_collector/formats/colors.dart';
 
 class AddPhoto extends StatelessWidget {
   final String plantID;
-  AddPhoto({@required this.plantID});
+  AddPhoto({
+    @required this.plantID,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -42,17 +43,13 @@ class AddPhoto extends StatelessWidget {
               child: CircleAvatar(
                 foregroundColor: kGreenDark,
                 backgroundColor: Colors.white,
-                radius: 60 * MediaQuery.of(context).size.width * kTextScale,
+                radius: 60 * MediaQuery.of(context).size.width * kScaleFactor,
                 child: Icon(
                   Icons.camera_alt,
-                  size: 80.0 * MediaQuery.of(context).size.width * kTextScale,
+                  size: 80.0 * MediaQuery.of(context).size.width * kScaleFactor,
                 ),
               ),
               onPressed: () async {
-                //set userID for use in path generation
-                Provider.of<CloudStore>(context).setUserFolderID(
-                    (await Provider.of<UserAuth>(context).getCurrentUser())
-                        .uid);
                 //get image from camera
                 File image = await Provider.of<CloudStore>(context)
                     .getCameraImage(fromCamera: true);
@@ -89,17 +86,13 @@ class AddPhoto extends StatelessWidget {
               child: CircleAvatar(
                 foregroundColor: kGreenDark,
                 backgroundColor: Colors.white,
-                radius: 60 * MediaQuery.of(context).size.width * kTextScale,
+                radius: 60 * MediaQuery.of(context).size.width * kScaleFactor,
                 child: Icon(
                   Icons.image,
-                  size: 80.0 * MediaQuery.of(context).size.width * kTextScale,
+                  size: 80.0 * MediaQuery.of(context).size.width * kScaleFactor,
                 ),
               ),
               onPressed: () async {
-                //set userID for use in path generation
-                Provider.of<CloudStore>(context).setUserFolderID(
-                    (await Provider.of<UserAuth>(context).getCurrentUser())
-                        .uid);
                 //get image from camera
                 File image = await Provider.of<CloudStore>(context)
                     .getCameraImage(fromCamera: false);
@@ -118,7 +111,7 @@ class AddPhoto extends StatelessWidget {
                   //get the url string
                   String url = await Provider.of<CloudStore>(context)
                       .getDownloadURL(snapshot: completion);
-                  //add thumbnail reference to plant document
+                  //add image reference to plant document
                   Provider.of<CloudDB>(context)
                       .updateArrayInDocumentInCollection(
                           arrayKey: kPlantImageList,

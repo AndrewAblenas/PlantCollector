@@ -16,18 +16,26 @@ class CloudStore extends ChangeNotifier {
   //main folder
   static String mainFolder = kFolderUsers;
   //user folder
-  String userFolder;
-  //plants folder
+  String currentUserFolder;
+  //user plants folder
   static String plantsFolder = kFolderPlants;
-  //image folder
+  //user image folder
   static String imageFolder = kFolderImages;
-  //thumbnail folder
+  //user thumbnail folder
   static String thumbnailFolder = kFolderThumbnail;
   static int thumbnailSize = 200;
   static double cameraImageSize = 800.0;
+  //user settings folder
+  static String settingsFolder = kFolderSettings;
+  //connection folder to view library
+  String currentConnectionFolder;
 
-  void setUserFolderID(String loggedInID) {
-    userFolder = loggedInID;
+  void setUserFolder({@required String userID}) {
+    currentUserFolder = userID;
+  }
+
+  void setConnectionFolder({@required String connectionID}) {
+    currentConnectionFolder = connectionID;
   }
 
   //*****************GENERAL*****************
@@ -88,35 +96,95 @@ class CloudStore extends ChangeNotifier {
         ExtendedImage.decodeJpg(image.readAsBytesSync());
     ExtendedImage.Image thumbnail =
         ExtendedImage.copyResizeCropSquare(extendedImage, thumbnailSize);
-    List<int> encodedImage = ExtendedImage.encodePng(thumbnail);
+    List<int> encodedImage = ExtendedImage.encodeJpg(thumbnail);
     print('generateThumbnail: Complete');
     return encodedImage;
   }
 
+  //TODO this was a temp function can probably delete now
+  Future tempGenThumb(
+      {@required List urls, @required String plantIDFolder}) async {
+    if (urls != null) {
+      for (String link in urls) {
+        //create temp file
+        File tempFile = createTemp();
+        //download the image
+        StorageFileDownloadTask download =
+            await downloadImage(url: link, saveFile: tempFile);
+        //wait for download completion
+        await download.future;
+        //create temp file
+        File imageFile = createTemp();
+        //edit the image
+        List<int> uploadPackage = generateThumbnail(image: imageFile);
+        //get image name
+        String name = getThumbName(imageUrl: link);
+        //upload
+        String path =
+            '$mainFolder/$currentUserFolder/$plantsFolder/$plantIDFolder/images/$name.jpg';
+        StorageUploadTask imageUpload =
+            _storage.ref().child(path).putData(uploadPackage);
+        //check upload
+        StorageTaskSnapshot uploadSnapshot = await imageUpload.onComplete;
+        //get URL
+        String url = await getDownloadURL(snapshot: uploadSnapshot);
+        _storage
+            .ref()
+            .child(
+                '$mainFolder/$currentUserFolder/$plantsFolder/$plantIDFolder/thumbnail/')
+            .delete();
+        return url;
+      }
+    }
+  }
+
   Future<String> thumbnailPackage(
       {@required String imageURL, @required String plantID}) async {
-    //create temp file
-    File tempFile = createTemp();
-    //download the image
-    StorageFileDownloadTask download =
-        await downloadImage(url: imageURL, saveFile: tempFile);
-    //wait for download completion
-    await download.future;
-    //create temp file
-    File imageFile = createTemp();
-    //edit the image
-    List<int> uploadPackage = generateThumbnail(image: imageFile);
-    //upload
-    StorageUploadTask imageUpload = uploadTask(
-        imageFile: null,
-        imageCode: uploadPackage,
-        imageExtension: 'png',
-        plantIDFolder: plantID,
-        subFolder: 'thumbnail');
-    //check upload
-    StorageTaskSnapshot uploadSnapshot = await imageUpload.onComplete;
-    //get URL
-    String url = await getDownloadURL(snapshot: uploadSnapshot);
+    //get the thumbnail image name from the full sized image url
+    String imageName = getThumbName(imageUrl: imageURL);
+    //get the thumb ref
+    StorageReference thumbRef = getImageRef(
+        imageName: imageName, imageExtension: 'jpg', plantIDFolder: plantID);
+    //get the thumb url
+    return await getImageUrl(reference: thumbRef);
+  }
+
+  //get thumbnail url from image url
+  String getThumbName({@required String imageUrl}) {
+    String imageName;
+    if (imageUrl != null) {
+      //remove prefix to image name
+      String split = imageUrl.split('images%2F')[1];
+      //remove suffix to image name
+      imageName = split.split('.jpg')[0];
+    }
+    //this suffice is as per the firebase extension that creates thumbnails
+    return imageName + '_200x200';
+  }
+
+  //get image ref
+  StorageReference getImageRef(
+      {@required String imageName,
+      @required String imageExtension,
+      @required String plantIDFolder}) {
+    StorageReference ref;
+    try {
+      ref = _storage.ref().child(
+          '$mainFolder/$currentUserFolder/$plantsFolder/$plantIDFolder/$imageFolder/$imageName.$imageExtension');
+    } catch (e) {
+      print(e);
+    }
+    return ref;
+  }
+
+  //get image url
+  Future<String> getImageUrl({@required StorageReference reference}) async {
+    String url;
+    try {
+      url = await reference.getDownloadURL();
+    } catch (e) {
+      print(e);
+    }
     return url;
   }
 
@@ -142,11 +210,11 @@ class CloudStore extends ChangeNotifier {
     if (imageFile != null) {
       String imageName = generateImageName(plantID: plantIDFolder);
       String path =
-          '$mainFolder/$userFolder/$plantsFolder/$plantIDFolder/$subFolder/$imageName.$imageExtension';
+          '$mainFolder/$currentUserFolder/$plantsFolder/$plantIDFolder/$subFolder/$imageName.$imageExtension';
       upload = _storage.ref().child(path).putData(imageFile.readAsBytesSync());
     } else if (imageCode != null) {
       String path =
-          '$mainFolder/$userFolder/$plantsFolder/$plantIDFolder/$subFolder/thumbnail.$imageExtension';
+          '$mainFolder/$currentUserFolder/$plantsFolder/$plantIDFolder/$subFolder/thumbnail.$imageExtension';
       upload = _storage.ref().child(path).putData(imageCode);
     } else {
       upload = null;
@@ -155,8 +223,23 @@ class CloudStore extends ChangeNotifier {
     return upload;
   }
 
+  //UPLOAD TASK
+  StorageUploadTask uploadToUserSettingsTask(
+      {@required File imageFile, @required String imageName}) {
+    StorageUploadTask upload;
+    if (imageFile != null) {
+      String path =
+          '$mainFolder/$currentUserFolder/$settingsFolder/$imageName.jpg';
+      upload = _storage.ref().child(path).putData(imageFile.readAsBytesSync());
+    } else {
+      upload = null;
+    }
+    print('uploadTask: Complete');
+    return upload;
+  }
+
   //GET AN IMAGE
-  Future<dynamic> getImageURL(
+  Future<dynamic> getThumbUrlOld(
       {@required String imageName,
       @required String imageExtension,
       @required String plantIDFolder}) async {
@@ -165,7 +248,7 @@ class CloudStore extends ChangeNotifier {
       url = await _storage
           .ref()
           .child(
-              '$mainFolder/$userFolder/$plantsFolder/$plantIDFolder/$kFolderThumbnail/$imageName.$imageExtension')
+              '$mainFolder/$currentUserFolder/$plantsFolder/$plantIDFolder/$kFolderThumbnail/$imageName.$imageExtension')
           .getDownloadURL();
     } catch (e) {
       print(e);

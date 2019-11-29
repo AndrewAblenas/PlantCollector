@@ -19,6 +19,7 @@ class UIBuilders extends ChangeNotifier {
 
   String selectedDialogButton;
   List groupCollections = [];
+  bool loadingIndicator;
 
   //*****************LIBRARY PAGE RELATED BUILDERS*****************
 
@@ -32,18 +33,16 @@ class UIBuilders extends ChangeNotifier {
   }
 
   //Generate Group widgets
-  Column displayGroups({@required List<Map> userGroups}) {
+  Column displayGroups(
+      {@required List<Map> userGroups, @required bool connectionLibrary}) {
     List<Widget> groupList = [];
-    //sort list by user set order
-    userGroups.sort((a, b) {
-      return a[kGroupOrder].compareTo(b[kGroupOrder]);
-    });
     Column groupColumn;
     if (userGroups != null) {
       userGroups.sort((a, b) => (a[kGroupOrder]).compareTo((b[kGroupOrder])));
       for (Map group in userGroups) {
         groupList.add(
           GroupCard(
+            connectionLibrary: connectionLibrary,
             group: group,
             groups: userGroups,
           ),
@@ -53,6 +52,10 @@ class UIBuilders extends ChangeNotifier {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: groupList,
       );
+    } else {
+      groupColumn = Column(
+        children: <Widget>[SizedBox()],
+      );
     }
     return groupColumn;
   }
@@ -61,7 +64,8 @@ class UIBuilders extends ChangeNotifier {
   Column displayCollections(
       {@required List<Map> userCollections,
       @required String groupID,
-      @required Color groupColor}) {
+      @required Color groupColor,
+      @required bool connectionLibrary}) {
     List<CollectionCard> collectionList = [];
     Column collectionColumn;
     if (userCollections != null && userCollections.length > 0) {
@@ -69,6 +73,7 @@ class UIBuilders extends ChangeNotifier {
         //add collection card for each collection
         collectionList.add(
           makeCollectionCard(
+              connectionLibrary: connectionLibrary,
               collection: collection,
               collectionTheme: groupColor,
               groupID: groupID),
@@ -78,7 +83,8 @@ class UIBuilders extends ChangeNotifier {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: collectionList,
       );
-    } else if (userCollections == null || userCollections.length == 0) {
+    } else if (userCollections == null ||
+        userCollections.length == 0 && connectionLibrary == false) {
       //check if in a group and add delete button
       collectionColumn = Column(
         children: <Widget>[
@@ -91,7 +97,8 @@ class UIBuilders extends ChangeNotifier {
 
   //MAKE COLLECTION CARD
   CollectionCard makeCollectionCard(
-      {@required Map collection,
+      {@required bool connectionLibrary,
+      @required Map collection,
       @required Color collectionTheme,
       @required String groupID}) {
     //get plant list
@@ -105,6 +112,7 @@ class UIBuilders extends ChangeNotifier {
     }
     //return card
     return CollectionCard(
+      connectionLibrary: connectionLibrary,
       collection: collection,
       collectionPlantTotal: collectionPlantTotal,
       colorTheme: collectionTheme,
@@ -116,7 +124,10 @@ class UIBuilders extends ChangeNotifier {
 
   //GENERATE IMAGE TILE LIST FOR THE CAROUSEL
   List<Widget> generateImageTileWidgets(
-      {@required String plantID, @required List<dynamic> listURL}) {
+      {@required bool connectionLibrary,
+      @required String plantID,
+      @required List<dynamic> listURL,
+      @required String thumbnail}) {
     //initialize the widget list
     List<Widget> imageTileList = [];
     //check to make sure list is not null
@@ -132,18 +143,51 @@ class UIBuilders extends ChangeNotifier {
             [MM, ' ', d, ', ', yyyy]);
         //create image tiles
         imageTileList.add(
-          PlantPhoto(imageURL: url, imageDate: date),
+          PlantPhoto(
+              connectionLibrary: connectionLibrary,
+              imageURL: url,
+              imageDate: date),
         );
       }
     } else {}
     //add an image add button to the list
-    imageTileList.add(AddPhoto(plantID: plantID));
+    if (connectionLibrary == false) {
+      imageTileList.add(
+        AddPhoto(
+          plantID: plantID,
+        ),
+      );
+    }
     print('generateImageTileWidgets: COMPLETE');
     return imageTileList;
   }
 
+  //REFORMAT PLANT INFO TO SHARE
+  String sharePlant({@required Map plantMap}) {
+    String plantShare;
+    if (plantMap != null) {
+      List<String> keyList = kPlantKeyDescriptorsMap.keys.toList();
+      keyList.remove(kPlantID);
+      keyList.remove(kPlantThumbnail);
+      keyList.remove(kPlantImageList);
+      for (String key in keyList)
+        if (plantMap[key] != null) {
+          if (plantShare == null) {
+            plantShare = '${kPlantKeyDescriptorsMap[key]}: ${plantMap[key]}\n';
+          } else {
+            plantShare = plantShare +
+                '${kPlantKeyDescriptorsMap[key]}: ${plantMap[key]}\n';
+          }
+        }
+    }
+    return plantShare + 'Shared via Plant Collector\n<future app store link>';
+  }
+
   //GENERATE INFO CARD WIDGETS
-  Column displayInfoCards({@required String plantID, @required Map plant}) {
+  Column displayInfoCards(
+      {@required bool connectionLibrary,
+      @required String plantID,
+      @required Map plant}) {
     //create blank list to hold info card widgets
     List<Widget> infoCardList = [];
     //create a list of all key values possible
@@ -163,6 +207,7 @@ class UIBuilders extends ChangeNotifier {
           String displayText = plant[key];
           infoCardList.add(
             PlantInfoCard(
+              connectionLibrary: connectionLibrary,
               plantID: plantID,
               cardKey: key.toString(),
               displayLabel: displayLabel,
@@ -172,7 +217,7 @@ class UIBuilders extends ChangeNotifier {
         }
       }
     }
-    if (infoCardList.length < keyList.length) {
+    if (infoCardList.length < keyList.length && connectionLibrary == false) {
       infoCardList.add(
         ButtonAdd(
           buttonText: 'Add Information',

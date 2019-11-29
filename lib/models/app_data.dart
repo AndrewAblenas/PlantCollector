@@ -24,23 +24,29 @@ class AppData extends ChangeNotifier {
   //Formatting
   Column collectionColumn = Column();
   //path and directories
-  static String userIDStatic;
-  String userID;
   String pathPlants;
   String pathSettings;
-  //User Store Data
 
 //*****************CREATE DIRECTORIES*****************
 
   //Take the returned user ID and set it as a static to use in directory paths
-  void setUserID({String userIDString}) {
-    if (userIDString != null) {
-      userID = userIDString;
-      userIDStatic = userIDString;
-    } else {
-      userIDStatic = 'default';
-    }
-  }
+//  void setUserID({String userID}) {
+//    if (userID != null) {
+//      userID = userID;
+//      userIDStatic = userID;
+//    } else {
+//      userIDStatic = 'default';
+//    }
+//  }
+//
+//  void setConnectionID({String userID}) {
+//    if (userID != null) {
+//      userID = userID;
+//      userIDStatic = userID;
+//    } else {
+//      userIDStatic = 'default';
+//    }
+//  }
 
   Future createDirectories({@required String user}) async {
     //get the relative path
@@ -126,7 +132,7 @@ class AppData extends ChangeNotifier {
       collectionID: generateCollectionID,
       collectionName: newCollectionName,
       collectionPlantList: [],
-      collectionCreatorID: userIDStatic,
+      collectionCreatorID: null,
     );
     return collection;
   }

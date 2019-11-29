@@ -32,7 +32,7 @@ class StatCard extends StatelessWidget {
           ),
           Container(
             height: 1.0,
-            width: 60.0 * MediaQuery.of(context).size.width * kTextScale,
+            width: 60.0 * MediaQuery.of(context).size.width * kScaleFactor,
             color: kGreenMedium,
           ),
           const SizedBox(height: 10.0),
@@ -40,7 +40,8 @@ class StatCard extends StatelessWidget {
             cardValue == '1' ? '$cardLabel' : '${cardLabel}s',
             style: TextStyle(
               color: Colors.black87,
-              fontSize: AppTextSize.tiny * MediaQuery.of(context).size.width,
+              fontSize:
+                  AppTextSize.small * MediaQuery.of(context).size.width * 0.9,
             ),
           ),
         ],

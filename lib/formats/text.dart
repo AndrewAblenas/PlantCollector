@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
 //Scaling Constant
-const double kTextScale = 0.0025;
+const double kScaleFactor = 0.0025;
 
 //Size
 class AppTextSize {
-  static const double tiny = 10.0 * kTextScale;
-  static const double small = 15.0 * kTextScale;
-  static const double medium = 20.0 * kTextScale;
-  static const double large = 25.0 * kTextScale;
-  static const double huge = 30.0 * kTextScale;
-  static const double gigantic = 60.0 * kTextScale;
+  static const double tiny = 10.0 * kScaleFactor;
+  static const double small = 15.0 * kScaleFactor;
+  static const double medium = 20.0 * kScaleFactor;
+  static const double large = 25.0 * kScaleFactor;
+  static const double huge = 30.0 * kScaleFactor;
+  static const double gigantic = 60.0 * kScaleFactor;
 }
 
 //Weight

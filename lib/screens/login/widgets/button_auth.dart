@@ -19,16 +19,25 @@ class ButtonAuth extends StatelessWidget {
           color: kGreenDark,
           child: Container(
             child: Padding(
-              padding: EdgeInsets.all(10.0),
-              child: Text(
-                text,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize:
-                      AppTextSize.huge * MediaQuery.of(context).size.width,
-                  fontWeight: FontWeight.w300,
-                ),
+              padding: EdgeInsets.all(5.0),
+              child: Row(
+                children: <Widget>[
+                  Image(
+                    image: AssetImage('assets/images/app_icon_white_512.png'),
+                    height:
+                        AppTextSize.huge * MediaQuery.of(context).size.width,
+                  ),
+                  Text(
+                    ' $text',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize:
+                          AppTextSize.huge * MediaQuery.of(context).size.width,
+                      fontWeight: FontWeight.w300,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

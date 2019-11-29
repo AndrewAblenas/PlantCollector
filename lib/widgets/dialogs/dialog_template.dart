@@ -12,6 +12,9 @@ class DialogTemplate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15.0),
+      ),
       backgroundColor: kDialogBackground,
       title: Text(
         title,

@@ -7,8 +7,13 @@ class InputCard extends StatelessWidget {
   final Function onChanged;
   final Function validator;
   final bool obscureText;
+  final TextInputType keyboardType;
   InputCard(
-      {this.cardPrompt, this.onChanged, this.validator, this.obscureText});
+      {this.cardPrompt,
+      this.onChanged,
+      this.validator,
+      this.obscureText,
+      @required this.keyboardType});
 
   @override
   Widget build(BuildContext context) {
@@ -20,6 +25,7 @@ class InputCard extends StatelessWidget {
       child: Column(
         children: <Widget>[
           TextFormField(
+            keyboardType: keyboardType,
             textAlign: TextAlign.center,
             autofocus: false,
             cursorColor: kGreenDark,
@@ -29,7 +35,7 @@ class InputCard extends StatelessWidget {
             decoration: InputDecoration(
               focusColor: Colors.white,
               enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.black54),
+                borderSide: BorderSide(color: kGreenDark),
               ),
               focusedBorder: UnderlineInputBorder(
                 borderSide: BorderSide(
@@ -39,6 +45,7 @@ class InputCard extends StatelessWidget {
               ),
             ),
             style: TextStyle(
+              color: kGreenDark,
               fontSize: AppTextSize.medium * MediaQuery.of(context).size.width,
             ),
           ),
