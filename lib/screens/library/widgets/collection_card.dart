@@ -98,48 +98,52 @@ class CollectionCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Container(
-                      width: 30.0 *
-                          MediaQuery.of(context).size.width *
-                          kScaleFactor,
-                      height: 30.0 *
-                          MediaQuery.of(context).size.width *
-                          kScaleFactor,
-                      child: FlatButton(
-                        onPressed: () {
-                          connectionLibrary == false
-                              ? showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return DialogSelect(
-                                      title: 'Move to Another Group',
-                                      text:
-                                          'Please select the Group where you would like to move this plant.',
-                                      plantID: collection[kCollectionID],
-                                      menuItems:
-                                          Provider.of<UIBuilders>(context)
-                                              .createDialogGroupButtons(
-                                        selectedItemID:
-                                            collection[kCollectionID],
-                                        currentParentID: groupID,
-                                        possibleParents:
-                                            Provider.of<CloudDB>(context)
-                                                .currentUserGroups,
-                                      ),
-                                    );
-                                  },
-                                )
-                              : null;
-                        },
-                        child: Icon(
-                          Icons.arrow_forward,
-                          size: 25.0 *
-                              MediaQuery.of(context).size.width *
-                              kScaleFactor,
-                          color: AppTextColor.light,
-                        ),
-                      ),
-                    ),
+                    connectionLibrary == false
+                        ? Container(
+                            width: 50.0 *
+                                MediaQuery.of(context).size.width *
+                                kScaleFactor,
+                            height: 30.0 *
+                                MediaQuery.of(context).size.width *
+                                kScaleFactor,
+                            child: FlatButton(
+                              onPressed: () {
+                                connectionLibrary == false
+                                    ? showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return DialogSelect(
+                                            title: 'Move to Another Group',
+                                            text:
+                                                'Please select the Group where you would like to move this plant.',
+                                            plantID: collection[kCollectionID],
+                                            menuItems:
+                                                Provider.of<UIBuilders>(context)
+                                                    .createDialogGroupButtons(
+                                              selectedItemID:
+                                                  collection[kCollectionID],
+                                              currentParentID: groupID,
+                                              possibleParents:
+                                                  Provider.of<CloudDB>(context)
+                                                      .currentUserGroups,
+                                            ),
+                                          );
+                                        },
+                                      )
+                                    : null;
+                              },
+                              child: Icon(
+                                Icons.arrow_forward,
+                                size: 25.0 *
+                                    MediaQuery.of(context).size.width *
+                                    kScaleFactor,
+                                color: AppTextColor.light,
+                              ),
+                            ),
+                          )
+                        : SizedBox(
+                            width: 30.0,
+                          ),
                   ],
                 ),
               ),
@@ -225,7 +229,12 @@ class CollectionCard extends StatelessWidget {
                                     plantMapFromSnapshot(plantMap: doc.data))
                                 .toList(),
                           );
-                          return GridView.builder(
+                          //don't show gridview for connection library if empty
+                          if (connectionLibrary == true &&
+                              collectionPlants.length == 0) {
+                            return SizedBox();
+                          } else {
+                            return GridView.builder(
                               shrinkWrap: true,
                               //allows scrolling
                               primary: false,
@@ -268,7 +277,9 @@ class CollectionCard extends StatelessWidget {
                                   );
                                 }
                                 return tile;
-                              });
+                              },
+                            );
+                          }
                         } else {
                           return SizedBox();
                         }

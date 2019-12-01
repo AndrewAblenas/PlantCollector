@@ -91,6 +91,13 @@ class UIBuilders extends ChangeNotifier {
           groupID == null ? null : GroupDelete(groupID: groupID),
         ],
       );
+    } else {
+      //check if in a group and add delete button
+      collectionColumn = Column(
+        children: <Widget>[
+          SizedBox(),
+        ],
+      );
     }
     return collectionColumn;
   }

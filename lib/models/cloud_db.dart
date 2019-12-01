@@ -18,6 +18,7 @@ class CloudDB extends ChangeNotifier {
   List<Map> currentUserGroups;
   List<Map> currentUserCollections;
   List<Map> currentUserPlants;
+  Map currentUserInfo;
   //connection
   List<Map> connectionGroups;
   List<Map> connectionCollections;
@@ -133,7 +134,7 @@ class CloudDB extends ChangeNotifier {
           .collection(conversationsPath)
           .document(document)
           .collection(messagesPath)
-          .orderBy(kMessageTime)
+          .orderBy(kMessageTime, descending: true)
           .limit(20)
           .snapshots();
     } else {
@@ -166,10 +167,18 @@ class CloudDB extends ChangeNotifier {
         kMessageSender: messageSender,
         kMessageText: messageText,
         kMessageTime: DateTime.now().millisecondsSinceEpoch,
+        kMessageRead: false,
       });
     } else {
       return null;
     }
+  }
+
+  //update message read status
+  Future<void> readMessage({@required String reference}) {
+    return _db.document(reference).updateData({
+      kMessageRead: true,
+    });
   }
 
   //delete messages

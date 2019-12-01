@@ -4,6 +4,7 @@ import 'package:plant_collector/models/cloud_store.dart';
 import 'package:plant_collector/models/constants.dart';
 import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/classes.dart';
+import 'package:plant_collector/screens/library/widgets/ConnectionUpdates.dart';
 import 'package:plant_collector/widgets/button_add.dart';
 import 'package:plant_collector/screens/library/widgets/profile_header.dart';
 import 'package:provider/provider.dart';
@@ -86,15 +87,15 @@ class LibraryScreen extends StatelessWidget {
                       label: 'Account',
                     ),
                   ),
-                  PopupMenuItem(
-                    value: () {
-                      Navigator.pushNamed(context, 'connections');
-                    },
-                    child: MenuItem(
-                      icon: Icons.people,
-                      label: 'Connections',
-                    ),
-                  ),
+//                  PopupMenuItem(
+//                    value: () {
+//                      Navigator.pushNamed(context, 'connections');
+//                    },
+//                    child: MenuItem(
+//                      icon: Icons.people,
+//                      label: 'Connections',
+//                    ),
+//                  ),
 //                PopupMenuItem(
 //                  //TODO settings page
 //                  value: () {
@@ -125,6 +126,7 @@ class LibraryScreen extends StatelessWidget {
 //                ),
                   PopupMenuItem(
                     value: () {
+                      //TODO problem here related to sign out
                       Provider.of<UserAuth>(context).signOutUser();
                       Provider.of<UserAuth>(context).signedInUser = null;
                       Provider.of<CloudDB>(context).currentUserGroups = null;
@@ -159,13 +161,25 @@ class LibraryScreen extends StatelessWidget {
           child: ListView(
             children: <Widget>[
               SizedBox(height: 20.0),
-              StreamProvider<DocumentSnapshot>.value(
-                value: Provider.of<CloudDB>(context)
-                    .streamUserDocument(userID: userID),
-                child: ProfileHeader(
-                  connectionLibrary: connectionLibrary,
+              Container(
+                constraints: BoxConstraints(
+                    //this is a workaround to prevent listview jump when loading the contained streams
+                    minHeight: 1.05 * MediaQuery.of(context).size.width),
+                child: StreamProvider<DocumentSnapshot>.value(
+                  value: Provider.of<CloudDB>(context)
+                      .streamUserDocument(userID: userID),
+                  child: ProfileHeader(
+                    connectionLibrary: connectionLibrary,
+                  ),
                 ),
               ),
+              connectionLibrary == false
+                  ? Container(
+                      constraints: BoxConstraints(
+                          //this is a workaround to prevent listview jump when loading the contained streams
+                          minHeight: 0.45 * MediaQuery.of(context).size.width),
+                      child: ConnectionUpdates())
+                  : SizedBox(),
               Consumer<QuerySnapshot>(
                   builder: (context, QuerySnapshot groupSnap, _) {
                 if (groupSnap != null) {

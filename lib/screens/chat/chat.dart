@@ -7,6 +7,7 @@ import 'package:plant_collector/models/constants.dart';
 import 'package:plant_collector/screens/chat/widgets/chat_avatar.dart';
 import 'package:plant_collector/screens/chat/widgets/message_template.dart';
 import 'package:plant_collector/screens/chat/widgets/send_message.dart';
+import 'package:plant_collector/screens/library/library.dart';
 import 'package:plant_collector/screens/template/screen_template.dart';
 import 'package:provider/provider.dart';
 
@@ -24,9 +25,6 @@ class ChatScreen extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.max,
           children: <Widget>[
-//            StreamProvider<QuerySnapshot>.value(
-//              value: Provider.of<CloudDB>(context).streamConnections(),
-//              child:
             Container(
                 padding: EdgeInsets.symmetric(
                   vertical: 2.0,
@@ -41,21 +39,36 @@ class ChatScreen extends StatelessWidget {
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    ChatAvatar(
-                      avatarLink: connectionMap[kUserAvatar],
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (BuildContext context) => LibraryScreen(
+                              userID: connectionMap[kUserID],
+                              connectionLibrary: true,
+                            ),
+                          ),
+                        );
+                      },
+                      child: ChatAvatar(
+                        avatarLink: connectionMap[kUserAvatar],
+                      ),
                     ),
                     SizedBox(
                       width: 10.0,
                     ),
-                    Text(
-                      connectionMap[kUserName],
-                      style: TextStyle(
-                        fontSize: AppTextSize.huge *
-                            MediaQuery.of(context).size.width,
-                        fontWeight: AppTextWeight.medium,
-                        color: AppTextColor.white,
-                      ),
-                    ),
+                    connectionMap[kUserName] != null
+                        ? Text(
+                            connectionMap[kUserName],
+                            style: TextStyle(
+                              fontSize: AppTextSize.huge *
+                                  MediaQuery.of(context).size.width,
+                              fontWeight: AppTextWeight.medium,
+                              color: AppTextColor.white,
+                            ),
+                          )
+                        : SizedBox(),
                   ],
                 )
 //                Consumer<QuerySnapshot>(
@@ -99,9 +112,11 @@ class ChatScreen extends StatelessWidget {
                   child: Consumer<QuerySnapshot>(
                     builder: (context, QuerySnapshot messages, _) {
                       List<Widget> messageList = [];
+                      List<String> unreadList = [];
                       if (messages != null && messages.documents != null) {
                         for (DocumentSnapshot snap in messages.documents) {
                           Map messageMap = snap.data;
+                          //message from other user
                           if (messageMap[kMessageSender] ==
                               Provider.of<CloudDB>(context)
                                   .getCurrentChatId()) {
@@ -113,6 +128,11 @@ class ChatScreen extends StatelessWidget {
                                 textColor: AppTextColor.white,
                               ),
                             );
+                            //add to list of unread if false
+                            if (messageMap[kMessageRead] == false) {
+                              unreadList.add(snap.reference.path);
+                            }
+                            //message from current user
                           } else {
                             messageList.add(
                               MessageTemplate(
@@ -125,13 +145,18 @@ class ChatScreen extends StatelessWidget {
                           }
                         }
                       }
-                      return Center(
-                        child: ListView(
-                          shrinkWrap: true,
-                          primary: false,
-                          scrollDirection: Axis.vertical,
-                          children: messageList,
-                        ),
+                      if (unreadList.length >= 1) {
+                        for (String reference in unreadList) {
+                          Provider.of<CloudDB>(context)
+                              .readMessage(reference: reference);
+                        }
+                      }
+                      return ListView(
+                        shrinkWrap: true,
+                        primary: false,
+                        scrollDirection: Axis.vertical,
+                        children: messageList,
+                        reverse: true,
                       );
                     },
                   ),
@@ -146,10 +171,12 @@ class ChatScreen extends StatelessWidget {
             Container(
               color: AppTextColor.white,
               constraints: BoxConstraints(
-                minHeight:
-                    4 * AppTextSize.medium * MediaQuery.of(context).size.width,
-                maxHeight:
-                    6 * AppTextSize.medium * MediaQuery.of(context).size.width,
+                minHeight: 3.5 *
+                    AppTextSize.medium *
+                    MediaQuery.of(context).size.width,
+                maxHeight: 6.0 *
+                    AppTextSize.medium *
+                    MediaQuery.of(context).size.width,
               ),
               width: MediaQuery.of(context).size.width,
               child: Padding(

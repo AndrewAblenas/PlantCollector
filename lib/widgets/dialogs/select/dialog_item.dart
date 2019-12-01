@@ -31,5 +31,18 @@ class DialogItem extends StatelessWidget {
         onPress();
       },
     );
+//    return GestureDetector(
+//      child: Text(
+//        buttonText,
+//        style: TextStyle(
+//          fontSize: AppTextSize.medium * MediaQuery.of(context).size.width,
+//          fontWeight: AppTextWeight.medium,
+//        ),
+//        textAlign: TextAlign.center,
+//      ),
+//      onTap: () {
+//        onPress();
+//      },
+//    );
   }
 }

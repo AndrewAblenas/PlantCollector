@@ -25,6 +25,9 @@ class ProfileHeader extends StatelessWidget {
     return Consumer<DocumentSnapshot>(
       builder: (context, data, _) {
         if (data != null && data.data != null) {
+          //save to local file, for future use if needed
+          //use to check user name in not empty before friend add
+          Provider.of<CloudDB>(context).currentUserInfo = data.data;
           return ContainerWrapper(
             child: Column(
               children: <Widget>[

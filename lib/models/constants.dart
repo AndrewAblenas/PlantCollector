@@ -19,6 +19,7 @@ const String kFolderSettings = 'settings';
 const String kMessageSender = 'messageSender';
 const String kMessageTime = 'messageTime';
 const String kMessageText = 'messageText';
+const String kMessageRead = 'messageRead';
 
 //User Keys
 const String kUserID = 'userID';

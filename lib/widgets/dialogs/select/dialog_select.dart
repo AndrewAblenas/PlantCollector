@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
@@ -19,33 +20,40 @@ class DialogSelect extends StatelessWidget {
       text: text,
       list: <Widget>[
         Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(
-                  10.0,
-                ),
-                topRight: Radius.circular(
-                  10.0,
-                ),
-              ),
-              color: kGreenMedium,
-              border: Border.all(
-                color: kGreenDark,
-                width: 1.0,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(
+              Radius.circular(
+                10.0,
               ),
             ),
-            height: 125.0 * MediaQuery.of(context).size.width * kScaleFactor,
-            width: 280.0 * MediaQuery.of(context).size.width * kScaleFactor,
-            child: Scrollbar(
-              child: ListView(
-                padding: EdgeInsets.only(
-                  top: 5.0,
-                  left: 10.0,
-                  right: 10.0,
-                ),
-                children: menuItems,
+            color: kGreenMedium,
+            border: Border.all(
+              color: kGreenDark,
+              width: 1.0,
+            ),
+          ),
+          height: 125.0 * MediaQuery.of(context).size.width * kScaleFactor,
+          width: 280.0 * MediaQuery.of(context).size.width * kScaleFactor,
+          child: Scrollbar(
+            child: ListView(
+              padding: EdgeInsets.only(
+                top: 5.0,
+                bottom: 5.0,
+                left: 10.0,
+                right: 10.0,
               ),
-            )),
+              children: menuItems,
+            ),
+          ),
+        ),
+//        Container(
+//          height: 100.0 * MediaQuery.of(context).size.width * kScaleFactor,
+//          child: CupertinoPicker(
+//              backgroundColor: kGreenLight,
+//              itemExtent: AppTextSize.huge * MediaQuery.of(context).size.width,
+//              onSelectedItemChanged: null,
+//              children: menuItems),
+//        ),
         SizedBox(height: 20.0),
         RaisedButton(
           color: kGreenDark,

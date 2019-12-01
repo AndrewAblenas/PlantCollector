@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/constants.dart';
 import 'package:plant_collector/screens/chat/chat.dart';
@@ -14,27 +15,52 @@ class ConnectionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return CardTemplate(
       connectionMap: connectionMap,
-      onTapLibrary: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (BuildContext context) => LibraryScreen(
-              userID: connectionMap[kUserID],
-              connectionLibrary: true,
+      buttonRow: <Widget>[
+        Container(
+          width: 50 * MediaQuery.of(context).size.width * kScaleFactor,
+          child: FlatButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (BuildContext context) => LibraryScreen(
+                    userID: connectionMap[kUserID],
+                    connectionLibrary: true,
+                  ),
+                ),
+              );
+            },
+            child: Icon(
+              Icons.photo_library,
+              size: AppTextSize.huge * MediaQuery.of(context).size.width,
+              color: AppTextColor.white,
             ),
           ),
-        );
-      },
-      onTapChat: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (BuildContext context) => ChatScreen(
-              connectionMap: connectionMap,
+        ),
+        SizedBox(
+          width: AppTextSize.tiny * MediaQuery.of(context).size.width,
+        ),
+        Container(
+          width: 50 * MediaQuery.of(context).size.width * kScaleFactor,
+          child: FlatButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (BuildContext context) => ChatScreen(
+                    connectionMap: connectionMap,
+                  ),
+                ),
+              );
+            },
+            child: Icon(
+              Icons.chat,
+              size: AppTextSize.huge * MediaQuery.of(context).size.width,
+              color: AppTextColor.white,
             ),
           ),
-        );
-      },
+        ),
+      ],
       onLongPress: () {
         showDialog(
           context: context,

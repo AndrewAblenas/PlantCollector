@@ -34,7 +34,8 @@ class MessageTemplate extends StatelessWidget {
               bottom: 5.0,
             ),
             margin: EdgeInsets.only(
-              bottom: 3.0,
+              bottom: 2.0,
+              top: 2.0,
             ),
             constraints: BoxConstraints(
               maxWidth: 0.75 * MediaQuery.of(context).size.width,
@@ -43,7 +44,7 @@ class MessageTemplate extends StatelessWidget {
               color: color,
               borderRadius: BorderRadius.all(
                 Radius.circular(
-                  6.0,
+                  10.0,
                 ),
               ),
               boxShadow: kShadowBox,
@@ -63,7 +64,7 @@ class MessageTemplate extends StatelessWidget {
                   date,
                   style: TextStyle(
                     fontSize:
-                        AppTextSize.tiny * MediaQuery.of(context).size.width,
+                        8.0 * kScaleFactor * MediaQuery.of(context).size.width,
                     fontWeight: AppTextWeight.medium,
                     color: AppTextColor.medium,
                   ),

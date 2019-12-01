@@ -18,7 +18,7 @@ class SectionHeader extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              title,
+              title != null ? title : '',
               style: TextStyle(
                 fontSize: AppTextSize.huge * MediaQuery.of(context).size.width,
                 fontWeight: AppTextWeight.medium,

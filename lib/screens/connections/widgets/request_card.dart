@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/constants.dart';
 import 'package:plant_collector/screens/connections/widgets/card_template.dart';
@@ -12,26 +13,37 @@ class RequestCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return CardTemplate(
       connectionMap: connectionMap,
-      onTapLibrary: () {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return DialogConfirm(
-              title: 'Add Connection',
-              text: 'Are you sure you would like to add this Connection?  '
-                  'Once accepted, you will be able to view each other\'s plant libraries',
-              buttonText: 'ADD',
-              onPressed: () {
-                //TODO move to connections
-                Provider.of<CloudDB>(context).acceptConnectionRequest(
-                    connectionID: connectionMap[kUserID]);
-                Navigator.pop(context);
-              },
-            );
-          },
-        );
-      },
-      onTapChat: null,
+      buttonRow: <Widget>[
+        Container(
+          width: 50 * MediaQuery.of(context).size.width * kScaleFactor,
+          child: FlatButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return DialogConfirm(
+                    title: 'Add Connection',
+                    text:
+                        'Are you sure you would like to add this Connection?  '
+                        'Once accepted, you will be able to view each other\'s plant libraries',
+                    buttonText: 'ADD',
+                    onPressed: () {
+                      Provider.of<CloudDB>(context).acceptConnectionRequest(
+                          connectionID: connectionMap[kUserID]);
+                      Navigator.pop(context);
+                    },
+                  );
+                },
+              );
+            },
+            child: Icon(
+              Icons.add_box,
+              size: AppTextSize.huge * MediaQuery.of(context).size.width,
+              color: AppTextColor.white,
+            ),
+          ),
+        ),
+      ],
       onLongPress: () {
         showDialog(
           context: context,

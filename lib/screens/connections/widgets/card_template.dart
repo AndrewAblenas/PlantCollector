@@ -6,13 +6,11 @@ import 'package:plant_collector/widgets/container_card.dart';
 
 class CardTemplate extends StatelessWidget {
   final Map connectionMap;
-  final Function onTapLibrary;
-  final Function onTapChat;
+  final List<Widget> buttonRow;
   final Function onLongPress;
   CardTemplate(
       {@required this.connectionMap,
-      @required this.onTapLibrary,
-      @required this.onTapChat,
+      @required this.buttonRow,
       @required this.onLongPress});
   @override
   Widget build(BuildContext context) {
@@ -26,6 +24,7 @@ class CardTemplate extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 CircleAvatar(
                   radius:
@@ -38,36 +37,8 @@ class CardTemplate extends StatelessWidget {
                           'assets/images/default.png',
                         ),
                 ),
-                Container(
-                  width: AppTextSize.huge * MediaQuery.of(context).size.width,
-                  child: FlatButton(
-                    onPressed: () {
-                      onTapLibrary();
-                    },
-                    child: Icon(
-                      Icons.photo_library,
-                      size:
-                          AppTextSize.huge * MediaQuery.of(context).size.width,
-                      color: AppTextColor.white,
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  width: AppTextSize.medium * MediaQuery.of(context).size.width,
-                ),
-                Container(
-                  width: AppTextSize.huge * MediaQuery.of(context).size.width,
-                  child: FlatButton(
-                    onPressed: () {
-                      onTapChat();
-                    },
-                    child: Icon(
-                      Icons.chat,
-                      size:
-                          AppTextSize.huge * MediaQuery.of(context).size.width,
-                      color: AppTextColor.white,
-                    ),
-                  ),
+                Row(
+                  children: buttonRow,
                 ),
               ],
             ),
