@@ -9,16 +9,16 @@ class ChatAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CircleAvatar(
-      radius: 30.0,
+      radius: 50.0 * MediaQuery.of(context).size.width * kScaleFactor,
       backgroundColor: kGreenMedium,
       child: Container(
         padding: EdgeInsets.all(
           3.0,
         ),
         child: CircleAvatar(
-          radius: 30.0,
+          radius: 50.0 * MediaQuery.of(context).size.width * kScaleFactor,
           backgroundColor: AppTextColor.white,
-          backgroundImage: avatarLink != null
+          backgroundImage: avatarLink != ''
               ? CachedNetworkImageProvider(avatarLink)
               : AssetImage(
                   'assets/images/default.png',

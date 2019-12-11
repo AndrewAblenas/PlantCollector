@@ -54,7 +54,7 @@ class DialogColorPicker extends StatelessWidget {
                     crossAxisCount: 3,
                     primary: false,
                     shrinkWrap: true,
-                    children: Provider.of<UIBuilders>(context).colorButtonsList(
+                    children: UIBuilders.colorButtonsList(
                         colors: kGroupColors,
                         onPress: onPressed,
                         groupID: groupID),

@@ -12,13 +12,14 @@ class DialogInput extends StatelessWidget {
   final String hintText;
   final Function onChangeInput;
   final Function onPressedCancel;
-  DialogInput(
-      {@required this.title,
-      @required this.text,
-      this.onPressedSubmit,
-      this.hintText,
-      @required this.onChangeInput,
-      @required this.onPressedCancel});
+  DialogInput({
+    @required this.title,
+    @required this.text,
+    this.onPressedSubmit,
+    this.hintText,
+    @required this.onChangeInput,
+    @required this.onPressedCancel,
+  });
 
   @override
   Widget build(BuildContext context) {

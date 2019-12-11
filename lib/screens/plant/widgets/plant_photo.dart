@@ -1,7 +1,8 @@
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/text.dart';
-import 'package:plant_collector/models/constants.dart';
+import 'package:plant_collector/models/data_storage/firebase_folders.dart';
+import 'package:plant_collector/models/data_types/plant_data.dart';
 import 'package:plant_collector/widgets/dialogs/dialog_confirm.dart';
 import 'package:provider/provider.dart';
 import 'package:plant_collector/models/app_data.dart';
@@ -44,10 +45,10 @@ class PlantPhoto extends StatelessWidget {
                     //remove from database array
                     await Provider.of<CloudDB>(context)
                         .updateArrayInDocumentInCollection(
-                      arrayKey: kPlantImageList,
+                      arrayKey: PlantKeys.images,
                       action: false,
                       entries: [imageURL],
-                      folder: kUserPlants,
+                      folder: DBFolder.plants,
                       documentName:
                           Provider.of<AppData>(context).forwardingPlantID,
                     );
@@ -159,12 +160,10 @@ class PlantPhoto extends StatelessWidget {
                                           //set thumb url
                                           Provider.of<CloudDB>(context)
                                               .updateDocumentInCollection(
-                                                  data: Provider.of<CloudDB>(
-                                                          context)
-                                                      .updatePairFull(
-                                                          key: kPlantThumbnail,
-                                                          value: thumbUrl),
-                                                  collection: kUserPlants,
+                                                  data: CloudDB.updatePairFull(
+                                                      key: PlantKeys.thumbnail,
+                                                      value: thumbUrl),
+                                                  collection: DBFolder.plants,
                                                   documentName:
                                                       Provider.of<AppData>(
                                                               context)

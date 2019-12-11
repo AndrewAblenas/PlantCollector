@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
+import 'package:plant_collector/models/data_types/collection_data.dart';
+import 'package:plant_collector/models/data_types/group_data.dart';
+import 'package:plant_collector/models/data_types/plant_data.dart';
+import 'package:plant_collector/models/data_types/user_data.dart';
+import 'package:plant_collector/screens/dialog/dialog_screen_select.dart';
 import 'package:plant_collector/screens/library/widgets/group_delete.dart';
 import 'package:plant_collector/screens/library/widgets/collection_card.dart';
-import 'package:plant_collector/models/constants.dart';
 import 'package:plant_collector/screens/library/widgets/group_card.dart';
 import 'package:plant_collector/widgets/dialogs/color_picker/button_color.dart';
 import 'package:plant_collector/widgets/dialogs/select/dialog_functions.dart';
-import 'package:plant_collector/widgets/dialogs/select/dialog_select.dart';
 import 'package:plant_collector/screens/account/widgets/settings_card.dart';
 import 'package:plant_collector/widgets/button_add.dart';
 import 'package:plant_collector/screens/plant/widgets/plant_info_card.dart';
@@ -15,17 +18,11 @@ import 'package:date_format/date_format.dart';
 import 'package:plant_collector/screens/plant/widgets/add_photo.dart';
 
 class UIBuilders extends ChangeNotifier {
-  //*****************VARIABLES*****************//
-
-  String selectedDialogButton;
-  List groupCollections = [];
-  bool loadingIndicator;
-
   //*****************LIBRARY PAGE RELATED BUILDERS*****************
 
   //Delay build of stat cards until streams have updated and saved value to local
   //this is only an issue on first load as the streams are located lower in the tree
-  Future<String> statCardDelay() async {
+  static Future<String> statCardDelay() async {
     await Future.delayed(
       Duration(milliseconds: 1000),
     );
@@ -33,13 +30,14 @@ class UIBuilders extends ChangeNotifier {
   }
 
   //Generate Group widgets
-  Column displayGroups(
-      {@required List<Map> userGroups, @required bool connectionLibrary}) {
+  static Column displayGroups(
+      {@required List<GroupData> userGroups,
+      @required bool connectionLibrary}) {
     List<Widget> groupList = [];
     Column groupColumn;
     if (userGroups != null) {
-      userGroups.sort((a, b) => (a[kGroupOrder]).compareTo((b[kGroupOrder])));
-      for (Map group in userGroups) {
+      userGroups.sort((a, b) => (a.order).compareTo((b.order)));
+      for (GroupData group in userGroups) {
         groupList.add(
           GroupCard(
             connectionLibrary: connectionLibrary,
@@ -61,15 +59,15 @@ class UIBuilders extends ChangeNotifier {
   }
 
   //GENERATE COLLECTION WIDGETS
-  Column displayCollections(
-      {@required List<Map> userCollections,
+  static Column displayCollections(
+      {@required List<CollectionData> userCollections,
       @required String groupID,
       @required Color groupColor,
       @required bool connectionLibrary}) {
     List<CollectionCard> collectionList = [];
     Column collectionColumn;
     if (userCollections != null && userCollections.length > 0) {
-      for (Map collection in userCollections) {
+      for (CollectionData collection in userCollections) {
         //add collection card for each collection
         collectionList.add(
           makeCollectionCard(
@@ -103,13 +101,13 @@ class UIBuilders extends ChangeNotifier {
   }
 
   //MAKE COLLECTION CARD
-  CollectionCard makeCollectionCard(
+  static CollectionCard makeCollectionCard(
       {@required bool connectionLibrary,
-      @required Map collection,
+      @required CollectionData collection,
       @required Color collectionTheme,
       @required String groupID}) {
     //get plant list
-    List<dynamic> plantList = collection[kCollectionPlantList];
+    List<dynamic> plantList = collection.plants;
     //initialize number of plants in collection to No Plants
     int collectionPlantTotal = 0;
     //if the plant list isn't empty
@@ -130,7 +128,7 @@ class UIBuilders extends ChangeNotifier {
 //*****************PLANT SCREEN RELATED BUILDERS*****************
 
   //GENERATE IMAGE TILE LIST FOR THE CAROUSEL
-  List<Widget> generateImageTileWidgets(
+  static List<Widget> generateImageTileWidgets(
       {@required bool connectionLibrary,
       @required String plantID,
       @required List<dynamic> listURL,
@@ -170,20 +168,20 @@ class UIBuilders extends ChangeNotifier {
   }
 
   //REFORMAT PLANT INFO TO SHARE
-  String sharePlant({@required Map plantMap}) {
+  static String sharePlant({@required Map plantMap}) {
     String plantShare;
     if (plantMap != null) {
-      List<String> keyList = kPlantKeyDescriptorsMap.keys.toList();
-      keyList.remove(kPlantID);
-      keyList.remove(kPlantThumbnail);
-      keyList.remove(kPlantImageList);
+      List<String> keyList = PlantKeys.descriptors.keys.toList();
+      keyList.remove(PlantKeys.id);
+      keyList.remove(PlantKeys.thumbnail);
+      keyList.remove(PlantKeys.images);
       for (String key in keyList)
         if (plantMap[key] != null) {
           if (plantShare == null) {
-            plantShare = '${kPlantKeyDescriptorsMap[key]}: ${plantMap[key]}\n';
+            plantShare = '${PlantKeys.descriptors[key]}: ${plantMap[key]}\n';
           } else {
             plantShare = plantShare +
-                '${kPlantKeyDescriptorsMap[key]}: ${plantMap[key]}\n';
+                '${PlantKeys.descriptors[key]}: ${plantMap[key]}\n';
           }
         }
     }
@@ -191,31 +189,32 @@ class UIBuilders extends ChangeNotifier {
   }
 
   //GENERATE INFO CARD WIDGETS
-  Column displayInfoCards(
+  static Column displayInfoCards(
       {@required bool connectionLibrary,
-      @required String plantID,
-      @required Map plant}) {
+      @required PlantData plant,
+      @required BuildContext context}) {
     //create blank list to hold info card widgets
     List<Widget> infoCardList = [];
     //create a list of all key values possible
-    List<String> keyList = kPlantKeyDescriptorsMap.keys.toList();
+    List<String> keyList = PlantKeys.descriptors.keys.toList();
     //remove what you don't want the user to see/edit
-    keyList.remove(kPlantID);
-    keyList.remove(kPlantThumbnail);
-    keyList.remove(kPlantImageList);
+    keyList.remove(PlantKeys.id);
+    keyList.remove(PlantKeys.thumbnail);
+    keyList.remove(PlantKeys.images);
     //need this to deal with issues on plant delete
     if (plant != null) {
       //for  all these strings in the list
       for (String key in keyList) {
         //check to see that they aren't set to default value (hidden)
-        if (plant[key] != null) {
+        Map plantMap = plant.toMap();
+        if (plantMap[key] != null && plantMap[key] != '') {
           //if not default then create a widget and add to the list
-          String displayLabel = kPlantKeyDescriptorsMap[key];
-          String displayText = plant[key];
+          String displayLabel = PlantKeys.descriptors[key];
+          String displayText = plantMap[key];
           infoCardList.add(
             PlantInfoCard(
               connectionLibrary: connectionLibrary,
-              plantID: plantID,
+              plantID: plant.id,
               cardKey: key.toString(),
               displayLabel: displayLabel,
               displayText: displayText,
@@ -229,12 +228,18 @@ class UIBuilders extends ChangeNotifier {
         ButtonAdd(
           buttonText: 'Add Information',
           buttonColor: kGreenDark,
-          dialog: DialogSelect(
-            title: 'Add Information',
-            text: 'Please select the type of new information below:',
-            plantID: plantID,
-            menuItems: createDialogWidgetList(plantID: plantID, plant: plant),
-          ),
+          onPress: () {
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return DialogScreenSelect(
+                    title: 'Add Information',
+                    items: createDialogWidgetList(
+                      plant: plant,
+                    ),
+                  );
+                });
+          },
         ),
       );
     }
@@ -249,19 +254,20 @@ class UIBuilders extends ChangeNotifier {
 //*****************ACCOUNT SCREEN RELATED BUILDERS*****************
 
 //GENERATE ACCOUNT TILE
-  Column displayAccountCards({@required Map accountInfo}) {
+  static Column displayAccountCards({@required Map accountInfo}) {
     Column column;
     if (accountInfo != null) {
       //create blank list for widgets
       List<Widget> accountCardList = [];
       //create a key list
-      List<String> keyList = kUserKeyDescriptorsMap.keys.toList();
-      keyList.remove(kUserID);
+      List<String> keyList = UserKeys.descriptors.keys.toList();
+      keyList.remove(UserKeys.id);
       for (String value in keyList) {
-        String displayLabel = kUserKeyDescriptorsMap[value];
+        String displayLabel = UserKeys.descriptors[value];
         String displayText = accountInfo[value].toString();
         accountCardList.add(
           SettingsCard(
+            onPress: null,
             onSubmit: () {},
             cardLabel: displayLabel,
             cardText: displayText,
@@ -283,18 +289,18 @@ class UIBuilders extends ChangeNotifier {
   //*****************CONSTRUCTORS FOR BUTTON LISTS IN DIALOGS*****************//
 
 //Dialog buttons to move collection to different Group
-  List<Widget> createDialogGroupButtons({
+  static List<Widget> createDialogGroupButtons({
     @required String selectedItemID,
     @required String currentParentID,
-    @required List<dynamic> possibleParents,
+    @required List<GroupData> possibleParents,
   }) {
     List<Widget> widgetList = [];
-    for (Map group in possibleParents) {
-      if (!group.containsValue(currentParentID)) {
+    for (GroupData group in possibleParents) {
+      if (group.id != currentParentID) {
         widgetList.add(
           DialogItemGroup(
-            buttonText: group[kGroupName],
-            buttonPossibleParentID: group[kGroupID],
+            buttonText: group.name,
+            buttonPossibleParentID: group.id,
             entryID: selectedItemID,
             currentParentID: currentParentID,
           ),
@@ -305,18 +311,18 @@ class UIBuilders extends ChangeNotifier {
   }
 
 //Dialog buttons to move Plant to different Collection
-  List<Widget> createDialogCollectionButtons({
+  static List<Widget> createDialogCollectionButtons({
     @required String selectedItemID,
     @required String currentParentID,
-    @required List<dynamic> possibleParents,
+    @required List<CollectionData> possibleParents,
   }) {
     List<Widget> widgetList = [];
-    for (Map collection in possibleParents) {
-      if (!collection.containsValue(currentParentID)) {
+    for (CollectionData collection in possibleParents) {
+      if (collection.id != currentParentID) {
         widgetList.add(
           DialogItemCollection(
-            buttonText: collection[kCollectionName],
-            buttonPossibleParentID: collection[kCollectionID],
+            buttonText: collection.name,
+            buttonPossibleParentID: collection.id,
             entryID: selectedItemID,
             currentParentID: currentParentID,
           ),
@@ -327,7 +333,7 @@ class UIBuilders extends ChangeNotifier {
   }
 
 //Create color buttons
-  List<Widget> colorButtonsList(
+  static List<Widget> colorButtonsList(
       {@required List<Color> colors,
       @required Function onPress,
       @required groupID}) {
@@ -343,30 +349,29 @@ class UIBuilders extends ChangeNotifier {
   }
 
 //CREATE PLANT LIST BUTTONS
-  List<Widget> createDialogWidgetList(
-      {@required String plantID, @required Map plant}) {
+  static List<Widget> createDialogWidgetList({@required PlantData plant}) {
     //create a blank list to populate with widgets
     List<Widget> listItems = [];
     //create list of all plant keys in the constant map
-    List list = kPlantKeyDescriptorsMap.keys.toList();
-    list.remove(kPlantThumbnail);
+    List list = PlantKeys.descriptors.keys.toList();
+    list.remove(PlantKeys.thumbnail);
     //create list of plant keys not displayed in plant screen
     List<String> plantKeysNotDisplayed = [];
     //needed for delete plant to prevent null[] call
     if (plant != null) {
       for (String key in list) {
-        if (plant[key] == null || !plant.containsKey(key)) {
+        if (plant.toMap()[key] == '') {
           plantKeysNotDisplayed.add(key);
         }
       }
     }
-    plantKeysNotDisplayed.remove(kPlantImageList);
+    plantKeysNotDisplayed.remove(PlantKeys.images);
     for (String key in plantKeysNotDisplayed) {
       listItems.add(
         DialogItemPlant(
           buttonKey: key,
-          buttonText: kPlantKeyDescriptorsMap[key],
-          plantID: plantID,
+          buttonText: PlantKeys.descriptors[key],
+          plantID: plant.id,
         ),
       );
     }

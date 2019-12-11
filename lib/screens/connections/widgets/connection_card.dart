@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/cloud_db.dart';
-import 'package:plant_collector/models/constants.dart';
+import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/screens/chat/chat.dart';
 import 'package:plant_collector/screens/connections/widgets/card_template.dart';
 import 'package:plant_collector/screens/library/library.dart';
@@ -9,12 +9,12 @@ import 'package:plant_collector/widgets/dialogs/dialog_confirm.dart';
 import 'package:provider/provider.dart';
 
 class ConnectionCard extends StatelessWidget {
-  final Map connectionMap;
-  ConnectionCard({@required this.connectionMap});
+  final UserData user;
+  ConnectionCard({@required this.user});
   @override
   Widget build(BuildContext context) {
     return CardTemplate(
-      connectionMap: connectionMap,
+      user: user,
       buttonRow: <Widget>[
         Container(
           width: 50 * MediaQuery.of(context).size.width * kScaleFactor,
@@ -24,7 +24,7 @@ class ConnectionCard extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (BuildContext context) => LibraryScreen(
-                    userID: connectionMap[kUserID],
+                    userID: user.id,
                     connectionLibrary: true,
                   ),
                 ),
@@ -48,7 +48,7 @@ class ConnectionCard extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (BuildContext context) => ChatScreen(
-                    connectionMap: connectionMap,
+                    friend: user,
                   ),
                 ),
               );
@@ -67,11 +67,12 @@ class ConnectionCard extends StatelessWidget {
           builder: (BuildContext context) {
             return DialogConfirm(
               title: 'Remove Contact',
-              text: 'Are you sure you would like to remove this contact?',
+              text:
+                  'Are you sure you would like to remove this contact?  You will no longer be able to chat or view each other\'s Libraries.',
               buttonText: 'Remove',
               onPressed: () {
                 Provider.of<CloudDB>(context)
-                    .removeConnection(connectionID: connectionMap[kUserID]);
+                    .removeConnection(connectionID: user.id);
                 Navigator.pop(context);
               },
             );

@@ -3,16 +3,20 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
+import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/cloud_db.dart';
-import 'package:plant_collector/models/constants.dart';
+import 'package:plant_collector/models/data_types/friend_data.dart';
+import 'package:plant_collector/models/data_types/message_data.dart';
+import 'package:plant_collector/models/data_types/user_data.dart';
+import 'package:plant_collector/models/notifications.dart';
 import 'package:plant_collector/screens/chat/chat.dart';
-import 'package:plant_collector/screens/chat/widgets/chat_avatar.dart';
+import 'package:plant_collector/widgets/chat_avatar.dart';
 import 'package:plant_collector/widgets/container_wrapper.dart';
 import 'package:plant_collector/widgets/section_header.dart';
 import 'package:plant_collector/widgets/tile_white.dart';
 import 'package:provider/provider.dart';
 
-class ConnectionUpdates extends StatelessWidget {
+class SocialUpdates extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ContainerWrapper(
@@ -32,7 +36,7 @@ class ConnectionUpdates extends StatelessWidget {
           TileWhite(
             bottomPadding: 5.0,
             child: StreamProvider<QuerySnapshot>.value(
-              value: Provider.of<CloudDB>(context).streamConnections(),
+              value: Provider.of<CloudDB>(context).userConnectionsStream,
               child: Consumer<QuerySnapshot>(
                 builder: (context, QuerySnapshot connectionsSnap, _) {
                   if (connectionsSnap != null &&
@@ -40,23 +44,24 @@ class ConnectionUpdates extends StatelessWidget {
                     List<Widget> connectionList = [];
                     for (DocumentSnapshot connection
                         in connectionsSnap.documents) {
+                      FriendData friend =
+                          FriendData.fromMap(map: connection.data);
                       connectionList.add(
                         FutureProvider<Map>.value(
                           value: Provider.of<CloudDB>(context)
-                              .getConnectionProfile(
-                                  connectionID: connection[kUserID]),
+                              .getConnectionProfile(connectionID: friend.id),
                           child: Consumer<Map>(
                             builder: (context, Map connectionMap, _) {
                               if (connectionMap != null) {
+                                UserData user =
+                                    UserData.fromMap(map: connectionMap);
                                 return Padding(
                                   padding: EdgeInsets.all(5.0),
                                   child: StreamProvider<QuerySnapshot>.value(
-                                    value: Provider.of<CloudDB>(context)
-                                        .streamMessages(
+                                    value: CloudDB.streamConvoMessages(
                                       document: Provider.of<CloudDB>(context)
                                           .conversationDocumentName(
-                                              connectionId:
-                                                  connectionMap[kUserID]),
+                                              connectionId: user.id),
                                     ),
                                     child: Consumer<QuerySnapshot>(
                                       builder:
@@ -68,11 +73,13 @@ class ConnectionUpdates extends StatelessWidget {
                                               in messages.documents) {
                                             //make sure message isn't empty, is from friend, and hasn't been read
                                             if (message != null &&
-                                                message.data[kMessageSender] !=
+                                                message.data[
+                                                        MessageKeys.sender] !=
                                                     Provider.of<CloudDB>(
                                                             context)
                                                         .currentUserFolder &&
-                                                message.data[kMessageRead] ==
+                                                message.data[
+                                                        MessageKeys.read] ==
                                                     false) {
                                               unreadList
                                                   .add(message.reference.path);
@@ -80,15 +87,30 @@ class ConnectionUpdates extends StatelessWidget {
                                           }
                                         }
                                         int unread = unreadList.length;
+                                        if (unread >= 1) {
+                                          String messages = (unread == 1)
+                                              ? 'message'
+                                              : 'messages';
+                                          //TODO figure out the best way to do this
+                                          //TODO see local_notification for notes
+//                                          Notifications
+//                                              .showOngoingNotificationSilent(
+//                                                  notification:
+//                                                      Provider.of<AppData>(
+//                                                              context)
+//                                                          .notifications,
+//                                                  title: 'New Messages',
+//                                                  body:
+//                                                      '${user.name} sent you $unread new $messages.');
+                                        }
                                         return GestureDetector(
                                           onTap: () {
                                             //on tap set unread messages as read
                                             if (unreadList.length >= 1) {
                                               for (String reference
                                                   in unreadList) {
-                                                Provider.of<CloudDB>(context)
-                                                    .readMessage(
-                                                        reference: reference);
+                                                CloudDB.readMessage(
+                                                    reference: reference);
                                               }
                                             }
                                             //navigate to the chat page with the connection map
@@ -98,7 +120,7 @@ class ConnectionUpdates extends StatelessWidget {
                                                 builder:
                                                     (BuildContext context) =>
                                                         ChatScreen(
-                                                  connectionMap: connectionMap,
+                                                  friend: user,
                                                 ),
                                               ),
                                             );
@@ -107,8 +129,7 @@ class ConnectionUpdates extends StatelessWidget {
                                             fit: StackFit.loose,
                                             children: <Widget>[
                                               ChatAvatar(
-                                                avatarLink:
-                                                    connectionMap[kUserAvatar],
+                                                avatarLink: user.avatar,
                                               ),
                                               unread >= 1
                                                   ? Container(

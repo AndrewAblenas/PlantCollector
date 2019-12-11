@@ -7,6 +7,7 @@ const double kScaleFactor = 0.0025;
 class AppTextSize {
   static const double tiny = 10.0 * kScaleFactor;
   static const double small = 15.0 * kScaleFactor;
+  static const double message = 18.0 * kScaleFactor;
   static const double medium = 20.0 * kScaleFactor;
   static const double large = 25.0 * kScaleFactor;
   static const double huge = 30.0 * kScaleFactor;

@@ -2,49 +2,48 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/cloud_store.dart';
-import 'package:plant_collector/models/constants.dart';
+import 'package:plant_collector/models/data_storage/firebase_folders.dart';
+import 'package:plant_collector/models/data_types/plant_data.dart';
+import 'package:plant_collector/screens/dialog/dialog_screen_select.dart';
 import 'package:plant_collector/screens/plant/plant.dart';
-import 'package:plant_collector/widgets/dialogs/select/dialog_select.dart';
 import 'package:provider/provider.dart';
 import 'package:plant_collector/models/builders_general.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 
-class CollectionPlantTile extends StatelessWidget {
+class PlantTile extends StatelessWidget {
   final bool connectionLibrary;
   final String collectionID;
-  final Map plantMap;
+  final PlantData plant;
   final List<dynamic> possibleParents;
-  CollectionPlantTile({
+  PlantTile({
     @required this.connectionLibrary,
     @required this.collectionID,
-    @required this.plantMap,
+    @required this.plant,
     @required this.possibleParents,
   });
 
   @override
   Widget build(BuildContext context) {
     //use this time to set the plantTile image thumbnail to the first image
-    if (plantMap[kPlantThumbnail] == null &&
-        plantMap[kPlantImageList] != null &&
+    if (plant.thumbnail == '' &&
+        plant.images != [] &&
         connectionLibrary == false) {
-      List imageList = plantMap[kPlantImageList];
+      List imageList = plant.images;
       int length = imageList.length;
       //this check is for a blank but not null list
       if (length == 1) {
         //run thumbnail package to get thumb url
         Provider.of<CloudStore>(context)
-            .thumbnailPackage(
-                imageURL: plantMap[kPlantImageList][0],
-                plantID: plantMap[kPlantID])
+            .thumbnailPackage(imageURL: plant.images[0], plantID: plant.id)
             .then(
           (thumbUrl) {
             Provider.of<CloudDB>(context).updateDocumentInCollection(
-                data: Provider.of<CloudDB>(context)
-                    .updatePairFull(key: kPlantThumbnail, value: thumbUrl),
-                collection: kUserPlants,
-                documentName: plantMap[kPlantID]);
+                data: CloudDB.updatePairFull(
+                    key: PlantKeys.thumbnail, value: thumbUrl),
+                collection: DBFolder.plants,
+                documentName: plant.id);
           },
         );
       }
@@ -52,24 +51,20 @@ class CollectionPlantTile extends StatelessWidget {
 
     return GestureDetector(
       onLongPress: () {
-        connectionLibrary == false
-            ? showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return DialogSelect(
-                    title: 'Move Plant',
-                    text: 'Where would you like to move this plant?',
-                    plantID: plantMap[kPlantID],
-                    menuItems: Provider.of<UIBuilders>(context)
-                        .createDialogCollectionButtons(
-                      selectedItemID: plantMap[kPlantID],
-                      currentParentID: collectionID,
-                      possibleParents: possibleParents,
-                    ),
-                  );
-                },
-              )
-            : null;
+        if (connectionLibrary == false)
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return DialogScreenSelect(
+                title: 'Move Plant to a different Collection',
+                items: UIBuilders.createDialogCollectionButtons(
+                  selectedItemID: plant.id,
+                  currentParentID: collectionID,
+                  possibleParents: possibleParents,
+                ),
+              );
+            },
+          );
       },
       child: Container(
         decoration: BoxDecoration(
@@ -79,10 +74,9 @@ class CollectionPlantTile extends StatelessWidget {
         ),
         child: Container(
           decoration: BoxDecoration(
-            image: plantMap[kPlantThumbnail] != null
+            image: plant.thumbnail != ''
                 ? DecorationImage(
-                    image:
-                        CachedNetworkImageProvider(plantMap[kPlantThumbnail]),
+                    image: CachedNetworkImageProvider(plant.thumbnail),
                     fit: BoxFit.cover,
                   )
                 : DecorationImage(
@@ -94,14 +88,13 @@ class CollectionPlantTile extends StatelessWidget {
           ),
           child: FlatButton(
             onPressed: () {
-              Provider.of<AppData>(context).forwardingPlantID =
-                  plantMap[kPlantID];
+              Provider.of<AppData>(context).forwardingPlantID = plant.id;
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => PlantScreen(
                     connectionLibrary: connectionLibrary,
-                    plantID: plantMap[kPlantID],
+                    plantID: plant.id,
                     forwardingCollectionID: collectionID,
                   ),
                 ),
@@ -110,7 +103,7 @@ class CollectionPlantTile extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                plantMap[kPlantName] != null
+                plant.name != ''
                     ? Padding(
                         padding: EdgeInsets.all(1.0 *
                             MediaQuery.of(context).size.width *
@@ -129,7 +122,7 @@ class CollectionPlantTile extends StatelessWidget {
                                 kScaleFactor,
                           ),
                           child: Text(
-                            plantMap[kPlantName],
+                            plant.name,
                             textAlign: TextAlign.center,
                             overflow: TextOverflow.fade,
                             style: TextStyle(
@@ -140,7 +133,7 @@ class CollectionPlantTile extends StatelessWidget {
                           ),
                         ),
                       )
-                    : const SizedBox(),
+                    : SizedBox(),
               ],
             ),
           ),

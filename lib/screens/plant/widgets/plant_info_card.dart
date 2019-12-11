@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:plant_collector/models/constants.dart';
+import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/formats/text.dart';
+import 'package:plant_collector/models/data_storage/firebase_folders.dart';
+import 'package:plant_collector/screens/dialog/dialog_screen_input.dart';
 import 'package:plant_collector/widgets/container_card.dart';
 import 'package:plant_collector/widgets/dialogs/dialog_confirm.dart';
 import 'package:provider/provider.dart';
-import 'package:plant_collector/widgets/dialogs/dialog_input.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/formats/colors.dart';
 
@@ -34,15 +35,17 @@ class PlantInfoCard extends StatelessWidget {
             context: context,
             builder: (BuildContext context) {
               return DialogConfirm(
+                hideCancel: false,
                 title: 'Remove Information',
                 text:
                     'Are you sure you would like to remove this information and hide the tile?',
                 onPressed: () {
-                  Provider.of<CloudDB>(context).newDataInput = null;
+                  Provider.of<AppData>(context).newDataInput = null;
                   Provider.of<CloudDB>(context).updateDocumentInCollection(
-                      data: Provider.of<CloudDB>(context)
-                          .updatePairInput(key: cardKey),
-                      collection: kUserPlants,
+                      data: CloudDB.updatePairFull(
+                          key: cardKey,
+                          value: Provider.of<AppData>(context).newDataInput),
+                      collection: DBFolder.plants,
                       documentName: plantID);
                   Navigator.pop(context);
                 },
@@ -103,36 +106,32 @@ class PlantInfoCard extends StatelessWidget {
                       onPressed: () {
                         if (connectionLibrary == false) {
                           showDialog(
-                            context: context,
-                            barrierDismissible: false,
-                            builder: (BuildContext context) {
-                              return DialogInput(
-                                title: displayLabel,
-                                text:
-                                    '$displayText\n\n Please provide and update below.',
-                                hintText: displayText,
-                                onPressedSubmit: () {
-                                  //update the value
-                                  Provider.of<CloudDB>(context)
-                                      .updateDocumentInCollection(
-                                          data: Provider.of<CloudDB>(context)
-                                              .updatePairInput(key: cardKey),
-                                          collection: kUserPlants,
-                                          documentName: plantID);
-
-                                  Navigator.pop(context);
-                                },
-                                onChangeInput: (input) {
-                                  Provider.of<CloudDB>(context).newDataInput =
-                                      input;
-                                },
-                                onPressedCancel: () {
-//                            Provider.of<CloudDB>(context).newDataInput = null;
-//                            Navigator.pop(context);
-                                },
-                              );
-                            },
-                          );
+                              context: context,
+                              builder: (context) {
+                                return DialogScreenInput(
+                                    title: 'Update Information',
+                                    acceptText: 'Update',
+                                    acceptOnPress: () {
+                                      //update the info with a map
+                                      Provider.of<CloudDB>(context)
+                                          .updateDocumentInCollection(
+                                              data: CloudDB.updatePairFull(
+                                                  key: cardKey,
+                                                  value: Provider.of<AppData>(
+                                                          context)
+                                                      .newDataInput),
+                                              collection: DBFolder.plants,
+                                              documentName: plantID);
+                                      //pop context
+                                      Navigator.pop(context);
+                                    },
+                                    onChange: (input) {
+                                      Provider.of<AppData>(context)
+                                          .newDataInput = input;
+                                    },
+                                    cancelText: 'Cancel',
+                                    hintText: null);
+                              });
                         }
                       },
                     ),

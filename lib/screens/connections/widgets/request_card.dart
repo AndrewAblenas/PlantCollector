@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/cloud_db.dart';
-import 'package:plant_collector/models/constants.dart';
+import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/screens/connections/widgets/card_template.dart';
 import 'package:plant_collector/widgets/dialogs/dialog_confirm.dart';
 import 'package:provider/provider.dart';
 
 class RequestCard extends StatelessWidget {
-  final Map connectionMap;
-  RequestCard({@required this.connectionMap});
+  final UserData user;
+  RequestCard({@required this.user});
   @override
   Widget build(BuildContext context) {
     return CardTemplate(
-      connectionMap: connectionMap,
+      user: user,
       buttonRow: <Widget>[
         Container(
           width: 50 * MediaQuery.of(context).size.width * kScaleFactor,
@@ -28,8 +28,8 @@ class RequestCard extends StatelessWidget {
                         'Once accepted, you will be able to view each other\'s plant libraries',
                     buttonText: 'ADD',
                     onPressed: () {
-                      Provider.of<CloudDB>(context).acceptConnectionRequest(
-                          connectionID: connectionMap[kUserID]);
+                      Provider.of<CloudDB>(context)
+                          .acceptConnectionRequest(connectionID: user.id);
                       Navigator.pop(context);
                     },
                   );
@@ -53,8 +53,8 @@ class RequestCard extends StatelessWidget {
               text: 'Are you sure you would like to remove this request?',
               buttonText: 'Remove',
               onPressed: () {
-                Provider.of<CloudDB>(context).removeConnectionRequest(
-                    connectionID: connectionMap[kUserID]);
+                Provider.of<CloudDB>(context)
+                    .removeConnectionRequest(connectionID: user.id);
                 Navigator.pop(context);
               },
             );

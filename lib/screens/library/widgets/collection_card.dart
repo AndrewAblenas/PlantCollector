@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:plant_collector/models/constants.dart';
+import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/formats/text.dart';
-import 'package:plant_collector/models/classes.dart';
-import 'package:plant_collector/models/user.dart';
-import 'package:plant_collector/screens/library/widgets/collection_add_plant.dart';
-import 'package:plant_collector/screens/library/widgets/collection_delete.dart';
-import 'package:plant_collector/widgets/dialogs/dialog_input.dart';
-import 'package:plant_collector/screens/library/widgets/collection_plant_tile.dart';
+import 'package:plant_collector/models/data_types/collection_data.dart';
+import 'package:plant_collector/models/data_storage/firebase_folders.dart';
+import 'package:plant_collector/models/data_types/plant_data.dart';
+import 'package:plant_collector/screens/dialog/dialog_screen_input.dart';
+import 'package:plant_collector/screens/dialog/dialog_screen_select.dart';
+import 'package:plant_collector/screens/library/widgets/add_plant.dart';
+import 'package:plant_collector/widgets/dialogs/dialog_confirm.dart';
+import 'package:plant_collector/screens/library/widgets/plant_tile.dart';
 import 'package:provider/provider.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/builders_general.dart';
 import 'package:expandable/expandable.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:plant_collector/widgets/dialogs/select/dialog_select.dart';
 import 'package:plant_collector/widgets/tile_white.dart';
 import 'package:plant_collector/formats/colors.dart';
 
 class CollectionCard extends StatelessWidget {
   final bool connectionLibrary;
-  final Map collection;
+  final CollectionData collection;
   final int collectionPlantTotal;
   final String groupID;
   final Color colorTheme;
@@ -32,6 +32,13 @@ class CollectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    //use the appropriate plant source
+    List<PlantData> fullList = (connectionLibrary == false)
+        ? Provider.of<AppData>(context).currentUserPlants
+        : Provider.of<AppData>(context).connectionPlants;
+    //get plants for the collection from the full list
+    List<PlantData> collectionPlants = CloudDB.getPlantsFromList(
+        collectionPlantIDs: collection.plants, plants: fullList);
     return TileWhite(
       child: Padding(
         padding: EdgeInsets.only(
@@ -43,39 +50,35 @@ class CollectionCard extends StatelessWidget {
               padding: EdgeInsets.all(14.0),
               child: GestureDetector(
                 onLongPress: () {
-                  connectionLibrary == false
-                      ? showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return DialogInput(
+                  if (connectionLibrary == false)
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return DialogScreenInput(
                               title: 'Rename Collection',
-                              text: 'Please enter a new name.',
-                              onPressedSubmit: () {
-                                Map data = Provider.of<CloudDB>(context)
-                                    .updatePairInput(key: kCollectionName);
-                                print(data);
+                              acceptText: 'Update',
+                              acceptOnPress: () {
+                                //create data pair map
+                                Map data = CloudDB.updatePairFull(
+                                    key: CollectionKeys.name,
+                                    value: Provider.of<AppData>(context)
+                                        .newDataInput);
+                                //upload update to db
                                 Provider.of<CloudDB>(context)
                                     .updateDocumentInCollection(
                                         data: data,
-                                        collection: kUserCollections,
-                                        documentName:
-                                            collection[kCollectionID]);
+                                        collection: DBFolder.collections,
+                                        documentName: collection.id);
+                                //pop context
                                 Navigator.pop(context);
                               },
-                              onChangeInput: (input) {
-                                Provider.of<CloudDB>(context).newDataInput =
+                              onChange: (input) {
+                                Provider.of<AppData>(context).newDataInput =
                                     input;
                               },
-                              onPressedCancel: () {
-                                Provider.of<CloudDB>(context).newDataInput =
-                                    null;
-                                Navigator.pop(context);
-                              },
-                              hintText: collection[kCollectionName],
-                            );
-                          },
-                        )
-                      : null;
+                              cancelText: 'Cancel',
+                              hintText: null);
+                        });
                 },
                 child: Row(
                   mainAxisSize: MainAxisSize.max,
@@ -88,7 +91,7 @@ class CollectionCard extends StatelessWidget {
                     Container(
                       width: MediaQuery.of(context).size.width * 0.6,
                       child: Text(
-                        collection[kCollectionName].toUpperCase(),
+                        collection.name.toUpperCase(),
                         overflow: TextOverflow.fade,
                         textAlign: TextAlign.center,
                         style: TextStyle(
@@ -108,29 +111,23 @@ class CollectionCard extends StatelessWidget {
                                 kScaleFactor,
                             child: FlatButton(
                               onPressed: () {
-                                connectionLibrary == false
-                                    ? showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return DialogSelect(
-                                            title: 'Move to Another Group',
-                                            text:
-                                                'Please select the Group where you would like to move this plant.',
-                                            plantID: collection[kCollectionID],
-                                            menuItems:
-                                                Provider.of<UIBuilders>(context)
-                                                    .createDialogGroupButtons(
-                                              selectedItemID:
-                                                  collection[kCollectionID],
-                                              currentParentID: groupID,
-                                              possibleParents:
-                                                  Provider.of<CloudDB>(context)
-                                                      .currentUserGroups,
-                                            ),
-                                          );
-                                        },
-                                      )
-                                    : null;
+                                if (connectionLibrary == false)
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return DialogScreenSelect(
+                                        title: 'Move to a new Group',
+                                        items:
+                                            UIBuilders.createDialogGroupButtons(
+                                          selectedItemID: collection.id,
+                                          currentParentID: groupID,
+                                          possibleParents:
+                                              Provider.of<AppData>(context)
+                                                  .currentUserGroups,
+                                        ),
+                                      );
+                                    },
+                                  );
                               },
                               child: Icon(
                                 Icons.arrow_forward,
@@ -159,19 +156,6 @@ class CollectionCard extends StatelessWidget {
               child: Expandable(
                 expanded: Column(
                   children: <Widget>[
-//                    GridView.count(
-//                      crossAxisCount: 3,
-//                      mainAxisSpacing: 5.0,
-//                      crossAxisSpacing: 5.0,
-//                      shrinkWrap: true,
-//                      primary: false,
-//                      padding: EdgeInsets.only(bottom: 10.0),
-//                      children:
-//                          Provider.of<UIBuilders>(context).createPlantTileList(
-//                        collectionID: collection[kCollectionID],
-//                        collectionPlants: collection[kCollectionPlantList],
-//                      ),
-//                    ),
                     Row(
                       children: <Widget>[
                         Expanded(
@@ -179,57 +163,55 @@ class CollectionCard extends StatelessWidget {
                             padding: EdgeInsets.all(2.0),
                             child: (collectionPlantTotal == 0 &&
                                     connectionLibrary == false)
-                                ? CollectionDelete(
-                                    collectionID: collection[kCollectionID])
+                                ? Container(
+                                    decoration: kButtonBoxDecoration,
+                                    child: FlatButton(
+                                      padding: EdgeInsets.all(10.0),
+                                      child: CircleAvatar(
+                                        foregroundColor: kGreenDark,
+                                        backgroundColor: Colors.white,
+                                        radius: AppTextSize.medium *
+                                            MediaQuery.of(context).size.width,
+                                        child: Icon(
+                                          Icons.delete_forever,
+                                          size: AppTextSize.huge *
+                                              MediaQuery.of(context).size.width,
+                                        ),
+                                      ),
+                                      onPressed: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return DialogConfirm(
+                                              title: 'Remove Collection',
+                                              text:
+                                                  'Are you sure you want to delete this collection?',
+                                              buttonText: 'Remove',
+                                              onPressed: () {
+                                                Provider.of<CloudDB>(context)
+                                                    .deleteDocumentFromCollection(
+                                                        documentID:
+                                                            collection.id,
+                                                        collection: DBFolder
+                                                            .collections);
+                                                Navigator.pop(context);
+                                              },
+                                            );
+                                          },
+                                        );
+                                      },
+                                    ),
+                                  )
                                 : const SizedBox(),
                           ),
                         ),
                       ],
                       mainAxisSize: MainAxisSize.max,
                     ),
-                    Consumer<QuerySnapshot>(
-                      builder: (context, QuerySnapshot plantsSnap, _) {
-                        if (plantsSnap != null) {
-                          if (connectionLibrary == false) {
-                            //save plants for use elsewhere
-                            Provider.of<CloudDB>(context).currentUserPlants =
-                                plantsSnap.documents
-                                    .map((doc) => plantMapFromSnapshot(
-                                        plantMap: doc.data))
-                                    .toList();
-                            //update tally in user document
-                            if (plantsSnap.documents != null &&
-                                Provider.of<UserAuth>(context)
-                                        .getCurrentUser() !=
-                                    null) {
-                              Map countData = Provider.of<CloudDB>(context)
-                                  .updatePairFull(
-                                      key: kUserTotalPlants,
-                                      value: plantsSnap.documents.length);
-                              Provider.of<CloudDB>(context).updateUserDocument(
-                                  data: countData,
-                                  userID: Provider.of<CloudDB>(context)
-                                      .currentUserFolder);
-                            }
-                          } else {
-                            //save plants for use elsewhere
-                            Provider.of<CloudDB>(context).connectionPlants =
-                                plantsSnap.documents
-                                    .map((doc) => plantMapFromSnapshot(
-                                        plantMap: doc.data))
-                                    .toList();
-                          }
-                          //generate list of collection plants
-                          List<Map> collectionPlants =
-                              Provider.of<CloudDB>(context).getMapsFromList(
-                            groupCollectionIDs:
-                                collection[kCollectionPlantList],
-                            collections: plantsSnap.documents
-                                .map((doc) =>
-                                    plantMapFromSnapshot(plantMap: doc.data))
-                                .toList(),
-                          );
-                          //don't show gridview for connection library if empty
+                    //TODO is this even needed? Can I just pull the saved plants?
+                    Builder(
+                      builder: (context) {
+                        if (fullList.length >= 1) {
                           if (connectionLibrary == true &&
                               collectionPlants.length == 0) {
                             return SizedBox();
@@ -254,26 +236,24 @@ class CollectionCard extends StatelessWidget {
                                     padding: EdgeInsets.all(2.0 *
                                         MediaQuery.of(context).size.width *
                                         kScaleFactor),
-                                    child: CollectionPlantTile(
+                                    child: PlantTile(
                                         connectionLibrary: connectionLibrary,
                                         possibleParents:
                                             connectionLibrary == false
-                                                ? Provider.of<CloudDB>(context)
+                                                ? Provider.of<AppData>(context)
                                                     .currentUserCollections
-                                                : Provider.of<CloudDB>(context)
+                                                : Provider.of<AppData>(context)
                                                     .connectionCollections,
-                                        plantMap: collectionPlants[index],
-                                        collectionID:
-                                            collection[kCollectionID]),
+                                        plant: collectionPlants[index],
+                                        collectionID: collection.id),
                                   );
                                 } else {
                                   tile = Padding(
                                     padding: EdgeInsets.all(2.0 *
                                         MediaQuery.of(context).size.width *
                                         kScaleFactor),
-                                    child: CollectionAddPlant(
-                                        collectionID:
-                                            collection[kCollectionID]),
+                                    child:
+                                        AddPlant(collectionID: collection.id),
                                   );
                                 }
                                 return tile;

@@ -3,14 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/cloud_db.dart';
-import 'package:plant_collector/models/constants.dart';
+import 'package:plant_collector/models/data_types/friend_data.dart';
+import 'package:plant_collector/models/data_types/user_data.dart';
+import 'package:plant_collector/models/user.dart';
 import 'package:plant_collector/screens/connections/widgets/connection_card.dart';
 import 'package:plant_collector/screens/connections/widgets/request_card.dart';
+import 'package:plant_collector/screens/dialog/dialog_screen_input.dart';
 import 'package:plant_collector/screens/template/screen_template.dart';
 import 'package:plant_collector/widgets/button_add.dart';
 import 'package:plant_collector/widgets/container_wrapper.dart';
 import 'package:plant_collector/widgets/dialogs/dialog_confirm.dart';
-import 'package:plant_collector/widgets/dialogs/dialog_input.dart';
 import 'package:plant_collector/widgets/section_header.dart';
 import 'package:provider/provider.dart';
 import 'package:share/share.dart';
@@ -27,115 +29,6 @@ class ConnectionsScreen extends StatelessWidget {
             SizedBox(
               height: 10.0,
             ),
-            ButtonAdd(
-              buttonColor: kGreenDark,
-              buttonText: 'Add Friend',
-              dialog: (Provider.of<CloudDB>(context).currentUserInfo != null &&
-                      Provider.of<CloudDB>(context)
-                              .currentUserInfo[kUserName] !=
-                          null)
-                  ? DialogInput(
-                      title: 'Add Friend',
-                      text:
-                          'Input your friend\'s email address.  If they aren\'t already signed up we\'ll send them an invitation email.',
-                      onChangeInput: (value) {
-                        Provider.of<AppData>(context).newDataInput = value;
-                      },
-                      onPressedSubmit: () async {
-                        String friendID = await Provider.of<CloudDB>(context)
-                            .getUserFromEmail(
-                                userEmail:
-                                    Provider.of<AppData>(context).newDataInput);
-                        print(friendID);
-                        Navigator.pop(context);
-                        if (friendID != null) {
-                          Provider.of<CloudDB>(context)
-                              .sendConnectionRequest(connectionID: friendID);
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return DialogConfirm(
-                                title: 'Request Sent',
-                                text:
-                                    'A request has been sent.  You will be able to share collections once it is accepted.',
-                                buttonText: 'OK',
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                              );
-                            },
-                          );
-                        } else {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return DialogConfirm(
-                                title: 'Send Invite?',
-                                text:
-                                    'No user was found with this email address.  Would you like to send an invite to download?',
-                                buttonText: 'Invite',
-                                onPressed: () {
-                                  //TODO when ready link to download app
-                                  Share.share(
-                                      'I\'m using Plant Collector to keep a record of my plants and share my collection with friends.'
-                                      '\n\n Check it out here: <future download link>');
-                                  Navigator.pop(context);
-                                },
-                              );
-                            },
-                          );
-                        }
-                      },
-                      onPressedCancel: null)
-                  : DialogConfirm(
-                      title: 'Name Not Set',
-                      text:
-                          'Please set your user name first so you\'re friend knows who the invite is from.',
-                      buttonText: 'Set Name',
-                      onPressed: () {
-                        Navigator.pop(context);
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return DialogInput(
-                              title: 'Set Name',
-                              text: 'Please set your user name.',
-                              onChangeInput: (value) {
-                                Provider.of<AppData>(context).newDataInput =
-                                    value;
-                              },
-                              onPressedCancel: () {},
-                              onPressedSubmit: () {
-                                DialogInput(
-                                  title: 'Set Name',
-                                  text:
-                                      'Please create a user name.  This will be visible to other users.',
-                                  onPressedCancel: null,
-                                  onChangeInput: (value) {
-                                    Provider.of<CloudDB>(context).newDataInput =
-                                        value;
-                                  },
-                                  onPressedSubmit: () {
-                                    Provider.of<CloudDB>(context)
-                                        .updateUserDocument(
-                                            data: Provider.of<CloudDB>(context)
-                                                .updatePairInput(
-                                                    key: kUserName),
-                                            userID:
-                                                Provider.of<CloudDB>(context)
-                                                    .currentUserFolder);
-                                    Navigator.pop(context);
-                                  },
-                                );
-                                Navigator.pop(context);
-                              },
-                            );
-                          },
-                        );
-                      },
-                    ),
-              onPress: () {},
-            ),
             StreamProvider<QuerySnapshot>.value(
               value: Provider.of<CloudDB>(context).streamRequests(),
               child: Consumer<QuerySnapshot>(
@@ -143,7 +36,10 @@ class ConnectionsScreen extends StatelessWidget {
                   if (requestSnap != null && requestSnap.documents.length > 0) {
                     List<Widget> requestList = [];
                     for (DocumentSnapshot request in requestSnap.documents) {
-                      requestList.add(RequestCard(connectionMap: request.data));
+                      UserData req = UserData.fromMap(map: request.data);
+                      requestList.add(
+                        RequestCard(user: req),
+                      );
                     }
                     return ContainerWrapper(
                       child: Column(
@@ -178,15 +74,21 @@ class ConnectionsScreen extends StatelessWidget {
                     List<Widget> connectionList = [];
                     for (DocumentSnapshot connection
                         in connectionsSnap.documents) {
+                      FriendData friend =
+                          FriendData.fromMap(map: connection.data);
                       connectionList.add(
                         FutureProvider<Map>.value(
                           value: Provider.of<CloudDB>(context)
-                              .getConnectionProfile(
-                                  connectionID: connection[kUserID]),
+                              .getConnectionProfile(connectionID: friend.id),
                           child: Consumer<Map>(
                             builder: (context, Map connectionMap, _) {
-                              return ConnectionCard(
-                                  connectionMap: connectionMap);
+                              if (connectionMap != null) {
+                                UserData user =
+                                    UserData.fromMap(map: connectionMap);
+                                return ConnectionCard(user: user);
+                              } else {
+                                return SizedBox();
+                              }
                             },
                           ),
                         ),
@@ -206,6 +108,152 @@ class ConnectionsScreen extends StatelessWidget {
                             crossAxisCount: 2,
                             children: connectionList,
                             childAspectRatio: 1.5,
+                          ),
+                          ButtonAdd(
+                            buttonColor: kGreenDark,
+                            buttonText: 'Add Friend',
+                            onPress: () {
+                              //determine if user data saved
+                              bool userData = (Provider.of<AppData>(context)
+                                      .currentUserInfo !=
+                                  null);
+                              //determine if user name set
+                              bool userNameSet = (Provider.of<AppData>(context)
+                                          .currentUserInfo
+                                          .name !=
+                                      null &&
+                                  Provider.of<AppData>(context)
+                                          .currentUserInfo
+                                          .name !=
+                                      '');
+                              //first, direct user to create a user name
+                              if (userData && !userNameSet) {
+                                showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return DialogScreenInput(
+                                          title:
+                                              'Before adding a friend, first create your user name.',
+                                          acceptText: 'Add',
+                                          acceptOnPress: () {
+                                            //update user document to add user name
+                                            Provider.of<CloudDB>(context)
+                                                .updateUserDocument(
+                                              data: CloudDB.updatePairFull(
+                                                  key: UserKeys.name,
+                                                  value: Provider.of<AppData>(
+                                                          context)
+                                                      .newDataInput),
+                                            );
+                                            //pop the context
+                                            Navigator.pop(context);
+                                          },
+                                          onChange: (input) {
+                                            Provider.of<AppData>(context)
+                                                .newDataInput = input;
+                                          },
+                                          cancelText: 'Cancel',
+                                          hintText: null);
+                                    });
+                              }
+                              //then direct the user to add friend
+                              if (userData && userNameSet) {
+                                showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return DialogScreenInput(
+                                          title: 'Type your friend\'s email.',
+                                          acceptText: 'Add',
+                                          acceptOnPress: () async {
+                                            //try to find if user is registered from email
+                                            String friendID =
+                                                await CloudDB.getUserFromEmail(
+                                                    userEmail:
+                                                        Provider.of<AppData>(
+                                                                context)
+                                                            .newDataInput);
+                                            //look for ID in friend list
+                                            bool friend = false;
+                                            for (DocumentSnapshot connection
+                                                in connectionsSnap.documents) {
+                                              if (connection.data
+                                                  .containsValue(friendID)) {
+                                                friend = true;
+                                              }
+                                            }
+                                            //check if user is inputted their own email
+                                            bool sameEmail =
+                                                (Provider.of<AppData>(context)
+                                                        .newDataInput ==
+                                                    Provider.of<UserAuth>(
+                                                            context)
+                                                        .signedInUser
+                                                        .email);
+                                            Navigator.pop(context);
+                                            //determine dialog text
+                                            String title;
+                                            String dialogText;
+                                            String buttonText = 'OK';
+                                            Function onPressed = () {};
+                                            if (sameEmail == true) {
+                                              //so use can't send request to self
+                                              title = 'Cannot Send';
+                                              dialogText =
+                                                  'It\'s great that you want to be friends with yourself!'
+                                                  '\n\nUnfortunately you can\'t send yourself a request.';
+                                            } else if (friend == true) {
+                                              //so user can't send another request to same friend
+                                              title = 'Cannot Send';
+                                              dialogText =
+                                                  'That must be one great friend!'
+                                                  '\n\nYou\'re already connected so we won\'t send another request.';
+                                            } else if (friendID != null) {
+                                              //if all good send the request to friend
+                                              Provider.of<CloudDB>(context)
+                                                  .sendConnectionRequest(
+                                                      connectionID: friendID);
+                                              title = 'Request Sent';
+                                              dialogText =
+                                                  'A request has been sent.  You will be able to share collections once it is accepted.';
+                                            } else {
+                                              //if all else fails, send an invite via share
+                                              title = 'Send Invite?';
+                                              dialogText =
+                                                  'No user was found with this email address.  Would you like to invite them?';
+                                              buttonText = 'Invite';
+                                              onPressed = () {
+                                                Share.share(
+                                                    //TODO when ready link to download app
+                                                    'I\'m using Plant Collector to keep a record of my plants and share my collection with friends.'
+                                                    '\n\n Check it out here: <future download link>');
+                                              };
+                                            }
+                                            //show a dialog to provide feedback
+                                            showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return DialogConfirm(
+                                                  hideCancel: true,
+                                                  title: title,
+                                                  text: dialogText,
+                                                  buttonText: buttonText,
+                                                  onPressed: () {
+                                                    onPressed();
+                                                    Navigator.pop(context);
+                                                  },
+                                                );
+                                              },
+                                            );
+                                          },
+                                          onChange: (input) {
+                                            Provider.of<AppData>(context)
+                                                .newDataInput = input;
+                                          },
+                                          cancelText: 'Cancel',
+                                          hintText: null);
+                                    });
+                              }
+                            },
                           ),
                         ],
                       ),

@@ -1,7 +1,8 @@
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/text.dart';
-import 'package:plant_collector/models/constants.dart';
+import 'package:plant_collector/models/data_storage/firebase_folders.dart';
+import 'package:plant_collector/models/data_types/plant_data.dart';
 import 'package:provider/provider.dart';
 import 'package:plant_collector/models/cloud_store.dart';
 import 'package:plant_collector/models/cloud_db.dart';
@@ -62,7 +63,7 @@ class AddPhoto extends StatelessWidget {
                           imageFile: image,
                           imageExtension: 'jpg',
                           plantIDFolder: plantID,
-                          subFolder: kFolderImages);
+                          subFolder: StorageFolder.plants);
                   //make sure upload completes
                   StorageTaskSnapshot completion = await upload.onComplete;
                   //get the url string
@@ -71,9 +72,9 @@ class AddPhoto extends StatelessWidget {
                   //add thumbnail reference to plant document
                   Provider.of<CloudDB>(context)
                       .updateArrayInDocumentInCollection(
-                          arrayKey: kPlantImageList,
+                          arrayKey: PlantKeys.images,
                           entries: [url],
-                          folder: kUserPlants,
+                          folder: DBFolder.plants,
                           documentName: plantID,
                           action: true);
                 }
@@ -105,7 +106,7 @@ class AddPhoto extends StatelessWidget {
                           imageFile: image,
                           imageExtension: 'jpg',
                           plantIDFolder: plantID,
-                          subFolder: kFolderImages);
+                          subFolder: StorageFolder.images);
                   //make sure upload completes
                   StorageTaskSnapshot completion = await upload.onComplete;
                   //get the url string
@@ -114,9 +115,9 @@ class AddPhoto extends StatelessWidget {
                   //add image reference to plant document
                   Provider.of<CloudDB>(context)
                       .updateArrayInDocumentInCollection(
-                          arrayKey: kPlantImageList,
+                          arrayKey: PlantKeys.images,
                           entries: [url],
-                          folder: kUserPlants,
+                          folder: DBFolder.plants,
                           documentName: plantID,
                           action: true);
                 }

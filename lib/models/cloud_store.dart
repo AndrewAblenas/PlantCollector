@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
-import 'package:plant_collector/models/constants.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_exif_rotation/flutter_exif_rotation.dart';
 import 'package:image/image.dart' as ExtendedImage;
 import 'package:date_format/date_format.dart';
+import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 
 //*****************OVERVIEW*****************
 //Class relating to the creation, storage, deletion of images via Firebase Storage
@@ -14,19 +14,18 @@ class CloudStore extends ChangeNotifier {
   //initialize storage instance
   final FirebaseStorage _storage = FirebaseStorage.instance;
   //main folder
-  static String mainFolder = kFolderUsers;
+  static String mainFolder = StorageFolder.users;
   //user folder
   String currentUserFolder;
   //user plants folder
-  static String plantsFolder = kFolderPlants;
+  static String plantsFolder = StorageFolder.plants;
   //user image folder
-  static String imageFolder = kFolderImages;
-  //user thumbnail folder
-  static String thumbnailFolder = kFolderThumbnail;
+  static String imageFolder = StorageFolder.images;
+  //settings folder
+  static String settingsFolder = StorageFolder.settings;
+  //image sizing
   static int thumbnailSize = 200;
   static double cameraImageSize = 800.0;
-  //user settings folder
-  static String settingsFolder = kFolderSettings;
   //connection folder to view library
   String currentConnectionFolder;
 
@@ -239,22 +238,22 @@ class CloudStore extends ChangeNotifier {
   }
 
   //GET AN IMAGE
-  Future<dynamic> getThumbUrlOld(
-      {@required String imageName,
-      @required String imageExtension,
-      @required String plantIDFolder}) async {
-    Future<dynamic> url;
-    try {
-      url = await _storage
-          .ref()
-          .child(
-              '$mainFolder/$currentUserFolder/$plantsFolder/$plantIDFolder/$kFolderThumbnail/$imageName.$imageExtension')
-          .getDownloadURL();
-    } catch (e) {
-      print(e);
-    }
-    return url;
-  }
+//  Future<dynamic> getThumbUrlOld(
+//      {@required String imageName,
+//      @required String imageExtension,
+//      @required String plantIDFolder}) async {
+//    Future<dynamic> url;
+//    try {
+//      url = await _storage
+//          .ref()
+//          .child(
+//              '$mainFolder/$currentUserFolder/$plantsFolder/$plantIDFolder/$kFolderThumbnail/$imageName.$imageExtension')
+//          .getDownloadURL();
+//    } catch (e) {
+//      print(e);
+//    }
+//    return url;
+//  }
 
   //DELETE AN IMAGE
   Future<void> deleteImage({@required StorageReference imageReference}) {

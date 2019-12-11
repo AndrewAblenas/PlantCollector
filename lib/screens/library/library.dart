@@ -1,14 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_collector/models/cloud_store.dart';
-import 'package:plant_collector/models/constants.dart';
 import 'package:plant_collector/models/app_data.dart';
-import 'package:plant_collector/models/classes.dart';
-import 'package:plant_collector/screens/library/widgets/ConnectionUpdates.dart';
+import 'package:plant_collector/models/data_storage/firebase_folders.dart';
+import 'package:plant_collector/models/data_types/group_data.dart';
+import 'package:plant_collector/models/data_types/user_data.dart';
+import 'package:plant_collector/screens/dialog/dialog_screen_input.dart';
+import 'package:plant_collector/screens/library/widgets/social_updates.dart';
 import 'package:plant_collector/widgets/button_add.dart';
 import 'package:plant_collector/screens/library/widgets/profile_header.dart';
 import 'package:provider/provider.dart';
-import 'package:plant_collector/widgets/dialogs/dialog_input.dart';
 import 'package:plant_collector/models/user.dart';
 import 'package:plant_collector/widgets/menu_item.dart';
 import 'package:plant_collector/models/cloud_db.dart';
@@ -29,13 +30,30 @@ class LibraryScreen extends StatelessWidget {
   LibraryScreen({@required this.userID, @required this.connectionLibrary});
   @override
   Widget build(BuildContext context) {
+    Stream groupsStream;
+    Stream userStream;
+    Stream collectionsStream;
     if (connectionLibrary == false) {
+      //make current user ID available to CloudDB and CloudStore instances
       Provider.of<CloudDB>(context).setUserFolder(userID: userID);
       Provider.of<CloudStore>(context).setUserFolder(userID: userID);
+      Provider.of<CloudDB>(context).setUserStreams(userID: userID);
+      //streams for this page
+      //TODO setting streams as instance for current user
+      groupsStream = Provider.of<CloudDB>(context).userGroupsStream;
+      userStream = Provider.of<CloudDB>(context).userDocumentStream;
+      collectionsStream = Provider.of<CloudDB>(context).userCollectionsStream;
     } else {
+      //make friend ID available to CloudDB and CloudStore instances to display friend library
       Provider.of<CloudDB>(context).setConnectionFolder(connectionID: userID);
       Provider.of<CloudStore>(context)
           .setConnectionFolder(connectionID: userID);
+      //set data streams for use in page
+      groupsStream = Provider.of<CloudDB>(context).streamGroups(userID: userID);
+      userStream =
+          Provider.of<CloudDB>(context).streamUserDocument(userID: userID);
+      collectionsStream =
+          Provider.of<CloudDB>(context).streamCollections(userID: userID);
     }
     return Scaffold(
       backgroundColor: kGreenLight,
@@ -87,15 +105,6 @@ class LibraryScreen extends StatelessWidget {
                       label: 'Account',
                     ),
                   ),
-//                  PopupMenuItem(
-//                    value: () {
-//                      Navigator.pushNamed(context, 'connections');
-//                    },
-//                    child: MenuItem(
-//                      icon: Icons.people,
-//                      label: 'Connections',
-//                    ),
-//                  ),
 //                PopupMenuItem(
 //                  //TODO settings page
 //                  value: () {
@@ -129,10 +138,10 @@ class LibraryScreen extends StatelessWidget {
                       //TODO problem here related to sign out
                       Provider.of<UserAuth>(context).signOutUser();
                       Provider.of<UserAuth>(context).signedInUser = null;
-                      Provider.of<CloudDB>(context).currentUserGroups = null;
-                      Provider.of<CloudDB>(context).currentUserCollections =
+                      Provider.of<AppData>(context).currentUserGroups = null;
+                      Provider.of<AppData>(context).currentUserCollections =
                           null;
-                      Provider.of<CloudDB>(context).currentUserPlants = null;
+                      Provider.of<AppData>(context).currentUserPlants = null;
                       Navigator.pushNamed(context, 'login');
                     },
                     child: MenuItem(
@@ -150,7 +159,7 @@ class LibraryScreen extends StatelessWidget {
             : null,
       ),
       body: StreamProvider<QuerySnapshot>.value(
-        value: Provider.of<CloudDB>(context).streamGroups(userID: userID),
+        value: groupsStream,
         child: Padding(
           padding: EdgeInsets.only(
             top: 0.0,
@@ -166,8 +175,7 @@ class LibraryScreen extends StatelessWidget {
                     //this is a workaround to prevent listview jump when loading the contained streams
                     minHeight: 1.05 * MediaQuery.of(context).size.width),
                 child: StreamProvider<DocumentSnapshot>.value(
-                  value: Provider.of<CloudDB>(context)
-                      .streamUserDocument(userID: userID),
+                  value: userStream,
                   child: ProfileHeader(
                     connectionLibrary: connectionLibrary,
                   ),
@@ -178,45 +186,47 @@ class LibraryScreen extends StatelessWidget {
                       constraints: BoxConstraints(
                           //this is a workaround to prevent listview jump when loading the contained streams
                           minHeight: 0.45 * MediaQuery.of(context).size.width),
-                      child: ConnectionUpdates())
+                      child: SocialUpdates())
                   : SizedBox(),
               Consumer<QuerySnapshot>(
                   builder: (context, QuerySnapshot groupSnap, _) {
                 if (groupSnap != null) {
                   if (connectionLibrary == false) {
                     //save for use anywhere
-                    Provider.of<CloudDB>(context).currentUserGroups = groupSnap
+                    Provider.of<AppData>(context).currentUserGroups = groupSnap
                         .documents
-                        .map((doc) => groupMapFromSnapshot(groupMap: doc.data))
+                        .map((doc) => GroupData.fromMap(map: doc.data))
                         .toList();
                     //update tally in user document
                     if (groupSnap.documents != null &&
-                        Provider.of<UserAuth>(context).getCurrentUser() !=
-                            null) {
-                      Map countData = Provider.of<CloudDB>(context)
-                          .updatePairFull(
-                              key: kUserTotalGroups,
-                              value: groupSnap.documents.length);
+                        Provider.of<AppData>(context).currentUserInfo != null
+                        //don't bother updating if the values are the same
+                        &&
+                        groupSnap.documents.length !=
+                            Provider.of<AppData>(context)
+                                .currentUserInfo
+                                .groups) {
+                      Map countData = CloudDB.updatePairFull(
+                          key: UserKeys.groups,
+                          value: groupSnap.documents.length);
                       Provider.of<CloudDB>(context).updateUserDocument(
-                          data: countData,
-                          userID:
-                              Provider.of<CloudDB>(context).currentUserFolder);
+                        data: countData,
+                      );
                     }
                   } else {
                     //save for use anywhere
-                    Provider.of<CloudDB>(context).connectionGroups = groupSnap
+                    Provider.of<AppData>(context).connectionGroups = groupSnap
                         .documents
-                        .map((doc) => groupMapFromSnapshot(groupMap: doc.data))
+                        .map((doc) => GroupData.fromMap(map: doc.data))
                         .toList();
                   }
                   return StreamProvider<QuerySnapshot>.value(
-                    value: Provider.of<CloudDB>(context)
-                        .streamCollections(userID: userID),
-                    child: Provider.of<UIBuilders>(context).displayGroups(
+                    value: collectionsStream,
+                    child: UIBuilders.displayGroups(
                         connectionLibrary: connectionLibrary,
                         userGroups: connectionLibrary == false
-                            ? Provider.of<CloudDB>(context).currentUserGroups
-                            : Provider.of<CloudDB>(context).connectionGroups),
+                            ? Provider.of<AppData>(context).currentUserGroups
+                            : Provider.of<AppData>(context).connectionGroups),
                   );
                 } else {
                   return SizedBox();
@@ -229,28 +239,35 @@ class LibraryScreen extends StatelessWidget {
                   ? ButtonAdd(
                       buttonText: 'Create New Group',
                       buttonColor: kGreenDark,
-                      dialog: DialogInput(
-                        title: 'Create Group',
-                        text: 'Please provide a new Group name.',
-                        onPressedSubmit: () {
-                          Map data = Provider.of<AppData>(context)
-                              .groupNewDB()
-                              .toMap();
-                          Provider.of<CloudDB>(context)
-                              .insertDocumentToCollection(
-                                  data: data,
-                                  collection: '$kUserGroups',
-                                  documentName: data[kGroupID]);
-                          Navigator.pop(context);
-                        },
-                        onChangeInput: (input) {
-                          Provider.of<AppData>(context).newDataInput = input;
-                        },
-                        onPressedCancel: () {
-                          Provider.of<AppData>(context).newDataInput = null;
-                          Navigator.pop(context);
-                        },
-                      ),
+                      onPress: () {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return DialogScreenInput(
+                                  title: 'Create new Group',
+                                  acceptText: 'Create',
+                                  acceptOnPress: () {
+                                    //create initial group map
+                                    GroupData group =
+                                        Provider.of<AppData>(context)
+                                            .createGroup();
+                                    //upload to groups
+                                    Provider.of<CloudDB>(context)
+                                        .insertDocumentToCollection(
+                                            data: group.toMap(),
+                                            collection: DBFolder.groups,
+                                            documentName: group.id);
+                                    //close the screen
+                                    Navigator.pop(context);
+                                  },
+                                  onChange: (input) {
+                                    Provider.of<AppData>(context).newDataInput =
+                                        input;
+                                  },
+                                  cancelText: 'Cancel',
+                                  hintText: null);
+                            });
+                      },
                     )
                   : SizedBox(),
               SizedBox(height: 20.0),

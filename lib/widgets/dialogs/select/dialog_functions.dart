@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:plant_collector/models/constants.dart';
+import 'package:plant_collector/models/app_data.dart';
+import 'package:plant_collector/models/data_storage/firebase_folders.dart';
+import 'package:plant_collector/models/data_types/collection_data.dart';
+import 'package:plant_collector/models/data_types/group_data.dart';
+import 'package:plant_collector/screens/dialog/dialog_screen_input.dart';
 import 'package:plant_collector/widgets/dialogs/select/dialog_item.dart';
 import 'package:provider/provider.dart';
 import 'package:plant_collector/models/cloud_db.dart';
-import 'package:plant_collector/widgets/dialogs/dialog_input.dart';
 
 //Dialog Buttons
 
@@ -26,15 +29,15 @@ class DialogItemGroup extends StatelessWidget {
         buttonText: buttonText,
         onPress: () {
           Provider.of<CloudDB>(context).updateArrayInDocumentInCollection(
-              arrayKey: kGroupCollectionList,
+              arrayKey: GroupKeys.collections,
               entries: [entryID],
-              folder: kUserGroups,
+              folder: DBFolder.groups,
               documentName: buttonPossibleParentID,
               action: true);
           Provider.of<CloudDB>(context).updateArrayInDocumentInCollection(
-              arrayKey: kGroupCollectionList,
+              arrayKey: GroupKeys.collections,
               entries: [entryID],
-              folder: kUserGroups,
+              folder: DBFolder.groups,
               documentName: currentParentID,
               action: false);
           Navigator.pop(context);
@@ -61,15 +64,15 @@ class DialogItemCollection extends StatelessWidget {
         buttonText: buttonText,
         onPress: () {
           Provider.of<CloudDB>(context).updateArrayInDocumentInCollection(
-              arrayKey: kCollectionPlantList,
+              arrayKey: CollectionKeys.plants,
               entries: [entryID],
-              folder: kUserCollections,
+              folder: DBFolder.collections,
               documentName: buttonPossibleParentID,
               action: true);
           Provider.of<CloudDB>(context).updateArrayInDocumentInCollection(
-              arrayKey: kCollectionPlantList,
+              arrayKey: CollectionKeys.plants,
               entries: [entryID],
-              folder: kUserCollections,
+              folder: DBFolder.collections,
               documentName: currentParentID,
               action: false);
           Navigator.pop(context);
@@ -95,33 +98,28 @@ class DialogItemPlant extends StatelessWidget {
       onPress: () {
         Navigator.pop(context);
         showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (BuildContext context) {
-            return DialogInput(
-              title: buttonText,
-              text: 'Please input the new information below.',
-              hintText: null,
-              onPressedSubmit: () {
-                //update the value
-                Provider.of<CloudDB>(context).updateDocumentInCollection(
-                    data: Provider.of<CloudDB>(context)
-                        .updatePairInput(key: buttonKey),
-                    collection: kUserPlants,
-                    documentName: plantID);
-
-                Navigator.pop(context);
-              },
-              onChangeInput: (input) {
-                Provider.of<CloudDB>(context).newDataInput = input;
-              },
-              onPressedCancel: () {
-                Provider.of<CloudDB>(context).newDataInput = null;
-                Navigator.pop(context);
-              },
-            );
-          },
-        );
+            context: context,
+            builder: (context) {
+              return DialogScreenInput(
+                  title: 'Add Information',
+                  acceptText: 'Add',
+                  acceptOnPress: () {
+                    //update the value with map
+                    Provider.of<CloudDB>(context).updateDocumentInCollection(
+                        data: CloudDB.updatePairFull(
+                            key: buttonKey,
+                            value: Provider.of<AppData>(context).newDataInput),
+                        collection: DBFolder.plants,
+                        documentName: plantID);
+                    //pop context
+                    Navigator.pop(context);
+                  },
+                  onChange: (input) {
+                    Provider.of<AppData>(context).newDataInput = input;
+                  },
+                  cancelText: 'Cancel',
+                  hintText: null);
+            });
       },
     );
   }

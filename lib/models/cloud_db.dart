@@ -1,9 +1,12 @@
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:plant_collector/models/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:plant_collector/models/data_types/collection_data.dart';
+import 'package:plant_collector/models/data_storage/firebase_folders.dart';
+import 'package:plant_collector/models/data_types/message_data.dart';
+import 'package:plant_collector/models/data_types/plant_data.dart';
+import 'package:plant_collector/models/data_types/user_data.dart';
 
 class CloudDB extends ChangeNotifier {
   //initialize Firestore instance
@@ -12,38 +15,28 @@ class CloudDB extends ChangeNotifier {
   static String usersPath = 'users';
   static String conversationsPath = 'conversations';
   static String messagesPath = 'messages';
-
-  //stream savers
-  //current user
-  List<Map> currentUserGroups;
-  List<Map> currentUserCollections;
-  List<Map> currentUserPlants;
-  Map currentUserInfo;
-  //connection
-  List<Map> connectionGroups;
-  List<Map> connectionCollections;
-  List<Map> connectionPlants;
+  //streams
+  Stream userDocumentStream;
+  Stream userGroupsStream;
+  Stream userCollectionsStream;
+  Stream userPlantsStream;
+  Stream userConnectionsStream;
+  Stream userRequestsStream;
+  Stream userMessagesStream;
+  //set user streams
+  void setUserStreams({@required userID}) {
+    userDocumentStream = streamUserDocument(userID: userID);
+    userGroupsStream = streamGroups(userID: userID);
+    userCollectionsStream = streamCollections(userID: userID);
+    userPlantsStream = streamPlants(userID: userID);
+    userConnectionsStream = streamConnections();
+    userRequestsStream = streamRequests();
+  }
 
   //variables
   String currentUserFolder;
-  String newDataInput;
   List<List<Map>> libraryBundle;
   String connectionUserFolder;
-
-  //*****************CHAT RELATED*****************//
-
-  //chat
-  String currentChatId;
-
-  //set current chat Id
-  void setCurrentChatId({@required String connectionID}) {
-    currentChatId = connectionID;
-  }
-
-  //get current chat Id
-  String getCurrentChatId() {
-    return currentChatId;
-  }
 
   //*****************INITIALIZE*****************//
 
@@ -67,40 +60,41 @@ class CloudDB extends ChangeNotifier {
   //*****************STREAMS*****************
 
   //provide a stream of all plants
-  Stream<QuerySnapshot> streamPlants({@required String userID}) {
+  Stream<QuerySnapshot> streamPlants({@required userID}) {
     return _db
         .collection(usersPath)
         .document(userID)
-        .collection(kUserPlants)
+        .collection(DBFolder.plants)
         .snapshots();
   }
 
   //provide a stream of one specific plant document
+  //NOTE userID is required as it may be from a connection in chat
   Stream<DocumentSnapshot> streamPlant(
-      {@required String plantID, @required String userID}) {
+      {@required String plantID, @required userID}) {
     return _db
         .collection(usersPath)
         .document(userID)
-        .collection(kUserPlants)
+        .collection(DBFolder.plants)
         .document(plantID)
         .snapshots();
   }
 
   //provide a stream of all groups
-  Stream<QuerySnapshot> streamGroups({@required String userID}) {
+  Stream<QuerySnapshot> streamGroups({@required userID}) {
     return _db
         .collection(usersPath)
         .document(userID)
-        .collection(kUserGroups)
+        .collection(DBFolder.groups)
         .snapshots();
   }
 
   //provide a stream of all collections
-  Stream<QuerySnapshot> streamCollections({@required String userID}) {
+  Stream<QuerySnapshot> streamCollections({@required userID}) {
     return _db
         .collection(usersPath)
         .document(userID)
-        .collection(kUserCollections)
+        .collection(DBFolder.collections)
         .snapshots();
   }
 
@@ -109,7 +103,7 @@ class CloudDB extends ChangeNotifier {
     return _db
         .collection(usersPath)
         .document(currentUserFolder)
-        .collection(kUserRequests)
+        .collection(DBFolder.requests)
         .snapshots();
   }
 
@@ -118,29 +112,47 @@ class CloudDB extends ChangeNotifier {
     return _db
         .collection(usersPath)
         .document(currentUserFolder)
-        .collection(kUserConnections)
+        .collection(DBFolder.friends)
         .snapshots();
   }
 
   //provide a stream of user document
-  Stream<DocumentSnapshot> streamUserDocument({@required String userID}) {
+  Stream<DocumentSnapshot> streamUserDocument({@required userID}) {
     return _db.collection(usersPath).document(userID).snapshots();
   }
 
-  //provide a stream of requests
-  Stream<QuerySnapshot> streamMessages({@required String document}) {
+  //provide a stream of messages for a specific conversation
+  static Stream<QuerySnapshot> streamConvoMessages(
+      {@required String document}) {
     if (document != null) {
       return _db
           .collection(conversationsPath)
           .document(document)
           .collection(messagesPath)
-          .orderBy(kMessageTime, descending: true)
+          .orderBy(MessageKeys.time, descending: true)
           .limit(20)
           .snapshots();
     } else {
       return null;
     }
   }
+
+  //provide a stream of all messages
+  //TODO figure this out, might need to restructure data?
+//  Stream<QuerySnapshot> streamAllMessages({@required String document}) {
+//    if (document != null) {
+//      return _db
+//          .collection(conversationsPath)
+//          .where('users', arrayContains: currentUserFolder)
+//          .getDocuments().
+//          .collection(messagesPath)
+//          .orderBy(kMessageTime, descending: true)
+//          .limit(20)
+//          .snapshots();
+//    } else {
+//      return null;
+//    }
+//  }
 
   //generate conversation document name
   String conversationDocumentName({@required String connectionId}) {
@@ -153,37 +165,59 @@ class CloudDB extends ChangeNotifier {
     }
   }
 
+  //TODO
+  //add user reference to shared message document
+//  static Future<void> addConvoParticipants ({@required String document, @required String userID, @required String friendID}) {
+//    return _db
+//        .collection(conversationsPath)
+//        .document(document)
+//        .setData({
+//      'users': [userID, friendID]
+//    });
+//  }
+
+  //create message
+  MessageData createMessage(
+      {@required String text, @required String type, @required String media}) {
+    return MessageData(
+        sender: currentUserFolder,
+        time: DateTime.now().millisecondsSinceEpoch,
+        text: text,
+        read: false,
+        type: type,
+        media: media);
+  }
+
   //send a message
-  Future<DocumentReference> sendMessage(
-      {@required String messageText,
-      @required String messageSender,
-      @required String document}) {
-    if (messageSender != null && messageText != null) {
-      return _db
-          .collection(conversationsPath)
-          .document(document)
-          .collection(messagesPath)
-          .add({
-        kMessageSender: messageSender,
-        kMessageText: messageText,
-        kMessageTime: DateTime.now().millisecondsSinceEpoch,
-        kMessageRead: false,
-      });
+  static Future<DocumentReference> sendMessage(
+      {@required MessageData message, @required String document}) {
+    //DB reference for message
+    CollectionReference messagesRef = _db
+        .collection(conversationsPath)
+        .document(document)
+        .collection(messagesPath);
+    //make sure message sender and text exist
+    if (message.sender != null && message.text != null) {
+      //upload message to DB
+      return messagesRef.add(
+        message.toMap(),
+      );
     } else {
       return null;
     }
   }
 
   //update message read status
-  Future<void> readMessage({@required String reference}) {
+  static Future<void> readMessage({@required String reference}) {
     return _db.document(reference).updateData({
-      kMessageRead: true,
+      MessageKeys.read: true,
     });
   }
 
   //delete messages
   //TODO check that this works
-  Future<DocumentReference> deleteMessageHistory({@required String document}) {
+  static Future<DocumentReference> deleteMessageHistory(
+      {@required String document}) {
     if (document != null) {
       return _db
           .collection(conversationsPath)
@@ -199,17 +233,17 @@ class CloudDB extends ChangeNotifier {
   //*****************CONNECTION METHODS*****************//
 
   //search for user via email
-  Future<String> getUserFromEmail({@required String userEmail}) async {
+  static Future<String> getUserFromEmail({@required String userEmail}) async {
     String match;
     if (userEmail != null) {
       //search through users to find matching email
       QuerySnapshot result = await _db
           .collection(usersPath)
-          .where(kUserEmail, isEqualTo: userEmail)
+          .where(UserKeys.email, isEqualTo: userEmail)
           .getDocuments();
       if (result.documents != null && result.documents.length > 0) {
         //there should only be one match, get and return ID
-        match = result.documents[0].data[kUserID];
+        match = result.documents[0].data[UserKeys.id];
       } else {
         match = null;
       }
@@ -221,18 +255,18 @@ class CloudDB extends ChangeNotifier {
   Future<bool> sendConnectionRequest({@required String connectionID}) async {
     bool success;
     if (connectionID != null) {
-      Map userMap = (await getDB().get()).data;
+      UserData user = UserData.fromMap(map: (await getDB().get()).data);
       //search through users to find matching email
       try {
         await _db
             .collection(usersPath)
             .document(connectionID)
-            .collection(kUserRequests)
+            .collection(DBFolder.requests)
             .document(currentUserFolder)
             .setData({
-          kUserID: currentUserFolder,
-          kUserName: userMap[kUserName],
-          kUserAvatar: userMap[kUserAvatar],
+          UserKeys.id: currentUserFolder,
+          UserKeys.name: user.name,
+          UserKeys.avatar: user.avatar,
         });
         success = true;
       } catch (e) {
@@ -247,7 +281,7 @@ class CloudDB extends ChangeNotifier {
     return _db
         .collection(usersPath)
         .document(currentUserFolder)
-        .collection(kUserRequests)
+        .collection(DBFolder.requests)
         .document(connectionID)
         .delete();
   }
@@ -258,10 +292,10 @@ class CloudDB extends ChangeNotifier {
     return _db
         .collection(usersPath)
         .document(pathID)
-        .collection(kUserConnections)
+        .collection(DBFolder.friends)
         .document(documentID)
         .setData({
-      kUserID: documentID,
+      UserKeys.id: documentID,
     });
   }
 
@@ -298,14 +332,14 @@ class CloudDB extends ChangeNotifier {
     _db
         .collection(usersPath)
         .document(currentUserFolder)
-        .collection(kUserConnections)
+        .collection(DBFolder.friends)
         .document(connectionID)
         .delete();
     //remove from connection records
     _db
         .collection(usersPath)
         .document(connectionID)
-        .collection(kUserConnections)
+        .collection(DBFolder.friends)
         .document(currentUserFolder)
         .delete();
   }
@@ -313,19 +347,20 @@ class CloudDB extends ChangeNotifier {
   //*****************USER DOCUMENT SPECIFIC*****************//
 
   //create a user document and save to db upon registration
-  Future<void> addUserDocument({@required Map data, @required String userID}) {
-    String userDoc = userID;
+  Future<void> addUserDocument({@required Map data}) {
     //look into database instance, then collection, for ID, create if doesn't exist
-    return _db.collection(usersPath).document(userDoc).setData(data);
+    return _db.collection(usersPath).document(currentUserFolder).setData(data);
   }
 
   //create a user document on registration and update in the future
-  Future<void> updateUserDocument(
-      {@required Map data, @required String userID}) {
+  Future<void> updateUserDocument({@required Map data}) {
     //look into database instance, then collection, for ID, create if doesn't exist
     try {
       //TODO problem here on logout, it tries to run and there are permission issues
-      return _db.collection(usersPath).document(userID).updateData(data);
+      return _db
+          .collection(usersPath)
+          .document(currentUserFolder)
+          .updateData(data);
     } catch (e) {
       return (e);
     }
@@ -334,7 +369,7 @@ class CloudDB extends ChangeNotifier {
   //*****************HELPERS*****************
 
   //get an individual map given an ID from a list of maps
-  Map getDocumentFromList(
+  static Map getDocumentFromList(
       {@required List<Map> documents, @required String value}) {
     Map match;
     if (documents != null) {
@@ -347,18 +382,14 @@ class CloudDB extends ChangeNotifier {
     return match;
   }
 
-  //generate map to insert data to db (value is saved to input variable)
-  Map<String, dynamic> updatePairInput({@required String key}) {
-    return {key: newDataInput};
-  }
-
   //generate map to insert data to db (when value isn't from user input)
-  Map<String, dynamic> updatePairFull({@required String key, @required value}) {
+  static Map<String, dynamic> updatePairFull(
+      {@required String key, @required value}) {
     return {key: value};
   }
 
   //GET VALUE FROM MAP
-  String getValue({@required Map data, @required String key}) {
+  static String getValue({@required Map data, @required String key}) {
     String value;
     if (data != null) {
       value = data[key];
@@ -369,11 +400,11 @@ class CloudDB extends ChangeNotifier {
   }
 
   //GET IMAGE COUNT
-  String getImageCount({@required List<Map> plants}) {
+  static String getImageCount({@required List<Map> plants}) {
     int imageCount;
     if (plants != null) {
       for (Map plant in plants) {
-        List images = plant[kPlantImageList];
+        List images = plant[PlantKeys.images];
         if (images != null) {
           imageCount = (imageCount == null ? 0 : imageCount + images.length);
         } else {}
@@ -388,16 +419,15 @@ class CloudDB extends ChangeNotifier {
   //check if thumbnail is null (to load default image for plant tiles)
   bool hasThumbnail({@required String documentID}) {
     bool thumbnailFound;
-    String collection = kUserPlants;
-    String userDoc = currentUserFolder;
+    String collection = DBFolder.plants;
     _db
         .collection(usersPath)
-        .document(userDoc)
+        .document(currentUserFolder)
         .collection(collection)
         .document(documentID)
         .get()
         .then((DocumentSnapshot data) {
-      if (data.data[kPlantThumbnail] == null) {
+      if (data.data[PlantKeys.thumbnail] == null) {
         thumbnailFound = false;
       } else {
         thumbnailFound = true;
@@ -408,14 +438,14 @@ class CloudDB extends ChangeNotifier {
   //*****************USER COLLECTION SPECIFIC*****************
 
   //generate list of maps for Group
-  List<Map> getMapsFromList(
+  static List<CollectionData> getMapsFromList(
       {@required List<dynamic> groupCollectionIDs,
-      @required List<Map> collections}) {
-    List<Map> groupCollections = [];
+      @required List<CollectionData> collections}) {
+    List<CollectionData> groupCollections = [];
     if (groupCollectionIDs != null && collections != null) {
       for (String ID in groupCollectionIDs) {
-        for (Map collection in collections) {
-          if (collection.containsValue(ID)) {
+        for (CollectionData collection in collections) {
+          if (collection.id == ID) {
             groupCollections.add(collection);
           }
         }
@@ -424,16 +454,31 @@ class CloudDB extends ChangeNotifier {
     return groupCollections;
   }
 
+  //generate list of plants for Group
+  static List<PlantData> getPlantsFromList(
+      {@required List<dynamic> collectionPlantIDs,
+      @required List<PlantData> plants}) {
+    List<PlantData> collectionPlants = [];
+    if (collectionPlantIDs != null && plants != null) {
+      for (String ID in collectionPlantIDs) {
+        for (PlantData plant in plants) {
+          if (plant.id == ID) {
+            collectionPlants.add(plant);
+          }
+        }
+      }
+    }
+    return collectionPlants;
+  }
+
   //*****************USER COLLECTION SPECIFIC*****************
 
   //query specific document in specific collection
   DocumentReference getCollectionDocumentRef(
       {@required String documentID, @required String collection}) {
-    String userDoc = currentUserFolder;
-
     final DocumentReference docRef = _db
         .collection(usersPath)
-        .document(userDoc)
+        .document(currentUserFolder)
         .collection(collection)
         .document(documentID);
     return docRef;
@@ -444,11 +489,10 @@ class CloudDB extends ChangeNotifier {
       {@required Map data,
       @required String collection,
       @required String documentName}) {
-    String userDoc = currentUserFolder;
     //create, write, and/or merge
     return _db
         .collection(usersPath)
-        .document(userDoc)
+        .document(currentUserFolder)
         .collection(collection)
         .document(documentName)
         .updateData(data);
@@ -459,11 +503,10 @@ class CloudDB extends ChangeNotifier {
       {@required Map data,
       @required String collection,
       @required String documentName}) {
-    String userDoc = currentUserFolder;
     //create, write, and/or merge
     return _db
         .collection(usersPath)
-        .document(userDoc)
+        .document(currentUserFolder)
         .collection(collection)
         .document(documentName)
         .setData(data, merge: false);
@@ -478,19 +521,18 @@ class CloudDB extends ChangeNotifier {
       //true to add false to remove
       @required bool action}) async {
     if (entries != null) {
-      String userDoc = currentUserFolder;
       //create, write, and/or merge
       if (action == true) {
         return await _db
             .collection(usersPath)
-            .document(userDoc)
+            .document(currentUserFolder)
             .collection(folder)
             .document(documentName)
             .updateData({arrayKey: FieldValue.arrayUnion(entries)});
       } else if (action == false) {
         return await _db
             .collection(usersPath)
-            .document(userDoc)
+            .document(currentUserFolder)
             .collection(folder)
             .document(documentName)
             .updateData({arrayKey: FieldValue.arrayRemove(entries)});
@@ -539,12 +581,12 @@ class CloudDB extends ChangeNotifier {
       for (Map item in library) {
         insertDocumentToCollection(
             data: item,
-            collection: item[kCollectionID] != null
-                ? '$kUserCollections'
-                : '$kUserPlants',
-            documentName: item[kCollectionID] != null
-                ? item[kCollectionID]
-                : item[kPlantID]);
+            collection: item[CollectionKeys.id] != null
+                ? DBFolder.collections
+                : DBFolder.plants,
+            documentName: item[CollectionKeys.id] != null
+                ? item[CollectionKeys.id]
+                : item[PlantKeys.id]);
       }
     }
   }
@@ -552,13 +594,13 @@ class CloudDB extends ChangeNotifier {
   //DOWNLOAD userPlants AND userCollections AND PACKAGE DATA TO LIST
   Future<List> downloadLibraryBundle() async {
     List<Map> plants = [];
-    QuerySnapshot plantList = await getCollection(collection: kUserPlants);
+    QuerySnapshot plantList = await getCollection(collection: DBFolder.plants);
     for (DocumentSnapshot plant in plantList.documents) {
       plants.add(plant.data);
     }
     List<Map> collections = [];
     QuerySnapshot collectionList =
-        await getCollection(collection: kUserCollections);
+        await getCollection(collection: DBFolder.collections);
     for (DocumentSnapshot collection in collectionList.documents) {
       collections.add(collection.data);
     }
@@ -569,7 +611,7 @@ class CloudDB extends ChangeNotifier {
 
   //*****************GENERAL*****************
 
-  Future<void> removeDocument(String id) {
+  static Future<void> removeDocument(String id) {
     return _db.collection(usersPath).document(id).delete();
   }
 

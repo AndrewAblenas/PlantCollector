@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
-import 'package:plant_collector/models/constants.dart';
 import 'package:plant_collector/formats/text.dart';
+import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 import 'package:plant_collector/widgets/dialogs/dialog_confirm.dart';
 import 'package:plant_collector/widgets/tile_white.dart';
 import 'package:provider/provider.dart';
@@ -47,7 +47,7 @@ class GroupDelete extends StatelessWidget {
                 buttonText: 'Delete Group',
                 onPressed: () {
                   Provider.of<CloudDB>(context).deleteDocumentFromCollection(
-                      documentID: groupID, collection: kUserGroups);
+                      documentID: groupID, collection: DBFolder.groups);
                   Navigator.pop(context);
                 },
               );

@@ -31,8 +31,9 @@ dependencies:
 #  flutter_material_color_picker: ^1.0.5
   #not used yet
   reorderables: ^0.2.12
-  #not used yet
   share: ^0.6.3+1
+  flutter_local_notifications: ^0.8.4+3
+  url_launcher: ^5.2.7
 
 dev_dependencies:
   flutter_test:

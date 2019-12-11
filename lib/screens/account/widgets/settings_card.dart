@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
+import 'package:plant_collector/models/app_data.dart';
+import 'package:plant_collector/screens/dialog/dialog_screen_input.dart';
 import 'package:plant_collector/widgets/container_card.dart';
-import 'package:plant_collector/widgets/dialogs/dialog_input.dart';
 import 'package:provider/provider.dart';
-import 'package:plant_collector/models/cloud_db.dart';
 
 class SettingsCard extends StatelessWidget {
   final Function onSubmit;
+  final Function onPress;
   final String cardLabel;
   final String cardText;
   final bool allowDialog;
   final String dialogText;
   SettingsCard(
       {@required this.onSubmit,
+      @required this.onPress,
       @required this.cardLabel,
       @required this.cardText,
       this.allowDialog,
@@ -59,24 +61,21 @@ class SettingsCard extends StatelessWidget {
         ),
         onPressed: () {
           if (allowDialog == false) {
-            //do nothing
+            onPress();
           } else {
             showDialog(
               context: context,
               barrierDismissible: false,
               builder: (BuildContext context) {
-                return DialogInput(
-                  title: cardLabel,
-                  text: '$dialogText',
-                  onPressedSubmit: onSubmit,
-                  onChangeInput: (input) {
-                    Provider.of<CloudDB>(context).newDataInput = input;
-                  },
-                  onPressedCancel: () {
-                    Provider.of<CloudDB>(context).newDataInput = null;
-                    Navigator.pop(context);
-                  },
-                );
+                return DialogScreenInput(
+                    title: cardLabel,
+                    acceptText: 'Update',
+                    acceptOnPress: onSubmit,
+                    onChange: (input) {
+                      Provider.of<AppData>(context).newDataInput = input;
+                    },
+                    cancelText: 'Cancel',
+                    hintText: null);
               },
             );
           }

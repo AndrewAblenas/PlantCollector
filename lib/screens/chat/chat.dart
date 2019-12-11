@@ -2,22 +2,24 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
+import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/cloud_db.dart';
-import 'package:plant_collector/models/constants.dart';
-import 'package:plant_collector/screens/chat/widgets/chat_avatar.dart';
-import 'package:plant_collector/screens/chat/widgets/message_template.dart';
-import 'package:plant_collector/screens/chat/widgets/send_message.dart';
+import 'package:plant_collector/models/data_types/message_data.dart';
+import 'package:plant_collector/models/data_types/user_data.dart';
+import 'package:plant_collector/models/message.dart';
+import 'package:plant_collector/widgets/chat_avatar.dart';
+import 'package:plant_collector/screens/chat/widgets/message_types/message_template.dart';
+import 'package:plant_collector/screens/chat/widgets/compose_message.dart';
 import 'package:plant_collector/screens/library/library.dart';
 import 'package:plant_collector/screens/template/screen_template.dart';
 import 'package:provider/provider.dart';
 
 class ChatScreen extends StatelessWidget {
-  final Map connectionMap;
-  ChatScreen({@required this.connectionMap});
+  final UserData friend;
+  ChatScreen({@required this.friend});
   @override
   Widget build(BuildContext context) {
-    Provider.of<CloudDB>(context)
-        .setCurrentChatId(connectionID: connectionMap[kUserID]);
+    Provider.of<AppData>(context).setCurrentChatId(connectionID: friend.id);
     return ScreenTemplate(
       screenTitle: 'Chat',
       child: Container(
@@ -26,74 +28,59 @@ class ChatScreen extends StatelessWidget {
           mainAxisSize: MainAxisSize.max,
           children: <Widget>[
             Container(
-                padding: EdgeInsets.symmetric(
-                  vertical: 2.0,
-                ),
-                decoration: BoxDecoration(
-                  color: kGreenMedium,
-                ),
-                height:
-                    AppTextSize.gigantic * MediaQuery.of(context).size.width,
-                width: MediaQuery.of(context).size.width,
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (BuildContext context) => LibraryScreen(
-                              userID: connectionMap[kUserID],
-                              connectionLibrary: true,
-                            ),
+              padding: EdgeInsets.symmetric(
+                vertical: 2.0,
+              ),
+              decoration: BoxDecoration(
+                color: kGreenMedium,
+              ),
+              height: AppTextSize.gigantic * MediaQuery.of(context).size.width,
+              width: MediaQuery.of(context).size.width,
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (BuildContext context) => LibraryScreen(
+                            userID: friend.id,
+                            connectionLibrary: true,
                           ),
-                        );
-                      },
+                        ),
+                      );
+                    },
+                    child: Container(
+                      height: 50.0 *
+                          MediaQuery.of(context).size.width *
+                          kScaleFactor,
+                      width: 50.0 *
+                          MediaQuery.of(context).size.width *
+                          kScaleFactor,
                       child: ChatAvatar(
-                        avatarLink: connectionMap[kUserAvatar],
+                        avatarLink: friend.avatar,
                       ),
                     ),
-                    SizedBox(
-                      width: 10.0,
-                    ),
-                    connectionMap[kUserName] != null
-                        ? Text(
-                            connectionMap[kUserName],
-                            style: TextStyle(
-                              fontSize: AppTextSize.huge *
-                                  MediaQuery.of(context).size.width,
-                              fontWeight: AppTextWeight.medium,
-                              color: AppTextColor.white,
-                            ),
-                          )
-                        : SizedBox(),
-                  ],
-                )
-//                Consumer<QuerySnapshot>(
-//                  builder: (context, QuerySnapshot connectionsSnap, _) {
-//                    List<Widget> connectionsList = [];
-//                    if (connectionsSnap != null) {
-//                      for (DocumentSnapshot snap in connectionsSnap.documents) {
-//                        connectionsList.add(
-//                          ChatAvatar(
-//                            connectionId: snap.data[kUserID],
-//                          ),
-//                        );
-//                      }
-//                    }
-//                    return Center(
-//                      child: ListView(
-//                        shrinkWrap: true,
-//                        primary: false,
-//                        scrollDirection: Axis.horizontal,
-//                        children: connectionsList,
-//                      ),
-//                    );
-//                  },
-//                ),
-                ),
+                  ),
+                  SizedBox(
+                    width: 10.0,
+                  ),
+                  friend.name != null
+                      ? Text(
+                          friend.name,
+                          style: TextStyle(
+                            fontSize: AppTextSize.huge *
+                                MediaQuery.of(context).size.width,
+                            fontWeight: AppTextWeight.medium,
+                            color: AppTextColor.white,
+                          ),
+                        )
+                      : SizedBox(),
+                ],
+              ),
+            ),
 //            ),
             Container(
               height: 1.0,
@@ -101,10 +88,9 @@ class ChatScreen extends StatelessWidget {
               color: kGreenDark,
             ),
             StreamProvider<QuerySnapshot>.value(
-              value: Provider.of<CloudDB>(context).streamMessages(
+              value: CloudDB.streamConvoMessages(
                 document: Provider.of<CloudDB>(context)
-                    .conversationDocumentName(
-                        connectionId: connectionMap[kUserID]),
+                    .conversationDocumentName(connectionId: friend.id),
               ),
               child: Expanded(
                 child: Container(
@@ -115,31 +101,42 @@ class ChatScreen extends StatelessWidget {
                       List<String> unreadList = [];
                       if (messages != null && messages.documents != null) {
                         for (DocumentSnapshot snap in messages.documents) {
-                          Map messageMap = snap.data;
+                          MessageData message =
+                              MessageData.fromMap(map: snap.data);
                           //message from other user
-                          if (messageMap[kMessageSender] ==
-                              Provider.of<CloudDB>(context)
+                          if (message.sender ==
+                              Provider.of<AppData>(context)
                                   .getCurrentChatId()) {
                             messageList.add(
                               MessageTemplate(
-                                message: messageMap,
                                 alignment: MainAxisAlignment.start,
                                 color: kGreenMedium,
-                                textColor: AppTextColor.white,
+                                content: Message.messageTypeRouting(
+                                  //prevent other user edits
+                                  connectionLibrary: true,
+                                  message: message,
+                                  textColor: AppTextColor.white,
+                                  alignment: MainAxisAlignment.start,
+                                ),
                               ),
                             );
                             //add to list of unread if false
-                            if (messageMap[kMessageRead] == false) {
+                            if (message.read == false) {
                               unreadList.add(snap.reference.path);
                             }
                             //message from current user
                           } else {
                             messageList.add(
                               MessageTemplate(
-                                message: messageMap,
                                 alignment: MainAxisAlignment.end,
                                 color: AppTextColor.white,
-                                textColor: AppTextColor.dark,
+                                content: Message.messageTypeRouting(
+                                  //prevent current user edits so view is consistent
+                                  connectionLibrary: true,
+                                  message: message,
+                                  textColor: AppTextColor.dark,
+                                  alignment: MainAxisAlignment.end,
+                                ),
                               ),
                             );
                           }
@@ -147,8 +144,7 @@ class ChatScreen extends StatelessWidget {
                       }
                       if (unreadList.length >= 1) {
                         for (String reference in unreadList) {
-                          Provider.of<CloudDB>(context)
-                              .readMessage(reference: reference);
+                          CloudDB.readMessage(reference: reference);
                         }
                       }
                       return ListView(
@@ -180,8 +176,8 @@ class ChatScreen extends StatelessWidget {
               ),
               width: MediaQuery.of(context).size.width,
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-                child: SendMessage(),
+                padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 5.0),
+                child: ComposeMessage(),
               ),
             ),
           ],

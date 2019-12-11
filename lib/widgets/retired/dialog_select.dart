@@ -11,7 +11,13 @@ class DialogSelect extends StatelessWidget {
   final String text;
   final String plantID;
   final List<Widget> menuItems;
-  DialogSelect({this.title, this.text, this.plantID, @required this.menuItems});
+  final String temp;
+  DialogSelect(
+      {this.title,
+      this.text,
+      this.plantID,
+      @required this.menuItems,
+      @required this.temp});
 
   @override
   Widget build(BuildContext context) {
@@ -32,10 +38,13 @@ class DialogSelect extends StatelessWidget {
               width: 1.0,
             ),
           ),
-          height: 125.0 * MediaQuery.of(context).size.width * kScaleFactor,
           width: 280.0 * MediaQuery.of(context).size.width * kScaleFactor,
+          constraints: BoxConstraints(
+            maxHeight: 125.0 * MediaQuery.of(context).size.width * kScaleFactor,
+          ),
           child: Scrollbar(
             child: ListView(
+              shrinkWrap: true,
               padding: EdgeInsets.only(
                 top: 5.0,
                 bottom: 5.0,
@@ -46,28 +55,27 @@ class DialogSelect extends StatelessWidget {
             ),
           ),
         ),
-//        Container(
-//          height: 100.0 * MediaQuery.of(context).size.width * kScaleFactor,
-//          child: CupertinoPicker(
-//              backgroundColor: kGreenLight,
-//              itemExtent: AppTextSize.huge * MediaQuery.of(context).size.width,
-//              onSelectedItemChanged: null,
-//              children: menuItems),
-//        ),
         SizedBox(height: 20.0),
-        RaisedButton(
-          color: kGreenDark,
-          textColor: Colors.white,
-          child: Text(
-            'Cancel',
-            style: TextStyle(
-              fontWeight: AppTextWeight.medium,
-              fontSize: AppTextSize.medium * MediaQuery.of(context).size.width,
+        Row(
+          children: <Widget>[
+            Expanded(
+              child: RaisedButton(
+                color: kGreenDark,
+                textColor: Colors.white,
+                child: Text(
+                  'CANCEL',
+                  style: TextStyle(
+                    fontWeight: AppTextWeight.medium,
+                    fontSize:
+                        AppTextSize.medium * MediaQuery.of(context).size.width,
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
             ),
-          ),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          ],
         ),
       ],
     );

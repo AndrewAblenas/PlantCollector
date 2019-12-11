@@ -1,43 +1,77 @@
 import 'package:flutter/material.dart';
-import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:plant_collector/formats/text.dart';
-import 'package:plant_collector/models/builders_general.dart';
 import 'package:plant_collector/widgets/dialogs/dialog_template.dart';
 import 'package:plant_collector/formats/colors.dart';
-import 'package:provider/provider.dart';
 
 class DialogConfirm extends StatelessWidget {
   final String title;
   final String text;
   final String buttonText;
   final Function onPressed;
-  DialogConfirm({this.title, this.text, this.onPressed, this.buttonText});
+  final bool hideCancel;
+  DialogConfirm(
+      {this.title,
+      this.text,
+      this.onPressed,
+      this.buttonText,
+      this.hideCancel});
 
   @override
   Widget build(BuildContext context) {
-    Provider.of<UIBuilders>(context).loadingIndicator = false;
     return DialogTemplate(
       title: title,
       text: text,
       list: <Widget>[
-        //TODO loading indicator doesn't work
-        ModalProgressHUD(
-          inAsyncCall: Provider.of<UIBuilders>(context).loadingIndicator,
-          child: RaisedButton(
-            color: kGreenDark,
-            textColor: Colors.white,
-            child: Text(
-              buttonText == null ? 'Confirm' : buttonText,
-              style: TextStyle(
-                fontWeight: AppTextWeight.medium,
-                fontSize:
-                    AppTextSize.medium * MediaQuery.of(context).size.width,
+        Row(
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+            hideCancel == false
+                ? Expanded(
+                    child: RaisedButton(
+                      color: kGreenDark,
+                      textColor: Colors.white,
+                      child: Text(
+                        'CANCEL',
+                        style: TextStyle(
+                          fontWeight: AppTextWeight.medium,
+                          fontSize: AppTextSize.medium *
+                              MediaQuery.of(context).size.width,
+                          color: AppTextColor.white,
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                  )
+                : SizedBox(),
+            SizedBox(
+              width: 20.0,
+            ),
+            Expanded(
+              child: RaisedButton(
+                color: kGreenDark,
+                textColor: Colors.white,
+                child: Text(
+                  buttonText == null ? 'CONFIRM' : buttonText.toUpperCase(),
+                  style: TextStyle(
+                    fontWeight: AppTextWeight.medium,
+                    fontSize:
+                        AppTextSize.medium * MediaQuery.of(context).size.width,
+                    color: AppTextColor.white,
+                  ),
+                ),
+                onPressed: () {
+                  onPressed();
+                },
               ),
             ),
-            onPressed: () {
-              onPressed();
-            },
-          ),
+            hideCancel == true
+                ? SizedBox(
+                    width: 20.0,
+                  )
+                : SizedBox(),
+          ],
         ),
       ],
     );

@@ -18,8 +18,9 @@ class DialogItem extends StatelessWidget {
       color: kGreenDark,
       textColor: AppTextColor.white,
       child: Container(
+        width: double.infinity,
         child: Text(
-          buttonText,
+          buttonText.toUpperCase(),
           style: TextStyle(
             fontSize: AppTextSize.medium * MediaQuery.of(context).size.width,
             fontWeight: AppTextWeight.medium,

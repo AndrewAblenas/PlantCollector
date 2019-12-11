@@ -7,13 +7,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
+import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/cloud_store.dart';
-import 'package:plant_collector/models/constants.dart';
+import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/models/user.dart';
+import 'package:plant_collector/screens/dialog/dialog_screen_input.dart';
 import 'package:plant_collector/screens/library/widgets/stat_card.dart';
 import 'package:plant_collector/widgets/container_wrapper.dart';
-import 'package:plant_collector/widgets/dialogs/dialog_input.dart';
 import 'package:plant_collector/widgets/section_header.dart';
 import 'package:provider/provider.dart';
 
@@ -25,90 +26,82 @@ class ProfileHeader extends StatelessWidget {
     return Consumer<DocumentSnapshot>(
       builder: (context, data, _) {
         if (data != null && data.data != null) {
-          //save to local file, for future use if needed
           //use to check user name in not empty before friend add
-          Provider.of<CloudDB>(context).currentUserInfo = data.data;
+          UserData user = UserData.fromMap(map: data.data);
+          Provider.of<AppData>(context).currentUserInfo = user;
           return ContainerWrapper(
             child: Column(
               children: <Widget>[
                 GestureDetector(
                   onLongPress: () {
-                    connectionLibrary == false
-                        ? showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return DialogInput(
-                                title: 'Set Name',
-                                text:
-                                    'Please create a user name.  This will be visible to other users.',
-                                onPressedCancel: null,
-                                onChangeInput: (value) {
-                                  Provider.of<CloudDB>(context).newDataInput =
-                                      value;
-                                },
-                                onPressedSubmit: () {
+                    if (connectionLibrary == false)
+                      showDialog(
+                          context: context,
+                          builder: (context) {
+                            return DialogScreenInput(
+                                title: 'Update Name',
+                                acceptText: 'Update',
+                                acceptOnPress: () {
+                                  //update user document with map
                                   Provider.of<CloudDB>(context)
                                       .updateUserDocument(
-                                          data: Provider.of<CloudDB>(context)
-                                              .updatePairInput(key: kUserName),
-                                          userID: data.data[kUserID]);
+                                    data: CloudDB.updatePairFull(
+                                        key: UserKeys.name,
+                                        value: Provider.of<AppData>(context)
+                                            .newDataInput),
+                                  );
+                                  //pop context
                                   Navigator.pop(context);
                                 },
-                              );
-                            },
-                          )
-                        : null;
+                                onChange: (input) {
+                                  Provider.of<AppData>(context).newDataInput =
+                                      input;
+                                },
+                                cancelText: 'Cancel',
+                                hintText: null);
+                          });
                   },
                   child: SectionHeader(
-                      title: (data.data[kUserName] != null ||
-                              !data.data.containsKey(kUserName))
-                          ? data.data[kUserName]
-                          : 'Name'),
+                      title: (user.name != '') ? user.name : 'Set Name'),
                 ),
                 SizedBox(
                   height: 5.0,
                 ),
                 GestureDetector(
                   onLongPress: () async {
-                    if (connectionLibrary == false) {
+                    if (connectionLibrary == false)
                       //set userID for use in path generation
                       Provider.of<CloudStore>(context).setUserFolder(
                           userID: (await Provider.of<UserAuth>(context)
                                   .getCurrentUser())
                               .uid);
-                      //get image from camera
-                      File image = await Provider.of<CloudStore>(context)
-                          .getCameraImage(fromCamera: false);
-                      //check to make sure the user didn't back out
-                      if (image != null) {
-                        //upload image
-                        StorageUploadTask upload =
-                            Provider.of<CloudStore>(context)
-                                .uploadToUserSettingsTask(
-                                    imageFile: image,
-                                    imageName: kUserBackground);
-                        //make sure upload completes
-                        StorageTaskSnapshot completion =
-                            await upload.onComplete;
-                        //get the url string
-                        String url = await Provider.of<CloudStore>(context)
-                            .getDownloadURL(snapshot: completion);
-                        //add image reference to plant document
-                        Provider.of<CloudDB>(context).updateUserDocument(
-                            data: Provider.of<CloudDB>(context).updatePairFull(
-                              key: kUserBackground,
-                              value: url,
-                            ),
-                            userID: data.data[kUserID]);
-                      }
-                    } else {}
+                    //get image from camera
+                    File image = await Provider.of<CloudStore>(context)
+                        .getCameraImage(fromCamera: false);
+                    //check to make sure the user didn't back out
+                    if (image != null) {
+                      //upload image
+                      StorageUploadTask upload =
+                          Provider.of<CloudStore>(context)
+                              .uploadToUserSettingsTask(
+                                  imageFile: image,
+                                  imageName: UserKeys.background);
+                      //make sure upload completes
+                      StorageTaskSnapshot completion = await upload.onComplete;
+                      //get the url string
+                      String url = await Provider.of<CloudStore>(context)
+                          .getDownloadURL(snapshot: completion);
+                      //add image reference to plant document
+                      Provider.of<CloudDB>(context).updateUserDocument(
+                        data: CloudDB.updatePairFull(
+                          key: UserKeys.background,
+                          value: url,
+                        ),
+                      );
+                    }
                   },
                   child: Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 5.0,
-                      vertical: 10.0,
-                    ),
                     margin: EdgeInsets.only(
                       left: 5.0,
                       right: 5.0,
@@ -116,75 +109,85 @@ class ProfileHeader extends StatelessWidget {
                       bottom: 5.0,
                     ),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5.0),
-                      boxShadow: kShadowBox,
-                      image: DecorationImage(
-                        fit: BoxFit.cover,
-                        image: data.data[kUserBackground] != null
-                            ? CachedNetworkImageProvider(
-                                data.data[kUserBackground],
-                              )
-                            : AssetImage(
-                                'assets/images/default.png',
-                              ),
+                        borderRadius: BorderRadius.circular(5.0),
+                        boxShadow: kShadowBox,
+                        color: kGreenDark),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 5.0,
+                        vertical: 10.0,
                       ),
-                    ),
-                    child: GestureDetector(
-                      onLongPress: () async {
-                        if (connectionLibrary == false) {
-                          //set userID for use in path generation
-                          Provider.of<CloudStore>(context).setUserFolder(
-                              userID: (await Provider.of<UserAuth>(context)
-                                      .getCurrentUser())
-                                  .uid);
-                          //get image from camera
-                          File image = await Provider.of<CloudStore>(context)
-                              .getCameraImage(fromCamera: false);
-                          //check to make sure the user didn't back out
-                          if (image != null) {
-                            //upload image
-                            StorageUploadTask upload =
-                                Provider.of<CloudStore>(context)
-                                    .uploadToUserSettingsTask(
-                                        imageFile: image,
-                                        imageName: kUserAvatar);
-                            //make sure upload completes
-                            StorageTaskSnapshot completion =
-                                await upload.onComplete;
-                            //get the url string
-                            String url = await Provider.of<CloudStore>(context)
-                                .getDownloadURL(snapshot: completion);
-                            //add image reference to plant document
-                            Provider.of<CloudDB>(context).updateUserDocument(
-                                data: Provider.of<CloudDB>(context)
-                                    .updatePairFull(
-                                  key: kUserAvatar,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5.0),
+                        image: DecorationImage(
+                          fit: BoxFit.cover,
+                          image: user.background != ''
+                              ? CachedNetworkImageProvider(
+                                  user.background,
+                                )
+                              : AssetImage(
+                                  'assets/images/default.png',
+                                ),
+                        ),
+                      ),
+                      child: GestureDetector(
+                        onLongPress: () async {
+                          if (connectionLibrary == false) {
+                            //set userID for use in path generation
+                            Provider.of<CloudStore>(context).setUserFolder(
+                                userID: (await Provider.of<UserAuth>(context)
+                                        .getCurrentUser())
+                                    .uid);
+                            //get image from camera
+                            File image = await Provider.of<CloudStore>(context)
+                                .getCameraImage(fromCamera: false);
+                            //check to make sure the user didn't back out
+                            if (image != null) {
+                              //upload image
+                              StorageUploadTask upload =
+                                  Provider.of<CloudStore>(context)
+                                      .uploadToUserSettingsTask(
+                                          imageFile: image,
+                                          imageName: UserKeys.avatar);
+                              //make sure upload completes
+                              StorageTaskSnapshot completion =
+                                  await upload.onComplete;
+                              //get the url string
+                              String url =
+                                  await Provider.of<CloudStore>(context)
+                                      .getDownloadURL(snapshot: completion);
+                              //add image reference to plant document
+                              Provider.of<CloudDB>(context).updateUserDocument(
+                                data: CloudDB.updatePairFull(
+                                  key: UserKeys.avatar,
                                   value: url,
                                 ),
-                                userID: data.data[kUserID]);
-                          } else {}
-                        }
-                      },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          SizedBox(),
-                          CircleAvatar(
-                            radius: 80.0 *
-                                MediaQuery.of(context).size.width *
-                                kScaleFactor,
-                            backgroundColor: data.data[kUserAvatar] != null
-                                ? kGreenDark
-                                : Color(0x00000000),
-                            backgroundImage: data.data[kUserAvatar] != null
-                                ? CachedNetworkImageProvider(
-                                    data.data[kUserAvatar],
-                                  )
-                                : AssetImage(
-                                    'assets/images/app_icon_white_512.png'),
-                          ),
-                          SizedBox(),
-                        ],
+                              );
+                            } else {}
+                          }
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            SizedBox(),
+                            CircleAvatar(
+                              radius: 80.0 *
+                                  MediaQuery.of(context).size.width *
+                                  kScaleFactor,
+                              backgroundColor: user.avatar != ''
+                                  ? kGreenDark
+                                  : Color(0x00000000),
+                              backgroundImage: user.avatar != ''
+                                  ? CachedNetworkImageProvider(
+                                      user.avatar,
+                                    )
+                                  : AssetImage(
+                                      'assets/images/app_icon_white_512.png'),
+                            ),
+                            SizedBox(),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -195,25 +198,23 @@ class ProfileHeader extends StatelessWidget {
                     Expanded(
                       child: StatCard(
                         cardLabel: 'Plant',
-                        cardValue: data.data[kUserTotalPlants] != null
-                            ? data.data[kUserTotalPlants].toString()
-                            : '0',
+                        cardValue:
+                            user.plants != 0 ? user.plants.toString() : '0',
                       ),
                     ),
                     Expanded(
                       child: StatCard(
                         cardLabel: 'Collection',
-                        cardValue: data.data[kUserTotalCollections] != null
-                            ? data.data[kUserTotalCollections].toString()
+                        cardValue: user.collections != 0
+                            ? user.collections.toString()
                             : '0',
                       ),
                     ),
                     Expanded(
                       child: StatCard(
                         cardLabel: 'Group',
-                        cardValue: data.data[kUserTotalGroups] != null
-                            ? data.data[kUserTotalGroups].toString()
-                            : '0',
+                        cardValue:
+                            user.groups != 0 ? user.groups.toString() : '0',
                       ),
                     ),
 //              Expanded(

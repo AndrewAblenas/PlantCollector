@@ -1,11 +1,12 @@
-import 'dart:convert';
 import 'dart:core';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:plant_collector/models/constants.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'dart:io';
-import 'package:plant_collector/models/classes.dart';
+import 'package:plant_collector/models/data_types/collection_data.dart';
+import 'package:plant_collector/models/data_types/group_data.dart';
+import 'package:plant_collector/models/data_types/plant_data.dart';
+import 'package:plant_collector/models/data_types/user_data.dart';
 
 class AppData extends ChangeNotifier {
   //Plant Library Variables
@@ -26,6 +27,34 @@ class AppData extends ChangeNotifier {
   //path and directories
   String pathPlants;
   String pathSettings;
+  //stream savers
+  //current user
+  List<GroupData> currentUserGroups;
+  List<CollectionData> currentUserCollections;
+  List<PlantData> currentUserPlants;
+  UserData currentUserInfo;
+  //connection
+  List<GroupData> connectionGroups;
+  List<CollectionData> connectionCollections;
+  List<PlantData> connectionPlants;
+  //*****************NOTIFICATIONS*****************//
+
+  FlutterLocalNotificationsPlugin notifications;
+
+  //*****************CHAT RELATED*****************//
+
+  //chat
+  String currentChatId;
+
+  //set current chat Id
+  void setCurrentChatId({@required String connectionID}) {
+    currentChatId = connectionID;
+  }
+
+  //get current chat Id
+  String getCurrentChatId() {
+    return currentChatId;
+  }
 
 //*****************CREATE DIRECTORIES*****************
 
@@ -48,55 +77,55 @@ class AppData extends ChangeNotifier {
 //    }
 //  }
 
-  Future createDirectories({@required String user}) async {
-    //get the relative path
-    String path = await _localPath;
-
-    //generate the plant folder string
-    pathPlants = '$path/$kFolderUsers/$user/$kFolderPlants';
-    //create directory
-    await new Directory(pathPlants).create(recursive: true);
-
-    //generate the user folder string
-    pathSettings = '$path/$kFolderUsers/$user/$kFolderSettings';
-    //create directory
-    await new Directory(pathSettings).create(recursive: true);
-
-    //create user file
-    await new File('$pathSettings/user.txt').create(recursive: true);
-  }
+//  Future createDirectories({@required String user}) async {
+//    //get the relative path
+//    String path = await _localPath;
+//
+//    //generate the plant folder string
+//    pathPlants = '$path/$kFolderUsers/$user/$kFolderPlants';
+//    //create directory
+//    await new Directory(pathPlants).create(recursive: true);
+//
+//    //generate the user folder string
+//    pathSettings = '$path/$kFolderUsers/$user/$kFolderSettings';
+//    //create directory
+//    await new Directory(pathSettings).create(recursive: true);
+//
+//    //create user file
+//    await new File('$pathSettings/user.txt').create(recursive: true);
+//  }
 
   //save user file
-  Future<void> userFileSave(User user) async {
-    //await the local path
-    String path = await _localPath;
-    //generate the user file string
-    pathSettings = '$path/$kFolderUsers/$user/$kFolderSettings/user.txt';
-    //encode user
-    String encoded = jsonEncode(user.toMap());
-    //save encoded
-    File(pathSettings).writeAsStringSync(encoded);
-  }
+//  Future<void> userFileSave(User user) async {
+//    //await the local path
+//    String path = await _localPath;
+//    //generate the user file string
+//    pathSettings = '$path/$kFolderUsers/$user/$kFolderSettings/user.txt';
+//    //encode user
+//    String encoded = jsonEncode(user.toMap());
+//    //save encoded
+//    File(pathSettings).writeAsStringSync(encoded);
+//  }
 
   //LOCAL PATH
-  Future<String> get _localPath async {
-    final directory = await getApplicationDocumentsDirectory();
-    localPathSaved = directory.path;
-    return directory.path;
-  }
+//  Future<String> get _localPath async {
+//    final directory = await getApplicationDocumentsDirectory();
+//    localPathSaved = directory.path;
+//    return directory.path;
+//  }
 
   //get user file
-  Future<User> userFileGet(String user) async {
-    //await the local path
-    String path = await _localPath;
-    //generate the user file string
-    pathSettings = '$path/$kFolderUsers/$user/$kFolderSettings/user.txt';
-    //
-    Map<String, dynamic> file =
-        jsonDecode(await File(pathSettings).readAsString());
-//create user from map
-    return userFromMap(userMap: file);
-  }
+//  Future<User> userFileGet(String user) async {
+//    //await the local path
+//    String path = await _localPath;
+//    //generate the user file string
+//    pathSettings = '$path/$kFolderUsers/$user/$kFolderSettings/user.txt';
+//    //
+//    Map<String, dynamic> file =
+//        jsonDecode(await File(pathSettings).readAsString());
+////create user from map
+//    return userFromMap(userMap: file);
+//  }
 
   //*****************CAMERA/IMAGE/FOLDER METHODS*****************
 
@@ -109,15 +138,15 @@ class AppData extends ChangeNotifier {
   //*****************GROUP METHODS*****************
 
   //METHOD TO CREATE NEW Group
-  Group groupNewDB() {
+  GroupData createGroup() {
     String generateGroupID = generateID(prefix: 'group_');
     String newCollectionName = newDataInput;
-    final group = Group(
-      groupID: generateGroupID,
-      groupName: newCollectionName,
-      groupCollectionList: [],
-      groupOrder: 0,
-      groupColor: null,
+    final group = GroupData(
+      id: generateGroupID,
+      name: newCollectionName,
+      collections: [],
+      order: 0,
+      color: [],
     );
     return group;
   }
@@ -125,14 +154,14 @@ class AppData extends ChangeNotifier {
   //*****************COLLECTION METHODS*****************
 
   //METHOD TO CREATE NEW COLLECTION
-  Collection collectionNewDB() {
+  CollectionData newCollection() {
     String generateCollectionID = generateID(prefix: 'collection_');
     String newCollectionName = newDataInput;
-    final collection = Collection(
-      collectionID: generateCollectionID,
-      collectionName: newCollectionName,
-      collectionPlantList: [],
-      collectionCreatorID: null,
+    final collection = CollectionData(
+      id: generateCollectionID,
+      name: newCollectionName,
+      plants: [],
+      creator: null,
     );
     return collection;
   }
@@ -140,17 +169,17 @@ class AppData extends ChangeNotifier {
   //*****************PLANT METHODS*****************
 
   //METHOD TO CREATE NEW PLANT
-  Plant plantNewDB() {
+  PlantData plantNew() {
     String newPlantID = generateID(prefix: 'plant_');
-    final Plant plant = Plant(
-      plantID: newPlantID,
-      plantName: newDataInput,
+    final plant = PlantData(
+      id: newPlantID,
+      name: newDataInput,
     );
     return plant;
   }
 
   //METHOD TO GENERATE A NEW ID
-  String generateID({@required String prefix}) {
+  static String generateID({@required String prefix}) {
     String newPlantID =
         prefix + DateTime.now().millisecondsSinceEpoch.toString();
     return newPlantID;

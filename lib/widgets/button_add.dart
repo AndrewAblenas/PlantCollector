@@ -6,10 +6,11 @@ import 'package:plant_collector/widgets/container_card.dart';
 class ButtonAdd extends StatelessWidget {
   final String buttonText;
   final Function onPress;
-  final Widget dialog;
   final Color buttonColor;
   ButtonAdd(
-      {this.buttonText, this.onPress, this.dialog, @required this.buttonColor});
+      {@required this.buttonText,
+      @required this.onPress,
+      @required this.buttonColor});
 
   @override
   Widget build(BuildContext context) {
@@ -32,17 +33,7 @@ class ButtonAdd extends StatelessWidget {
           ],
         ),
         onPressed: () {
-          if (onPress != null) {
-            onPress();
-          }
-          if (dialog != null) {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return dialog;
-              },
-            );
-          }
+          onPress();
         },
       ),
     );

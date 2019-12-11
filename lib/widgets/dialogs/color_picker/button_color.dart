@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:plant_collector/models/constants.dart';
 import 'package:plant_collector/models/cloud_db.dart';
+import 'package:plant_collector/models/data_storage/firebase_folders.dart';
+import 'package:plant_collector/models/data_types/group_data.dart';
 import 'package:provider/provider.dart';
 
 class ButtonColor extends StatelessWidget {
@@ -17,10 +18,10 @@ class ButtonColor extends StatelessWidget {
       child: FlatButton(
         onPressed: () {
           List<int> colorUpload = [color.red, color.green, color.blue];
-          Map data = Provider.of<CloudDB>(context)
-              .updatePairFull(key: kGroupColor, value: colorUpload);
+          Map data =
+              CloudDB.updatePairFull(key: GroupKeys.color, value: colorUpload);
           Provider.of<CloudDB>(context).updateDocumentInCollection(
-              data: data, collection: kUserGroups, documentName: groupID);
+              data: data, collection: DBFolder.groups, documentName: groupID);
           onPress();
         },
         child: Container(

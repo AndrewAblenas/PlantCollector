@@ -6,9 +6,11 @@ import 'package:flutter/material.dart';
 const Color kGreenDark = Color(0xFF207561);
 const Color kGreenMedium = Color(0xFF589167);
 const Color kGreenLight = Color(0xFFA0cc78);
+//Other
+const Color kButtonAccept = Color(0xFFbcdba0);
+const Color kButtonCancel = Color(0xFFffcccc);
 //Accents
 const Color kBackgroundLight = Colors.white;
-const Color kDialogBackground = kGreenLight;
 //Group Colors
 const List<Color> kGroupColors = [
   kGreenDark,
@@ -23,7 +25,7 @@ const List<Color> kGroupColors = [
 ];
 //Convert DB RGB color to color opacity isn't stored so set to 1
 Color convertColor({@required List<dynamic> storedColor}) {
-  return storedColor == null
+  return (storedColor == null || storedColor.length == 0)
       ? kGreenDark
       : Color.fromRGBO(storedColor[0], storedColor[1], storedColor[2], 1);
 }
