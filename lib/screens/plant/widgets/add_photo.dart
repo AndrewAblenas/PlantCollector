@@ -63,7 +63,7 @@ class AddPhoto extends StatelessWidget {
                           imageFile: image,
                           imageExtension: 'jpg',
                           plantIDFolder: plantID,
-                          subFolder: StorageFolder.plants);
+                          subFolder: StorageFolder.images);
                   //make sure upload completes
                   StorageTaskSnapshot completion = await upload.onComplete;
                   //get the url string

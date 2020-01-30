@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/cloud_db.dart';
@@ -10,14 +11,15 @@ import 'package:provider/provider.dart';
 
 class ConnectionCard extends StatelessWidget {
   final UserData user;
-  ConnectionCard({@required this.user});
+  final bool isRequest;
+  ConnectionCard({@required this.user, @required this.isRequest});
   @override
   Widget build(BuildContext context) {
     return CardTemplate(
       user: user,
       buttonRow: <Widget>[
         Container(
-          width: 50 * MediaQuery.of(context).size.width * kScaleFactor,
+          width: 45 * MediaQuery.of(context).size.width * kScaleFactor,
           child: FlatButton(
             onPressed: () {
               Navigator.push(
@@ -32,16 +34,23 @@ class ConnectionCard extends StatelessWidget {
             },
             child: Icon(
               Icons.photo_library,
-              size: AppTextSize.huge * MediaQuery.of(context).size.width,
+              size: AppTextSize.small * MediaQuery.of(context).size.width,
               color: AppTextColor.white,
             ),
           ),
         ),
-        SizedBox(
-          width: AppTextSize.tiny * MediaQuery.of(context).size.width,
+        CircleAvatar(
+          radius: 35.0 * MediaQuery.of(context).size.width * kScaleFactor,
+          backgroundColor: AppTextColor.white,
+          backgroundImage:
+              (user != null && user.avatar != null && user.avatar != '')
+                  ? CachedNetworkImageProvider(user.avatar)
+                  : AssetImage(
+                      'assets/images/default.png',
+                    ),
         ),
         Container(
-          width: 50 * MediaQuery.of(context).size.width * kScaleFactor,
+          width: 45 * MediaQuery.of(context).size.width * kScaleFactor,
           child: FlatButton(
             onPressed: () {
               Navigator.push(
@@ -55,7 +64,7 @@ class ConnectionCard extends StatelessWidget {
             },
             child: Icon(
               Icons.chat,
-              size: AppTextSize.huge * MediaQuery.of(context).size.width,
+              size: AppTextSize.small * MediaQuery.of(context).size.width,
               color: AppTextColor.white,
             ),
           ),
@@ -70,6 +79,7 @@ class ConnectionCard extends StatelessWidget {
               text:
                   'Are you sure you would like to remove this contact?  You will no longer be able to chat or view each other\'s Libraries.',
               buttonText: 'Remove',
+              hideCancel: false,
               onPressed: () {
                 Provider.of<CloudDB>(context)
                     .removeConnection(connectionID: user.id);

@@ -153,6 +153,7 @@ class CloudStore extends ChangeNotifier {
     String imageName;
     if (imageUrl != null) {
       //remove prefix to image name
+      //note this only works if the images are saved to the plant 'image' folder.
       String split = imageUrl.split('images%2F')[1];
       //remove suffix to image name
       imageName = split.split('.jpg')[0];

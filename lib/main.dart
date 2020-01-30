@@ -28,7 +28,6 @@ void main() {
         ChangeNotifierProvider<UserAuth>(builder: (context) => UserAuth()),
         ChangeNotifierProvider<AppData>(builder: (context) => AppData()),
         ChangeNotifierProvider<CloudDB>(builder: (context) => CloudDB()),
-//        ChangeNotifierProvider<UIBuilders>(builder: (context) => UIBuilders()),
         ChangeNotifierProvider<CloudStore>(builder: (context) => CloudStore()),
       ],
       child: PlantCollector(),
@@ -41,7 +40,9 @@ class PlantCollector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LocalNotificationWrapper(
-      userId: Provider.of<AppData>(context).currentUserInfo.id,
+      userId: Provider.of<AppData>(context).currentUserInfo != null
+          ? Provider.of<AppData>(context).currentUserInfo.id
+          : null,
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Plant Collector',

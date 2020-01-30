@@ -77,7 +77,7 @@ class CollectionCard extends StatelessWidget {
                                     input;
                               },
                               cancelText: 'Cancel',
-                              hintText: null);
+                              hintText: collection.name);
                         });
                 },
                 child: Row(
@@ -116,7 +116,8 @@ class CollectionCard extends StatelessWidget {
                                     context: context,
                                     builder: (BuildContext context) {
                                       return DialogScreenSelect(
-                                        title: 'Move to a new Group',
+                                        title:
+                                            'Move this collection to a different Group',
                                         items:
                                             UIBuilders.createDialogGroupButtons(
                                           selectedItemID: collection.id,

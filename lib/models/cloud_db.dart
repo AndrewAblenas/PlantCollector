@@ -4,8 +4,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_collector/models/data_types/collection_data.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
+import 'package:plant_collector/models/data_types/friend_data.dart';
+import 'package:plant_collector/models/data_types/group_data.dart';
 import 'package:plant_collector/models/data_types/message_data.dart';
 import 'package:plant_collector/models/data_types/plant_data.dart';
+import 'package:plant_collector/models/data_types/request_data.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
 
 class CloudDB extends ChangeNotifier {
@@ -16,22 +19,22 @@ class CloudDB extends ChangeNotifier {
   static String conversationsPath = 'conversations';
   static String messagesPath = 'messages';
   //streams
-  Stream userDocumentStream;
-  Stream userGroupsStream;
-  Stream userCollectionsStream;
-  Stream userPlantsStream;
-  Stream userConnectionsStream;
-  Stream userRequestsStream;
-  Stream userMessagesStream;
+//  Stream userDocumentStream;
+//  Stream userGroupsStream;
+//  Stream userCollectionsStream;
+//  Stream userPlantsStream;
+//  Stream userConnectionsStream;
+//  Stream userRequestsStream;
+//  Stream userMessagesStream;
   //set user streams
-  void setUserStreams({@required userID}) {
-    userDocumentStream = streamUserDocument(userID: userID);
-    userGroupsStream = streamGroups(userID: userID);
-    userCollectionsStream = streamCollections(userID: userID);
-    userPlantsStream = streamPlants(userID: userID);
-    userConnectionsStream = streamConnections();
-    userRequestsStream = streamRequests();
-  }
+//  void setUserStreams({@required userID}) {
+//    userDocumentStream = streamUserDocument(userID: userID);
+//    userGroupsStream = streamGroups(userID: userID);
+//    userCollectionsStream = streamCollections(userID: userID);
+//    userPlantsStream = streamPlants(userID: userID);
+//    userConnectionsStream = streamConnections();
+//    userRequestsStream = streamRequests();
+//  }
 
   //variables
   String currentUserFolder;
@@ -60,13 +63,13 @@ class CloudDB extends ChangeNotifier {
   //*****************STREAMS*****************
 
   //provide a stream of all plants
-  Stream<QuerySnapshot> streamPlants({@required userID}) {
-    return _db
-        .collection(usersPath)
-        .document(userID)
-        .collection(DBFolder.plants)
-        .snapshots();
-  }
+//  Stream<QuerySnapshot> streamPlants({@required userID}) {
+//    return _db
+//        .collection(usersPath)
+//        .document(userID)
+//        .collection(DBFolder.plants)
+//        .snapshots();
+//  }
 
   //provide a stream of one specific plant document
   //NOTE userID is required as it may be from a connection in chat
@@ -80,50 +83,114 @@ class CloudDB extends ChangeNotifier {
         .snapshots();
   }
 
+  //provide a stream of all plants
+  static Stream<List<PlantData>> streamPlantsData({@required userID}) {
+    //stream
+    Stream<QuerySnapshot> stream = _db
+        .collection(usersPath)
+        .document(userID)
+        .collection(DBFolder.plants)
+        .snapshots();
+    //return specific data type
+    return stream.map((snap) =>
+        snap.documents.map((doc) => PlantData.fromMap(map: doc.data)).toList());
+  }
+
   //provide a stream of all groups
-  Stream<QuerySnapshot> streamGroups({@required userID}) {
-    return _db
+//  Stream<QuerySnapshot> streamGroups({@required userID}) {
+//    return _db
+//        .collection(usersPath)
+//        .document(userID)
+//        .collection(DBFolder.groups)
+//        .snapshots();
+//  }
+
+  //provide a stream of all groups
+  static Stream<List<GroupData>> streamGroupsData({@required userID}) {
+    //stream
+    Stream<QuerySnapshot> stream = _db
         .collection(usersPath)
         .document(userID)
         .collection(DBFolder.groups)
         .snapshots();
+    //return specific data type
+    return stream.map((snap) =>
+        snap.documents.map((doc) => GroupData.fromMap(map: doc.data)).toList());
   }
 
   //provide a stream of all collections
-  Stream<QuerySnapshot> streamCollections({@required userID}) {
-    return _db
+//  Stream<QuerySnapshot> streamCollections({@required userID}) {
+//    return _db
+//        .collection(usersPath)
+//        .document(userID)
+//        .collection(DBFolder.collections)
+//        .snapshots();
+//  }
+
+  //provide a stream of all collections
+  static Stream<List<CollectionData>> streamCollectionsData(
+      {@required userID}) {
+    //stream
+    Stream<QuerySnapshot> stream = _db
         .collection(usersPath)
         .document(userID)
         .collection(DBFolder.collections)
         .snapshots();
+    //return specific data type
+    return stream.map((snap) => snap.documents
+        .map((doc) => CollectionData.fromMap(map: doc.data))
+        .toList());
   }
 
   //provide a stream of requests
-  Stream<QuerySnapshot> streamRequests() {
-    return _db
+//  Stream<QuerySnapshot> streamRequests() {
+//    return _db
+//        .collection(usersPath)
+//        .document(currentUserFolder)
+//        .collection(DBFolder.requests)
+//        .snapshots();
+//  }
+
+  //provide a stream of requests
+  Stream<List<RequestData>> streamRequestsData() {
+    //stream
+    Stream<QuerySnapshot> stream = _db
         .collection(usersPath)
         .document(currentUserFolder)
         .collection(DBFolder.requests)
         .snapshots();
+    //return specific data type
+    return stream.map((snap) => snap.documents
+        .map((doc) => RequestData.fromMap(map: doc.data))
+        .toList());
   }
 
-  //provide a stream of requests
-  Stream<QuerySnapshot> streamConnections() {
-    return _db
+  //provide a stream of connections
+//  Stream<QuerySnapshot> streamConnections() {
+//    return _db
+//        .collection(usersPath)
+//        .document(currentUserFolder)
+//        .collection(DBFolder.friends)
+//        .snapshots();
+//  }
+
+  //provide a stream of friends
+  Stream<List<FriendData>> streamFriendsData() {
+    //stream
+    Stream<QuerySnapshot> stream = _db
         .collection(usersPath)
         .document(currentUserFolder)
         .collection(DBFolder.friends)
         .snapshots();
-  }
-
-  //provide a stream of user document
-  Stream<DocumentSnapshot> streamUserDocument({@required userID}) {
-    return _db.collection(usersPath).document(userID).snapshots();
+    //return specific data type
+    return stream.map((snap) => snap.documents
+        .map((doc) => FriendData.fromMap(map: doc.data))
+        .toList());
   }
 
   //provide a stream of messages for a specific conversation
-  static Stream<QuerySnapshot> streamConvoMessages(
-      {@required String document}) {
+  Stream<QuerySnapshot> streamConvoMessages({@required String connectionID}) {
+    String document = conversationDocumentName(connectionId: connectionID);
     if (document != null) {
       return _db
           .collection(conversationsPath)
@@ -135,6 +202,25 @@ class CloudDB extends ChangeNotifier {
     } else {
       return null;
     }
+  }
+
+  //generate conversation document name
+  String conversationDocumentName({@required String connectionId}) {
+    if (connectionId != null) {
+      List<String> list = [currentUserFolder, connectionId];
+      list.sort((a, b) => (a).compareTo(b));
+      return list[0] + '_' + list[1];
+    } else {
+      return null;
+    }
+  }
+
+  //provide a stream of user document
+  static Stream<UserData> streamUserData({@required userID}) {
+    Stream<DocumentSnapshot> stream =
+        _db.collection(usersPath).document(userID).snapshots();
+    //return specific data type
+    return stream.map((doc) => UserData.fromMap(map: doc.data));
   }
 
   //provide a stream of all messages
@@ -153,17 +239,6 @@ class CloudDB extends ChangeNotifier {
 //      return null;
 //    }
 //  }
-
-  //generate conversation document name
-  String conversationDocumentName({@required String connectionId}) {
-    if (connectionId != null) {
-      List<String> list = [currentUserFolder, connectionId];
-      list.sort((a, b) => (a).compareTo(b));
-      return list[0] + '_' + list[1];
-    } else {
-      return null;
-    }
-  }
 
   //TODO
   //add user reference to shared message document
@@ -263,11 +338,9 @@ class CloudDB extends ChangeNotifier {
             .document(connectionID)
             .collection(DBFolder.requests)
             .document(currentUserFolder)
-            .setData({
-          UserKeys.id: currentUserFolder,
-          UserKeys.name: user.name,
-          UserKeys.avatar: user.avatar,
-        });
+            .setData(
+              user.toMap(),
+            );
         success = true;
       } catch (e) {
         success = false;

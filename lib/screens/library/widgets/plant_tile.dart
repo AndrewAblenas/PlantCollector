@@ -56,7 +56,7 @@ class PlantTile extends StatelessWidget {
             context: context,
             builder: (BuildContext context) {
               return DialogScreenSelect(
-                title: 'Move Plant to a different Collection',
+                title: 'Move this plant to a different Collection',
                 items: UIBuilders.createDialogCollectionButtons(
                   selectedItemID: plant.id,
                   currentParentID: collectionID,

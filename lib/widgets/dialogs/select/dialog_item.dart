@@ -14,23 +14,37 @@ class DialogItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RaisedButton(
-      color: kGreenDark,
-      textColor: AppTextColor.white,
-      child: Container(
-        width: double.infinity,
-        child: Text(
-          buttonText.toUpperCase(),
-          style: TextStyle(
-            fontSize: AppTextSize.medium * MediaQuery.of(context).size.width,
-            fontWeight: AppTextWeight.medium,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ),
-      onPressed: () {
+    return GestureDetector(
+      onTap: () {
         onPress();
       },
+      child: Container(
+        width: double.infinity,
+        child: Column(
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.symmetric(
+                  vertical:
+                      AppTextSize.small * MediaQuery.of(context).size.width,
+                  horizontal: 0.0),
+              child: Text(
+                buttonText.toUpperCase(),
+                style: TextStyle(
+                  fontSize:
+                      AppTextSize.huge * MediaQuery.of(context).size.width,
+                  fontWeight: AppTextWeight.heavy,
+                  color: AppTextColor.white,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            Container(
+              height: 1.0,
+              color: kGreenDark,
+            ),
+          ],
+        ),
+      ),
     );
 //    return GestureDetector(
 //      child: Text(

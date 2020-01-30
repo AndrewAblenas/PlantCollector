@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -23,11 +22,10 @@ class ProfileHeader extends StatelessWidget {
   ProfileHeader({@required this.connectionLibrary});
   @override
   Widget build(BuildContext context) {
-    return Consumer<DocumentSnapshot>(
-      builder: (context, data, _) {
-        if (data != null && data.data != null) {
+    return Consumer<UserData>(
+      builder: (context, user, _) {
+        if (user != null) {
           //use to check user name in not empty before friend add
-          UserData user = UserData.fromMap(map: data.data);
           Provider.of<AppData>(context).currentUserInfo = user;
           return ContainerWrapper(
             child: Column(
@@ -58,7 +56,7 @@ class ProfileHeader extends StatelessWidget {
                                       input;
                                 },
                                 cancelText: 'Cancel',
-                                hintText: null);
+                                hintText: user.name);
                           });
                   },
                   child: SectionHeader(
