@@ -69,7 +69,7 @@ class PlantTile extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: kGreenDark,
-          boxShadow: kShadowBox,
+//          boxShadow: kShadowBox,
           shape: BoxShape.rectangle,
         ),
         child: Container(
