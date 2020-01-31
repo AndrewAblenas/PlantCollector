@@ -23,8 +23,9 @@ class DialogScreenInput extends StatelessWidget {
     return DialogScreen(
       title: title,
       children: <Widget>[
-        TextField(
+        TextFormField(
           decoration: InputDecoration(hintText: hintText),
+          initialValue: hintText,
           cursorColor: AppTextColor.white,
           autofocus: true,
           textAlign: TextAlign.center,

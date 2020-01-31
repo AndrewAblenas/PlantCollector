@@ -13,7 +13,7 @@ class DialogScreenSelect extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DialogScreen(
-      title: title.toUpperCase(),
+      title: title,
       children: <Widget>[
         Column(
           children: items,

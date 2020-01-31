@@ -41,11 +41,10 @@ class DialogScreen extends StatelessWidget {
                     title,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize:
-                          AppTextSize.large * MediaQuery.of(context).size.width,
-                      fontWeight: AppTextWeight.medium,
-                      color: AppTextColor.white,
-                    ),
+                        fontSize: AppTextSize.huge *
+                            MediaQuery.of(context).size.width,
+                        fontWeight: AppTextWeight.medium,
+                        color: kGreenDark),
                   ),
                 ),
                 Padding(

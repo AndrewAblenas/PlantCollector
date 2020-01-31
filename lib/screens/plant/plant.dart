@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 import 'package:plant_collector/models/data_types/collection_data.dart';
+import 'package:plant_collector/models/data_types/friend_data.dart';
 import 'package:plant_collector/models/data_types/message_data.dart';
 import 'package:plant_collector/models/data_types/plant_data.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
@@ -53,8 +54,7 @@ class PlantScreen extends StatelessWidget {
                 builder: (context, DocumentSnapshot plantSnap, _) {
                   //after the first image has been taken, this will be rebuilt
                   if (plantSnap != null) {
-                    PlantData plant =
-                        PlantData.fromMap(plantMap: plantSnap.data);
+                    PlantData plant = PlantData.fromMap(map: plantSnap.data);
                     List<Widget> items = UIBuilders.generateImageTileWidgets(
                       connectionLibrary: connectionLibrary,
                       plantID: plantID,
@@ -62,6 +62,7 @@ class PlantScreen extends StatelessWidget {
                       //the below check is necessary for deleting a plant via the button on plant screen
                       listURL: plant != null ? plant.images : null,
                     );
+                    //TODO make this a gridview if more than say 8 photos?
                     return items.length >= 1
                         ? CarouselSlider(
                             items: items,
@@ -83,8 +84,7 @@ class PlantScreen extends StatelessWidget {
               child: Consumer<DocumentSnapshot>(
                 builder: (context, DocumentSnapshot plantSnap, _) {
                   if (plantSnap != null) {
-                    PlantData plant =
-                        PlantData.fromMap(plantMap: plantSnap.data);
+                    PlantData plant = PlantData.fromMap(map: plantSnap.data);
                     return ContainerWrapper(
                       child: UIBuilders.displayInfoCards(
                         connectionLibrary: connectionLibrary,
@@ -169,25 +169,22 @@ class PlantScreen extends StatelessWidget {
                               builder: (BuildContext context) => DialogScreen(
                                 title: 'Share Plant',
                                 children: <Widget>[
-                                  StreamProvider<QuerySnapshot>.value(
+                                  StreamProvider<List<FriendData>>.value(
                                     value: Provider.of<CloudDB>(context)
-                                        .streamConnections(),
-                                    child: Consumer<QuerySnapshot>(
+                                        .streamFriendsData(),
+                                    child: Consumer<List<FriendData>>(
                                       builder: (context,
-                                          QuerySnapshot connectionsSnap, _) {
-                                        if (connectionsSnap != null &&
-                                            connectionsSnap.documents != null) {
+                                          List<FriendData> friends, _) {
+                                        if (friends != null) {
                                           List<Widget> connectionList = [];
-                                          for (DocumentSnapshot connection
-                                              in connectionsSnap.documents) {
+                                          for (FriendData friend in friends) {
                                             connectionList.add(
                                               FutureProvider<Map>.value(
                                                 value: Provider.of<CloudDB>(
                                                         context)
                                                     .getConnectionProfile(
                                                         connectionID:
-                                                            connection[
-                                                                UserKeys.id]),
+                                                            friend.id),
                                                 child: Consumer<Map>(
                                                   builder: (context,
                                                       Map friendSnap, _) {

@@ -11,7 +11,6 @@ import 'package:provider/provider.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/builders_general.dart';
 import 'package:expandable/expandable.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:plant_collector/widgets/tile_white.dart';
 import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/formats/text.dart';
@@ -31,13 +30,13 @@ class GroupCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Stream plantsStream;
-    if (connectionLibrary == false) {
-      plantsStream = Provider.of<CloudDB>(context).userPlantsStream;
-    } else {
-      plantsStream = Provider.of<CloudDB>(context).streamPlants(
-          userID: Provider.of<CloudDB>(context).connectionUserFolder);
-    }
+//    Stream plantsStream;
+//    if (connectionLibrary == false) {
+//      plantsStream = Provider.of<CloudDB>(context).userPlantsStream;
+//    } else {
+//      plantsStream = CloudDB.streamPlantsData(
+//          userID: Provider.of<CloudDB>(context).connectionUserFolder);
+//    }
     return ContainerWrapper(
       color: convertColor(storedColor: group.color),
       child: ExpandableNotifier(
@@ -83,38 +82,32 @@ class GroupCard extends StatelessWidget {
               ),
               Column(
                 children: <Widget>[
-                  Consumer<QuerySnapshot>(
-                    builder: (context, QuerySnapshot collectionsSnap, _) {
-                      if (collectionsSnap == null) return Column();
+                  Consumer<List<CollectionData>>(
+                    builder: (context, List<CollectionData> collections, _) {
+                      if (collections == null) return Column();
                       if (connectionLibrary == false) {
                         Provider.of<AppData>(context).currentUserCollections =
-                            collectionsSnap.documents
-                                .map((doc) =>
-                                    CollectionData.fromMap(map: doc.data))
-                                .toList();
+                            collections;
                         //update tally in user document
-                        if (collectionsSnap.documents != null &&
+                        if (collections != null &&
                             Provider.of<AppData>(context).currentUserInfo !=
                                 null
                             //don't bother updating if the values are the same
                             &&
-                            collectionsSnap.documents.length !=
+                            collections.length !=
                                 Provider.of<AppData>(context)
                                     .currentUserInfo
                                     .collections) {
                           Map countData = CloudDB.updatePairFull(
                               key: UserKeys.collections,
-                              value: collectionsSnap.documents.length);
+                              value: collections.length);
                           Provider.of<CloudDB>(context).updateUserDocument(
                             data: countData,
                           );
                         }
                       } else {
                         Provider.of<AppData>(context).connectionCollections =
-                            collectionsSnap.documents
-                                .map((doc) =>
-                                    CollectionData.fromMap(map: doc.data))
-                                .toList();
+                            collections;
                       }
                       List<CollectionData> groupCollections =
                           CloudDB.getMapsFromList(
@@ -126,63 +119,45 @@ class GroupCard extends StatelessWidget {
                                 .connectionCollections,
                       );
                       Color groupColor = convertColor(storedColor: group.color);
-                      return StreamProvider<QuerySnapshot>.value(
-                        value: plantsStream,
-                        child: Consumer<QuerySnapshot>(
-                          builder: (context, QuerySnapshot plantsSnap, _) {
-                            if (plantsSnap != null) {
-                              if (connectionLibrary == false) {
-                                //list to add plants
-                                List<PlantData> plants = [];
-                                //create a plant from each document
-                                for (DocumentSnapshot snap
-                                    in plantsSnap.documents) {
-                                  plants.add(PlantData.fromMap(plantMap: snap));
-                                }
-                                //save plants for use elsewhere
-                                Provider.of<AppData>(context)
-                                    .currentUserPlants = plants;
-                                //update tally in user document
-                                if (plantsSnap.documents != null &&
-                                    Provider.of<AppData>(context)
-                                            .currentUserInfo !=
-                                        null
-                                    //don't bother updating if the values are the same
-                                    &&
-                                    plantsSnap.documents.length !=
-                                        Provider.of<AppData>(context)
-                                            .currentUserInfo
-                                            .plants) {
-                                  Map countData = CloudDB.updatePairFull(
-                                      key: UserKeys.plants,
-                                      value: plantsSnap.documents.length);
-                                  Provider.of<CloudDB>(context)
-                                      .updateUserDocument(
-                                    data: countData,
-                                  );
-                                }
-                              } else {
-                                //list to add plants
-                                List<PlantData> plants = [];
-                                //create a plant from each document
-                                for (DocumentSnapshot snap
-                                    in plantsSnap.documents) {
-                                  plants.add(PlantData.fromMap(plantMap: snap));
-                                }
-                                //save plants for use elsewhere
-                                Provider.of<AppData>(context).connectionPlants =
-                                    plants;
+                      return Consumer<List<PlantData>>(
+                        builder: (context, List<PlantData> plants, _) {
+                          if (plants != null) {
+                            if (connectionLibrary == false) {
+                              //save plants for use elsewhere
+                              Provider.of<AppData>(context).currentUserPlants =
+                                  plants;
+                              //update tally in user document
+                              if (plants != null &&
+                                  Provider.of<AppData>(context)
+                                          .currentUserInfo !=
+                                      null
+                                  //don't bother updating if the values are the same
+                                  &&
+                                  plants.length !=
+                                      Provider.of<AppData>(context)
+                                          .currentUserInfo
+                                          .plants) {
+                                Map countData = CloudDB.updatePairFull(
+                                    key: UserKeys.plants, value: plants.length);
+                                Provider.of<CloudDB>(context)
+                                    .updateUserDocument(
+                                  data: countData,
+                                );
                               }
-                              return UIBuilders.displayCollections(
-                                  connectionLibrary: connectionLibrary,
-                                  userCollections: groupCollections,
-                                  groupID: group.id,
-                                  groupColor: groupColor);
                             } else {
-                              return SizedBox();
+                              //save plants for use elsewhere
+                              Provider.of<AppData>(context).connectionPlants =
+                                  plants;
                             }
-                          },
-                        ),
+                            return UIBuilders.displayCollections(
+                                connectionLibrary: connectionLibrary,
+                                userCollections: groupCollections,
+                                groupID: group.id,
+                                groupColor: groupColor);
+                          } else {
+                            return SizedBox();
+                          }
+                        },
                       );
                     },
                   ),
@@ -308,7 +283,7 @@ class GroupHeader extends StatelessWidget {
                           Provider.of<AppData>(context).newDataInput = input;
                         },
                         cancelText: 'Cancel',
-                        hintText: null);
+                        hintText: group.name);
                   });
           },
           child: Column(

@@ -32,6 +32,7 @@ class AboutScreen extends StatelessWidget {
               TextSection(
                 title: 'Groups',
                 text:
+                    'Groups hold your plant Collections are are used to organize your Library.  '
                     'You can add a new group by tapping the button on the library page.  '
                     'To rename, hold down on the Group name.  '
                     'You can quickly tap the Group name to change it\'s color.  '
@@ -56,6 +57,15 @@ class AboutScreen extends StatelessWidget {
                     'You can also add photos of your plant that you can scroll though to watch it grow.  '
                     'You can set any of the images as a thumbnail for the plant by tapping the grid icon (bottom right hand corner of the image).  '
                     'To view a full sized photo, just tap on the image.',
+              ),
+              TextSection(
+                title: 'Connections and Chat',
+                text:
+                    'You can add a friend\'s email address to view their plant library and chat.  '
+                    'If the email address is not found, you will be able to send an invite link.  '
+                    'In this version, if the app is closed, you will not receive message notifications.  '
+                    'Message notifications will only be displayed while the app is running.  '
+                    'The social aspect is in the early stages and may be a bit buggy.  ',
               ),
               TextSection(
                 title: 'Version and Development',

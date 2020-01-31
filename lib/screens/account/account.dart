@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
@@ -27,8 +26,8 @@ class AccountScreen extends StatelessWidget {
           style: kAppBarTitle,
         ),
       ),
-      body: StreamProvider<DocumentSnapshot>.value(
-        value: Provider.of<CloudDB>(context).streamUserDocument(
+      body: StreamProvider<UserData>.value(
+        value: CloudDB.streamUserData(
             userID: Provider.of<CloudDB>(context).currentUserFolder),
         child: ListView(
           children: <Widget>[
@@ -36,12 +35,10 @@ class AccountScreen extends StatelessWidget {
             ContainerWrapper(
               child: Column(
                 children: <Widget>[
-                  Consumer<DocumentSnapshot>(
-                      builder: (context, DocumentSnapshot snap, _) {
-                    if (snap == null || snap.data == null) {
+                  Consumer<UserData>(builder: (context, UserData user, _) {
+                    if (user == null) {
                       return SizedBox();
                     } else {
-                      UserData user = UserData.fromMap(map: snap.data);
                       return Column(
                         children: <Widget>[
                           SettingsCard(

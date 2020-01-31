@@ -233,7 +233,7 @@ class UIBuilders extends ChangeNotifier {
                 context: context,
                 builder: (BuildContext context) {
                   return DialogScreenSelect(
-                    title: 'Add Information',
+                    title: 'Add new information about this Plant',
                     items: createDialogWidgetList(
                       plant: plant,
                     ),

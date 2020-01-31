@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:plant_collector/formats/colors.dart';
 import 'package:provider/provider.dart';
 
 class Notifications extends ChangeNotifierProvider {
@@ -47,6 +48,8 @@ class Notifications extends ChangeNotifierProvider {
       ongoing: false,
       autoCancel: true,
       playSound: false,
+      onlyAlertOnce: true,
+      color: kGreenDark,
     );
     var iOSPlatformChannelSpecifics =
         new IOSNotificationDetails(presentSound: false);

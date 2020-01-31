@@ -130,7 +130,7 @@ class PlantInfoCard extends StatelessWidget {
                                           .newDataInput = input;
                                     },
                                     cancelText: 'Cancel',
-                                    hintText: null);
+                                    hintText: displayText);
                               });
                         }
                       },

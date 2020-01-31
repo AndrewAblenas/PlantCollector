@@ -69,18 +69,18 @@ class PlantData {
   }
 
   //FROM MAP
-  static PlantData fromMap({@required plantMap}) {
-    if (plantMap != null) {
+  static PlantData fromMap({@required map}) {
+    if (map != null) {
       return PlantData(
-        id: plantMap[PlantKeys.id] ?? '',
-        name: plantMap[PlantKeys.name] ?? '',
-        variety: plantMap[PlantKeys.variety] ?? '',
-        genus: plantMap[PlantKeys.genus] ?? '',
-        species: plantMap[PlantKeys.species] ?? '',
-        quantity: plantMap[PlantKeys.quantity] ?? '',
-        notes: plantMap[PlantKeys.notes] ?? '',
-        thumbnail: plantMap[PlantKeys.thumbnail] ?? '',
-        images: plantMap[PlantKeys.images] ?? [],
+        id: map[PlantKeys.id] ?? '',
+        name: map[PlantKeys.name] ?? '',
+        variety: map[PlantKeys.variety] ?? '',
+        genus: map[PlantKeys.genus] ?? '',
+        species: map[PlantKeys.species] ?? '',
+        quantity: map[PlantKeys.quantity] ?? '',
+        notes: map[PlantKeys.notes] ?? '',
+        thumbnail: map[PlantKeys.thumbnail] ?? '',
+        images: map[PlantKeys.images] ?? [],
       );
     } else {
       return PlantData(id: '', name: '');

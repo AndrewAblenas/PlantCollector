@@ -1,9 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/data_types/friend_data.dart';
+import 'package:plant_collector/models/data_types/request_data.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/models/user.dart';
 import 'package:plant_collector/screens/connections/widgets/connection_card.dart';
@@ -29,16 +29,17 @@ class ConnectionsScreen extends StatelessWidget {
             SizedBox(
               height: 10.0,
             ),
-            StreamProvider<QuerySnapshot>.value(
-              value: Provider.of<CloudDB>(context).streamRequests(),
-              child: Consumer<QuerySnapshot>(
-                builder: (context, QuerySnapshot requestSnap, _) {
-                  if (requestSnap != null && requestSnap.documents.length > 0) {
+            StreamProvider<List<RequestData>>.value(
+              value: Provider.of<CloudDB>(context).streamRequestsData(),
+              child: Consumer<List<RequestData>>(
+                builder: (context, List<RequestData> list, _) {
+                  if (list != null && list.length > 0) {
                     List<Widget> requestList = [];
-                    for (DocumentSnapshot request in requestSnap.documents) {
-                      UserData req = UserData.fromMap(map: request.data);
+                    for (RequestData request in list) {
+                      //TODO change to request after revamp
+                      UserData user = UserData.fromMap(map: request.toMap());
                       requestList.add(
-                        RequestCard(user: req),
+                        RequestCard(user: user),
                       );
                     }
                     return ContainerWrapper(
@@ -54,7 +55,7 @@ class ConnectionsScreen extends StatelessWidget {
                             shrinkWrap: true,
                             crossAxisCount: 2,
                             children: requestList,
-                            childAspectRatio: 1.5,
+                            childAspectRatio: 1.2,
                           )
                         ],
                       ),
@@ -65,17 +66,13 @@ class ConnectionsScreen extends StatelessWidget {
                 },
               ),
             ),
-            StreamProvider<QuerySnapshot>.value(
-              value: Provider.of<CloudDB>(context).streamConnections(),
-              child: Consumer<QuerySnapshot>(
-                builder: (context, QuerySnapshot connectionsSnap, _) {
-                  if (connectionsSnap != null &&
-                      connectionsSnap.documents != null) {
+            StreamProvider<List<FriendData>>.value(
+              value: Provider.of<CloudDB>(context).streamFriendsData(),
+              child: Consumer<List<FriendData>>(
+                builder: (context, List<FriendData> friends, _) {
+                  if (friends != null) {
                     List<Widget> connectionList = [];
-                    for (DocumentSnapshot connection
-                        in connectionsSnap.documents) {
-                      FriendData friend =
-                          FriendData.fromMap(map: connection.data);
+                    for (FriendData friend in friends) {
                       connectionList.add(
                         FutureProvider<Map>.value(
                           value: Provider.of<CloudDB>(context)
@@ -85,7 +82,10 @@ class ConnectionsScreen extends StatelessWidget {
                               if (connectionMap != null) {
                                 UserData user =
                                     UserData.fromMap(map: connectionMap);
-                                return ConnectionCard(user: user);
+                                return ConnectionCard(
+                                  user: user,
+                                  isRequest: false,
+                                );
                               } else {
                                 return SizedBox();
                               }
@@ -107,7 +107,7 @@ class ConnectionsScreen extends StatelessWidget {
                             shrinkWrap: true,
                             crossAxisCount: 2,
                             children: connectionList,
-                            childAspectRatio: 1.5,
+                            childAspectRatio: 1.2,
                           ),
                           ButtonAdd(
                             buttonColor: kGreenDark,
@@ -173,12 +173,10 @@ class ConnectionsScreen extends StatelessWidget {
                                                                 context)
                                                             .newDataInput);
                                             //look for ID in friend list
-                                            bool friend = false;
-                                            for (DocumentSnapshot connection
-                                                in connectionsSnap.documents) {
-                                              if (connection.data
-                                                  .containsValue(friendID)) {
-                                                friend = true;
+                                            bool check = false;
+                                            for (FriendData friend in friends) {
+                                              if (friend.id == friendID) {
+                                                check = true;
                                               }
                                             }
                                             //check if user is inputted their own email
@@ -201,7 +199,7 @@ class ConnectionsScreen extends StatelessWidget {
                                               dialogText =
                                                   'It\'s great that you want to be friends with yourself!'
                                                   '\n\nUnfortunately you can\'t send yourself a request.';
-                                            } else if (friend == true) {
+                                            } else if (check == true) {
                                               //so user can't send another request to same friend
                                               title = 'Cannot Send';
                                               dialogText =
