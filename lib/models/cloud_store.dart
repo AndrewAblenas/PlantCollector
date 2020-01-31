@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter_exif_rotation/flutter_exif_rotation.dart';
+//import 'package:flutter_exif_rotation/flutter_exif_rotation.dart';
 import 'package:image/image.dart' as ExtendedImage;
 import 'package:date_format/date_format.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
@@ -311,7 +311,7 @@ class CloudStore extends ChangeNotifier {
     if (image != null && image.path != null) {
       //fix needed for image rotation problem on android
       // Note : iOS not implemented
-      image = await FlutterExifRotation.rotateAndSaveImage(path: image.path);
+//      image = await FlutterExifRotation.rotateAndSaveImage(path: image.path);
     }
     return image;
   }
