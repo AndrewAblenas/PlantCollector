@@ -9,6 +9,7 @@ import 'package:plant_collector/screens/dialog/dialog_screen_select.dart';
 import 'package:plant_collector/screens/library/widgets/add_plant.dart';
 import 'package:plant_collector/widgets/dialogs/dialog_confirm.dart';
 import 'package:plant_collector/screens/library/widgets/plant_tile.dart';
+import 'package:plant_collector/widgets/info_tip.dart';
 import 'package:provider/provider.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/builders_general.dart';
@@ -162,48 +163,70 @@ class CollectionCard extends StatelessWidget {
                         Expanded(
                           child: Padding(
                             padding: EdgeInsets.all(2.0),
-                            child: (collectionPlantTotal == 0 &&
-                                    connectionLibrary == false)
-                                ? Container(
-                                    decoration: kButtonBoxDecoration,
-                                    child: FlatButton(
-                                      padding: EdgeInsets.all(10.0),
-                                      child: CircleAvatar(
-                                        foregroundColor: kGreenDark,
-                                        backgroundColor: Colors.white,
-                                        radius: AppTextSize.medium *
-                                            MediaQuery.of(context).size.width,
-                                        child: Icon(
-                                          Icons.delete_forever,
-                                          size: AppTextSize.huge *
-                                              MediaQuery.of(context).size.width,
-                                        ),
-                                      ),
-                                      onPressed: () {
-                                        showDialog(
-                                          context: context,
-                                          builder: (BuildContext context) {
-                                            return DialogConfirm(
-                                              title: 'Remove Collection',
+                            child:
+                                //provide a delete button if the collection is empty
+                                (collectionPlantTotal == 0 &&
+                                        connectionLibrary == false)
+                                    ? Column(
+                                        children: <Widget>[
+                                          InfoTip(
                                               text:
-                                                  'Are you sure you want to delete this collection?',
-                                              buttonText: 'Remove',
+                                                  'A Collection holds your plants.  \n\n'
+                                                  'You can move a Collection to a different Group via the arrow to the right of the Collection name.  \n\n'
+                                                  'Like Groups, Collections can only be deleted when empty, via the button below.  \n\n'
+                                                  'Add a Plant with the "+" button below.  \n\n'
+                                                  'Tap a Plant to visit the profile, hold down to move to another Collection.'),
+                                          Container(
+                                            decoration: kButtonBoxDecoration,
+                                            width: double.infinity,
+                                            child: FlatButton(
+                                              padding: EdgeInsets.all(10.0),
+                                              child: CircleAvatar(
+                                                foregroundColor: kGreenDark,
+                                                backgroundColor: Colors.white,
+                                                radius: AppTextSize.medium *
+                                                    MediaQuery.of(context)
+                                                        .size
+                                                        .width,
+                                                child: Icon(
+                                                  Icons.delete_forever,
+                                                  size: AppTextSize.huge *
+                                                      MediaQuery.of(context)
+                                                          .size
+                                                          .width,
+                                                ),
+                                              ),
                                               onPressed: () {
-                                                Provider.of<CloudDB>(context)
-                                                    .deleteDocumentFromCollection(
-                                                        documentID:
-                                                            collection.id,
-                                                        collection: DBFolder
-                                                            .collections);
-                                                Navigator.pop(context);
+                                                showDialog(
+                                                  context: context,
+                                                  builder:
+                                                      (BuildContext context) {
+                                                    return DialogConfirm(
+                                                      title:
+                                                          'Remove Collection',
+                                                      text:
+                                                          'Are you sure you want to delete this collection?',
+                                                      buttonText: 'Remove',
+                                                      onPressed: () {
+                                                        Provider.of<CloudDB>(
+                                                                context)
+                                                            .deleteDocumentFromCollection(
+                                                                documentID:
+                                                                    collection
+                                                                        .id,
+                                                                collection: DBFolder
+                                                                    .collections);
+                                                        Navigator.pop(context);
+                                                      },
+                                                    );
+                                                  },
+                                                );
                                               },
-                                            );
-                                          },
-                                        );
-                                      },
-                                    ),
-                                  )
-                                : const SizedBox(),
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    : const SizedBox(),
                           ),
                         ),
                       ],
@@ -212,58 +235,60 @@ class CollectionCard extends StatelessWidget {
                     //TODO is this even needed? Can I just pull the saved plants?
                     Builder(
                       builder: (context) {
-                        if (fullList.length >= 1) {
-                          if (connectionLibrary == true &&
-                              collectionPlants.length == 0) {
-                            return SizedBox();
-                          } else {
-                            return GridView.builder(
-                              shrinkWrap: true,
-                              //allows scrolling
-                              primary: false,
-                              padding: EdgeInsets.only(bottom: 10.0),
-                              scrollDirection: Axis.vertical,
-                              //add additional button only for collection owner
-                              itemCount: connectionLibrary == false
-                                  ? collectionPlantTotal + 1
-                                  : collectionPlantTotal,
-                              gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 3),
-                              itemBuilder: (BuildContext context, int index) {
-                                Widget tile;
-                                if (index <= collectionPlantTotal - 1) {
-                                  tile = Padding(
-                                    padding: EdgeInsets.all(2.0 *
-                                        MediaQuery.of(context).size.width *
-                                        kScaleFactor),
-                                    child: PlantTile(
-                                        connectionLibrary: connectionLibrary,
-                                        possibleParents:
-                                            connectionLibrary == false
-                                                ? Provider.of<AppData>(context)
-                                                    .currentUserCollections
-                                                : Provider.of<AppData>(context)
-                                                    .connectionCollections,
-                                        plant: collectionPlants[index],
-                                        collectionID: collection.id),
-                                  );
-                                } else {
-                                  tile = Padding(
-                                    padding: EdgeInsets.all(2.0 *
-                                        MediaQuery.of(context).size.width *
-                                        kScaleFactor),
-                                    child:
-                                        AddPlant(collectionID: collection.id),
-                                  );
-                                }
-                                return tile;
-                              },
-                            );
-                          }
-                        } else {
+                        //check if library list contains at least one item
+//                        if (fullList.length >= 1) {
+                        if (connectionLibrary == true &&
+                            collectionPlants.length == 0) {
                           return SizedBox();
+                        } else {
+                          return GridView.builder(
+                            shrinkWrap: true,
+                            //allows scrolling
+                            primary: false,
+                            padding: EdgeInsets.only(bottom: 10.0),
+                            scrollDirection: Axis.vertical,
+                            //add additional button only for collection owner
+                            itemCount: connectionLibrary == false
+                                ? collectionPlantTotal + 1
+                                : collectionPlantTotal,
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 3),
+                            itemBuilder: (BuildContext context, int index) {
+                              Widget tile;
+                              //build a tile for each plant in the list, beginning index 0
+                              if (index <= collectionPlantTotal - 1) {
+                                tile = Padding(
+                                  padding: EdgeInsets.all(2.0 *
+                                      MediaQuery.of(context).size.width *
+                                      kScaleFactor),
+                                  child: PlantTile(
+                                      connectionLibrary: connectionLibrary,
+                                      possibleParents:
+                                          connectionLibrary == false
+                                              ? Provider.of<AppData>(context)
+                                                  .currentUserCollections
+                                              : Provider.of<AppData>(context)
+                                                  .connectionCollections,
+                                      plant: collectionPlants[index],
+                                      collectionID: collection.id),
+                                );
+                                //for the last item put an add button
+                              } else {
+                                tile = Padding(
+                                  padding: EdgeInsets.all(2.0 *
+                                      MediaQuery.of(context).size.width *
+                                      kScaleFactor),
+                                  child: AddPlant(collectionID: collection.id),
+                                );
+                              }
+                              return tile;
+                            },
+                          );
                         }
+//                        } else {
+//                          return SizedBox();
+//                        }
                       },
                     ),
                     SizedBox(height: 10.0),

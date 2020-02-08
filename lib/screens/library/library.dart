@@ -37,11 +37,15 @@ class LibraryScreen extends StatelessWidget {
       //make current user ID available to CloudDB and CloudStore instances
       Provider.of<CloudDB>(context).setUserFolder(userID: userID);
       Provider.of<CloudStore>(context).setUserFolder(userID: userID);
+      //TODO showtips
+//      Provider.of<AppData>(context).showTipsHelpers();
     } else {
       //make friend ID available to CloudDB and CloudStore instances to display friend library
       Provider.of<CloudDB>(context).setConnectionFolder(connectionID: userID);
       Provider.of<CloudStore>(context)
           .setConnectionFolder(connectionID: userID);
+      //TODO showtips
+      Provider.of<AppData>(context).showTips = false;
     }
     return MultiProvider(
       providers: [
@@ -209,8 +213,10 @@ class LibraryScreen extends StatelessWidget {
                             Provider.of<AppData>(context)
                                 .currentUserInfo
                                 .groups) {
+                      //update group count key value pair
                       Map countData = CloudDB.updatePairFull(
                           key: UserKeys.groups, value: groups.length);
+                      //upload to DB
                       Provider.of<CloudDB>(context).updateUserDocument(
                         data: countData,
                       );

@@ -149,7 +149,8 @@ class CloudStore extends ChangeNotifier {
   }
 
   //get thumbnail url from image url
-  String getThumbName({@required String imageUrl}) {
+  static String getThumbName({@required String imageUrl}) {
+    print(imageUrl);
     String imageName;
     if (imageUrl != null) {
       //remove prefix to image name
@@ -161,6 +162,22 @@ class CloudStore extends ChangeNotifier {
     //this suffice is as per the firebase extension that creates thumbnails
     return imageName + '_200x200';
   }
+
+  //get thumbnail url from image url
+//  static String getThumbURL({@required String imageUrl}) {
+//    print(imageUrl);
+//    String imagePath;
+//    if (imageUrl != null) {
+//      //split to insert thumbnail suffix
+//      List split = imageUrl.split('.jpg');
+//      //insert
+//      split.insert(1, '_200x200.jpg');
+//      imagePath = split[0] + split[1] + split[2];
+//    }
+//    //this suffice is as per the firebase extension that creates thumbnails
+//    print(imagePath);
+//    return imagePath;
+//  }
 
   //get image ref
   StorageReference getImageRef(
@@ -261,6 +278,13 @@ class CloudStore extends ChangeNotifier {
     return imageReference.delete();
   }
 
+  //FORMAT DATE
+  static String dateFormat({@required int msSinceEpoch}) {
+    String date = formatDate(DateTime.fromMillisecondsSinceEpoch(msSinceEpoch),
+        [MM, ' ', d, ', ', yyyy]);
+    return date;
+  }
+
   //GET METADATA DATE
   Future<String> getMetaDate({@required String imageURL}) async {
     String date;
@@ -269,9 +293,7 @@ class CloudStore extends ChangeNotifier {
         StorageReference reference =
             await getReferenceFromURL(imageURL: imageURL);
         StorageMetadata meta = await reference.getMetadata();
-        date = formatDate(
-            DateTime.fromMillisecondsSinceEpoch(meta.creationTimeMillis),
-            [MM, ' ', d, ', ', yyyy]);
+        date = dateFormat(msSinceEpoch: meta.creationTimeMillis);
       } catch (e) {
         date = '';
         print(e);

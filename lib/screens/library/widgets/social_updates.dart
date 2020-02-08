@@ -10,6 +10,7 @@ import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/screens/chat/chat.dart';
 import 'package:plant_collector/widgets/chat_avatar.dart';
 import 'package:plant_collector/widgets/container_wrapper.dart';
+import 'package:plant_collector/widgets/info_tip.dart';
 import 'package:plant_collector/widgets/section_header.dart';
 import 'package:plant_collector/widgets/tile_white.dart';
 import 'package:provider/provider.dart';
@@ -25,7 +26,7 @@ class SocialUpdates extends StatelessWidget {
               Navigator.pushNamed(context, 'connections');
             },
             child: SectionHeader(
-              title: 'Friend Collections',
+              title: 'Community',
             ),
           ),
           SizedBox(
@@ -35,7 +36,7 @@ class SocialUpdates extends StatelessWidget {
             bottomPadding: 5.0,
             child: Consumer<List<FriendData>>(
               builder: (context, List<FriendData> friends, _) {
-                if (friends != null) {
+                if (friends != null && friends.length >= 1) {
                   List<Widget> connectionList = [];
                   for (FriendData friend in friends) {
                     connectionList.add(
@@ -169,7 +170,11 @@ class SocialUpdates extends StatelessWidget {
                     childAspectRatio: 1,
                   );
                 } else {
-                  return SizedBox();
+                  return InfoTip(
+                      text:
+                          'What\'s better than a plant person?  A community of plant people!  \n\n'
+                          'After you add a friend, and they accept, you\'ll be able to chat and view each other\'s plant Collections!  \n\n'
+                          'Tap "Friend Collections" above to get started.  ');
                 }
               },
             ),

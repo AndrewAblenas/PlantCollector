@@ -1,17 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 import 'package:plant_collector/models/data_types/collection_data.dart';
 import 'package:plant_collector/models/data_types/friend_data.dart';
 import 'package:plant_collector/models/data_types/message_data.dart';
 import 'package:plant_collector/models/data_types/plant_data.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
+import 'package:plant_collector/screens/plant/widgets/carousel_standard.dart';
 import 'package:plant_collector/widgets/chat_avatar.dart';
 import 'package:plant_collector/screens/dialog/dialog_screen.dart';
 import 'package:plant_collector/screens/plant/widgets/action_button.dart';
 import 'package:plant_collector/widgets/container_wrapper.dart';
 import 'package:plant_collector/widgets/dialogs/dialog_confirm.dart';
+import 'package:plant_collector/widgets/info_tip.dart';
 import 'package:provider/provider.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/builders_general.dart';
@@ -55,23 +56,46 @@ class PlantScreen extends StatelessWidget {
                   //after the first image has been taken, this will be rebuilt
                   if (plantSnap != null) {
                     PlantData plant = PlantData.fromMap(map: plantSnap.data);
+                    //check number of widgets to decide what type to build
+                    bool largeWidget =
+                        (plant.images != null && plant.images.length >= 8)
+                            ? false
+                            : true;
                     List<Widget> items = UIBuilders.generateImageTileWidgets(
                       connectionLibrary: connectionLibrary,
                       plantID: plantID,
                       thumbnail: plant != null ? plant.thumbnail : null,
                       //the below check is necessary for deleting a plant via the button on plant screen
-                      listURL: plant != null ? plant.images : null,
+                      //reversed the image list so most recent photos are first
+                      listURL: plant.images != null
+                          ? plant.images.reversed.toList()
+                          : null,
+                      largeWidget: largeWidget,
                     );
-                    //TODO make this a gridview if more than say 8 photos?
-                    return items.length >= 1
-                        ? CarouselSlider(
-                            items: items,
-                            initialPage: 0,
-                            height: MediaQuery.of(context).size.width * 0.96,
-                            viewportFraction: 0.94,
-                            enableInfiniteScroll: false,
-                          )
-                        : SizedBox();
+                    //if there are too many photos, it's annoying to scroll.
+                    //create a grid view to display instead
+                    if (plant.images != null && plant.images.length >= 8) {
+                      return Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal:
+                                0.03 * MediaQuery.of(context).size.width),
+                        child: GridView.count(
+                          crossAxisCount: 3,
+                          primary: false,
+                          shrinkWrap: true,
+                          mainAxisSpacing: 5.0,
+                          crossAxisSpacing: 5.0,
+                          children: items,
+                        ),
+                      );
+                    } else if (items.length >= 1) {
+                      return CarouselStandard(
+                        items: items,
+                        connectionLibrary: connectionLibrary,
+                      );
+                    } else {
+                      return SizedBox();
+                    }
                   } else {
                     return SizedBox();
                   }
@@ -175,7 +199,8 @@ class PlantScreen extends StatelessWidget {
                                     child: Consumer<List<FriendData>>(
                                       builder: (context,
                                           List<FriendData> friends, _) {
-                                        if (friends != null) {
+                                        if (friends != null &&
+                                            friends.length >= 1) {
                                           List<Widget> connectionList = [];
                                           for (FriendData friend in friends) {
                                             connectionList.add(
@@ -245,7 +270,10 @@ class PlantScreen extends StatelessWidget {
                                             childAspectRatio: 1,
                                           );
                                         } else {
-                                          return SizedBox();
+                                          return InfoTip(
+                                              text:
+                                                  'First add some friends,  \n'
+                                                  'then you can share to chat!');
                                         }
                                       },
                                     ),
@@ -258,6 +286,7 @@ class PlantScreen extends StatelessWidget {
                       ),
                     ],
                   )
+                //otherwise provide an option to clone the plant
                 : SizedBox(),
             SizedBox(height: 10),
           ],

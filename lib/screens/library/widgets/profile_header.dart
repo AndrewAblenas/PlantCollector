@@ -60,7 +60,8 @@ class ProfileHeader extends StatelessWidget {
                           });
                   },
                   child: SectionHeader(
-                      title: (user.name != '') ? user.name : 'Set Name'),
+                      title:
+                          (user.name != '') ? user.name : 'Hold to Set Name'),
                 ),
                 SizedBox(
                   height: 5.0,

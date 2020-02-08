@@ -22,17 +22,20 @@ class PlantPhoto extends StatelessWidget {
   final bool connectionLibrary;
   final String imageURL;
   final String imageDate;
+  final bool largeWidget;
   PlantPhoto(
       {@required this.connectionLibrary,
       @required this.imageURL,
-      @required this.imageDate});
+      @required this.imageDate,
+      @required this.largeWidget});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.all(4.0),
+      padding: EdgeInsets.all(largeWidget ? 4.0 : 0.0),
       child: GestureDetector(
         onLongPress: () {
+          //allow long press to delete image, if this is the user library
           if (connectionLibrary == false) {
             showDialog(
               context: context,
@@ -61,8 +64,8 @@ class PlantPhoto extends StatelessWidget {
                         .deleteImage(imageReference: reference);
                     //*****REMOVE THUMBNAIL*****//
                     //get the thumbnail image name from the full sized image url
-                    String imageName = Provider.of<CloudStore>(context)
-                        .getThumbName(imageUrl: imageURL);
+                    String imageName =
+                        CloudStore.getThumbName(imageUrl: imageURL);
                     //get the thumb ref
                     StorageReference thumbRef = Provider.of<CloudStore>(context)
                         .getImageRef(
@@ -81,7 +84,7 @@ class PlantPhoto extends StatelessWidget {
           }
         },
         child: Container(
-          margin: EdgeInsets.only(bottom: 10.0),
+          margin: EdgeInsets.only(bottom: largeWidget ? 10.0 : 0.0),
           decoration: BoxDecoration(
             color: kGreenMedium,
             boxShadow: kShadowBox,
@@ -90,6 +93,7 @@ class PlantPhoto extends StatelessWidget {
             width: MediaQuery.of(context).size.width * 0.94,
             decoration: BoxDecoration(
               image: DecorationImage(
+                //TODO set to use thumbnail, maybe send over proper URL during build
                 image: CachedNetworkImageProvider(imageURL),
                 fit: BoxFit.cover,
                 alignment: Alignment.center,
@@ -112,12 +116,14 @@ class PlantPhoto extends StatelessWidget {
                     mainAxisSize: MainAxisSize.max,
                     children: <Widget>[
                       SizedBox(
-                        width: 30,
+                        width: largeWidget ? 30 : 0,
                       ),
                       Padding(
-                        padding: EdgeInsets.all(5.0 *
-                            MediaQuery.of(context).size.width *
-                            kScaleFactor),
+                        padding: EdgeInsets.all(largeWidget
+                            ? 5.0
+                            : 1.0 *
+                                MediaQuery.of(context).size.width *
+                                kScaleFactor),
                         child: Container(
                           color: Color(0x33000000),
                           padding: EdgeInsets.all(3 *
@@ -127,61 +133,77 @@ class PlantPhoto extends StatelessWidget {
                             imageDate,
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              fontSize: AppTextSize.medium *
-                                  MediaQuery.of(context).size.width,
+                              //change text size depending on widget size
+                              fontSize: largeWidget
+                                  ? AppTextSize.medium *
+                                      MediaQuery.of(context).size.width
+                                  : 0.9 *
+                                      AppTextSize.tiny *
+                                      MediaQuery.of(context).size.width,
                               color: Colors.white,
                             ),
                           ),
                         ),
                       ),
-                      Container(
-                        width: 38 *
-                            MediaQuery.of(context).size.width *
-                            kScaleFactor,
-                        child: connectionLibrary == false
-                            ? FlatButton(
-                                onPressed: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return DialogConfirm(
-                                        title: 'Plant Thumbnail',
-                                        text:
-                                            'Would you like to use this image as the plant thumbail image?',
-                                        onPressed: () async {
-                                          //run thumbnail package to get thumb url
-                                          String thumbUrl = await Provider.of<
-                                                  CloudStore>(context)
-                                              .thumbnailPackage(
-                                                  imageURL: imageURL,
-                                                  plantID: Provider.of<AppData>(
-                                                          context)
-                                                      .forwardingPlantID);
-                                          //set thumb url
-                                          Provider.of<CloudDB>(context)
-                                              .updateDocumentInCollection(
-                                                  data: CloudDB.updatePairFull(
-                                                      key: PlantKeys.thumbnail,
-                                                      value: thumbUrl),
-                                                  collection: DBFolder.plants,
-                                                  documentName:
-                                                      Provider.of<AppData>(
-                                                              context)
-                                                          .forwardingPlantID);
+                      //only show set as thumbnail for large widget size
+                      largeWidget
+                          ? Container(
+                              width: 38 *
+                                  MediaQuery.of(context).size.width *
+                                  kScaleFactor,
+                              //only show set as thumbnail if user library
+                              child: connectionLibrary == false
+                                  ? FlatButton(
+                                      onPressed: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return DialogConfirm(
+                                              title: 'Plant Thumbnail',
+                                              text:
+                                                  'Would you like to use this image as the plant thumbail image?',
+                                              onPressed: () async {
+                                                //run thumbnail package to get thumb url
+                                                String thumbUrl = await Provider
+                                                        .of<CloudStore>(context)
+                                                    .thumbnailPackage(
+                                                        imageURL: imageURL,
+                                                        plantID: Provider.of<
+                                                                    AppData>(
+                                                                context)
+                                                            .forwardingPlantID);
+                                                //set thumb url
+                                                Provider.of<CloudDB>(context)
+                                                    .updateDocumentInCollection(
+                                                        data: CloudDB
+                                                            .updatePairFull(
+                                                                key: PlantKeys
+                                                                    .thumbnail,
+                                                                value:
+                                                                    thumbUrl),
+                                                        collection:
+                                                            DBFolder.plants,
+                                                        documentName: Provider
+                                                                .of<AppData>(
+                                                                    context)
+                                                            .forwardingPlantID);
 
-                                          Navigator.pop(context);
-                                        },
-                                      );
-                                    },
-                                  );
-                                },
-                                child: Icon(Icons.grid_on,
-                                    color: Color(0x55FFFFFF),
-                                    size: AppTextSize.huge *
-                                        MediaQuery.of(context).size.width),
-                              )
-                            : SizedBox(),
-                      ),
+                                                Navigator.pop(context);
+                                              },
+                                            );
+                                          },
+                                        );
+                                      },
+                                      child: Icon(Icons.grid_on,
+                                          color: Color(0x55FFFFFF),
+                                          size: AppTextSize.huge *
+                                              MediaQuery.of(context)
+                                                  .size
+                                                  .width),
+                                    )
+                                  : SizedBox(),
+                            )
+                          : SizedBox(),
                     ],
                   ),
                 ],

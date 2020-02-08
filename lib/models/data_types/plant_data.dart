@@ -13,6 +13,7 @@ class PlantKeys {
   static const String notes = 'plantNotes';
   static const String thumbnail = 'plantThumbnail';
   static const String images = 'plantImageList';
+//  static const String journal = 'plantJournal';
 
   //DESCRIPTORS
   static const Map<String, String> descriptors = {
@@ -25,6 +26,7 @@ class PlantKeys {
     notes: 'Notes',
     thumbnail: 'Thumbnail',
     images: 'Image Files',
+//    journal: 'Journal Entries'
   };
 }
 
@@ -39,6 +41,7 @@ class PlantData {
   final String notes;
   final String thumbnail;
   final List images;
+//  final List journal;
 
   //CONSTRUCTOR
   PlantData({
@@ -51,6 +54,7 @@ class PlantData {
     this.notes,
     this.thumbnail,
     this.images,
+//      this.journal
   });
 
   //TO MAP
@@ -65,6 +69,7 @@ class PlantData {
       PlantKeys.notes: notes,
       PlantKeys.thumbnail: thumbnail,
       PlantKeys.images: images,
+//      PlantKeys.journal: journal,
     };
   }
 
@@ -81,6 +86,7 @@ class PlantData {
         notes: map[PlantKeys.notes] ?? '',
         thumbnail: map[PlantKeys.thumbnail] ?? '',
         images: map[PlantKeys.images] ?? [],
+//        journal: map[PlantKeys.journal] ?? [],
       );
     } else {
       return PlantData(id: '', name: '');

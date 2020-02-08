@@ -11,15 +11,18 @@ import 'package:plant_collector/formats/colors.dart';
 
 class AddPhoto extends StatelessWidget {
   final String plantID;
+  final bool largeWidget;
   AddPhoto({
     @required this.plantID,
+    @required this.largeWidget,
   });
 
   @override
   Widget build(BuildContext context) {
+    double widgetScale = largeWidget ? 1.0 : 0.3;
     return Container(
-      margin: EdgeInsets.only(bottom: 10.0),
-      padding: EdgeInsets.all(4.0),
+      margin: EdgeInsets.only(bottom: largeWidget ? 10.0 : 0.0),
+      padding: EdgeInsets.all(largeWidget ? 4.0 : 0.0),
       child: Container(
         width: MediaQuery.of(context).size.width * 0.94,
         decoration: BoxDecoration(
@@ -38,16 +41,23 @@ class AddPhoto extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
             RaisedButton(
+              color: largeWidget ? AppTextColor.white : kGreenMedium,
               elevation: 5.0,
               hoverElevation: 0,
-              padding: EdgeInsets.all(10.0),
+              padding: EdgeInsets.all(10.0 * widgetScale),
               child: CircleAvatar(
                 foregroundColor: kGreenDark,
                 backgroundColor: Colors.white,
-                radius: 60 * MediaQuery.of(context).size.width * kScaleFactor,
+                radius: 60 *
+                    MediaQuery.of(context).size.width *
+                    kScaleFactor *
+                    widgetScale,
                 child: Icon(
                   Icons.camera_alt,
-                  size: 80.0 * MediaQuery.of(context).size.width * kScaleFactor,
+                  size: 80.0 *
+                      MediaQuery.of(context).size.width *
+                      kScaleFactor *
+                      widgetScale,
                 ),
               ),
               onPressed: () async {
@@ -81,16 +91,23 @@ class AddPhoto extends StatelessWidget {
               },
             ),
             RaisedButton(
+              color: largeWidget ? AppTextColor.white : kGreenMedium,
               elevation: 5.0,
               hoverElevation: 0,
-              padding: EdgeInsets.all(10.0),
+              padding: EdgeInsets.all(10.0 * widgetScale),
               child: CircleAvatar(
                 foregroundColor: kGreenDark,
                 backgroundColor: Colors.white,
-                radius: 60 * MediaQuery.of(context).size.width * kScaleFactor,
+                radius: 60 *
+                    MediaQuery.of(context).size.width *
+                    kScaleFactor *
+                    widgetScale,
                 child: Icon(
                   Icons.image,
-                  size: 80.0 * MediaQuery.of(context).size.width * kScaleFactor,
+                  size: 80.0 *
+                      MediaQuery.of(context).size.width *
+                      kScaleFactor *
+                      widgetScale,
                 ),
               ),
               onPressed: () async {

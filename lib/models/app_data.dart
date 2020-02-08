@@ -5,6 +5,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'dart:io';
 import 'package:plant_collector/models/data_types/collection_data.dart';
 import 'package:plant_collector/models/data_types/group_data.dart';
+import 'package:plant_collector/models/data_types/journal_data.dart';
 import 'package:plant_collector/models/data_types/plant_data.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
 
@@ -33,6 +34,7 @@ class AppData extends ChangeNotifier {
   List<CollectionData> currentUserCollections;
   List<PlantData> currentUserPlants;
   UserData currentUserInfo;
+  bool showTips;
   //connection
   List<GroupData> connectionGroups;
   List<CollectionData> connectionCollections;
@@ -40,6 +42,13 @@ class AppData extends ChangeNotifier {
   //*****************NOTIFICATIONS*****************//
 
   FlutterLocalNotificationsPlugin notifications;
+
+  //*****************CHAT RELATED*****************//
+
+  //decide whether or not to show tips
+  void showTipsHelpers() {
+    showTips = (currentUserGroups.length <= 3);
+  }
 
   //*****************CHAT RELATED*****************//
 
@@ -151,6 +160,18 @@ class AppData extends ChangeNotifier {
     return group;
   }
 
+  //METHOD TO CREATE NEW Group
+  GroupData createDefaultGroup({@required String groupName}) {
+    final group = GroupData(
+      id: groupName,
+      name: groupName,
+      collections: [],
+      order: 0,
+      color: [],
+    );
+    return group;
+  }
+
   //*****************COLLECTION METHODS*****************
 
   //METHOD TO CREATE NEW COLLECTION
@@ -160,6 +181,17 @@ class AppData extends ChangeNotifier {
     final collection = CollectionData(
       id: generateCollectionID,
       name: newCollectionName,
+      plants: [],
+      creator: null,
+    );
+    return collection;
+  }
+
+  //METHOD TO CREATE NEW DEFAULT
+  CollectionData newDefaultCollection({@required String collectionName}) {
+    final collection = CollectionData(
+      id: collectionName,
+      name: collectionName,
       plants: [],
       creator: null,
     );
@@ -183,6 +215,17 @@ class AppData extends ChangeNotifier {
     String newPlantID =
         prefix + DateTime.now().millisecondsSinceEpoch.toString();
     return newPlantID;
+  }
+
+  //*****************JOURNAL METHODS*****************
+
+  //CREATE JOURNAL ENTRY
+  JournalData journalNew({@required String title}) {
+    String date = generateID(prefix: '');
+    String id = 'entry_' + date;
+    JournalData entry =
+        JournalData(id: id, date: date, title: title, entry: null);
+    return entry;
   }
 
   //*****************BUILDER FUNCTIONS AND RELATED*****************

@@ -40,36 +40,55 @@ class MessagePlant extends StatelessWidget {
             .streamPlant(plantID: message.media, userID: message.sender),
         child: Consumer<DocumentSnapshot>(
           builder: (context, DocumentSnapshot plantSnap, _) {
-            if (plantSnap == null) return SizedBox();
-            return Column(
-              children: <Widget>[
-                Container(
-                  width:
-                      120.0 * MediaQuery.of(context).size.width * kScaleFactor,
-                  child: plantSnap[PlantKeys.thumbnail] != null
-                      ? CachedNetworkImage(
-                          imageUrl: plantSnap[PlantKeys.thumbnail],
-                          fit: BoxFit.fitWidth,
-                        )
-                      : Image.asset(
-                          'assets/images/default.png',
-                          fit: BoxFit.fitWidth,
-                        ),
+            if (plantSnap == null) {
+              return SizedBox(
+                height:
+                    120.0 * MediaQuery.of(context).size.width * kScaleFactor,
+              );
+            } else if (plantSnap.data == null) {
+              return Text(
+                'Nothing to display!'
+                '\n\nThis plant profile could not be found. It may have been deleted.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize:
+                      AppTextSize.message * MediaQuery.of(context).size.width,
+                  fontWeight: AppTextWeight.medium,
+                  color: AppTextColor.light,
                 ),
-                SizedBox(
-                  height: 5.0,
-                ),
-                Text(
-                  plantSnap[PlantKeys.name],
-                  style: TextStyle(
-                    fontSize:
-                        AppTextSize.message * MediaQuery.of(context).size.width,
-                    fontWeight: AppTextWeight.medium,
-                    color: textColor,
+              );
+            } else {
+              return Column(
+                children: <Widget>[
+                  Container(
+                    width: 120.0 *
+                        MediaQuery.of(context).size.width *
+                        kScaleFactor,
+                    child: plantSnap[PlantKeys.thumbnail] != null
+                        ? CachedNetworkImage(
+                            imageUrl: plantSnap[PlantKeys.thumbnail],
+                            fit: BoxFit.fitWidth,
+                          )
+                        : Image.asset(
+                            'assets/images/default.png',
+                            fit: BoxFit.fitWidth,
+                          ),
                   ),
-                ),
-              ],
-            );
+                  SizedBox(
+                    height: 5.0,
+                  ),
+                  Text(
+                    plantSnap[PlantKeys.name],
+                    style: TextStyle(
+                      fontSize: AppTextSize.message *
+                          MediaQuery.of(context).size.width,
+                      fontWeight: AppTextWeight.medium,
+                      color: textColor,
+                    ),
+                  ),
+                ],
+              );
+            }
           },
         ),
       ),

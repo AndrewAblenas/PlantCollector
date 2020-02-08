@@ -36,17 +36,31 @@ class RegisterScreen extends StatelessWidget {
         SizedBox(height: 20.0),
         Consumer<UserAuth>(
           builder: (context, userAuth, child) {
-            return InputCard(
-              keyboardType: TextInputType.text,
-              cardPrompt: userAuth.passwordHelper == false
-                  ? 'Ensure your password has at least 8 characters.'
-                      '\n\nIt must contain a special character, capital letter, small letter, and number.'
-                  : 'Password',
-              obscureText: true,
-              onChanged: (input) {
-                userAuth.validatePassword(input);
-                userAuth.password = input;
-              },
+            return Column(
+              children: <Widget>[
+                InputCard(
+                  keyboardType: TextInputType.text,
+                  cardPrompt: userAuth.passwordHelper == false
+                      ? 'Ensure your password has at least 8 characters.'
+                          '\n\nIt must contain a special character, capital letter, small letter, and number.'
+                      : 'Create a secure password',
+                  obscureText: true,
+                  onChanged: (input) {
+                    userAuth.validatePassword(input);
+                    userAuth.password = input;
+                  },
+                ),
+                SizedBox(height: 20.0),
+                InputCard(
+                  keyboardType: TextInputType.text,
+                  cardPrompt: 'Please confirm your password',
+                  obscureText: true,
+                  onChanged: (input) {
+//                userAuth.validatePassword(input);
+                    userAuth.passwordValidate = input;
+                  },
+                ),
+              ],
             );
           },
         ),
@@ -61,11 +75,11 @@ class RegisterScreen extends StatelessWidget {
               //send email verification
               Provider.of<UserAuth>(context).userSendEmail();
               Provider.of<CloudDB>(context).addUserDocument(
-                data: UserData(
-                  id: user.uid,
-                  email: user.email,
-                ).toMap(),
-              );
+                  data: UserData(
+                    id: user.uid,
+                    email: user.email,
+                  ).toMap(),
+                  userID: user.uid);
               //show dialog to update user
               showDialog(
                 context: context,

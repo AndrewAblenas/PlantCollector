@@ -13,6 +13,7 @@ import 'package:plant_collector/screens/template/screen_template.dart';
 import 'package:plant_collector/widgets/button_add.dart';
 import 'package:plant_collector/widgets/container_wrapper.dart';
 import 'package:plant_collector/widgets/dialogs/dialog_confirm.dart';
+import 'package:plant_collector/widgets/info_tip.dart';
 import 'package:plant_collector/widgets/section_header.dart';
 import 'package:provider/provider.dart';
 import 'package:share/share.dart';
@@ -33,7 +34,7 @@ class ConnectionsScreen extends StatelessWidget {
               value: Provider.of<CloudDB>(context).streamRequestsData(),
               child: Consumer<List<RequestData>>(
                 builder: (context, List<RequestData> list, _) {
-                  if (list != null && list.length > 0) {
+                  if (list != null && list.length >= 1) {
                     List<Widget> requestList = [];
                     for (RequestData request in list) {
                       //TODO change to request after revamp
@@ -103,12 +104,18 @@ class ConnectionsScreen extends StatelessWidget {
                           SizedBox(
                             height: 5.0,
                           ),
-                          GridView.count(
-                            shrinkWrap: true,
-                            crossAxisCount: 2,
-                            children: connectionList,
-                            childAspectRatio: 1.2,
-                          ),
+                          //check to see if the user has any friends yet
+                          friends.length >= 1
+                              ? GridView.count(
+                                  shrinkWrap: true,
+                                  crossAxisCount: 2,
+                                  children: connectionList,
+                                  childAspectRatio: 1.2,
+                                )
+                              : InfoTip(
+                                  text:
+                                      'You currently have no connections.  Add some below.',
+                                ),
                           ButtonAdd(
                             buttonColor: kGreenDark,
                             buttonText: 'Add Friend',

@@ -24,6 +24,8 @@ class CardTemplate extends StatelessWidget {
           children: <Widget>[
             Container(
               width: double.infinity,
+              //without the height, the container won't expand for a full background image
+              height: double.infinity,
               child: user.background != ''
                   ? CachedNetworkImage(
                       imageUrl: user.background, fit: BoxFit.cover)

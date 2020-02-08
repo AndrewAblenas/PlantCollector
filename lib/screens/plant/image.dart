@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:plant_collector/models/cloud_db.dart';
+import 'package:plant_collector/models/data_storage/firebase_folders.dart';
+import 'package:plant_collector/models/data_types/plant_data.dart';
+import 'package:plant_collector/widgets/dialogs/dialog_confirm.dart';
+import 'package:provider/provider.dart';
+import 'package:plant_collector/models/cloud_store.dart';
+import 'package:plant_collector/models/app_data.dart';
 
 class ImageScreen extends StatelessWidget {
   final String imageURL;
@@ -9,9 +16,40 @@ class ImageScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.black,
       body: Container(
-        child: PhotoView(
-          imageProvider: NetworkImage(imageURL),
-          maxScale: 4.0,
+        child: GestureDetector(
+          onLongPress: () {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return DialogConfirm(
+                  title: 'Plant Thumbnail',
+                  text:
+                      'Would you like to use this image as the plant thumbail image?',
+                  onPressed: () async {
+                    //run thumbnail package to get thumb url
+                    String thumbUrl = await Provider.of<CloudStore>(context)
+                        .thumbnailPackage(
+                            imageURL: imageURL,
+                            plantID: Provider.of<AppData>(context)
+                                .forwardingPlantID);
+                    //set thumb url
+                    Provider.of<CloudDB>(context).updateDocumentInCollection(
+                        data: CloudDB.updatePairFull(
+                            key: PlantKeys.thumbnail, value: thumbUrl),
+                        collection: DBFolder.plants,
+                        documentName:
+                            Provider.of<AppData>(context).forwardingPlantID);
+
+                    Navigator.pop(context);
+                  },
+                );
+              },
+            );
+          },
+          child: PhotoView(
+            imageProvider: NetworkImage(imageURL),
+            maxScale: 4.0,
+          ),
         ),
       ),
     );

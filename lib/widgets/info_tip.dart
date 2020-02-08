@@ -7,9 +7,11 @@ import 'package:plant_collector/widgets/tile_white.dart';
 import 'package:provider/provider.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 
-class GroupDelete extends StatelessWidget {
-  final String groupID;
-  GroupDelete({@required this.groupID});
+class InfoTip extends StatelessWidget {
+  final Icon icon;
+  final String text;
+  final Function onPress;
+  InfoTip({@required this.text, this.icon, this.onPress});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +22,8 @@ class GroupDelete extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Icon(
-              Icons.delete_forever,
+              //if no icon provided use default
+              icon != null ? icon : Icons.help_outline,
               color: kGreenDark,
               size: AppTextSize.medium * MediaQuery.of(context).size.width,
             ),
@@ -28,9 +31,9 @@ class GroupDelete extends StatelessWidget {
               width: 10.0,
             ),
             Container(
-              width: 0.7 * MediaQuery.of(context).size.width,
+              width: 0.60 * MediaQuery.of(context).size.width,
               child: Text(
-                'This group is currently empty.\nTap to delete.',
+                text,
                 style: TextStyle(
                   color: AppTextColor.medium,
                   fontWeight: AppTextWeight.medium,
@@ -42,21 +45,7 @@ class GroupDelete extends StatelessWidget {
           ],
         ),
         onPressed: () {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return DialogConfirm(
-                title: 'Delete Group',
-                text: 'Are you sure you want to delete this Group?',
-                buttonText: 'Delete Group',
-                onPressed: () {
-                  Provider.of<CloudDB>(context).deleteDocumentFromCollection(
-                      documentID: groupID, collection: DBFolder.groups);
-                  Navigator.pop(context);
-                },
-              );
-            },
-          );
+          onPress();
         },
       ),
     );

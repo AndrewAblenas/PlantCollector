@@ -10,34 +10,44 @@ class DialogScreenInput extends StatelessWidget {
   final Function onChange;
   final String cancelText;
   final String hintText;
-  DialogScreenInput({
-    @required this.title,
-    @required this.acceptText,
-    @required this.acceptOnPress,
-    @required this.onChange,
-    @required this.cancelText,
-    @required this.hintText,
-  });
+  final bool smallText;
+  DialogScreenInput(
+      {@required this.title,
+      @required this.acceptText,
+      @required this.acceptOnPress,
+      @required this.onChange,
+      @required this.cancelText,
+      @required this.hintText,
+      this.smallText});
   @override
   Widget build(BuildContext context) {
     return DialogScreen(
       title: title,
       children: <Widget>[
         TextFormField(
-          decoration: InputDecoration(hintText: hintText),
-          initialValue: hintText,
-          cursorColor: AppTextColor.white,
-          autofocus: true,
-          textAlign: TextAlign.center,
-          minLines: 1,
-          maxLines: 10,
-          onChanged: onChange,
-          style: TextStyle(
-            fontSize: AppTextSize.huge * MediaQuery.of(context).size.width,
-            fontWeight: AppTextWeight.heavy,
-            color: AppTextColor.white,
-          ),
-        ),
+            decoration: InputDecoration(
+              hintText: hintText,
+            ),
+            initialValue: hintText,
+            cursorColor: AppTextColor.white,
+            autofocus: true,
+            textAlign: smallText == true ? TextAlign.start : TextAlign.center,
+            minLines: 1,
+            maxLines: 10,
+            onChanged: onChange,
+            style: smallText == true
+                ? TextStyle(
+                    fontSize:
+                        AppTextSize.medium * MediaQuery.of(context).size.width,
+                    fontWeight: AppTextWeight.heavy,
+                    color: AppTextColor.white,
+                  )
+                : TextStyle(
+                    fontSize:
+                        AppTextSize.huge * MediaQuery.of(context).size.width,
+                    fontWeight: AppTextWeight.heavy,
+                    color: AppTextColor.white,
+                  )),
         SizedBox(
           height: AppTextSize.large * MediaQuery.of(context).size.width,
         ),

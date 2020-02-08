@@ -71,6 +71,19 @@ class CloudDB extends ChangeNotifier {
 //        .snapshots();
 //  }
 
+  //provide a journal stream for a plant
+  Stream<DocumentSnapshot> streamJournal(
+      {@required String plantID, @required userID}) {
+    return _db
+        .collection(usersPath)
+        .document(userID)
+        .collection(DBFolder.plants)
+        .document(plantID)
+        .collection(DBFolder.records)
+        .document('journal')
+        .snapshots();
+  }
+
   //provide a stream of one specific plant document
   //NOTE userID is required as it may be from a connection in chat
   Stream<DocumentSnapshot> streamPlant(
@@ -420,9 +433,9 @@ class CloudDB extends ChangeNotifier {
   //*****************USER DOCUMENT SPECIFIC*****************//
 
   //create a user document and save to db upon registration
-  Future<void> addUserDocument({@required Map data}) {
+  Future<void> addUserDocument({@required Map data, @required String userID}) {
     //look into database instance, then collection, for ID, create if doesn't exist
-    return _db.collection(usersPath).document(currentUserFolder).setData(data);
+    return _db.collection(usersPath).document(userID).setData(data);
   }
 
   //create a user document on registration and update in the future
@@ -510,6 +523,15 @@ class CloudDB extends ChangeNotifier {
   }
   //*****************USER COLLECTION SPECIFIC*****************
 
+  //clean plant to clone
+  static Map cleanPlant({@required Map plantData, @required String id}) {
+    plantData[PlantKeys.id] = id;
+    plantData[PlantKeys.images] = [];
+    plantData[PlantKeys.thumbnail] = '';
+    plantData[PlantKeys.quantity] = '';
+    return plantData;
+  }
+
   //generate list of maps for Group
   static List<CollectionData> getMapsFromList(
       {@required List<dynamic> groupCollectionIDs,
@@ -575,14 +597,15 @@ class CloudDB extends ChangeNotifier {
   Future<void> insertDocumentToCollection(
       {@required Map data,
       @required String collection,
-      @required String documentName}) {
+      @required String documentName,
+      bool merge}) {
     //create, write, and/or merge
     return _db
         .collection(usersPath)
         .document(currentUserFolder)
         .collection(collection)
         .document(documentName)
-        .setData(data, merge: false);
+        .setData(data, merge: merge != null ? merge : false);
   }
 
   //add or remove item in specific array in specific document in specific collection
@@ -609,6 +632,53 @@ class CloudDB extends ChangeNotifier {
             .collection(folder)
             .document(documentName)
             .updateData({arrayKey: FieldValue.arrayRemove(entries)});
+      }
+    } else {}
+  }
+
+  //add or overwrite a journal entry
+  Future<void> journalCreateEntry(
+      {@required String arrayKey,
+      @required Map entry,
+      @required String documentName}) {
+    //create, write, and/or merge
+    return _db
+        .collection(usersPath)
+        .document(currentUserFolder)
+        .collection(DBFolder.plants)
+        .document(documentName)
+        .collection(DBFolder.records)
+        .document('journal')
+        .setData({arrayKey: entry}, merge: true);
+  }
+
+  //update or remove entry in plant journal
+  Future<void> journalEntryUpdate(
+      {@required String arrayKey,
+      @required Map entry,
+      @required String documentName,
+      //true to add false to remove
+      @required bool action}) async {
+    if (entry != null) {
+      //create, write, and/or merge
+      if (action == true) {
+        return await _db
+            .collection(usersPath)
+            .document(currentUserFolder)
+            .collection(DBFolder.plants)
+            .document(documentName)
+            .collection(DBFolder.records)
+            .document('journal')
+            .updateData({arrayKey: entry});
+      } else if (action == false) {
+        return await _db
+            .collection(usersPath)
+            .document(currentUserFolder)
+            .collection(DBFolder.plants)
+            .document(documentName)
+            .collection(DBFolder.records)
+            .document('journal')
+            .updateData({arrayKey: entry});
       }
     } else {}
   }

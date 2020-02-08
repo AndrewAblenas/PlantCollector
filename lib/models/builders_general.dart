@@ -8,6 +8,8 @@ import 'package:plant_collector/screens/dialog/dialog_screen_select.dart';
 import 'package:plant_collector/screens/library/widgets/group_delete.dart';
 import 'package:plant_collector/screens/library/widgets/collection_card.dart';
 import 'package:plant_collector/screens/library/widgets/group_card.dart';
+import 'package:plant_collector/screens/plant/widgets/clone_button.dart';
+import 'package:plant_collector/screens/plant/widgets/journal_button.dart';
 import 'package:plant_collector/widgets/dialogs/color_picker/button_color.dart';
 import 'package:plant_collector/widgets/dialogs/select/dialog_functions.dart';
 import 'package:plant_collector/screens/account/widgets/settings_card.dart';
@@ -16,6 +18,7 @@ import 'package:plant_collector/screens/plant/widgets/plant_info_card.dart';
 import 'package:plant_collector/screens/plant/widgets/plant_photo.dart';
 import 'package:date_format/date_format.dart';
 import 'package:plant_collector/screens/plant/widgets/add_photo.dart';
+import 'package:plant_collector/widgets/info_tip.dart';
 
 class UIBuilders extends ChangeNotifier {
   //*****************LIBRARY PAGE RELATED BUILDERS*****************
@@ -35,7 +38,7 @@ class UIBuilders extends ChangeNotifier {
       @required bool connectionLibrary}) {
     List<Widget> groupList = [];
     Column groupColumn;
-    if (userGroups != null) {
+    if (userGroups != null && userGroups.length >= 1) {
       userGroups.sort((a, b) => (a.order).compareTo((b.order)));
       for (GroupData group in userGroups) {
         groupList.add(
@@ -52,7 +55,11 @@ class UIBuilders extends ChangeNotifier {
       );
     } else {
       groupColumn = Column(
-        children: <Widget>[SizedBox()],
+        children: <Widget>[
+          InfoTip(
+              text: 'You\'re Library is currently empty.  \n'
+                  'Tap the "Create New Group" button below to get started.  ')
+        ],
       );
     }
     return groupColumn;
@@ -86,11 +93,15 @@ class UIBuilders extends ChangeNotifier {
       //check if in a group and add delete button
       collectionColumn = Column(
         children: <Widget>[
+          InfoTip(
+              text: 'Groups are used to organize your plant collections.  \n\n'
+                  'You can rename this Group by holding down on the name.  Set the color by tapping the name.  \n\n'
+                  'You can only delete a Group when it is empty, via the button below.'),
           groupID == null ? null : GroupDelete(groupID: groupID),
         ],
       );
     } else {
-      //check if in a group and add delete button
+      //set to blank
       collectionColumn = Column(
         children: <Widget>[
           SizedBox(),
@@ -132,7 +143,8 @@ class UIBuilders extends ChangeNotifier {
       {@required bool connectionLibrary,
       @required String plantID,
       @required List<dynamic> listURL,
-      @required String thumbnail}) {
+      @required String thumbnail,
+      @required bool largeWidget}) {
     //initialize the widget list
     List<Widget> imageTileList = [];
     //check to make sure list is not null
@@ -149,17 +161,24 @@ class UIBuilders extends ChangeNotifier {
         //create image tiles
         imageTileList.add(
           PlantPhoto(
-              connectionLibrary: connectionLibrary,
-              imageURL: url,
-              imageDate: date),
+            connectionLibrary: connectionLibrary,
+            imageURL: url,
+            imageDate: date,
+            largeWidget: largeWidget,
+          ),
         );
       }
     } else {}
     //add an image add button to the list
     if (connectionLibrary == false) {
-      imageTileList.add(
+      //place image add at the beginning for carousel
+      //place at the end if grid view
+      int index = (listURL != null && listURL.length >= 8 ? listURL.length : 0);
+      imageTileList.insert(
+        index,
         AddPhoto(
           plantID: plantID,
+          largeWidget: largeWidget,
         ),
       );
     }
@@ -169,6 +188,7 @@ class UIBuilders extends ChangeNotifier {
 
   //REFORMAT PLANT INFO TO SHARE
   static String sharePlant({@required Map plantMap}) {
+    //TODO this needs to be greatly enhanced in how info is displayed
     String plantShare;
     if (plantMap != null) {
       List<String> keyList = PlantKeys.descriptors.keys.toList();
@@ -201,8 +221,15 @@ class UIBuilders extends ChangeNotifier {
     keyList.remove(PlantKeys.id);
     keyList.remove(PlantKeys.thumbnail);
     keyList.remove(PlantKeys.images);
-    //need this to deal with issues on plant delete
+    //need null check to deal with issues on plant delete
+    //connection library check will hide journal unless plant belongs to user
     if (plant != null) {
+      //first add a journal button
+      infoCardList.add(
+        connectionLibrary == false
+            ? JournalButton(plant: plant)
+            : CloneButton(plant: plant),
+      );
       //for  all these strings in the list
       for (String key in keyList) {
         //check to see that they aren't set to default value (hidden)

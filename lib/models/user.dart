@@ -6,10 +6,12 @@ class UserAuth extends ChangeNotifier {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   String email;
   String password;
+  String passwordValidate;
   FirebaseUser signedInUser;
   bool showPasswordReset;
   int signInAttempts;
   bool passwordHelper;
+  bool match;
   String error;
 
   //*****************HELPERS*****************
@@ -30,6 +32,12 @@ class UserAuth extends ChangeNotifier {
     notifyListeners();
     return passwordHelper;
   }
+
+  //check for matching passwords
+//  bool matchPasswords(String input) {
+//    match = (password == input) ? true : false;
+//    return match;
+//  }
 
   //PASSWORD CONTENTS
   //One Capital Letter, One Small Letter, One Number, One Special
@@ -55,7 +63,9 @@ class UserAuth extends ChangeNotifier {
 
   //REGISTER THE USER
   Future<FirebaseUser> userRegister() async {
-    if (email != null && passwordHelper == true) {
+    if (email != null &&
+        passwordHelper == true &&
+        password == passwordValidate) {
       try {
         AuthResult result = await _firebaseAuth.createUserWithEmailAndPassword(
             email: email, password: password);
