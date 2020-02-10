@@ -28,17 +28,18 @@ class _ComposeMessageState extends State<ComposeMessage> {
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
+        //TODO complete action, maybe provide stickers
         SizedBox(
           width: 40.0 * MediaQuery.of(context).size.width * kScaleFactor,
-          child: FlatButton(
-            child: Icon(
-              Icons.library_add,
-              color: kGreenDark,
-            ),
-            onPressed: () {
-              //TODO complete action
-            },
-          ),
+//          child: FlatButton(
+//            child: Icon(
+//              Icons.library_add,
+//              color: kGreenDark,
+//            ),
+//            onPressed: () {
+//
+//            },
+//          ),
         ),
         SizedBox(
           width: 0.70 * MediaQuery.of(context).size.width,

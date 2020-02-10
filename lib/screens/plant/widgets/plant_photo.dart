@@ -93,7 +93,7 @@ class PlantPhoto extends StatelessWidget {
             width: MediaQuery.of(context).size.width * 0.94,
             decoration: BoxDecoration(
               image: DecorationImage(
-                //TODO set to use thumbnail, maybe send over proper URL during build
+                //TODO set to use thumbnail, not full image?, maybe send over proper URL during build
                 image: CachedNetworkImageProvider(imageURL),
                 fit: BoxFit.cover,
                 alignment: Alignment.center,

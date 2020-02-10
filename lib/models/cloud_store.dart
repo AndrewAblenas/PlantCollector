@@ -100,42 +100,42 @@ class CloudStore extends ChangeNotifier {
     return encodedImage;
   }
 
-  //TODO this was a temp function can probably delete now
-  Future tempGenThumb(
-      {@required List urls, @required String plantIDFolder}) async {
-    if (urls != null) {
-      for (String link in urls) {
-        //create temp file
-        File tempFile = createTemp();
-        //download the image
-        StorageFileDownloadTask download =
-            await downloadImage(url: link, saveFile: tempFile);
-        //wait for download completion
-        await download.future;
-        //create temp file
-        File imageFile = createTemp();
-        //edit the image
-        List<int> uploadPackage = generateThumbnail(image: imageFile);
-        //get image name
-        String name = getThumbName(imageUrl: link);
-        //upload
-        String path =
-            '$mainFolder/$currentUserFolder/$plantsFolder/$plantIDFolder/images/$name.jpg';
-        StorageUploadTask imageUpload =
-            _storage.ref().child(path).putData(uploadPackage);
-        //check upload
-        StorageTaskSnapshot uploadSnapshot = await imageUpload.onComplete;
-        //get URL
-        String url = await getDownloadURL(snapshot: uploadSnapshot);
-        _storage
-            .ref()
-            .child(
-                '$mainFolder/$currentUserFolder/$plantsFolder/$plantIDFolder/thumbnail/')
-            .delete();
-        return url;
-      }
-    }
-  }
+  //this was a temp function can probably delete now
+//  Future tempGenThumb(
+//      {@required List urls, @required String plantIDFolder}) async {
+//    if (urls != null) {
+//      for (String link in urls) {
+//        //create temp file
+//        File tempFile = createTemp();
+//        //download the image
+//        StorageFileDownloadTask download =
+//            await downloadImage(url: link, saveFile: tempFile);
+//        //wait for download completion
+//        await download.future;
+//        //create temp file
+//        File imageFile = createTemp();
+//        //edit the image
+//        List<int> uploadPackage = generateThumbnail(image: imageFile);
+//        //get image name
+//        String name = getThumbName(imageUrl: link);
+//        //upload
+//        String path =
+//            '$mainFolder/$currentUserFolder/$plantsFolder/$plantIDFolder/images/$name.jpg';
+//        StorageUploadTask imageUpload =
+//            _storage.ref().child(path).putData(uploadPackage);
+//        //check upload
+//        StorageTaskSnapshot uploadSnapshot = await imageUpload.onComplete;
+//        //get URL
+//        String url = await getDownloadURL(snapshot: uploadSnapshot);
+//        _storage
+//            .ref()
+//            .child(
+//                '$mainFolder/$currentUserFolder/$plantsFolder/$plantIDFolder/thumbnail/')
+//            .delete();
+//        return url;
+//      }
+//    }
+//  }
 
   Future<String> thumbnailPackage(
       {@required String imageURL, @required String plantID}) async {

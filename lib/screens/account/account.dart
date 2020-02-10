@@ -157,9 +157,18 @@ class AccountScreen extends StatelessWidget {
                           SettingsCard(
                             onPress: null,
                             onSubmit: () {
+                              //update the google authentication email profile
                               Provider.of<UserAuth>(context).userUpdateEmail(
                                   email: Provider.of<AppData>(context)
                                       .newDataInput);
+                              //update the user document email
+                              Provider.of<CloudDB>(context).updateUserDocument(
+                                data: CloudDB.updatePairFull(
+                                  key: UserKeys.email,
+                                  value: Provider.of<AppData>(context)
+                                      .newDataInput,
+                                ),
+                              );
                             },
                             cardLabel: 'Email',
                             cardText: snapshot.data.email,

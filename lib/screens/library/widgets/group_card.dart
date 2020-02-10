@@ -161,7 +161,8 @@ class GroupCard extends StatelessWidget {
                       );
                     },
                   ),
-                  connectionLibrary == false
+                  (connectionLibrary == false &&
+                          group.id != DBDefaultDocument.import)
                       ? TileWhite(
                           child: FlatButton(
                             onPressed: () {
@@ -257,7 +258,9 @@ class GroupHeader extends StatelessWidget {
         padding: EdgeInsets.all(14.0),
         child: GestureDetector(
           onLongPress: () {
-            if (connectionLibrary == false)
+            //remove functionality if friend library or auto generated group
+            if (connectionLibrary == false &&
+                group.id != DBDefaultDocument.import)
               showDialog(
                   context: context,
                   builder: (context) {
@@ -290,7 +293,8 @@ class GroupHeader extends StatelessWidget {
             children: <Widget>[
               FlatButton(
                 onPressed: () {
-                  if (connectionLibrary == false)
+                  if ((connectionLibrary == false &&
+                      group.id != DBDefaultDocument.import))
                     showDialog(
                       context: context,
                       builder: (BuildContext context) {

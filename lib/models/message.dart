@@ -48,7 +48,6 @@ class Message extends ChangeNotifierProvider {
       {@required String text,
       @required TextStyle textStyle,
       @required TextStyle urlStyle}) {
-    //TODO better split pattern
 //    text.split(new RegExp(r"http[^\s]\s"));
     List<String> splitList = text.split(' ');
     List<Widget> widgetList = [];

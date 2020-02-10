@@ -224,12 +224,12 @@ class UIBuilders extends ChangeNotifier {
     //need null check to deal with issues on plant delete
     //connection library check will hide journal unless plant belongs to user
     if (plant != null) {
-      //first add a journal button
-      infoCardList.add(
-        connectionLibrary == false
-            ? JournalButton(plant: plant)
-            : CloneButton(plant: plant),
-      );
+      //first add a journal button if user plant
+      if (connectionLibrary == false) {
+        infoCardList.add(
+          JournalButton(plant: plant),
+        );
+      }
       //for  all these strings in the list
       for (String key in keyList) {
         //check to see that they aren't set to default value (hidden)
@@ -268,6 +268,12 @@ class UIBuilders extends ChangeNotifier {
                 });
           },
         ),
+      );
+    }
+    //first add a journal button if user plant
+    if (connectionLibrary == true) {
+      infoCardList.add(
+        CloneButton(plant: plant),
       );
     }
     print('displayInfoCards: COMPLETE');

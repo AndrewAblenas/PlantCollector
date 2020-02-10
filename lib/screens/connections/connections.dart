@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:plant_collector/formats/colors.dart';
+import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/data_types/friend_data.dart';
@@ -22,7 +22,7 @@ class ConnectionsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScreenTemplate(
-      screenTitle: 'Connections',
+      screenTitle: 'Community',
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10.0),
         child: ListView(
@@ -37,7 +37,6 @@ class ConnectionsScreen extends StatelessWidget {
                   if (list != null && list.length >= 1) {
                     List<Widget> requestList = [];
                     for (RequestData request in list) {
-                      //TODO change to request after revamp
                       UserData user = UserData.fromMap(map: request.toMap());
                       requestList.add(
                         RequestCard(user: user),
@@ -117,7 +116,9 @@ class ConnectionsScreen extends StatelessWidget {
                                       'You currently have no connections.  Add some below.',
                                 ),
                           ButtonAdd(
-                            buttonColor: kGreenDark,
+                            buttonColor: AppTextColor.white,
+                            textColor: AppTextColor.black,
+                            icon: Icons.person_add,
                             buttonText: 'Add Friend',
                             onPress: () {
                               //determine if user data saved

@@ -37,14 +37,12 @@ class LibraryScreen extends StatelessWidget {
       //make current user ID available to CloudDB and CloudStore instances
       Provider.of<CloudDB>(context).setUserFolder(userID: userID);
       Provider.of<CloudStore>(context).setUserFolder(userID: userID);
-      //TODO showtips
-//      Provider.of<AppData>(context).showTipsHelpers();
+      Provider.of<AppData>(context).showTipsHelpers();
     } else {
       //make friend ID available to CloudDB and CloudStore instances to display friend library
       Provider.of<CloudDB>(context).setConnectionFolder(connectionID: userID);
       Provider.of<CloudStore>(context)
           .setConnectionFolder(connectionID: userID);
-      //TODO showtips
       Provider.of<AppData>(context).showTips = false;
     }
     return MultiProvider(
@@ -120,8 +118,25 @@ class LibraryScreen extends StatelessWidget {
                         label: 'Account',
                       ),
                     ),
+                    PopupMenuItem(
+                      value: () {
+                        Navigator.pushNamed(context, 'connections');
+                      },
+                      child: MenuItem(
+                        icon: Icons.people,
+                        label: 'Community',
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: () {
+                        Navigator.pushNamed(context, 'feedback');
+                      },
+                      child: MenuItem(
+                        icon: Icons.feedback,
+                        label: 'Feedback',
+                      ),
+                    ),
 //                PopupMenuItem(
-//                  //TODO settings page
 //                  value: () {
 //                    Navigator.pushNamed(context, 'settings');
 //                  },
@@ -132,7 +147,6 @@ class LibraryScreen extends StatelessWidget {
 //                ),
 //                PopupMenuItem(
 //                  value: () {
-//                    //TODO not implemented yet
 //                  },
 //                  child: MenuItem(
 //                    icon: Icons.cloud_upload,
@@ -141,7 +155,6 @@ class LibraryScreen extends StatelessWidget {
 //                ),
 //                PopupMenuItem(
 //                  value: () async {
-//                    //TODO not implemented yet?
 //                  },
 //                  child: MenuItem(
 //                    icon: Icons.cloud_download,

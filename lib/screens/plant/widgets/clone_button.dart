@@ -7,7 +7,6 @@ import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 import 'package:plant_collector/models/data_types/collection_data.dart';
 import 'package:plant_collector/models/data_types/group_data.dart';
 import 'package:plant_collector/models/data_types/plant_data.dart';
-import 'package:plant_collector/screens/journal/journal.dart';
 import 'package:plant_collector/widgets/container_card.dart';
 import 'package:plant_collector/widgets/dialogs/dialog_confirm.dart';
 import 'package:provider/provider.dart';
@@ -26,8 +25,9 @@ class CloneButton extends StatelessWidget {
             return DialogConfirm(
                 title: 'Clone Plant',
                 text:
-                    'Are you sure you want to clone this Plant to your Collection?',
+                    'Are you sure you want to copy this Plant information to your personal Library?',
                 buttonText: 'Clone',
+                hideCancel: false,
                 onPressed: () {
                   //PLANT
                   //generate a new ID
@@ -114,21 +114,22 @@ class CloneButton extends StatelessWidget {
         );
       },
       child: ContainerCard(
+        color: AppTextColor.white,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Icon(
               Icons.control_point_duplicate,
               size: AppTextSize.large * MediaQuery.of(context).size.width,
-              color: AppTextColor.white,
+              color: AppTextColor.black,
             ),
             SizedBox(
               width: 20.0 * MediaQuery.of(context).size.width * kScaleFactor,
             ),
             Text(
-              'Clone Plant to My Library',
+              'Clone Plant',
               style: TextStyle(
-                color: AppTextColor.white,
+                color: AppTextColor.black,
                 fontSize: AppTextSize.large * MediaQuery.of(context).size.width,
                 fontWeight: AppTextWeight.medium,
                 shadows: kShadowText,

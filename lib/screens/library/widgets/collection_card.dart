@@ -51,7 +51,9 @@ class CollectionCard extends StatelessWidget {
               padding: EdgeInsets.all(14.0),
               child: GestureDetector(
                 onLongPress: () {
-                  if (connectionLibrary == false)
+                  //remove functionality for friend collection or auto generated
+                  if (connectionLibrary == false &&
+                      collection.id != DBDefaultDocument.clone)
                     showDialog(
                         context: context,
                         builder: (context) {
@@ -102,7 +104,8 @@ class CollectionCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    connectionLibrary == false
+                    (connectionLibrary == false &&
+                            collection.id != DBDefaultDocument.clone)
                         ? Container(
                             width: 50.0 *
                                 MediaQuery.of(context).size.width *
@@ -112,7 +115,8 @@ class CollectionCard extends StatelessWidget {
                                 kScaleFactor,
                             child: FlatButton(
                               onPressed: () {
-                                if (connectionLibrary == false)
+                                if (connectionLibrary == false &&
+                                    collection.id != DBDefaultDocument.clone)
                                   showDialog(
                                     context: context,
                                     builder: (BuildContext context) {
@@ -232,13 +236,16 @@ class CollectionCard extends StatelessWidget {
                       ],
                       mainAxisSize: MainAxisSize.max,
                     ),
-                    //TODO is this even needed? Can I just pull the saved plants?
                     Builder(
                       builder: (context) {
                         //check if library list contains at least one item
 //                        if (fullList.length >= 1) {
                         if (connectionLibrary == true &&
                             collectionPlants.length == 0) {
+                          return SizedBox();
+                        } else if (connectionLibrary == false &&
+                            collectionPlants.length == 0 &&
+                            collection.id == DBDefaultDocument.clone) {
                           return SizedBox();
                         } else {
                           return GridView.builder(
@@ -248,7 +255,9 @@ class CollectionCard extends StatelessWidget {
                             padding: EdgeInsets.only(bottom: 10.0),
                             scrollDirection: Axis.vertical,
                             //add additional button only for collection owner
-                            itemCount: connectionLibrary == false
+                            //no add button for auto generated
+                            itemCount: (connectionLibrary == false &&
+                                    collection.id != DBDefaultDocument.clone)
                                 ? collectionPlantTotal + 1
                                 : collectionPlantTotal,
                             gridDelegate:

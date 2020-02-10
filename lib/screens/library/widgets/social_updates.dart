@@ -6,6 +6,7 @@ import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/data_types/friend_data.dart';
 import 'package:plant_collector/models/data_types/message_data.dart';
+import 'package:plant_collector/models/data_types/request_data.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/screens/chat/chat.dart';
 import 'package:plant_collector/widgets/chat_avatar.dart';
@@ -36,7 +37,9 @@ class SocialUpdates extends StatelessWidget {
             bottomPadding: 5.0,
             child: Consumer<List<FriendData>>(
               builder: (context, List<FriendData> friends, _) {
-                if (friends != null && friends.length >= 1) {
+                if (friends != null
+//                    && friends.length >= 1
+                    ) {
                   List<Widget> connectionList = [];
                   for (FriendData friend in friends) {
                     connectionList.add(
@@ -122,30 +125,8 @@ class SocialUpdates extends StatelessWidget {
                                               avatarLink: user.avatar,
                                             ),
                                             unread >= 1
-                                                ? Container(
-                                                    padding:
-                                                        EdgeInsets.all(2.0),
-                                                    decoration: BoxDecoration(
-                                                      color: kGreenDark,
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                        Radius.circular(2.0),
-                                                      ),
-                                                    ),
-                                                    child: Text(
-                                                      unread.toString(),
-                                                      style: TextStyle(
-                                                        fontSize:
-                                                            AppTextSize.small *
-                                                                MediaQuery.of(
-                                                                        context)
-                                                                    .size
-                                                                    .width,
-                                                        color:
-                                                            AppTextColor.white,
-                                                      ),
-                                                    ),
-                                                  )
+                                                ? NotificationBubble(
+                                                    count: unread)
                                                 : SizedBox(),
                                           ],
                                         ),
@@ -162,6 +143,55 @@ class SocialUpdates extends StatelessWidget {
                       ),
                     );
                   }
+                  //include an extra button to facilitate adding a new connection
+                  //style to match chat_avatar
+                  connectionList.add(
+                    StreamProvider<List<RequestData>>.value(
+                      value: Provider.of<CloudDB>(context).streamRequestsData(),
+                      child: GestureDetector(
+                        onTap: () {
+                          //navigate to connections
+                          Navigator.pushNamed(context, 'connections');
+                        },
+                        child: Padding(
+                          padding: EdgeInsets.all(
+                            5.0 *
+                                MediaQuery.of(context).size.width *
+                                kScaleFactor,
+                          ),
+                          child: Stack(
+                            fit: StackFit.loose,
+                            children: <Widget>[
+                              //background image
+                              CircleAvatar(
+                                radius: 50.0 *
+                                    MediaQuery.of(context).size.width *
+                                    kScaleFactor,
+                                foregroundColor: Colors.white,
+                                backgroundColor: kGreenMedium,
+                                child: Icon(
+                                  Icons.person_add,
+                                  size: 30.0 *
+                                      MediaQuery.of(context).size.width *
+                                      kScaleFactor,
+                                ),
+                              ),
+                              //bubble for count
+                              Consumer<List<RequestData>>(builder:
+                                  (context, List<RequestData> requests, _) {
+                                if (requests != null && requests.length >= 1) {
+                                  return NotificationBubble(
+                                      count: requests.length);
+                                } else {
+                                  return SizedBox();
+                                }
+                              }),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
                   return GridView.count(
                     primary: false,
                     shrinkWrap: true,
@@ -170,16 +200,50 @@ class SocialUpdates extends StatelessWidget {
                     childAspectRatio: 1,
                   );
                 } else {
-                  return InfoTip(
-                      text:
-                          'What\'s better than a plant person?  A community of plant people!  \n\n'
-                          'After you add a friend, and they accept, you\'ll be able to chat and view each other\'s plant Collections!  \n\n'
-                          'Tap "Friend Collections" above to get started.  ');
+                  //show infotip otherwise show
+                  return Column(
+                    children: <Widget>[
+                      InfoTip(
+                          text:
+                              'What\'s better than a plant person?  A community of plant people!  \n\n'
+                              'After you add a friend, and they accept, you\'ll be able to chat and view each other\'s plant Collections!  \n\n'
+                              'Add a friend to get started sharing.  '),
+                    ],
+                  );
                 }
               },
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class NotificationBubble extends StatelessWidget {
+  const NotificationBubble({
+    Key key,
+    @required this.count,
+  }) : super(key: key);
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(2.0),
+      decoration: BoxDecoration(
+        color: kGreenDark,
+        borderRadius: BorderRadius.all(
+          Radius.circular(2.0),
+        ),
+      ),
+      child: Text(
+        count.toString(),
+        style: TextStyle(
+          fontSize: AppTextSize.small * MediaQuery.of(context).size.width,
+          color: AppTextColor.white,
+        ),
       ),
     );
   }

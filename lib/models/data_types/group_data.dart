@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 //*****************GROUP*****************
-//TODO finish
 
 class GroupKeys {
   //KEYS

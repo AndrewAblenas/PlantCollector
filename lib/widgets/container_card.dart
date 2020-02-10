@@ -3,7 +3,11 @@ import 'package:plant_collector/formats/colors.dart';
 
 class ContainerCard extends StatelessWidget {
   final Widget child;
-  ContainerCard({@required this.child});
+  final Color color;
+  ContainerCard({
+    @required this.child,
+    this.color,
+  });
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -17,7 +21,7 @@ class ContainerCard extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(5.0),
         boxShadow: kShadowBox,
-        color: kGreenDark,
+        color: color == null ? kGreenDark : color,
       ),
       child: child,
     );

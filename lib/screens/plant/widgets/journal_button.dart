@@ -23,13 +23,14 @@ class JournalButton extends StatelessWidget {
         );
       },
       child: ContainerCard(
+        color: AppTextColor.white,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Icon(
               Icons.create,
               size: AppTextSize.large * MediaQuery.of(context).size.width,
-              color: AppTextColor.white,
+              color: AppTextColor.black,
             ),
             SizedBox(
               width: 20.0 * MediaQuery.of(context).size.width * kScaleFactor,
@@ -37,7 +38,7 @@ class JournalButton extends StatelessWidget {
             Text(
               'Plant Journal',
               style: TextStyle(
-                color: AppTextColor.white,
+                color: AppTextColor.black,
                 fontSize: AppTextSize.huge * MediaQuery.of(context).size.width,
                 fontWeight: AppTextWeight.medium,
                 shadows: kShadowText,

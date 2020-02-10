@@ -12,11 +12,20 @@ class DialogScreenSelect extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
+    List<Widget> noItems = [
+      Text(
+        'no items to select',
+        style: TextStyle(
+          color: AppTextColor.white,
+          fontSize: AppTextSize.large * MediaQuery.of(context).size.width,
+        ),
+      )
+    ];
     return DialogScreen(
       title: title,
       children: <Widget>[
         Column(
-          children: items,
+          children: items.length >= 1 ? items : noItems,
         ),
         SizedBox(
           height: AppTextSize.large * MediaQuery.of(context).size.width,

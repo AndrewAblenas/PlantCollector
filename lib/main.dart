@@ -4,19 +4,20 @@ import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/user.dart';
 import 'package:plant_collector/screens/chat/chat.dart';
 import 'package:plant_collector/screens/connections/connections.dart';
+import 'package:plant_collector/screens/feedback/feedback.dart';
 import 'package:plant_collector/screens/library/library.dart';
 import 'package:plant_collector/screens/library/local_notification.dart';
 import 'package:plant_collector/screens/login/login.dart';
 import 'package:plant_collector/screens/login/register.dart';
 import 'package:plant_collector/screens/plant/plant.dart';
-import 'package:plant_collector/screens/settings.dart';
+import 'package:plant_collector/screens/settings/settings.dart';
 import 'package:plant_collector/screens/plant/image.dart';
 import 'package:provider/provider.dart';
 import 'models/app_data.dart';
 import 'package:plant_collector/screens/account/account.dart';
 import 'package:plant_collector/models/cloud_store.dart';
 import 'package:plant_collector/screens/login/route.dart';
-import 'package:plant_collector/screens/about.dart';
+import 'package:plant_collector/screens/about/about.dart';
 import 'package:plant_collector/screens/login/loading.dart';
 import 'package:plant_collector/formats/colors.dart';
 
@@ -79,6 +80,7 @@ class PlantCollector extends StatelessWidget {
           'account': (context) => AccountScreen(),
           'connections': (context) => ConnectionsScreen(),
           'chat': (context) => ChatScreen(friend: null),
+          'feedback': (context) => FeedbackScreen(),
         },
       ),
     );

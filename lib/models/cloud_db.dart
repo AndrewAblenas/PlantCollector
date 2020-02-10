@@ -236,34 +236,6 @@ class CloudDB extends ChangeNotifier {
     return stream.map((doc) => UserData.fromMap(map: doc.data));
   }
 
-  //provide a stream of all messages
-  //TODO figure this out, might need to restructure data?
-//  Stream<QuerySnapshot> streamAllMessages({@required String document}) {
-//    if (document != null) {
-//      return _db
-//          .collection(conversationsPath)
-//          .where('users', arrayContains: currentUserFolder)
-//          .getDocuments().
-//          .collection(messagesPath)
-//          .orderBy(kMessageTime, descending: true)
-//          .limit(20)
-//          .snapshots();
-//    } else {
-//      return null;
-//    }
-//  }
-
-  //TODO
-  //add user reference to shared message document
-//  static Future<void> addConvoParticipants ({@required String document, @required String userID, @required String friendID}) {
-//    return _db
-//        .collection(conversationsPath)
-//        .document(document)
-//        .setData({
-//      'users': [userID, friendID]
-//    });
-//  }
-
   //create message
   MessageData createMessage(
       {@required String text, @required String type, @required String media}) {
@@ -303,7 +275,6 @@ class CloudDB extends ChangeNotifier {
   }
 
   //delete messages
-  //TODO check that this works
   static Future<DocumentReference> deleteMessageHistory(
       {@required String document}) {
     if (document != null) {
@@ -442,7 +413,6 @@ class CloudDB extends ChangeNotifier {
   Future<void> updateUserDocument({@required Map data}) {
     //look into database instance, then collection, for ID, create if doesn't exist
     try {
-      //TODO problem here on logout, it tries to run and there are permission issues
       return _db
           .collection(usersPath)
           .document(currentUserFolder)
@@ -764,6 +734,38 @@ class CloudDB extends ChangeNotifier {
         .collection(usersPath)
         .document(currentUserFolder)
         .updateData(data);
+  }
+
+  //CREATE A DOCUMENT
+  Future<void> createDocument(
+      {@required Map data, @required String collection}) {
+    try {
+      return _db.collection(collection).document().setData(
+            data.cast<String, dynamic>(),
+          );
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
+  //*****************GENERAL*****************
+  static Map userFeedback({
+    @required String date,
+    @required String title,
+    @required String text,
+    @required String type,
+    @required String userID,
+    @required String userEmail,
+  }) {
+    return {
+      'date': date,
+      'title': title,
+      'text': text,
+      'type': type,
+      'userID': userID,
+      'userEmail': userEmail,
+    };
   }
 
   //SECTION END

@@ -54,18 +54,27 @@ class AboutScreen extends StatelessWidget {
                 text:
                     'Tapping on a Collection plant will bring you to your plant\'s profile.  '
                     'Here you can add, edit, or delete/hide information.  '
-                    'You can also add photos of your plant that you can scroll though to watch it grow.  '
+                    'You can also add photos of your plant that you can scroll though to watch it grow.  \n\n'
                     'You can set any of the images as a thumbnail for the plant by tapping the grid icon (bottom right hand corner of the image).  '
-                    'To view a full sized photo, just tap on the image.',
+                    'To view a full sized photo, just tap on the image.  \n\n'
+                    'JOURNAL\n\n'
+                    'A Journal attached to each plant, allow you to keep track of your plant related activites.  '
+                    'These entries can be edited for 24hrs then are locked.  \n\n'
+                    'CLONE\n\n'
+                    'When viewing a friend\'s plant you can clone (copy) the plant data.  '
+                    'This makes it easy if you have the same plant or would like to add it to a wishlist.  '
+                    'The journal entries and images will not be copied.  ',
               ),
               TextSection(
                 title: 'Connections and Chat',
                 text:
-                    'You can add a friend\'s email address to view their plant library and chat.  '
+                    'You can add friend\'s by there email address to view their plant library and chat.  '
                     'If the email address is not found, you will be able to send an invite link.  '
+                    'They will not show as a friend until they accept your request.  \n\n'
+                    'NOTIFICATIONS\n\n'
                     'In this version, if the app is closed, you will not receive message notifications.  '
                     'Message notifications will only be displayed while the app is running.  '
-                    'The social aspect is in the early stages and may be a bit buggy.  ',
+                    'The social aspect is in the early stages.  ',
               ),
               TextSection(
                 title: 'Version and Development',

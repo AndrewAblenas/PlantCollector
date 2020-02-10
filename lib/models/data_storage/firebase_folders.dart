@@ -14,6 +14,9 @@ class StorageFolder {
   static const String plants = 'plants';
   static const String images = 'images';
   static const String settings = 'settings';
+  static const String feedbackBugs = 'feedback_bugs';
+  static const String feedbackFeatures = 'feedback_features';
+  static const String feedbackAbuse = 'feedback_abuse';
 }
 
 //FOLDERS FOR MOVING/IMPORTING

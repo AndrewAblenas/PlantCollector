@@ -8,7 +8,6 @@ import 'package:plant_collector/widgets/dialogs/dialog_confirm.dart';
 import 'package:provider/provider.dart';
 
 class RequestCard extends StatelessWidget {
-  //TODO revamp and change to RequestData
   final UserData user;
   RequestCard({@required this.user});
   @override
@@ -63,8 +62,8 @@ class RequestCard extends StatelessWidget {
                   return DialogConfirm(
                     title: 'Add Connection',
                     text:
-                        'Are you sure you would like to add this Connection?  '
-                        'Once accepted, you will be able to view each other\'s plant libraries and chat.',
+                        'Are you sure you would like to accept this request?  \n\n'
+                        'After accepting, you will be able to view each other\'s plant libraries and chat.',
                     buttonText: 'ADD',
                     onPressed: () {
                       Provider.of<CloudDB>(context)
@@ -83,9 +82,7 @@ class RequestCard extends StatelessWidget {
           ),
         ),
       ],
-      onLongPress: () {
-        null;
-      },
+      onLongPress: () {},
     );
   }
 }

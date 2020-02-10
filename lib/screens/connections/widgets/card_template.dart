@@ -46,7 +46,7 @@ class CardTemplate extends StatelessWidget {
                   padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 0.0),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(3.0),
-                    color: Color(0x55000000),
+                    color: Color(0x77000000),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -58,24 +58,41 @@ class CardTemplate extends StatelessWidget {
                   alignment: Alignment.center,
                   padding: EdgeInsets.symmetric(
                     horizontal: 3.0,
-                    vertical: 8.0,
+                    vertical: 4.0,
                   ),
                   child: Container(
                     padding: EdgeInsets.all(2.0),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(3.0),
-                      color: Color(0x55000000),
+                      color: Color(0x77000000),
                     ),
-                    child: Text(
-                      (user != null && user.name != null) ? user.name : '',
-                      overflow: TextOverflow.fade,
-                      softWrap: true,
-                      style: TextStyle(
-                        fontSize: AppTextSize.large *
-                            MediaQuery.of(context).size.width,
-                        fontWeight: AppTextWeight.medium,
-                        color: AppTextColor.white,
-                      ),
+                    child: Column(
+                      children: <Widget>[
+                        Text(
+                          (user != null && user.name != null) ? user.name : '',
+                          overflow: TextOverflow.fade,
+                          softWrap: false,
+                          style: TextStyle(
+                            fontSize: AppTextSize.large *
+                                MediaQuery.of(context).size.width,
+                            fontWeight: AppTextWeight.medium,
+                            color: AppTextColor.white,
+                          ),
+                        ),
+                        Text(
+                          (user != null && user.email != null)
+                              ? user.email
+                              : '',
+                          overflow: TextOverflow.fade,
+                          softWrap: false,
+                          style: TextStyle(
+                            fontSize: AppTextSize.tiny *
+                                MediaQuery.of(context).size.width,
+                            fontWeight: AppTextWeight.medium,
+                            color: AppTextColor.white,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

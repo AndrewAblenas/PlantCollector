@@ -1,4 +1,5 @@
 import 'dart:core';
+import 'package:date_format/date_format.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -47,7 +48,7 @@ class AppData extends ChangeNotifier {
 
   //decide whether or not to show tips
   void showTipsHelpers() {
-    showTips = (currentUserGroups.length <= 3);
+    showTips = (currentUserGroups != null && currentUserGroups.length <= 3);
   }
 
   //*****************CHAT RELATED*****************//
@@ -215,6 +216,13 @@ class AppData extends ChangeNotifier {
     String newPlantID =
         prefix + DateTime.now().millisecondsSinceEpoch.toString();
     return newPlantID;
+  }
+
+  static String feedbackDate() {
+    return formatDate(
+        DateTime.fromMillisecondsSinceEpoch(
+            DateTime.now().millisecondsSinceEpoch),
+        [yyyy, '-', mm, '-', dd]);
   }
 
   //*****************JOURNAL METHODS*****************
