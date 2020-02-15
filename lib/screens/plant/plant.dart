@@ -83,8 +83,10 @@ class PlantScreen extends StatelessWidget {
                           crossAxisCount: 3,
                           primary: false,
                           shrinkWrap: true,
-                          mainAxisSpacing: 5.0,
-                          crossAxisSpacing: 5.0,
+                          mainAxisSpacing:
+                              0.005 * MediaQuery.of(context).size.width,
+                          crossAxisSpacing:
+                              0.005 * MediaQuery.of(context).size.width,
                           children: items,
                         ),
                       );
@@ -104,7 +106,7 @@ class PlantScreen extends StatelessWidget {
             ),
             Padding(
               padding: EdgeInsets.symmetric(
-                  horizontal: MediaQuery.of(context).size.width * 0.03),
+                  horizontal: 0.01 * MediaQuery.of(context).size.width),
               child: Consumer<DocumentSnapshot>(
                 builder: (context, DocumentSnapshot plantSnap, _) {
                   if (plantSnap != null) {
@@ -262,6 +264,7 @@ class PlantScreen extends StatelessWidget {
                                               ),
                                             );
                                           }
+                                          //add a cancel button
                                           return GridView.count(
                                             primary: false,
                                             shrinkWrap: true,
@@ -276,6 +279,24 @@ class PlantScreen extends StatelessWidget {
                                                   'then you can share to chat!');
                                         }
                                       },
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: AppTextSize.large *
+                                        MediaQuery.of(context).size.width,
+                                  ),
+                                  GestureDetector(
+                                    onTap: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text(
+                                      'CANCEL',
+                                      style: TextStyle(
+                                        fontSize: AppTextSize.large *
+                                            MediaQuery.of(context).size.width,
+                                        fontWeight: AppTextWeight.medium,
+                                        color: kButtonCancel,
+                                      ),
                                     ),
                                   ),
                                 ],

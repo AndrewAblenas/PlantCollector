@@ -4,8 +4,9 @@ import 'package:plant_collector/formats/text.dart';
 
 class DialogScreen extends StatelessWidget {
   final String title;
+  final bool cancel;
   final List<Widget> children;
-  DialogScreen({@required this.title, @required this.children});
+  DialogScreen({@required this.title, @required this.children, this.cancel});
   @override
   Widget build(BuildContext context) {
     return Scaffold(

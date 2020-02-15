@@ -85,10 +85,12 @@ class PlantPhoto extends StatelessWidget {
         },
         child: Container(
           margin: EdgeInsets.only(bottom: largeWidget ? 10.0 : 0.0),
-          decoration: BoxDecoration(
-            color: kGreenMedium,
-            boxShadow: kShadowBox,
-          ),
+          decoration: largeWidget
+              ? BoxDecoration(
+                  color: kGreenMedium,
+                  boxShadow: kShadowBox,
+                )
+              : BoxDecoration(color: kGreenMedium),
           child: Container(
             width: MediaQuery.of(context).size.width * 0.94,
             decoration: BoxDecoration(

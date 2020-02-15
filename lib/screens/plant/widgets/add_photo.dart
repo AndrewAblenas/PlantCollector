@@ -25,25 +25,27 @@ class AddPhoto extends StatelessWidget {
       padding: EdgeInsets.all(largeWidget ? 4.0 : 0.0),
       child: Container(
         width: MediaQuery.of(context).size.width * 0.94,
-        decoration: BoxDecoration(
-          color: kGreenMedium,
-          boxShadow: [
-            BoxShadow(
-              color: kShadowColor,
-              blurRadius: 8.0,
-              offset: Offset(0.0, 5.0),
-              spreadRadius: -5.0,
-            ),
-          ],
-        ),
+        decoration: largeWidget
+            ? BoxDecoration(
+                color: kGreenMedium,
+                boxShadow: [
+                  BoxShadow(
+                    color: kShadowColor,
+                    blurRadius: 8.0,
+                    offset: Offset(0.0, 5.0),
+                    spreadRadius: -5.0,
+                  ),
+                ],
+              )
+            : BoxDecoration(
+                color: kGreenMedium,
+              ),
         child: Column(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            RaisedButton(
+            FlatButton(
               color: largeWidget ? AppTextColor.white : kGreenMedium,
-              elevation: 5.0,
-              hoverElevation: 0,
               padding: EdgeInsets.all(10.0 * widgetScale),
               child: CircleAvatar(
                 foregroundColor: kGreenDark,
@@ -90,10 +92,8 @@ class AddPhoto extends StatelessWidget {
                 }
               },
             ),
-            RaisedButton(
+            FlatButton(
               color: largeWidget ? AppTextColor.white : kGreenMedium,
-              elevation: 5.0,
-              hoverElevation: 0,
               padding: EdgeInsets.all(10.0 * widgetScale),
               child: CircleAvatar(
                 foregroundColor: kGreenDark,

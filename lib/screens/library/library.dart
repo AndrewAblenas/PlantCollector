@@ -186,11 +186,11 @@ class LibraryScreen extends StatelessWidget {
                 )
               : null,
         ),
-        body: Padding(
+        body: Container(
           padding: EdgeInsets.only(
             top: 0.0,
-            left: 10.0,
-            right: 10.0,
+            left: 0.01 * MediaQuery.of(context).size.width,
+            right: 0.01 * MediaQuery.of(context).size.width,
             bottom: 0.0,
           ),
           child: ListView(

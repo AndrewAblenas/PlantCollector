@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/cloud_db.dart';
@@ -132,7 +131,7 @@ class CloneButton extends StatelessWidget {
                 color: AppTextColor.black,
                 fontSize: AppTextSize.large * MediaQuery.of(context).size.width,
                 fontWeight: AppTextWeight.medium,
-                shadows: kShadowText,
+//                shadows: kShadowText,
               ),
             ),
           ],

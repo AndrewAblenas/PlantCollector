@@ -11,13 +11,11 @@ import 'package:plant_collector/widgets/button_add.dart';
 import 'package:plant_collector/widgets/container_wrapper.dart';
 import 'package:plant_collector/widgets/tile_white.dart';
 import 'package:provider/provider.dart';
+import 'dart:io' as io;
 
 class FeedbackScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    String date = AppData.feedbackDate();
-    String userID = Provider.of<UserAuth>(context).signedInUser.uid;
-    String userEmail = Provider.of<UserAuth>(context).signedInUser.email;
     return ScreenTemplate(
         screenTitle: 'Feedback',
         child: ListView(
@@ -167,6 +165,10 @@ class FeedbackButton extends StatelessWidget {
                                 text:
                                     Provider.of<AppData>(context).newDataInput,
                                 type: type,
+                                platform: 'Platform:  ' +
+                                    io.Platform.operatingSystem +
+                                    '  Version:  ' +
+                                    io.Platform.operatingSystemVersion,
                                 userID: userID,
                                 userEmail: userEmail,
                               ),

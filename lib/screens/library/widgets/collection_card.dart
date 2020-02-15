@@ -268,7 +268,7 @@ class CollectionCard extends StatelessWidget {
                               //build a tile for each plant in the list, beginning index 0
                               if (index <= collectionPlantTotal - 1) {
                                 tile = Padding(
-                                  padding: EdgeInsets.all(2.0 *
+                                  padding: EdgeInsets.all(1.0 *
                                       MediaQuery.of(context).size.width *
                                       kScaleFactor),
                                   child: PlantTile(
@@ -285,7 +285,7 @@ class CollectionCard extends StatelessWidget {
                                 //for the last item put an add button
                               } else {
                                 tile = Padding(
-                                  padding: EdgeInsets.all(2.0 *
+                                  padding: EdgeInsets.all(1.0 *
                                       MediaQuery.of(context).size.width *
                                       kScaleFactor),
                                   child: AddPlant(collectionID: collection.id),

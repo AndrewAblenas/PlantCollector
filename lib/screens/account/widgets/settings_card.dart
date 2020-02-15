@@ -75,7 +75,7 @@ class SettingsCard extends StatelessWidget {
                       Provider.of<AppData>(context).newDataInput = input;
                     },
                     cancelText: 'Cancel',
-                    hintText: cardText);
+                    hintText: null);
               },
             );
           }

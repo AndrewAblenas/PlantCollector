@@ -112,11 +112,7 @@ class ChatScreen extends StatelessWidget {
                 child: Expanded(
                   child: Container(
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [kGreenDark, kGreenLight],
-                        begin: Alignment.bottomCenter,
-                        end: Alignment.topCenter,
-                      ),
+                      gradient: kBackgroundGradient,
                     ),
                     width: MediaQuery.of(context).size.width,
                     child: Consumer<QuerySnapshot>(

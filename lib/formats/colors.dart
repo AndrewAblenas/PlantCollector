@@ -48,9 +48,16 @@ const List<BoxShadow> kShadowBox = [
 
 //Standard Box Decoration
 const BoxDecoration kButtonBoxDecoration = BoxDecoration(
-  boxShadow: kShadowBox,
+//  boxShadow: kShadowBox,
   image: DecorationImage(
     image: AssetImage('assets/images/default.png'),
     fit: BoxFit.cover,
   ),
+);
+
+//Background gradient decoration
+const Gradient kBackgroundGradient = LinearGradient(
+  colors: [kGreenDark, kGreenLight],
+  begin: Alignment.bottomCenter,
+  end: Alignment.topCenter,
 );

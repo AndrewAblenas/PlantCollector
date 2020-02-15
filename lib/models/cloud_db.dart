@@ -755,6 +755,7 @@ class CloudDB extends ChangeNotifier {
     @required String title,
     @required String text,
     @required String type,
+    @required String platform,
     @required String userID,
     @required String userEmail,
   }) {
@@ -763,6 +764,7 @@ class CloudDB extends ChangeNotifier {
       'title': title,
       'text': text,
       'type': type,
+      'platform': platform,
       'userID': userID,
       'userEmail': userEmail,
     };
