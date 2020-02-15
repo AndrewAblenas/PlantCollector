@@ -226,9 +226,11 @@ class CloudStore extends ChangeNotifier {
     StorageUploadTask upload;
     if (imageFile != null) {
       String imageName = generateImageName(plantID: plantIDFolder);
+      //note image type not detection on iOS uploads defaults to applications/octet-stream
+      StorageMetadata metadata = StorageMetadata(contentType: 'image/jpeg');
       String path =
           '$mainFolder/$currentUserFolder/$plantsFolder/$plantIDFolder/$subFolder/$imageName.$imageExtension';
-      upload = _storage.ref().child(path).putData(imageFile.readAsBytesSync());
+      upload = _storage.ref().child(path).putData(imageFile.readAsBytesSync(), metadata);
     } else if (imageCode != null) {
       String path =
           '$mainFolder/$currentUserFolder/$plantsFolder/$plantIDFolder/$subFolder/thumbnail.$imageExtension';
@@ -245,9 +247,11 @@ class CloudStore extends ChangeNotifier {
       {@required File imageFile, @required String imageName}) {
     StorageUploadTask upload;
     if (imageFile != null) {
+      //note image type not detection on iOS uploads defaults to applications/octet-stream
+      StorageMetadata metadata = StorageMetadata(contentType: 'image/jpeg');
       String path =
           '$mainFolder/$currentUserFolder/$settingsFolder/$imageName.jpg';
-      upload = _storage.ref().child(path).putData(imageFile.readAsBytesSync());
+      upload = _storage.ref().child(path).putData(imageFile.readAsBytesSync(), metadata);
     } else {
       upload = null;
     }
