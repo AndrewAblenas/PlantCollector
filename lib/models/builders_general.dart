@@ -8,8 +8,9 @@ import 'package:plant_collector/screens/dialog/dialog_screen_select.dart';
 import 'package:plant_collector/screens/library/widgets/group_delete.dart';
 import 'package:plant_collector/screens/library/widgets/collection_card.dart';
 import 'package:plant_collector/screens/library/widgets/group_card.dart';
-import 'package:plant_collector/screens/plant/widgets/clone_button.dart';
+import 'package:plant_collector/screens/plant/widgets/viewer_utility_buttons.dart';
 import 'package:plant_collector/screens/plant/widgets/journal_button.dart';
+import 'package:plant_collector/screens/search/widgets/search_tile_plant.dart';
 import 'package:plant_collector/widgets/dialogs/color_picker/button_color.dart';
 import 'package:plant_collector/widgets/dialogs/select/dialog_functions.dart';
 import 'package:plant_collector/screens/account/widgets/settings_card.dart';
@@ -30,6 +31,44 @@ class UIBuilders extends ChangeNotifier {
       Duration(milliseconds: 1000),
     );
     return 'Done';
+  }
+
+  //Generate Search plant widgets
+  static List<Widget> searchPlants(
+      {@required String searchInput,
+      @required List<PlantData> plantData,
+      @required List<CollectionData> collections}) {
+    List<Widget> searchResults = [];
+    searchInput.toLowerCase();
+    if (searchInput == '') {
+      for (PlantData plant in plantData) {
+        String collectionID;
+        for (CollectionData collection in collections) {
+          if (collection.plants.contains(plant.id)) {
+            collectionID = collection.id;
+          }
+        }
+        searchResults
+            .add(SearchPlantTile(plant: plant, collectionID: collectionID));
+      }
+    } else {
+      for (PlantData plant in plantData) {
+        if (plant.name.toLowerCase().contains(searchInput) ||
+            plant.genus.toLowerCase().contains(searchInput) ||
+            plant.species.toLowerCase().contains(searchInput) ||
+            plant.variety.toLowerCase().contains(searchInput)) {
+          String collectionID;
+          for (CollectionData collection in collections) {
+            if (collection.plants.contains(plant.id)) {
+              collectionID = collection.id;
+            }
+          }
+          searchResults
+              .add(SearchPlantTile(plant: plant, collectionID: collectionID));
+        }
+      }
+    }
+    return searchResults.length > 0 ? searchResults : [SizedBox()];
   }
 
   //Generate Group widgets
@@ -221,6 +260,7 @@ class UIBuilders extends ChangeNotifier {
     keyList.remove(PlantKeys.id);
     keyList.remove(PlantKeys.thumbnail);
     keyList.remove(PlantKeys.images);
+    keyList.remove(PlantKeys.likes);
     //need null check to deal with issues on plant delete
     //connection library check will hide journal unless plant belongs to user
     if (plant != null) {
@@ -270,10 +310,14 @@ class UIBuilders extends ChangeNotifier {
         ),
       );
     }
-    //first add a journal button if user plant
+    //add a clone button when viewing friend library and green thumb
     if (connectionLibrary == true) {
       infoCardList.add(
-        CloneButton(plant: plant),
+        Row(
+          children: <Widget>[
+            ViewerUtilityButtons(plant: plant),
+          ],
+        ),
       );
     }
     print('displayInfoCards: COMPLETE');

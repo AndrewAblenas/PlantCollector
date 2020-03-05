@@ -5,9 +5,11 @@ import 'package:plant_collector/formats/colors.dart';
 class ScreenTemplate extends StatelessWidget {
   final String screenTitle;
   final Widget child;
+  final Widget bottomBar;
   ScreenTemplate({
     @required this.screenTitle,
     @required this.child,
+    this.bottomBar,
   });
   @override
   Widget build(BuildContext context) {
@@ -23,6 +25,7 @@ class ScreenTemplate extends StatelessWidget {
         ),
       ),
       body: child != null ? child : SizedBox(),
+      bottomNavigationBar: bottomBar ?? SizedBox(),
     );
   }
 }

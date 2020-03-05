@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
+import 'package:plant_collector/models/global.dart';
+import 'package:plant_collector/screens/about/reference.dart';
 import 'package:plant_collector/widgets/tile_white.dart';
 
 class AboutScreen extends StatelessWidget {
@@ -21,65 +23,89 @@ class AboutScreen extends StatelessWidget {
           Column(
             children: <Widget>[
               SizedBox(height: 20.0),
-              TextSection(
-                title: 'Plant Collector',
+              ReferenceButton(
+                title: GlobalStrings.app,
                 text:
-                    'The purpose of Plant Collector is to provide an easy, intuitive, and feature rich tool to create your own personal plant library.  '
-                    'Your library is organized into Groups.  '
-                    'These groups contain your Collections.  '
-                    'Finally, these Collections are where you\'ll find your plants.  ',
+                    'The purpose of ${GlobalStrings.app} is to provide an easy, intuitive, and feature rich tool to create and share your own personal ${GlobalStrings.plant} ${GlobalStrings.library}.  '
+                    'Your ${GlobalStrings.library} is organized into ${GlobalStrings.groups}.  \n\n'
+                    'Each of these ${GlobalStrings.groups} contain any ${GlobalStrings.collections} that you have added.  '
+                    'These ${GlobalStrings.collections} in turn, are where you add your ${GlobalStrings.plants}.  ',
               ),
-              TextSection(
-                title: 'Groups',
+              ReferenceButton(
+                title: GlobalStrings.library,
                 text:
-                    'Groups hold your plant Collections are are used to organize your Library.  '
-                    'You can add a new group by tapping the button on the library page.  '
-                    'To rename, hold down on the Group name.  '
-                    'You can quickly tap the Group name to change it\'s color.  '
-                    'An arrow beside the name allows you to roll the Group up or down.  '
-                    'When there are no Collections, a delete button is deplayed so you can remove the Group.  '
-                    'The end of each Group provides a button to add Collections.  ',
+                    'Your ${GlobalStrings.library} is the main page of this app.  '
+                    'This page displays your profile header and is where you add all your ${GlobalStrings.plants}.  \n\n'
+                    'After you have added some ${GlobalStrings.friends}, you will be able to view their ${GlobalStrings.libraries} as well.  '
+                    'Their ${GlobalStrings.libraries} via the ${GlobalStrings.community} tab at the bottom of the screen.  ',
               ),
-              TextSection(
-                title: 'Collections',
-                text: 'Collections are where you can add your plants.  '
-                    'Tap the add button to add a new plant.  '
-                    'Holding down on a plant will allow you to move it to another Collection.  '
-                    'You can rename a Collection by holding down on the Collection name.  '
-                    'An arrow beside the name allows you to roll the Collection up or down.  '
-                    'A Collection can only be deleted when it no longe holds any plants.  ',
-              ),
-              TextSection(
-                title: 'Plant Profile',
+              ReferenceButton(
+                title: 'Profile Header',
                 text:
-                    'Tapping on a Collection plant will bring you to your plant\'s profile.  '
-                    'Here you can add, edit, or delete/hide information.  '
-                    'You can also add photos of your plant that you can scroll though to watch it grow.  \n\n'
-                    'You can set any of the images as a thumbnail for the plant by tapping the grid icon (bottom right hand corner of the image).  '
+                    'The Profile Header displays information about you and your ${GlobalStrings.library}.  '
+                    'The information displayed can be changed right on screen.  \n\n'
+                    'Hold down on your name, avatar, or banner to customize them.  '
+                    'Note this information can also be updated by tapping the ${GlobalStrings.settings} tab, then ${GlobalStrings.account}.  ',
+              ),
+              ReferenceButton(
+                title: GlobalStrings.groups,
+                text:
+                    '${GlobalStrings.groups} hold your ${GlobalStrings.collections} and are used to organize your ${GlobalStrings.library}.  '
+                    'You can add a new ${GlobalStrings.group} by tapping the Add ${GlobalStrings.group} button at the bottom of the ${GlobalStrings.library} page.  \n\n'
+                    'To rename, hold down on the ${GlobalStrings.group} name.  '
+                    'Tap the ${GlobalStrings.group} name to customize it\'s colour.  '
+                    'An arrow to the right of the name allows you to collapse or expand the ${GlobalStrings.group}.  \n\n'
+                    'When there are no ${GlobalStrings.collections}, a delete button is deplayed so you can delete the ${GlobalStrings.group}.  '
+                    'At the end of each ${GlobalStrings.group} there is a button that allows you to add ${GlobalStrings.collections}.  ',
+              ),
+              ReferenceButton(
+                title: GlobalStrings.collections,
+                text:
+                    '${GlobalStrings.collections} contain your ${GlobalStrings.plants} and allow you to add new ones.  '
+                    'You can rename a ${GlobalStrings.collection} by holding down on the ${GlobalStrings.collection} name.  \n\n'
+                    'An arrow to the right of the name allows you to move the ${GlobalStrings.collection} to a different ${GlobalStrings.group}.  '
+                    'A ${GlobalStrings.collection} can only be deleted when it no longe holds any ${GlobalStrings.plants}.  '
+                    'An arrow at the bottom allows you to collapse or expand the ${GlobalStrings.collection}.  \n\n'
+                    'Tap the green add button to add a new ${GlobalStrings.plant}.  '
+                    'Holding down on a ${GlobalStrings.plant} tile will allow you to move it to another ${GlobalStrings.collection}.  ',
+              ),
+              ReferenceButton(
+                title: GlobalStrings.plants,
+                text:
+                    'Tapping on a ${GlobalStrings.plant} tile will bring you to your ${GlobalStrings.plant}\'s profile.  '
+                    'Here you can add, edit, delete, share, or hide information.  '
+                    'You can also add photos of your ${GlobalStrings.plant}.  '
                     'To view a full sized photo, just tap on the image.  \n\n'
+                    'You can set any uploaded image as a thumbnail for the ${GlobalStrings.plant} by tapping the grid icon (bottom right hand corner of the image).  '
+                    'Note: The first image added will be set as the ${GlobalStrings.plant} thumbnail by default.  \n\n'
                     'JOURNAL\n\n'
-                    'A Journal attached to each plant, allow you to keep track of your plant related activites.  '
-                    'These entries can be edited for 24hrs then are locked.  \n\n'
+                    'A ${GlobalStrings.journal} is attached to each ${GlobalStrings.plant}, allowing you to keep track of your ${GlobalStrings.plant} related activities.  '
+                    'These entries can be edited for 24hrs then are locked.  '
+                    'The ${GlobalStrings.journal} is only visible to you and cannot be viewed by ${GlobalStrings.friends}.  \n\n'
                     'CLONE\n\n'
-                    'When viewing a friend\'s plant you can clone (copy) the plant data.  '
-                    'This makes it easy if you have the same plant or would like to add it to a wishlist.  '
-                    'The journal entries and images will not be copied.  ',
+                    'When viewing a ${GlobalStrings.friend}\'s plant you can ${GlobalStrings.clone} (copy) the ${GlobalStrings.plant} data.  '
+                    'This makes it easy if you have the same ${GlobalStrings.plant}, received a division, or would like to add it to a wishlist.  '
+                    'The ${GlobalStrings.journal} entries and images will not be copied.  \n\n'
+                    'Another button is provided next to the ${GlobalStrings.clone} button that allows you to like a ${GlobalStrings.friend}\'s ${GlobalStrings.plant}.  '
+                    'This is called giving a ${GlobalStrings.greenThumb}.  ',
               ),
-              TextSection(
-                title: 'Connections and Chat',
+              ReferenceButton(
+                title: '${GlobalStrings.community} and Chat',
                 text:
-                    'You can add friend\'s by there email address to view their plant library and chat.  '
-                    'If the email address is not found, you will be able to send an invite link.  '
-                    'They will not show as a friend until they accept your request.  \n\n'
+                    'You can add ${GlobalStrings.friends} by their email address to view their ${GlobalStrings.plant} ${GlobalStrings.library} and chat.  '
+                    'If their email address is not found, you will be able to send an invite link.  '
+                    'They have to accept your request before you will see them as a ${GlobalStrings.friend}.  \n\n'
                     'NOTIFICATIONS\n\n'
-                    'In this version, if the app is closed, you will not receive message notifications.  '
+                    'Currently, if the app is closed, you will not receive message notifications.  '
                     'Message notifications will only be displayed while the app is running.  '
                     'The social aspect is in the early stages.  ',
               ),
-              TextSection(
+              ReferenceButton(
                 title: 'Version and Development',
                 text:
-                    'The Plant Collector app is still undergoing initial testing.  Please feel free to share any suggestions to you may have to improve the application.',
+                    'The ${GlobalStrings.app} app is still undergoing development and testing.  '
+                    'Please feel free to share any suggestions you may have to improve the application.  '
+                    'This can be done via tapping the ${GlobalStrings.settings} tab then ${GlobalStrings.feedback} button.  ',
               ),
             ],
           ),
@@ -89,39 +115,34 @@ class AboutScreen extends StatelessWidget {
   }
 }
 
-class TextSection extends StatelessWidget {
+class ReferenceButton extends StatelessWidget {
   final String title;
   final String text;
-  TextSection({@required this.title, @required this.text});
+  ReferenceButton({@required this.title, @required this.text});
 
   @override
   Widget build(BuildContext context) {
-    return TileWhite(
-      child: Column(
-        children: <Widget>[
-          Padding(
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ReferenceScreen(title: title, text: text),
+          ),
+        );
+      },
+      child: TileWhite(
+        bottomPadding: 0.0,
+        child: Container(
+          width: double.infinity,
+          child: Padding(
             padding: const EdgeInsets.all(10.0),
             child: Text(
               title,
               style: kHeaderText,
             ),
           ),
-          Container(
-            height: 1.0,
-            width: 250.0,
-            color: kGreenDark,
-          ),
-          SizedBox(height: 10.0),
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Text(
-              text,
-              style: kBodyText,
-              textAlign: TextAlign.justify,
-            ),
-          ),
-          SizedBox(height: 20.0),
-        ],
+        ),
       ),
     );
   }

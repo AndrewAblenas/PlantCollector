@@ -2,14 +2,17 @@
 import 'package:flutter/material.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/user.dart';
+import 'package:plant_collector/screens/about/reference.dart';
 import 'package:plant_collector/screens/chat/chat.dart';
-import 'package:plant_collector/screens/connections/connections.dart';
+import 'package:plant_collector/screens/community/community.dart';
+import 'package:plant_collector/screens/friends//friends.dart';
 import 'package:plant_collector/screens/feedback/feedback.dart';
 import 'package:plant_collector/screens/library/library.dart';
 import 'package:plant_collector/screens/library/local_notification.dart';
 import 'package:plant_collector/screens/login/login.dart';
 import 'package:plant_collector/screens/login/register.dart';
 import 'package:plant_collector/screens/plant/plant.dart';
+import 'package:plant_collector/screens/search/search.dart';
 import 'package:plant_collector/screens/settings/settings.dart';
 import 'package:plant_collector/screens/plant/image.dart';
 import 'package:provider/provider.dart';
@@ -64,6 +67,7 @@ class PlantCollector extends StatelessWidget {
         routes: {
           'loading': (context) => LoadingScreen(),
           'about': (context) => AboutScreen(),
+          'reference': (context) => ReferenceScreen(title: null, text: null),
           'route': (context) => RouteScreen(),
           'library': (context) => LibraryScreen(
                 userID: null,
@@ -78,9 +82,13 @@ class PlantCollector extends StatelessWidget {
           'image': (context) => ImageScreen(),
           'settings': (context) => SettingsScreen(),
           'account': (context) => AccountScreen(),
-          'connections': (context) => ConnectionsScreen(),
-          'chat': (context) => ChatScreen(friend: null),
+          'connections': (context) => FriendsScreen(),
+          'community': (context) => CommunityScreen(),
+          'chat': (context) => ChatScreen(
+                friend: null,
+              ),
           'feedback': (context) => FeedbackScreen(),
+          'search': (context) => SearchScreen(),
         },
       ),
     );

@@ -4,6 +4,7 @@ import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 import 'package:plant_collector/models/data_types/group_data.dart';
 import 'package:plant_collector/models/data_types/plant_data.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
+import 'package:plant_collector/models/global.dart';
 import 'package:plant_collector/screens/dialog/dialog_screen_input.dart';
 import 'package:plant_collector/widgets/container_wrapper.dart';
 import 'package:plant_collector/widgets/dialogs/color_picker/dialog_color_picker.dart';
@@ -39,36 +40,21 @@ class GroupCard extends StatelessWidget {
 //    }
     return ContainerWrapper(
       color: convertColor(storedColor: group.color),
-      child: ExpandableNotifier(
-        initialExpanded: true,
-        child: Expandable(
-          collapsed: GroupHeader(
-            connectionLibrary: connectionLibrary,
-            group: group,
-            button: ExpandableButton(
-              child: CircleAvatar(
-                radius: 20.0,
-                backgroundColor: convertColor(storedColor: group.color),
-                child: Icon(
-                  Icons.keyboard_arrow_down,
-                  size: 30.0 * MediaQuery.of(context).size.width * kScaleFactor,
-                  color: AppTextColor.white,
-                ),
-              ),
-            ),
-          ),
-          expanded: Column(
-            children: <Widget>[
-              GroupHeader(
+      child: Consumer<UserData>(builder: (context, user, _) {
+        if (user != null) {
+          return ExpandableNotifier(
+            //user settings to determine if group is expanded by default
+            initialExpanded: user.expandGroup,
+            child: Expandable(
+              collapsed: GroupHeader(
                 connectionLibrary: connectionLibrary,
                 group: group,
                 button: ExpandableButton(
                   child: CircleAvatar(
-                    radius:
-                        20.0 * MediaQuery.of(context).size.width * kScaleFactor,
+                    radius: 20.0,
                     backgroundColor: convertColor(storedColor: group.color),
                     child: Icon(
-                      Icons.keyboard_arrow_up,
+                      Icons.keyboard_arrow_down,
                       size: 30.0 *
                           MediaQuery.of(context).size.width *
                           kScaleFactor,
@@ -77,165 +63,195 @@ class GroupCard extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(
-                height: 20,
-              ),
-              Column(
+              expanded: Column(
                 children: <Widget>[
-                  Consumer<List<CollectionData>>(
-                    builder: (context, List<CollectionData> collections, _) {
-                      if (collections == null) return Column();
-                      if (connectionLibrary == false) {
-                        Provider.of<AppData>(context).currentUserCollections =
-                            collections;
-                        //update tally in user document
-                        if (collections != null &&
-                            Provider.of<AppData>(context).currentUserInfo !=
-                                null
-                            //don't bother updating if the values are the same
-                            &&
-                            collections.length !=
-                                Provider.of<AppData>(context)
-                                    .currentUserInfo
-                                    .collections) {
-                          Map countData = CloudDB.updatePairFull(
-                              key: UserKeys.collections,
-                              value: collections.length);
-                          Provider.of<CloudDB>(context).updateUserDocument(
-                            data: countData,
-                          );
-                        }
-                      } else {
-                        Provider.of<AppData>(context).connectionCollections =
-                            collections;
-                      }
-                      List<CollectionData> groupCollections =
-                          CloudDB.getMapsFromList(
-                        groupCollectionIDs: group.collections,
-                        collections: connectionLibrary == false
-                            ? Provider.of<AppData>(context)
-                                .currentUserCollections
-                            : Provider.of<AppData>(context)
-                                .connectionCollections,
-                      );
-                      Color groupColor = convertColor(storedColor: group.color);
-                      return Consumer<List<PlantData>>(
-                        builder: (context, List<PlantData> plants, _) {
-                          if (plants != null) {
-                            if (connectionLibrary == false) {
-                              //save plants for use elsewhere
-                              Provider.of<AppData>(context).currentUserPlants =
-                                  plants;
-                              //update tally in user document
-                              if (plants != null &&
-                                  Provider.of<AppData>(context)
-                                          .currentUserInfo !=
-                                      null
-                                  //don't bother updating if the values are the same
-                                  &&
-                                  plants.length !=
-                                      Provider.of<AppData>(context)
-                                          .currentUserInfo
-                                          .plants) {
-                                Map countData = CloudDB.updatePairFull(
-                                    key: UserKeys.plants, value: plants.length);
-                                Provider.of<CloudDB>(context)
-                                    .updateUserDocument(
-                                  data: countData,
-                                );
-                              }
-                            } else {
-                              //save plants for use elsewhere
-                              Provider.of<AppData>(context).connectionPlants =
-                                  plants;
-                            }
-                            return UIBuilders.displayCollections(
-                                connectionLibrary: connectionLibrary,
-                                userCollections: groupCollections,
-                                groupID: group.id,
-                                groupColor: groupColor);
-                          } else {
-                            return SizedBox();
-                          }
-                        },
-                      );
-                    },
+                  GroupHeader(
+                    connectionLibrary: connectionLibrary,
+                    group: group,
+                    button: ExpandableButton(
+                      child: CircleAvatar(
+                        radius: 20.0 *
+                            MediaQuery.of(context).size.width *
+                            kScaleFactor,
+                        backgroundColor: convertColor(storedColor: group.color),
+                        child: Icon(
+                          Icons.keyboard_arrow_up,
+                          size: 30.0 *
+                              MediaQuery.of(context).size.width *
+                              kScaleFactor,
+                          color: AppTextColor.white,
+                        ),
+                      ),
+                    ),
                   ),
-                  (connectionLibrary == false &&
-                          group.id != DBDefaultDocument.import)
-                      ? TileWhite(
-                          child: FlatButton(
-                            onPressed: () {
-                              showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return DialogScreenInput(
-                                        title: 'Create new Collection',
-                                        acceptText: 'Create',
-                                        acceptOnPress: () {
-                                          //create a map from the data
-                                          CollectionData collection =
-                                              Provider.of<AppData>(context)
-                                                  .newCollection();
-                                          //upload new collection data
-                                          Provider.of<CloudDB>(context)
-                                              .insertDocumentToCollection(
-                                                  data: collection.toMap(),
-                                                  collection:
-                                                      DBFolder.collections,
-                                                  documentName: collection.id);
-                                          //add collection reference to group
-                                          Provider.of<CloudDB>(context)
-                                              .updateArrayInDocumentInCollection(
-                                                  arrayKey:
-                                                      GroupKeys.collections,
-                                                  entries: [collection.id],
-                                                  folder: DBFolder.groups,
-                                                  documentName: group.id,
-                                                  action: true);
-                                          //pop context
-                                          Navigator.pop(context);
-                                        },
-                                        onChange: (input) {
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Column(
+                    children: <Widget>[
+                      Consumer<List<CollectionData>>(
+                        builder:
+                            (context, List<CollectionData> collections, _) {
+                          if (collections == null) return Column();
+                          if (connectionLibrary == false) {
+                            Provider.of<AppData>(context)
+                                .currentUserCollections = collections;
+                            //update tally in user document
+                            if (collections != null &&
+                                Provider.of<AppData>(context).currentUserInfo !=
+                                    null
+                                //don't bother updating if the values are the same
+                                &&
+                                collections.length !=
+                                    Provider.of<AppData>(context)
+                                        .currentUserInfo
+                                        .collections) {
+                              Map countData = CloudDB.updatePairFull(
+                                  key: UserKeys.collections,
+                                  value: collections.length);
+                              Provider.of<CloudDB>(context).updateUserDocument(
+                                data: countData,
+                              );
+                            }
+                          } else {
+                            Provider.of<AppData>(context)
+                                .connectionCollections = collections;
+                          }
+                          List<CollectionData> groupCollections =
+                              CloudDB.getMapsFromList(
+                            groupCollectionIDs: group.collections,
+                            collections: connectionLibrary == false
+                                ? Provider.of<AppData>(context)
+                                    .currentUserCollections
+                                : Provider.of<AppData>(context)
+                                    .connectionCollections,
+                          );
+                          Color groupColor =
+                              convertColor(storedColor: group.color);
+                          return Consumer<List<PlantData>>(
+                            builder: (context, List<PlantData> plants, _) {
+                              if (plants != null) {
+                                if (connectionLibrary == false) {
+                                  //save plants for use elsewhere
+                                  Provider.of<AppData>(context)
+                                      .currentUserPlants = plants;
+                                  //update tally in user document
+                                  if (plants != null &&
+                                      Provider.of<AppData>(context)
+                                              .currentUserInfo !=
+                                          null
+                                      //don't bother updating if the values are the same
+                                      &&
+                                      plants.length !=
                                           Provider.of<AppData>(context)
-                                              .newDataInput = input;
-                                        },
-                                        cancelText: 'Cancel',
-                                        hintText: null);
-                                  });
+                                              .currentUserInfo
+                                              .plants) {
+                                    Map countData = CloudDB.updatePairFull(
+                                        key: UserKeys.plants,
+                                        value: plants.length);
+                                    Provider.of<CloudDB>(context)
+                                        .updateUserDocument(
+                                      data: countData,
+                                    );
+                                  }
+                                } else {
+                                  //save plants for use elsewhere
+                                  Provider.of<AppData>(context)
+                                      .connectionPlants = plants;
+                                }
+                                return UIBuilders.displayCollections(
+                                    connectionLibrary: connectionLibrary,
+                                    userCollections: groupCollections,
+                                    groupID: group.id,
+                                    groupColor: groupColor);
+                              } else {
+                                return SizedBox();
+                              }
                             },
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Icon(
-                                  Icons.add,
-                                  color: AppTextColor.dark,
-                                  size: 25.0 *
-                                      MediaQuery.of(context).size.width *
-                                      kScaleFactor,
+                          );
+                        },
+                      ),
+                      (connectionLibrary == false &&
+                              group.id != DBDefaultDocument.import)
+                          ? TileWhite(
+                              child: FlatButton(
+                                onPressed: () {
+                                  showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return DialogScreenInput(
+                                            title:
+                                                'Create new ${GlobalStrings.collection}',
+                                            acceptText: 'Create',
+                                            acceptOnPress: () {
+                                              //create a map from the data
+                                              CollectionData collection =
+                                                  Provider.of<AppData>(context)
+                                                      .newCollection();
+                                              //upload new collection data
+                                              Provider.of<CloudDB>(context)
+                                                  .insertDocumentToCollection(
+                                                      data: collection.toMap(),
+                                                      collection:
+                                                          DBFolder.collections,
+                                                      documentName:
+                                                          collection.id);
+                                              //add collection reference to group
+                                              Provider.of<CloudDB>(context)
+                                                  .updateArrayInDocumentInCollection(
+                                                      arrayKey:
+                                                          GroupKeys.collections,
+                                                      entries: [collection.id],
+                                                      folder: DBFolder.groups,
+                                                      documentName: group.id,
+                                                      action: true);
+                                              //pop context
+                                              Navigator.pop(context);
+                                            },
+                                            onChange: (input) {
+                                              Provider.of<AppData>(context)
+                                                  .newDataInput = input;
+                                            },
+                                            cancelText: 'Cancel',
+                                            hintText: null);
+                                      });
+                                },
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    Icon(
+                                      Icons.add,
+                                      color: AppTextColor.dark,
+                                      size: 25.0 *
+                                          MediaQuery.of(context).size.width *
+                                          kScaleFactor,
+                                    ),
+                                    SizedBox(
+                                      width: 10.0,
+                                    ),
+                                    Text(
+                                      'Add New ${GlobalStrings.collection}',
+                                      style: TextStyle(
+                                          fontSize: AppTextSize.medium *
+                                              MediaQuery.of(context).size.width,
+                                          fontWeight: AppTextWeight.medium,
+                                          color: AppTextColor.black),
+                                    ),
+                                  ],
                                 ),
-                                SizedBox(
-                                  width: 10.0,
-                                ),
-                                Text(
-                                  'Add New Collection',
-                                  style: TextStyle(
-                                      fontSize: AppTextSize.medium *
-                                          MediaQuery.of(context).size.width,
-                                      fontWeight: AppTextWeight.medium,
-                                      color: AppTextColor.black),
-                                ),
-                              ],
-                            ),
-                          ),
-                        )
-                      : SizedBox(),
+                              ),
+                            )
+                          : SizedBox(),
+                    ],
+                  ),
                 ],
               ),
-            ],
-          ),
-        ),
-      ),
+            ),
+          );
+        } else {
+          return SizedBox();
+        }
+      }),
     );
   }
 }
@@ -265,7 +281,7 @@ class GroupHeader extends StatelessWidget {
                   context: context,
                   builder: (context) {
                     return DialogScreenInput(
-                        title: 'Rename Group',
+                        title: 'Rename ${GlobalStrings.group}',
                         acceptText: 'Accept',
                         acceptOnPress: () {
                           //create map to upload

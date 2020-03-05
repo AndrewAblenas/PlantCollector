@@ -201,6 +201,20 @@ class CloudDB extends ChangeNotifier {
         .toList());
   }
 
+  //provide a stream of friends
+  Future<List<UserData>> futureUsersData(
+      {@required List<FriendData> friendList}) async {
+    List<UserData> list = [];
+    for (FriendData friend in friendList) {
+      Map data = await getConnectionProfile(connectionID: friend.id);
+      //ZIP in chat started data
+      data[UserKeys.chatStarted] = friend.chatStarted;
+      list.add(UserData.fromMap(map: data));
+    }
+    //return specific data type
+    return list;
+  }
+
   //provide a stream of messages for a specific conversation
   Stream<QuerySnapshot> streamConvoMessages({@required String connectionID}) {
     String document = conversationDocumentName(connectionId: connectionID);
@@ -217,6 +231,23 @@ class CloudDB extends ChangeNotifier {
     }
   }
 
+  //NOT WORKING DELETE
+  //check if messages exist
+  bool messagesExist({@required String connectionID}) {
+    String document = conversationDocumentName(connectionId: connectionID);
+    if (document != null) {
+      bool exists = true;
+      _db.collection(conversationsPath).document(document).get().then(
+        (DocumentSnapshot snap) {
+          exists = snap.exists;
+        },
+      );
+      return exists;
+    } else {
+      return false;
+    }
+  }
+
   //generate conversation document name
   String conversationDocumentName({@required String connectionId}) {
     if (connectionId != null) {
@@ -226,6 +257,46 @@ class CloudDB extends ChangeNotifier {
     } else {
       return null;
     }
+  }
+
+  //like or unlike a plant
+  Future<void> likePlant(
+      {@required String plantID,
+      @required int likes,
+      @required List likeList}) {
+    //if the plant is in the user list, set action to remove (false) and subtract one like
+    //if the plant is NOT in the sure list, set action to add (true) and add one like
+    bool action = !likeList.contains(plantID);
+    int add = (action == true) ? 1 : -1;
+    //update the plant like count
+    updateDocumentInCollectionOther(
+        data: updatePairFull(key: PlantKeys.likes, value: likes + add),
+        collection: DBFolder.plants,
+        documentName: plantID);
+    //update the user list of likes
+    return updateUserArray(
+        action: action, entries: [plantID], arrayKey: UserKeys.likedPlants);
+  }
+
+  //update item in user document array
+  Future<void> updateUserArray(
+      {@required bool action,
+      @required List entries,
+      @required String arrayKey}) async {
+    if (entries != null) {
+      //create, write, and/or merge
+      if (action == true) {
+        return await _db
+            .collection(usersPath)
+            .document(currentUserFolder)
+            .updateData({arrayKey: FieldValue.arrayUnion(entries)});
+      } else if (action == false) {
+        return await _db
+            .collection(usersPath)
+            .document(currentUserFolder)
+            .updateData({arrayKey: FieldValue.arrayRemove(entries)});
+      }
+    } else {}
   }
 
   //provide a stream of user document
@@ -354,6 +425,20 @@ class CloudDB extends ChangeNotifier {
         .setData({
       UserKeys.id: documentID,
     });
+  }
+
+  //Update reference to connection in user connection folder
+  Future updateConnectionDocument(
+      {@required String pathID,
+      @required String documentID,
+      @required String key,
+      @required value}) {
+    return _db
+        .collection(usersPath)
+        .document(pathID)
+        .collection(DBFolder.friends)
+        .document(documentID)
+        .setData(updatePairFull(key: key, value: value), merge: true);
   }
 
   //Accept connection request
@@ -563,6 +648,20 @@ class CloudDB extends ChangeNotifier {
         .updateData(data);
   }
 
+  //update a piece of data in a other friend collection (userPlants, userCollections, or userSets)
+  Future<void> updateDocumentInCollectionOther(
+      {@required Map data,
+      @required String collection,
+      @required String documentName}) {
+    //create, write, and/or merge
+    return _db
+        .collection(usersPath)
+        .document(connectionUserFolder)
+        .collection(collection)
+        .document(documentName)
+        .updateData(data);
+  }
+
   //add or overwrite document in a user collection (userPlants, userCollections, or userSets)
   Future<void> insertDocumentToCollection(
       {@required Map data,
@@ -599,6 +698,34 @@ class CloudDB extends ChangeNotifier {
         return await _db
             .collection(usersPath)
             .document(currentUserFolder)
+            .collection(folder)
+            .document(documentName)
+            .updateData({arrayKey: FieldValue.arrayRemove(entries)});
+      }
+    } else {}
+  }
+
+  //add or remove item in specific array in specific document in specific collection of other user
+  Future<void> updateArrayInDocumentInOtherCollection(
+      {@required String arrayKey,
+      @required List entries,
+      @required String folder,
+      @required String documentName,
+      //true to add false to remove
+      @required bool action}) async {
+    if (entries != null) {
+      //create, write, and/or merge
+      if (action == true) {
+        return await _db
+            .collection(usersPath)
+            .document(connectionUserFolder)
+            .collection(folder)
+            .document(documentName)
+            .updateData({arrayKey: FieldValue.arrayUnion(entries)});
+      } else if (action == false) {
+        return await _db
+            .collection(usersPath)
+            .document(connectionUserFolder)
             .collection(folder)
             .document(documentName)
             .updateData({arrayKey: FieldValue.arrayRemove(entries)});

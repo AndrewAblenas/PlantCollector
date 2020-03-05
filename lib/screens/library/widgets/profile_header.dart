@@ -10,9 +10,11 @@ import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/cloud_store.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
+import 'package:plant_collector/models/global.dart';
 import 'package:plant_collector/models/user.dart';
 import 'package:plant_collector/screens/dialog/dialog_screen_input.dart';
 import 'package:plant_collector/screens/library/widgets/stat_card.dart';
+import 'package:plant_collector/widgets/container_card.dart';
 import 'package:plant_collector/widgets/container_wrapper.dart';
 import 'package:plant_collector/widgets/section_header.dart';
 import 'package:provider/provider.dart';
@@ -191,19 +193,41 @@ class ProfileHeader extends StatelessWidget {
                     ),
                   ),
                 ),
+                //Display an about section but not for your own profile
+                (user != null &&
+                        user.about.length > 0 &&
+                        connectionLibrary == true)
+                    ? ContainerCard(
+                        color: AppTextColor.white,
+                        child: Text(
+                          user.about,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: AppTextSize.small *
+                                MediaQuery.of(context).size.width,
+                            fontWeight: AppTextWeight.medium,
+                            color: AppTextColor.black,
+                          ),
+                        ),
+                      )
+                    : SizedBox(),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Expanded(
                       child: StatCard(
-                        cardLabel: 'Plant',
+                        cardLabel: user.plants == 1
+                            ? GlobalStrings.plant
+                            : GlobalStrings.plants,
                         cardValue:
                             user.plants != 0 ? user.plants.toString() : '0',
                       ),
                     ),
                     Expanded(
                       child: StatCard(
-                        cardLabel: 'Collection',
+                        cardLabel: user.collections == 1
+                            ? GlobalStrings.collection
+                            : GlobalStrings.collections,
                         cardValue: user.collections != 0
                             ? user.collections.toString()
                             : '0',
@@ -211,7 +235,9 @@ class ProfileHeader extends StatelessWidget {
                     ),
                     Expanded(
                       child: StatCard(
-                        cardLabel: 'Group',
+                        cardLabel: user.groups == 1
+                            ? GlobalStrings.group
+                            : GlobalStrings.groups,
                         cardValue:
                             user.groups != 0 ? user.groups.toString() : '0',
                       ),

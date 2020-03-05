@@ -5,6 +5,7 @@ import 'package:plant_collector/models/cloud_store.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 import 'package:plant_collector/models/data_types/collection_data.dart';
 import 'package:plant_collector/models/data_types/plant_data.dart';
+import 'package:plant_collector/models/global.dart';
 import 'package:plant_collector/screens/dialog/dialog_screen_select.dart';
 import 'package:plant_collector/screens/plant/plant.dart';
 import 'package:provider/provider.dart';
@@ -64,7 +65,8 @@ class PlantTile extends StatelessWidget {
                 }
               }
               return DialogScreenSelect(
-                title: 'Move this plant to a different Collection',
+                title:
+                    'Move this ${GlobalStrings.plant} to a different ${GlobalStrings.collection}',
                 items: UIBuilders.createDialogCollectionButtons(
                   selectedItemID: plant.id,
                   currentParentID: collectionID,
@@ -111,6 +113,42 @@ class PlantTile extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
+                AppData.isNew(idWithTime: plant.id)
+                    ? Padding(
+                        padding: EdgeInsets.all(1.0 *
+                            MediaQuery.of(context).size.width *
+                            kScaleFactor),
+                        child: Container(
+                          color: Colors.red,
+                          margin: EdgeInsets.all(2.0 *
+                              MediaQuery.of(context).size.width *
+                              kScaleFactor),
+                          padding: EdgeInsets.all(3.0 *
+                              MediaQuery.of(context).size.width *
+                              kScaleFactor),
+                          constraints: BoxConstraints(
+                            maxHeight: 50.0 *
+                                MediaQuery.of(context).size.width *
+                                kScaleFactor,
+                          ),
+                          child: Text(
+                            'NEW',
+                            textAlign: TextAlign.center,
+                            overflow: TextOverflow.fade,
+                            style: TextStyle(
+                              fontSize: AppTextSize.tiny *
+                                  MediaQuery.of(context).size.width,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      )
+                    : SizedBox(),
+                AppData.isNew(idWithTime: plant.id)
+                    ? Expanded(
+                        child: SizedBox(),
+                      )
+                    : SizedBox(),
                 plant.name != ''
                     ? Padding(
                         padding: EdgeInsets.all(1.0 *

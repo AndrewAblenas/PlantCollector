@@ -61,3 +61,9 @@ const Gradient kBackgroundGradient = LinearGradient(
   begin: Alignment.bottomCenter,
   end: Alignment.topCenter,
 );
+
+const Gradient kBackgroundGradientMid = LinearGradient(
+  colors: [kGreenDark, kGreenMedium],
+  begin: Alignment.bottomCenter,
+  end: Alignment.topCenter,
+);

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 import 'package:plant_collector/models/data_types/plant_data.dart';
@@ -14,6 +15,15 @@ class ImageScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: kGreenDark,
+        centerTitle: true,
+        elevation: 20.0,
+//        title: Text(
+//          screenTitle,
+//          style: kAppBarTitle,
+//        ),
+      ),
       backgroundColor: Colors.black,
       body: Container(
         child: GestureDetector(

@@ -43,7 +43,7 @@ class PlantScreen extends StatelessWidget {
           centerTitle: true,
           elevation: 20.0,
           title: Text(
-            '',
+            'Plant Profile',
             style: kAppBarTitle,
           ),
         ),

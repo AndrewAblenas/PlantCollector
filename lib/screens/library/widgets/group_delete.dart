@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
+import 'package:plant_collector/models/global.dart';
 import 'package:plant_collector/widgets/dialogs/dialog_confirm.dart';
 import 'package:plant_collector/widgets/tile_white.dart';
 import 'package:provider/provider.dart';
@@ -30,7 +31,7 @@ class GroupDelete extends StatelessWidget {
             Container(
               width: 0.7 * MediaQuery.of(context).size.width,
               child: Text(
-                'This group is currently empty.\nTap to delete.',
+                'This ${GlobalStrings.group} is currently empty.\nTap to delete.',
                 style: TextStyle(
                   color: AppTextColor.medium,
                   fontWeight: AppTextWeight.medium,
@@ -46,9 +47,10 @@ class GroupDelete extends StatelessWidget {
             context: context,
             builder: (BuildContext context) {
               return DialogConfirm(
-                title: 'Delete Group',
-                text: 'Are you sure you want to delete this Group?',
-                buttonText: 'Delete Group',
+                title: 'Delete ${GlobalStrings.group}',
+                text:
+                    'Are you sure you want to delete this ${GlobalStrings.group}?',
+                buttonText: 'Delete ${GlobalStrings.group}',
                 onPressed: () {
                   Provider.of<CloudDB>(context).deleteDocumentFromCollection(
                       documentID: groupID, collection: DBFolder.groups);

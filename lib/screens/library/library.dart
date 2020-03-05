@@ -9,13 +9,12 @@ import 'package:plant_collector/models/data_types/group_data.dart';
 import 'package:plant_collector/models/data_types/plant_data.dart';
 import 'package:plant_collector/models/data_types/request_data.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
+import 'package:plant_collector/models/global.dart';
 import 'package:plant_collector/screens/dialog/dialog_screen_input.dart';
-import 'package:plant_collector/screens/library/widgets/social_updates.dart';
+import 'package:plant_collector/widgets/bottom_bar.dart';
 import 'package:plant_collector/widgets/button_add.dart';
 import 'package:plant_collector/screens/library/widgets/profile_header.dart';
 import 'package:provider/provider.dart';
-import 'package:plant_collector/models/user.dart';
-import 'package:plant_collector/widgets/menu_item.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/builders_general.dart';
 import 'package:plant_collector/formats/text.dart';
@@ -76,115 +75,24 @@ class LibraryScreen extends StatelessWidget {
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              const Image(
-                image: AssetImage('assets/images/app_icon_white_128.png'),
-                height: 26.0,
-              ),
-              const SizedBox(
-                width: 5.0,
-              ),
+//              const Image(
+//                image: AssetImage('assets/images/app_icon_white_128.png'),
+//                height: 26.0,
+//              ),
+//              const SizedBox(
+//                width: 5.0,
+//              ),
               Text(
                 connectionLibrary == false
-                    ? 'Collections'
-                    : 'Connection Profile',
+                    ? 'My ${GlobalStrings.library}'
+                    : '${GlobalStrings.friend} ${GlobalStrings.library}',
                 style: kAppBarTitle,
               ),
-              const SizedBox(
-                width: 50.0,
+              SizedBox(
+                width: connectionLibrary == false ? 0.0 : 50.0,
               ),
             ],
           ),
-          leading: connectionLibrary == false
-              ? PopupMenuButton<Function>(
-                  onSelected: (value) {
-                    value();
-                  },
-                  itemBuilder: (context) => [
-                    PopupMenuItem(
-                      value: () {
-                        Navigator.pushNamed(context, 'about');
-                      },
-                      child: MenuItem(
-                        icon: Icons.info_outline,
-                        label: 'About',
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: () {
-                        Navigator.pushNamed(context, 'account');
-                      },
-                      child: MenuItem(
-                        icon: Icons.account_box,
-                        label: 'Account',
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: () {
-                        Navigator.pushNamed(context, 'connections');
-                      },
-                      child: MenuItem(
-                        icon: Icons.people,
-                        label: 'Community',
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: () {
-                        Navigator.pushNamed(context, 'feedback');
-                      },
-                      child: MenuItem(
-                        icon: Icons.feedback,
-                        label: 'Feedback',
-                      ),
-                    ),
-//                PopupMenuItem(
-//                  value: () {
-//                    Navigator.pushNamed(context, 'settings');
-//                  },
-//                  child: MenuItem(
-//                    icon: Icons.settings_applications,
-//                    label: 'Settings',
-//                  ),
-//                ),
-//                PopupMenuItem(
-//                  value: () {
-//                  },
-//                  child: MenuItem(
-//                    icon: Icons.cloud_upload,
-//                    label: 'Update Collection from File',
-//                  ),
-//                ),
-//                PopupMenuItem(
-//                  value: () async {
-//                  },
-//                  child: MenuItem(
-//                    icon: Icons.cloud_download,
-//                    label: 'Download Collection File',
-//                  ),
-//                ),
-                    PopupMenuItem(
-                      value: () {
-                        //TODO problem here related to sign out
-                        Provider.of<UserAuth>(context).signOutUser();
-                        Provider.of<UserAuth>(context).signedInUser = null;
-                        Provider.of<AppData>(context).currentUserGroups = null;
-                        Provider.of<AppData>(context).currentUserCollections =
-                            null;
-                        Provider.of<AppData>(context).currentUserPlants = null;
-                        Navigator.pushNamed(context, 'login');
-                      },
-                      child: MenuItem(
-                        icon: Icons.exit_to_app,
-                        label: 'Sign Out',
-                      ),
-                    ),
-                  ],
-                  child: Icon(
-                    Icons.list,
-                    color: Colors.white,
-                    size: 40.0,
-                  ),
-                )
-              : null,
         ),
         body: Container(
           padding: EdgeInsets.only(
@@ -204,13 +112,6 @@ class LibraryScreen extends StatelessWidget {
                   connectionLibrary: connectionLibrary,
                 ),
               ),
-              connectionLibrary == false
-                  ? Container(
-                      constraints: BoxConstraints(
-                          //this is a workaround to prevent listview jump when loading the contained streams
-                          minHeight: 0.45 * MediaQuery.of(context).size.width),
-                      child: SocialUpdates())
-                  : SizedBox(),
               Consumer<List<GroupData>>(
                   builder: (context, List<GroupData> groups, _) {
                 if (groups != null) {
@@ -252,14 +153,14 @@ class LibraryScreen extends StatelessWidget {
               ),
               connectionLibrary == false
                   ? ButtonAdd(
-                      buttonText: 'Create New Group',
+                      buttonText: 'Create New ${GlobalStrings.group}',
                       buttonColor: kGreenDark,
                       onPress: () {
                         showDialog(
                             context: context,
                             builder: (context) {
                               return DialogScreenInput(
-                                  title: 'Create new Group',
+                                  title: 'Create new ${GlobalStrings.group}',
                                   acceptText: 'Create',
                                   acceptOnPress: () {
                                     //create initial group map
@@ -289,6 +190,12 @@ class LibraryScreen extends StatelessWidget {
             ],
           ),
         ),
+        //only show the nav bar for user library not connection
+        bottomNavigationBar: connectionLibrary == false
+            ? BottomBar(
+                selectionNumber: 3,
+              )
+            : SizedBox(),
       ),
     );
   }

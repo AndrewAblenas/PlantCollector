@@ -3,6 +3,7 @@ import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 import 'package:plant_collector/models/data_types/collection_data.dart';
 import 'package:plant_collector/models/data_types/plant_data.dart';
+import 'package:plant_collector/models/global.dart';
 import 'package:plant_collector/screens/dialog/dialog_screen_input.dart';
 import 'package:provider/provider.dart';
 import 'package:plant_collector/models/app_data.dart';
@@ -33,7 +34,7 @@ class AddPlant extends StatelessWidget {
               context: context,
               builder: (context) {
                 return DialogScreenInput(
-                    title: 'Name your Plant',
+                    title: 'Nickname your ${GlobalStrings.plant}',
                     acceptText: 'Add',
                     acceptOnPress: () {
                       Map data =

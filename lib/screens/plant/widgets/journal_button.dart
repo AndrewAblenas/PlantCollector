@@ -23,27 +23,33 @@ class JournalButton extends StatelessWidget {
       },
       child: ContainerCard(
         color: AppTextColor.white,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Icon(
-              Icons.create,
-              size: AppTextSize.large * MediaQuery.of(context).size.width,
-              color: AppTextColor.black,
-            ),
-            SizedBox(
-              width: 20.0 * MediaQuery.of(context).size.width * kScaleFactor,
-            ),
-            Text(
-              'Plant Journal',
-              style: TextStyle(
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            vertical: 5.0 * MediaQuery.of(context).size.width * kScaleFactor,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Icon(
+                Icons.create,
+                size: AppTextSize.large * MediaQuery.of(context).size.width,
                 color: AppTextColor.black,
-                fontSize: AppTextSize.huge * MediaQuery.of(context).size.width,
-                fontWeight: AppTextWeight.medium,
-//                shadows: kShadowText,
               ),
-            ),
-          ],
+              SizedBox(
+                width: 20.0 * MediaQuery.of(context).size.width * kScaleFactor,
+              ),
+              Text(
+                'Plant Journal',
+                style: TextStyle(
+                  color: AppTextColor.black,
+                  fontSize:
+                      AppTextSize.huge * MediaQuery.of(context).size.width,
+                  fontWeight: AppTextWeight.medium,
+//                shadows: kShadowText,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

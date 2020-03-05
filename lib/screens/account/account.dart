@@ -57,6 +57,37 @@ class AccountScreen extends StatelessWidget {
                             dialogText: 'Please update your user name.',
                           ),
                           SettingsCard(
+                            onPress: null,
+                            onSubmit: () {
+                              Provider.of<CloudDB>(context).updateUserDocument(
+                                data: CloudDB.updatePairFull(
+                                    key: UserKeys.region,
+                                    value: Provider.of<AppData>(context)
+                                        .newDataInput),
+                              );
+                              Navigator.pop(context);
+                            },
+                            cardLabel: 'Region',
+                            cardText: user.region,
+                            dialogText: 'Please add your region.',
+                          ),
+                          SettingsCard(
+                            onPress: null,
+                            onSubmit: () {
+                              Provider.of<CloudDB>(context).updateUserDocument(
+                                data: CloudDB.updatePairFull(
+                                    key: UserKeys.about,
+                                    value: Provider.of<AppData>(context)
+                                        .newDataInput),
+                              );
+                              Navigator.pop(context);
+                            },
+                            cardLabel: 'About',
+                            cardText: user.about,
+                            dialogText:
+                                'Tell others a bit about your plant collection.',
+                          ),
+                          SettingsCard(
                             onSubmit: null,
                             allowDialog: false,
                             onPress: () async {
@@ -126,7 +157,7 @@ class AccountScreen extends StatelessWidget {
                                 String url =
                                     await Provider.of<CloudStore>(context)
                                         .getDownloadURL(snapshot: completion);
-                                //add image reference to plant document
+                                //add image reference to user document
                                 Provider.of<CloudDB>(context)
                                     .updateUserDocument(
                                   data: CloudDB.updatePairFull(
@@ -140,6 +171,44 @@ class AccountScreen extends StatelessWidget {
                             cardText: 'Update Banner',
                             dialogText: 'Please set your profile banner.',
                           ),
+                          SettingsCard(
+                              confirmDialog: true,
+                              onSubmit: () {
+                                //update settings
+                                Provider.of<CloudDB>(context)
+                                    .updateUserDocument(
+                                  data: CloudDB.updatePairFull(
+                                    key: UserKeys.expandGroup,
+                                    value: (user.expandGroup == false),
+                                  ),
+                                );
+                                Navigator.pop(context);
+                              },
+                              onPress: null,
+                              cardLabel: 'Collapse Groups by Default',
+                              dialogText:
+                                  'Change default settings for app launch?',
+                              cardText:
+                                  user.expandGroup == true ? 'No' : 'Yes'),
+                          SettingsCard(
+                              confirmDialog: true,
+                              onSubmit: () {
+                                //update settings
+                                Provider.of<CloudDB>(context)
+                                    .updateUserDocument(
+                                  data: CloudDB.updatePairFull(
+                                    key: UserKeys.expandCollection,
+                                    value: (user.expandCollection == false),
+                                  ),
+                                );
+                                Navigator.pop(context);
+                              },
+                              onPress: null,
+                              cardLabel: 'Collapse Collections by Default',
+                              dialogText:
+                                  'Change default settings for app launch?',
+                              cardText:
+                                  user.expandCollection == true ? 'No' : 'Yes'),
                         ],
                       );
                     }

@@ -10,10 +10,13 @@ class PlantKeys {
   static const String genus = 'plantGenus';
   static const String species = 'plantSpecies';
   static const String quantity = 'plantQuantity';
+  static const String bloom = 'plantBloom';
+  static const String repot = 'plantRepot';
+  static const String division = 'plantDivision';
   static const String notes = 'plantNotes';
   static const String thumbnail = 'plantThumbnail';
   static const String images = 'plantImageList';
-//  static const String journal = 'plantJournal';
+  static const String likes = 'plantLikes';
 
   //DESCRIPTORS
   static const Map<String, String> descriptors = {
@@ -23,10 +26,13 @@ class PlantKeys {
     genus: 'Genus',
     species: 'Species',
     quantity: 'Quantity',
+    bloom: 'Bloom Time',
+    repot: 'Last Repot',
+    division: 'Last Division',
     notes: 'Notes',
     thumbnail: 'Thumbnail',
     images: 'Image Files',
-//    journal: 'Journal Entries'
+    likes: 'Total Greenthumbs',
   };
 }
 
@@ -38,10 +44,13 @@ class PlantData {
   final String genus;
   final String species;
   final String quantity;
+  final String bloom;
+  final String repot;
+  final String division;
   final String notes;
   final String thumbnail;
   final List images;
-//  final List journal;
+  final int likes;
 
   //CONSTRUCTOR
   PlantData({
@@ -51,10 +60,13 @@ class PlantData {
     this.genus,
     this.species,
     this.quantity,
+    this.bloom,
+    this.repot,
+    this.division,
     this.notes,
     this.thumbnail,
     this.images,
-//      this.journal
+    this.likes,
   });
 
   //TO MAP
@@ -66,10 +78,13 @@ class PlantData {
       PlantKeys.genus: genus,
       PlantKeys.species: species,
       PlantKeys.quantity: quantity,
+      PlantKeys.bloom: bloom,
+      PlantKeys.repot: repot,
+      PlantKeys.division: division,
       PlantKeys.notes: notes,
       PlantKeys.thumbnail: thumbnail,
       PlantKeys.images: images,
-//      PlantKeys.journal: journal,
+      PlantKeys.likes: likes,
     };
   }
 
@@ -83,10 +98,13 @@ class PlantData {
         genus: map[PlantKeys.genus] ?? '',
         species: map[PlantKeys.species] ?? '',
         quantity: map[PlantKeys.quantity] ?? '',
+        bloom: map[PlantKeys.bloom] ?? '',
+        repot: map[PlantKeys.repot] ?? '',
+        division: map[PlantKeys.division] ?? '',
         notes: map[PlantKeys.notes] ?? '',
         thumbnail: map[PlantKeys.thumbnail] ?? '',
         images: map[PlantKeys.images] ?? [],
-//        journal: map[PlantKeys.journal] ?? [],
+        likes: map[PlantKeys.likes] ?? 0,
       );
     } else {
       return PlantData(id: '', name: '');

@@ -37,7 +37,7 @@ class StatCard extends StatelessWidget {
           ),
           const SizedBox(height: 10.0),
           Text(
-            cardValue == '1' ? '$cardLabel' : '${cardLabel}s',
+            cardLabel,
             style: TextStyle(
               color: Colors.black87,
               fontSize:

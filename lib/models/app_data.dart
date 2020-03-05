@@ -225,6 +225,13 @@ class AppData extends ChangeNotifier {
         [yyyy, '-', mm, '-', dd]);
   }
 
+  static bool isNew({@required String idWithTime}) {
+    List split = idWithTime.split('_');
+    int time = int.parse(split[1]);
+    //consider new if less than three days old
+    return DateTime.now().millisecondsSinceEpoch - time <= 86400000 * 3;
+  }
+
   //*****************JOURNAL METHODS*****************
 
   //CREATE JOURNAL ENTRY
@@ -237,6 +244,12 @@ class AppData extends ChangeNotifier {
   }
 
   //*****************BUILDER FUNCTIONS AND RELATED*****************
+
+//METHOD TO SET NEW DATA INPUT
+  void setNewDataInput(value) {
+    newDataInput = value;
+    notifyListeners();
+  }
 
   //GENERATE IMAGE TILE WIDGET LIST
 //  List<Widget> createImageTileList({String plantID}) {
