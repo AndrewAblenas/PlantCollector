@@ -15,11 +15,21 @@ class ButtonAuth extends StatelessWidget {
         SizedBox(
           width: 50.0,
         ),
-        RaisedButton(
-          color: kGreenDark,
+        GestureDetector(
           child: Container(
+            decoration: BoxDecoration(
+              gradient: kBackgroundGradientMid,
+              borderRadius: BorderRadius.all(
+                Radius.circular(
+                  5.0,
+                ),
+              ),
+            ),
             child: Padding(
-              padding: EdgeInsets.all(5.0),
+              padding: EdgeInsets.symmetric(
+                vertical: 5.0,
+                horizontal: 30.0,
+              ),
               child: Row(
                 children: <Widget>[
                   Image(
@@ -41,7 +51,7 @@ class ButtonAuth extends StatelessWidget {
               ),
             ),
           ),
-          onPressed: onPress,
+          onTap: onPress,
         ),
         SizedBox(
           width: 50.0,

@@ -41,12 +41,13 @@ class PlantInfoCard extends StatelessWidget {
                     'Are you sure you would like to remove this information and hide the tile?',
                 onPressed: () {
                   Provider.of<AppData>(context).newDataInput = null;
-                  Provider.of<CloudDB>(context).updateDocumentInCollection(
-                      data: CloudDB.updatePairFull(
-                          key: cardKey,
-                          value: Provider.of<AppData>(context).newDataInput),
-                      collection: DBFolder.plants,
-                      documentName: plantID);
+                  Provider.of<CloudDB>(context).updateDocumentL1(
+                    collection: DBFolder.plants,
+                    document: plantID,
+                    data: CloudDB.updatePairFull(
+                        key: cardKey,
+                        value: Provider.of<AppData>(context).newDataInput),
+                  );
                   Navigator.pop(context);
                 },
               );
@@ -114,14 +115,14 @@ class PlantInfoCard extends StatelessWidget {
                                     acceptOnPress: () {
                                       //update the info with a map
                                       Provider.of<CloudDB>(context)
-                                          .updateDocumentInCollection(
-                                              data: CloudDB.updatePairFull(
-                                                  key: cardKey,
-                                                  value: Provider.of<AppData>(
-                                                          context)
-                                                      .newDataInput),
-                                              collection: DBFolder.plants,
-                                              documentName: plantID);
+                                          .updateDocumentL1(
+                                        collection: DBFolder.plants,
+                                        document: plantID,
+                                        data: CloudDB.updatePairFull(
+                                            key: cardKey,
+                                            value: Provider.of<AppData>(context)
+                                                .newDataInput),
+                                      );
                                       //pop context
                                       Navigator.pop(context);
                                     },

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-//import 'package:flutter_exif_rotation/flutter_exif_rotation.dart';
+// ***Android - WORKAROUND - this must be enabled for proper image rotation, disable for iOS.
+import 'package:flutter_exif_rotation/flutter_exif_rotation.dart';
 import 'package:image/image.dart' as ExtendedImage;
 import 'package:date_format/date_format.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
@@ -14,15 +15,15 @@ class CloudStore extends ChangeNotifier {
   //initialize storage instance
   final FirebaseStorage _storage = FirebaseStorage.instance;
   //main folder
-  static String mainFolder = StorageFolder.users;
+  static String mainFolder = DBDocument.users;
   //user folder
   String currentUserFolder;
   //user plants folder
-  static String plantsFolder = StorageFolder.plants;
+  static String plantsFolder = DBDocument.plants;
   //user image folder
-  static String imageFolder = StorageFolder.images;
+  static String imageFolder = DBDocument.images;
   //settings folder
-  static String settingsFolder = StorageFolder.settings;
+  static String settingsFolder = DBDocument.settings;
   //image sizing
   static int thumbnailSize = 200;
   static double cameraImageSize = 800.0;
@@ -342,9 +343,8 @@ class CloudStore extends ChangeNotifier {
     }
     //make sure the image took
     if (image != null && image.path != null && Platform.isAndroid) {
-      //fix needed for image rotation problem on android
-      // Note : iOS not implemented
-//      image = await FlutterExifRotation.rotateAndSaveImage(path: image.path);
+      //// ***Android - WORKAROUND - this must be enabled for proper image rotation, disable for iOS
+      image = await FlutterExifRotation.rotateAndSaveImage(path: image.path);
     }
     return image;
   }

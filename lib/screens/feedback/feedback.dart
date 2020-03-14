@@ -82,13 +82,13 @@ class FeedbackScreen extends StatelessWidget {
                             promptA: 'Bug Title',
                             promptB: 'Summary',
                             buttonText: 'Report Bugs',
-                            type: StorageFolder.feedbackBugs,
+                            type: DBDocument.feedbackBugs,
                             icon: Icons.bug_report),
                         FeedbackButton(
                             promptA: 'Feature Name',
                             promptB: 'Description',
                             buttonText: 'Suggest Features',
-                            type: StorageFolder.feedbackFeatures,
+                            type: DBDocument.feedbackFeatures,
                             icon: Icons.add_box),
                         //TODO move this functionality to user profile page?
                         FeedbackButton(
@@ -96,7 +96,7 @@ class FeedbackScreen extends StatelessWidget {
                             promptB:
                                 'Please describe the misconduct. Provide the offending user email if appropriate.',
                             buttonText: 'Report User',
-                            type: StorageFolder.feedbackAbuse,
+                            type: DBDocument.feedbackAbuse,
                             icon: Icons.report_problem),
                       ],
                     ),

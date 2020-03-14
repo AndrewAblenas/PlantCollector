@@ -282,15 +282,17 @@ class CollectionCard extends StatelessWidget {
                                           MediaQuery.of(context).size.width *
                                           kScaleFactor),
                                       child: PlantTile(
-                                          connectionLibrary: connectionLibrary,
-                                          possibleParents: connectionLibrary ==
-                                                  false
-                                              ? Provider.of<AppData>(context)
-                                                  .currentUserCollections
-                                              : Provider.of<AppData>(context)
-                                                  .connectionCollections,
-                                          plant: collectionPlants[index],
-                                          collectionID: collection.id),
+                                        connectionLibrary: connectionLibrary,
+                                        possibleParents:
+                                            connectionLibrary == false
+                                                ? Provider.of<AppData>(context)
+                                                    .currentUserCollections
+                                                : Provider.of<AppData>(context)
+                                                    .connectionCollections,
+                                        plant: collectionPlants[index],
+                                        collectionID: collection.id,
+                                        communityView: false,
+                                      ),
                                     );
                                     //for the last item put an add button
                                   } else {

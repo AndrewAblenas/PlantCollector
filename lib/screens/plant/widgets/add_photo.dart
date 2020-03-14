@@ -75,20 +75,19 @@ class AddPhoto extends StatelessWidget {
                           imageFile: image,
                           imageExtension: 'jpg',
                           plantIDFolder: plantID,
-                          subFolder: StorageFolder.images);
+                          subFolder: DBDocument.images);
                   //make sure upload completes
                   StorageTaskSnapshot completion = await upload.onComplete;
                   //get the url string
                   String url = await Provider.of<CloudStore>(context)
                       .getDownloadURL(snapshot: completion);
-                  //add thumbnail reference to plant document
-                  Provider.of<CloudDB>(context)
-                      .updateArrayInDocumentInCollection(
-                          arrayKey: PlantKeys.images,
-                          entries: [url],
-                          folder: DBFolder.plants,
-                          documentName: plantID,
-                          action: true);
+                  //add image reference to plant document
+                  Provider.of<CloudDB>(context).updateDocumentL1Array(
+                      collection: DBFolder.plants,
+                      document: plantID,
+                      key: PlantKeys.images,
+                      entries: [url],
+                      action: true);
                 }
               },
             ),
@@ -123,20 +122,20 @@ class AddPhoto extends StatelessWidget {
                           imageFile: image,
                           imageExtension: 'jpg',
                           plantIDFolder: plantID,
-                          subFolder: StorageFolder.images);
+                          subFolder: DBDocument.images);
                   //make sure upload completes
                   StorageTaskSnapshot completion = await upload.onComplete;
                   //get the url string
                   String url = await Provider.of<CloudStore>(context)
                       .getDownloadURL(snapshot: completion);
                   //add image reference to plant document
-                  Provider.of<CloudDB>(context)
-                      .updateArrayInDocumentInCollection(
-                          arrayKey: PlantKeys.images,
-                          entries: [url],
-                          folder: DBFolder.plants,
-                          documentName: plantID,
-                          action: true);
+                  //add image reference to plant document
+                  Provider.of<CloudDB>(context).updateDocumentL1Array(
+                      collection: DBFolder.plants,
+                      document: plantID,
+                      key: PlantKeys.images,
+                      entries: [url],
+                      action: true);
                 }
               },
             ),

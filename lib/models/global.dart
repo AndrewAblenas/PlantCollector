@@ -9,7 +9,7 @@ class GlobalStrings {
   static const String library = 'Library';
   static const String libraries = 'Libraries';
   static const String app = 'Plant Collector';
-  static const String community = 'Community';
+  static const String discover = 'Discover';
   static const String friend = 'Friend';
   static const String friends = 'Friends';
   static const String settings = 'Settings';
@@ -21,4 +21,7 @@ class GlobalStrings {
   static const String news = 'News';
   static const String event = 'Event';
   static const String events = 'Events';
+  static const String announcements = 'Announcements';
+  static const String privacy = 'Privacy Policy';
+  static const String guidelines = 'Community Guidelines';
 }

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 import 'package:plant_collector/models/data_types/collection_data.dart';
 import 'package:plant_collector/models/data_types/friend_data.dart';
@@ -7,6 +8,8 @@ import 'package:plant_collector/models/data_types/message_data.dart';
 import 'package:plant_collector/models/data_types/plant_data.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/screens/plant/widgets/carousel_standard.dart';
+import 'package:plant_collector/screens/search/widgets/search_tile_user.dart';
+import 'package:plant_collector/widgets/admin_button.dart';
 import 'package:plant_collector/widgets/chat_avatar.dart';
 import 'package:plant_collector/screens/dialog/dialog_screen.dart';
 import 'package:plant_collector/screens/plant/widgets/action_button.dart';
@@ -22,10 +25,12 @@ import 'package:share/share.dart';
 
 class PlantScreen extends StatelessWidget {
   final bool connectionLibrary;
+  final bool communityView;
   final String forwardingCollectionID;
   final String plantID;
   PlantScreen(
       {@required this.connectionLibrary,
+      @required this.communityView,
       @required this.plantID,
       @required this.forwardingCollectionID});
   @override
@@ -112,10 +117,85 @@ class PlantScreen extends StatelessWidget {
                   if (plantSnap != null) {
                     PlantData plant = PlantData.fromMap(map: plantSnap.data);
                     return ContainerWrapper(
-                      child: UIBuilders.displayInfoCards(
-                        connectionLibrary: connectionLibrary,
-                        plant: plant,
-                        context: context,
+                      child: Column(
+                        children: <Widget>[
+                          UIBuilders.displayInfoCards(
+                            connectionLibrary: connectionLibrary,
+                            plant: plant,
+                            context: context,
+                          ),
+                          communityView == false
+                              ? SizedBox()
+                              : FutureProvider<UserData>.value(
+                                  value: CloudDB.futureUserData(
+                                    userID: plant.owner,
+                                  ),
+                                  child: Consumer<UserData>(
+                                    builder: (context, user, _) {
+                                      if (user == null) {
+                                        return SizedBox();
+                                      } else {
+                                        return Padding(
+                                          padding: EdgeInsets.all(5.0),
+                                          child: SearchUserTile(user: user),
+                                        );
+                                      }
+                                    },
+                                  ),
+                                ),
+                          //ADMIN AND CREATOR ONLY FUNCTION!
+                          Provider.of<AppData>(context).currentUserInfo.type !=
+                                  UserTypes.creator
+                              ? SizedBox()
+                              : AdminButton(
+                                  label: 'Delete user plant',
+                                  onPress: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return DialogConfirm(
+                                            title: 'Remove Plant',
+                                            text:
+                                                'Are you sure you would like to remove this plant?  All photos and all related information will be permanently deleted.  '
+                                                '\n\nThis cannot be undone!',
+                                            buttonText: 'Delete',
+                                            onPressed: () async {
+                                              //get the collection
+                                              List<CollectionData> collections =
+                                                  await CloudDB
+                                                      .futureCollectionsData(
+                                                          userID: plant.owner);
+                                              //check for plant id
+                                              for (CollectionData collection
+                                                  in collections) {
+                                                if (collection.plants
+                                                    .contains(plant.id)) {
+                                                  //remove plant reference from collection
+                                                  Provider.of<CloudDB>(context)
+                                                      .adminRemovePlantFromCollection(
+                                                    plantID: plant.id,
+                                                    userID: plant.owner,
+                                                    collectionID: collection.id,
+                                                  );
+                                                }
+                                              }
+                                              //delete plant
+                                              Provider.of<CloudDB>(context)
+                                                  .deleteDocumentL1(
+                                                      document: plantID,
+                                                      collection:
+                                                          DBFolder.plants);
+                                              //pop dialog
+                                              Navigator.pop(context);
+                                              //pop old plant profile
+                                              Navigator.pop(context);
+                                              //NOTE: deletion of images is handled by a DB function
+                                            });
+                                      },
+                                    );
+                                  },
+                                )
+                        ],
                       ),
                     );
                   } else {
@@ -158,8 +238,8 @@ class PlantScreen extends StatelessWidget {
                                             action: false);
                                     //delete plant
                                     Provider.of<CloudDB>(context)
-                                        .deleteDocumentFromCollection(
-                                            documentID: plantID,
+                                        .deleteDocumentL1(
+                                            document: plantID,
                                             collection: DBFolder.plants);
                                     //pop old plant profile
                                     Navigator.pop(context);

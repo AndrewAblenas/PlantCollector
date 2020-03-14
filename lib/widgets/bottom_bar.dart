@@ -103,7 +103,6 @@ class BottomTab extends StatelessWidget {
         onTap: () {
           //only navigate if user clicks on a tab that isn't currently selected
           if (tabSelected != tabNumber) {
-            //TODO
             //don't pop context when leaving Library (tab 3), just navigate
             if (tabSelected == 3) {
               navigate();

@@ -12,7 +12,7 @@ class LoginTemplate extends StatelessWidget {
       backgroundColor: kGreenLight,
       body: ListView(
         children: <Widget>[
-          SizedBox(height: 30.0),
+          SizedBox(height: 20.0),
           Container(
             height: 160.0 * MediaQuery.of(context).size.width * kScaleFactor,
             width: 160.0 * MediaQuery.of(context).size.width * kScaleFactor,
@@ -28,7 +28,7 @@ class LoginTemplate extends StatelessWidget {
               color: Colors.white,
             ),
           ),
-          SizedBox(height: 20.0),
+          SizedBox(height: 10.0),
           Column(
             children: children,
           )

@@ -108,9 +108,22 @@ class LibraryScreen extends StatelessWidget {
                 constraints: BoxConstraints(
                     //this is a workaround to prevent listview jump when loading the contained streams
                     minHeight: 1.05 * MediaQuery.of(context).size.width),
-                child: ProfileHeader(
-                  connectionLibrary: connectionLibrary,
-                ),
+                child: Consumer<UserData>(builder: (context, user, _) {
+                  if (user != null) {
+                    //there was an issue where only currentUserInfo existed
+                    //this meant it the file was saved over when visiting a connection library!
+                    connectionLibrary == false
+                        ? Provider.of<AppData>(context).currentUserInfo = user
+                        : Provider.of<AppData>(context).connectionUserInfo =
+                            user;
+                    return ProfileHeader(
+                      connectionLibrary: connectionLibrary,
+                      user: user,
+                    );
+                  } else {
+                    return SizedBox();
+                  }
+                }),
               ),
               Consumer<List<GroupData>>(
                   builder: (context, List<GroupData> groups, _) {

@@ -4,7 +4,7 @@ import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/user.dart';
 import 'package:plant_collector/screens/about/reference.dart';
 import 'package:plant_collector/screens/chat/chat.dart';
-import 'package:plant_collector/screens/community/community.dart';
+import 'package:plant_collector/screens/discover//discover.dart';
 import 'package:plant_collector/screens/friends//friends.dart';
 import 'package:plant_collector/screens/feedback/feedback.dart';
 import 'package:plant_collector/screens/library/library.dart';
@@ -77,13 +77,14 @@ class PlantCollector extends StatelessWidget {
           'register': (context) => RegisterScreen(),
           'plant': (context) => PlantScreen(
               connectionLibrary: null,
+              communityView: null,
               plantID: null,
               forwardingCollectionID: null),
           'image': (context) => ImageScreen(),
           'settings': (context) => SettingsScreen(),
           'account': (context) => AccountScreen(),
           'connections': (context) => FriendsScreen(),
-          'community': (context) => CommunityScreen(),
+          'community': (context) => DiscoverScreen(),
           'chat': (context) => ChatScreen(
                 friend: null,
               ),

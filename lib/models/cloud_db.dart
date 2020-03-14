@@ -6,6 +6,7 @@ import 'package:plant_collector/models/data_types/collection_data.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 import 'package:plant_collector/models/data_types/friend_data.dart';
 import 'package:plant_collector/models/data_types/group_data.dart';
+import 'package:plant_collector/models/data_types/journal_data.dart';
 import 'package:plant_collector/models/data_types/message_data.dart';
 import 'package:plant_collector/models/data_types/plant_data.dart';
 import 'package:plant_collector/models/data_types/request_data.dart';
@@ -18,23 +19,6 @@ class CloudDB extends ChangeNotifier {
   static String usersPath = 'users';
   static String conversationsPath = 'conversations';
   static String messagesPath = 'messages';
-  //streams
-//  Stream userDocumentStream;
-//  Stream userGroupsStream;
-//  Stream userCollectionsStream;
-//  Stream userPlantsStream;
-//  Stream userConnectionsStream;
-//  Stream userRequestsStream;
-//  Stream userMessagesStream;
-  //set user streams
-//  void setUserStreams({@required userID}) {
-//    userDocumentStream = streamUserDocument(userID: userID);
-//    userGroupsStream = streamGroups(userID: userID);
-//    userCollectionsStream = streamCollections(userID: userID);
-//    userPlantsStream = streamPlants(userID: userID);
-//    userConnectionsStream = streamConnections();
-//    userRequestsStream = streamRequests();
-//  }
 
   //variables
   String currentUserFolder;
@@ -72,37 +56,87 @@ class CloudDB extends ChangeNotifier {
 //  }
 
   //provide a journal stream for a plant
-  Stream<DocumentSnapshot> streamJournal(
-      {@required String plantID, @required userID}) {
+  //DISABLED TO ADD JOURNAL TO PLANT DOCUMENT
+//  Stream<DocumentSnapshot> streamJournal(
+//      {@required String plantID, @required userID}) {
+//    return _db
+//        .collection(usersPath)
+//        .document(userID)
+//        .collection(DBFolder.plants)
+//        .document(plantID)
+//        .collection(DBFolder.records)
+//        .document('journal')
+//        .snapshots();
+//  }
+
+  //get a snapshot of the top user files
+  Stream<DocumentSnapshot> streamMostPlants() {
+    return _db
+        .collection(DBFolder.app)
+        .document(DBFolder.userStatsTop)
+        .snapshots();
+  }
+
+  //get a snapshot of the top user files
+  Future<DocumentSnapshot> streamCommunication() {
+    return _db
+        .collection(DBFolder.app)
+        .document(DBDocument.communication)
+        .get();
+  }
+
+  //get a snapshot of the top user files
+  Future<List<UserData>> userSearchExact({@required String input}) {
+    String inputCap = input;
+    inputCap[0].toUpperCase();
     return _db
         .collection(usersPath)
-        .document(userID)
-        .collection(DBFolder.plants)
-        .document(plantID)
-        .collection(DBFolder.records)
-        .document('journal')
-        .snapshots();
+        .where(UserKeys.name, isEqualTo: input)
+        .limit(50)
+        .getDocuments()
+        .then((snap) => snap.documents
+            .map((doc) => UserData.fromMap(map: doc.data))
+            .toList());
   }
 
   //provide a stream of one specific plant document
   //NOTE userID is required as it may be from a connection in chat
   Stream<DocumentSnapshot> streamPlant(
       {@required String plantID, @required userID}) {
-    return _db
-        .collection(usersPath)
-        .document(userID)
-        .collection(DBFolder.plants)
-        .document(plantID)
-        .snapshots();
+    return _db.collection(DBFolder.plants).document(plantID).snapshots();
   }
 
-  //provide a stream of all plants
+  //provide a stream of all user plants
   static Stream<List<PlantData>> streamPlantsData({@required userID}) {
     //stream
     Stream<QuerySnapshot> stream = _db
-        .collection(usersPath)
-        .document(userID)
         .collection(DBFolder.plants)
+        .where(PlantKeys.owner, isEqualTo: userID)
+        .snapshots();
+    //return specific data type
+    return stream.map((snap) =>
+        snap.documents.map((doc) => PlantData.fromMap(map: doc.data)).toList());
+  }
+
+  //*****************COMMUNITY STREAMS*****************
+
+  //provide a stream to the top collectors document
+  Stream<DocumentSnapshot> streamCommunityTopUsersByPlants() {
+    return _db
+        .collection(DBFolder.app)
+        .document(DBFolder.userStatsTop)
+        .snapshots();
+  }
+
+  Stream<List<PlantData>> streamCommunityPlantsTopDescending(
+      {@required String field}) {
+    //Provide a stream of the top plants sorted by field in descending order
+
+    //stream
+    Stream<QuerySnapshot> stream = _db
+        .collection(DBFolder.plants)
+        .orderBy(field, descending: true)
+        .limit(45)
         .snapshots();
     //return specific data type
     return stream.map((snap) =>
@@ -153,6 +187,22 @@ class CloudDB extends ChangeNotifier {
     return stream.map((snap) => snap.documents
         .map((doc) => CollectionData.fromMap(map: doc.data))
         .toList());
+  }
+
+  //provide a stream of all collections
+  static Future<List<CollectionData>> futureCollectionsData(
+      {@required userID}) async {
+    //stream
+    QuerySnapshot snap = await _db
+        .collection(usersPath)
+        .document(userID)
+        .collection(DBFolder.collections)
+        .getDocuments();
+
+    //return specific data type
+    return snap.documents
+        .map((item) => CollectionData.fromMap(map: item.data))
+        .toList();
   }
 
   //provide a stream of requests
@@ -259,44 +309,24 @@ class CloudDB extends ChangeNotifier {
     }
   }
 
-  //like or unlike a plant
-  Future<void> likePlant(
-      {@required String plantID,
-      @required int likes,
-      @required List likeList}) {
-    //if the plant is in the user list, set action to remove (false) and subtract one like
-    //if the plant is NOT in the sure list, set action to add (true) and add one like
-    bool action = !likeList.contains(plantID);
-    int add = (action == true) ? 1 : -1;
-    //update the plant like count
-    updateDocumentInCollectionOther(
-        data: updatePairFull(key: PlantKeys.likes, value: likes + add),
-        collection: DBFolder.plants,
-        documentName: plantID);
-    //update the user list of likes
-    return updateUserArray(
-        action: action, entries: [plantID], arrayKey: UserKeys.likedPlants);
-  }
-
   //update item in user document array
   Future<void> updateUserArray(
       {@required bool action,
       @required List entries,
       @required String arrayKey}) async {
-    if (entries != null) {
-      //create, write, and/or merge
-      if (action == true) {
-        return await _db
-            .collection(usersPath)
-            .document(currentUserFolder)
-            .updateData({arrayKey: FieldValue.arrayUnion(entries)});
-      } else if (action == false) {
-        return await _db
-            .collection(usersPath)
-            .document(currentUserFolder)
-            .updateData({arrayKey: FieldValue.arrayRemove(entries)});
-      }
-    } else {}
+    if (entries != null)
+    //create, write, and/or merge
+    if (action == true) {
+      return await _db
+          .collection(usersPath)
+          .document(currentUserFolder)
+          .updateData({arrayKey: FieldValue.arrayUnion(entries)});
+    } else if (action == false) {
+      return await _db
+          .collection(usersPath)
+          .document(currentUserFolder)
+          .updateData({arrayKey: FieldValue.arrayRemove(entries)});
+    }
   }
 
   //provide a stream of user document
@@ -305,6 +335,14 @@ class CloudDB extends ChangeNotifier {
         _db.collection(usersPath).document(userID).snapshots();
     //return specific data type
     return stream.map((doc) => UserData.fromMap(map: doc.data));
+  }
+
+  //provide a stream of user document
+  static Future<UserData> futureUserData({@required userID}) async {
+    DocumentSnapshot future =
+        await _db.collection(usersPath).document(userID).get();
+    //return specific data type
+    return UserData.fromMap(map: future.data);
   }
 
   //create message
@@ -560,11 +598,8 @@ class CloudDB extends ChangeNotifier {
   //check if thumbnail is null (to load default image for plant tiles)
   bool hasThumbnail({@required String documentID}) {
     bool thumbnailFound;
-    String collection = DBFolder.plants;
     _db
-        .collection(usersPath)
-        .document(currentUserFolder)
-        .collection(collection)
+        .collection(DBFolder.plants)
         .document(documentID)
         .get()
         .then((DocumentSnapshot data) {
@@ -579,12 +614,21 @@ class CloudDB extends ChangeNotifier {
   //*****************USER COLLECTION SPECIFIC*****************
 
   //clean plant to clone
-  static Map cleanPlant({@required Map plantData, @required String id}) {
-    plantData[PlantKeys.id] = id;
-    plantData[PlantKeys.images] = [];
-    plantData[PlantKeys.thumbnail] = '';
-    plantData[PlantKeys.quantity] = '';
-    return plantData;
+  Map cleanPlant({
+    @required Map plantData,
+    @required String id,
+  }) {
+    PlantData plant = PlantData(
+      id: id,
+      name: plantData[PlantKeys.name],
+      genus: plantData[PlantKeys.genus],
+      species: plantData[PlantKeys.species],
+      variety: plantData[PlantKeys.variety],
+      bloom: plantData[PlantKeys.bloom],
+      owner: currentUserFolder,
+    );
+
+    return plant.toMap();
   }
 
   //generate list of maps for Group
@@ -733,53 +777,6 @@ class CloudDB extends ChangeNotifier {
     } else {}
   }
 
-  //add or overwrite a journal entry
-  Future<void> journalCreateEntry(
-      {@required String arrayKey,
-      @required Map entry,
-      @required String documentName}) {
-    //create, write, and/or merge
-    return _db
-        .collection(usersPath)
-        .document(currentUserFolder)
-        .collection(DBFolder.plants)
-        .document(documentName)
-        .collection(DBFolder.records)
-        .document('journal')
-        .setData({arrayKey: entry}, merge: true);
-  }
-
-  //update or remove entry in plant journal
-  Future<void> journalEntryUpdate(
-      {@required String arrayKey,
-      @required Map entry,
-      @required String documentName,
-      //true to add false to remove
-      @required bool action}) async {
-    if (entry != null) {
-      //create, write, and/or merge
-      if (action == true) {
-        return await _db
-            .collection(usersPath)
-            .document(currentUserFolder)
-            .collection(DBFolder.plants)
-            .document(documentName)
-            .collection(DBFolder.records)
-            .document('journal')
-            .updateData({arrayKey: entry});
-      } else if (action == false) {
-        return await _db
-            .collection(usersPath)
-            .document(currentUserFolder)
-            .collection(DBFolder.plants)
-            .document(documentName)
-            .collection(DBFolder.records)
-            .document('journal')
-            .updateData({arrayKey: entry});
-      }
-    } else {}
-  }
-
   //delete specific document in specific collection
   Future<void> deleteDocumentFromCollection(
       {@required String documentID, @required String collection}) {
@@ -855,12 +852,212 @@ class CloudDB extends ChangeNotifier {
     return _db.collection(usersPath).document(id).delete();
   }
 
-  //UPDATE AN EXISTING DOCUMENT
-  Future<void> updateDocument({@required Map data}) {
+  //*****************//LEVEL 1 AND LEVEL 2 METHODS//*****************//
+
+  //TEMP METHOD TO MOVE PLANTS
+  Future<void> transferPlants() async {
+    //get all the user information
+    DocumentSnapshot snap = await _db
+        .collection(DBFolder.app)
+        .document(DBFolder.userStatsTop)
+        .get();
+    //get the list
+    List userList = snap.data[DBFields.byPlants];
+    for (Map user in userList) {
+      String userID = user[UserKeys.id];
+
+      QuerySnapshot plantSnap = await _db
+          .collection(usersPath)
+          .document(userID)
+          .collection('userPlants')
+          .getDocuments();
+
+      List<DocumentSnapshot> plantList = plantSnap.documents;
+
+      for (DocumentSnapshot snap in plantList) {
+        Map plant = snap.data;
+        plant[PlantKeys.owner] = userID;
+        setDocumentL1(
+            collection: DBFolder.plants,
+            document: plant[PlantKeys.id],
+            data: plant);
+      }
+    }
+  }
+
+  //SET DOCUMENT LEVEL 1
+  Future<void> setDocumentL1(
+      {@required String collection,
+      @required String document,
+      @required Map data}) {
+    return _db.collection(collection).document(document).setData(data);
+  }
+
+  //UPDATE DOCUMENT LEVEL 1
+  Future<void> updateDocumentL1(
+      {@required String collection,
+      @required String document,
+      @required Map data}) {
     return _db
-        .collection(usersPath)
-        .document(currentUserFolder)
-        .updateData(data);
+        .collection(collection)
+        .document(document)
+        .updateData(data.cast());
+  }
+
+  //GET DOCUMENT LEVEL 1
+  Future<DocumentSnapshot> getDocumentL1(
+      {@required String collection, @required String document}) {
+    return _db.collection(collection).document(document).get();
+  }
+
+  //UPDATE ARRAY IN DOCUMENT LEVEL 1
+  Future<void> updateDocumentL1Array(
+      {@required String collection,
+      @required String document,
+      @required String key,
+      @required List entries,
+      @required bool action}) async {
+    if (entries != null)
+    //create, write, and/or merge
+    if (action == true) {
+      return _db
+          .collection(collection)
+          .document(document)
+          .updateData({key: FieldValue.arrayUnion(entries)});
+    } else if (action == false) {
+      return _db
+          .collection(collection)
+          .document(document)
+          .updateData({key: FieldValue.arrayRemove(entries)});
+    }
+  }
+
+  //UPDATE ARRAY IN DOCUMENT LEVEL 1
+  Future<void> updateDocumentL2Array(
+      {@required String collectionL1,
+      @required String documentL1,
+      @required String collectionL2,
+      @required String documentL2,
+      @required String key,
+      @required List entries,
+      @required bool action}) async {
+    if (entries != null)
+    //create, write, and/or merge
+    if (action == true) {
+      return _db
+          .collection(collectionL1)
+          .document(documentL1)
+          .updateData({key: FieldValue.arrayUnion(entries)});
+    } else if (action == false) {
+      return _db
+          .collection(collectionL1)
+          .document(documentL1)
+          .updateData({key: FieldValue.arrayRemove(entries)});
+    }
+  }
+
+  //DELETE DOCUMENT L1
+  Future<void> deleteDocumentL1(
+      {@required String collection, @required String document}) {
+    return _db.collection(collection).document(document).delete();
+  }
+
+  //*****************LEVEL 1 CUSTOMIZED METHODS*****************
+
+  //ADMIN REMOVE PLANT FROM USER COLLECTION
+  Future<void> adminRemovePlantFromCollection(
+      {@required String plantID,
+      @required String userID,
+      @required String collectionID}) {
+    return updateDocumentL2Array(
+        collectionL1: DBFolder.users,
+        documentL1: userID,
+        collectionL2: DBFolder.collections,
+        documentL2: collectionID,
+        key: CollectionKeys.plants,
+        entries: [plantID],
+        action: false);
+  }
+
+  //QUARANTINE
+  Future<void> quarantinePlant({@required String plantID}) async {
+    //get the document
+    DocumentSnapshot document =
+        await getDocumentL1(collection: DBFolder.plants, document: plantID);
+    //copy it to quarantine
+    setDocumentL1(
+        collection: DBFolder.quarantinePlants,
+        document: plantID,
+        data: document.data);
+    //delete the original
+    deleteDocumentL1(collection: DBFolder.plants, document: plantID);
+  }
+
+  //UPDATE CLONE COUNT
+  Future<void> updatePlantCloneCount(
+      {@required String plantID, @required int currentValue}) {
+    return updateDocumentL1(
+        collection: DBFolder.plants,
+        document: plantID,
+        data: {PlantKeys.clones: currentValue + 1});
+  }
+
+  //like or unlike a plant
+  Future<void> updatePlantLike(
+      {@required String plantID,
+      @required int likes,
+      @required List likeList}) {
+    //if the plant is in the user list, set action to remove (false) and subtract one like
+    //if the plant is NOT in the sure list, set action to add (true) and add one like
+    bool action = !likeList.contains(plantID);
+    int add = (action == true) ? 1 : -1;
+    //update the plant like count
+    updateDocumentL1(
+        data: updatePairFull(key: PlantKeys.likes, value: likes + add),
+        collection: DBFolder.plants,
+        document: plantID);
+    //update the user list of likes
+    return updateUserArray(
+        action: action, entries: [plantID], arrayKey: UserKeys.likedPlants);
+  }
+
+  //update or remove entry in plant journal
+  Future<void> journalEntryUpdate(
+      {@required String plantID,
+      @required List journals,
+      @required Map entry}) {
+    print(journals);
+    print(entry);
+    //updated journal list
+    List updatedJournal = [];
+
+    //replace the entry
+    for (Map journal in journals) {
+      if (journal[JournalKeys.id] == entry[JournalKeys.id]) {
+        updatedJournal.add(entry);
+      } else {
+        updatedJournal.add(journal);
+      }
+    }
+
+    //upload the updated list
+    return updateDocumentL1(
+      collection: DBFolder.plants,
+      document: plantID,
+      data: updatePairFull(key: PlantKeys.journal, value: updatedJournal),
+    );
+  }
+
+  //CREATE A JOURNAL ENTRY
+  Future<void> journalEntryCreate(
+      {@required Map entry, @required String plantID}) {
+    //update the document
+    return updateDocumentL1Array(
+        collection: DBFolder.plants,
+        document: plantID,
+        key: PlantKeys.journal,
+        entries: [entry],
+        action: true);
   }
 
   //CREATE A DOCUMENT

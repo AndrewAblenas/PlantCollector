@@ -105,12 +105,12 @@ class DialogItemPlant extends StatelessWidget {
                   acceptText: 'Add',
                   acceptOnPress: () {
                     //update the value with map
-                    Provider.of<CloudDB>(context).updateDocumentInCollection(
+                    Provider.of<CloudDB>(context).updateDocumentL1(
                         data: CloudDB.updatePairFull(
                             key: buttonKey,
                             value: Provider.of<AppData>(context).newDataInput),
                         collection: DBFolder.plants,
-                        documentName: plantID);
+                        document: plantID);
                     //pop context
                     Navigator.pop(context);
                   },

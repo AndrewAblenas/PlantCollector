@@ -46,15 +46,13 @@ class PlantPhoto extends StatelessWidget {
                   onPressed: () async {
                     //*****REMOVE IMAGE*****//
                     //remove from database array
-                    await Provider.of<CloudDB>(context)
-                        .updateArrayInDocumentInCollection(
-                      arrayKey: PlantKeys.images,
-                      action: false,
-                      entries: [imageURL],
-                      folder: DBFolder.plants,
-                      documentName:
-                          Provider.of<AppData>(context).forwardingPlantID,
-                    );
+                    await Provider.of<CloudDB>(context).updateDocumentL1Array(
+                        collection: DBFolder.plants,
+                        document:
+                            Provider.of<AppData>(context).forwardingPlantID,
+                        key: PlantKeys.images,
+                        entries: [imageURL],
+                        action: false);
                     //get reference from the provided URL
                     StorageReference reference =
                         await Provider.of<CloudStore>(context)
@@ -176,19 +174,16 @@ class PlantPhoto extends StatelessWidget {
                                                             .forwardingPlantID);
                                                 //set thumb url
                                                 Provider.of<CloudDB>(context)
-                                                    .updateDocumentInCollection(
-                                                        data: CloudDB
-                                                            .updatePairFull(
-                                                                key: PlantKeys
-                                                                    .thumbnail,
-                                                                value:
-                                                                    thumbUrl),
-                                                        collection:
-                                                            DBFolder.plants,
-                                                        documentName: Provider
-                                                                .of<AppData>(
-                                                                    context)
-                                                            .forwardingPlantID);
+                                                    .updateDocumentL1(
+                                                  collection: DBFolder.plants,
+                                                  document:
+                                                      Provider.of<AppData>(
+                                                              context)
+                                                          .forwardingPlantID,
+                                                  data: CloudDB.updatePairFull(
+                                                      key: PlantKeys.thumbnail,
+                                                      value: thumbUrl),
+                                                );
 
                                                 Navigator.pop(context);
                                               },

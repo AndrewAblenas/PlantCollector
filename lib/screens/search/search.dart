@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/builders_general.dart';
-import 'package:plant_collector/screens/search/widgets/search_bar.dart';
+import 'package:plant_collector/screens/search/widgets/search_bar_live.dart';
 import 'package:plant_collector/screens/template/screen_template.dart';
 import 'package:plant_collector/widgets/bottom_bar.dart';
 import 'package:provider/provider.dart';
@@ -19,7 +19,7 @@ class SearchScreen extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           SizedBox(height: 0.03 * MediaQuery.of(context).size.width),
-          SearchBar(),
+          SearchBarLive(),
           SizedBox(
             height: 0.01 * MediaQuery.of(context).size.width,
           ),

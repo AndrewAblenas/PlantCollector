@@ -17,6 +17,9 @@ class PlantKeys {
   static const String thumbnail = 'plantThumbnail';
   static const String images = 'plantImageList';
   static const String likes = 'plantLikes';
+  static const String owner = 'plantOwner';
+  static const String clones = 'plantTotalClones';
+  static const String journal = 'plantJournal';
 
   //DESCRIPTORS
   static const Map<String, String> descriptors = {
@@ -33,6 +36,9 @@ class PlantKeys {
     thumbnail: 'Thumbnail',
     images: 'Image Files',
     likes: 'Total Greenthumbs',
+    owner: 'Owner',
+    clones: 'Total Clones Made',
+    journal: 'Journal Entries'
   };
 }
 
@@ -51,6 +57,9 @@ class PlantData {
   final String thumbnail;
   final List images;
   final int likes;
+  final String owner;
+  final int clones;
+  final List journal;
 
   //CONSTRUCTOR
   PlantData({
@@ -67,6 +76,9 @@ class PlantData {
     this.thumbnail,
     this.images,
     this.likes,
+    this.owner,
+    this.clones,
+    this.journal,
   });
 
   //TO MAP
@@ -85,6 +97,9 @@ class PlantData {
       PlantKeys.thumbnail: thumbnail,
       PlantKeys.images: images,
       PlantKeys.likes: likes,
+      PlantKeys.owner: owner,
+      PlantKeys.clones: clones,
+      PlantKeys.journal: journal,
     };
   }
 
@@ -105,6 +120,9 @@ class PlantData {
         thumbnail: map[PlantKeys.thumbnail] ?? '',
         images: map[PlantKeys.images] ?? [],
         likes: map[PlantKeys.likes] ?? 0,
+        owner: map[PlantKeys.owner] ?? '',
+        clones: map[PlantKeys.clones] ?? 0,
+        journal: map[PlantKeys.journal] ?? [],
       );
     } else {
       return PlantData(id: '', name: '');

@@ -37,7 +37,7 @@ class AboutScreen extends StatelessWidget {
                     'Your ${GlobalStrings.library} is the main page of this app.  '
                     'This page displays your profile header and is where you add all your ${GlobalStrings.plants}.  \n\n'
                     'After you have added some ${GlobalStrings.friends}, you will be able to view their ${GlobalStrings.libraries} as well.  '
-                    'Their ${GlobalStrings.libraries} via the ${GlobalStrings.community} tab at the bottom of the screen.  ',
+                    'Their ${GlobalStrings.libraries} via the ${GlobalStrings.discover} tab at the bottom of the screen.  ',
               ),
               ReferenceButton(
                 title: 'Profile Header',
@@ -90,7 +90,7 @@ class AboutScreen extends StatelessWidget {
                     'This is called giving a ${GlobalStrings.greenThumb}.  ',
               ),
               ReferenceButton(
-                title: '${GlobalStrings.community} and Chat',
+                title: '${GlobalStrings.friends} and Chat',
                 text:
                     'You can add ${GlobalStrings.friends} by their email address to view their ${GlobalStrings.plant} ${GlobalStrings.library} and chat.  '
                     'If their email address is not found, you will be able to send an invite link.  '
@@ -99,6 +99,12 @@ class AboutScreen extends StatelessWidget {
                     'Currently, if the app is closed, you will not receive message notifications.  '
                     'Message notifications will only be displayed while the app is running.  '
                     'The social aspect is in the early stages.  ',
+              ),
+              ReferenceButton(
+                title: '${GlobalStrings.discover}',
+                text:
+                    'The ${GlobalStrings.discover} section allows you to view other users ${GlobalStrings.plants}, provides ${GlobalStrings.announcements}, shows Top Collectors, and allows you to exact name search for a User.  \n\n'
+                    'The newest, most cloned, and most ${GlobalStrings.greenThumb}ed ${GlobalStrings.plants} are shown here to allow you to discover new ${GlobalStrings.plants}, clone a ${GlobalStrings.plant} to your ${GlobalStrings.collection}, and discover new Users.  ',
               ),
               ReferenceButton(
                 title: 'Version and Development',

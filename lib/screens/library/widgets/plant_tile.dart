@@ -16,11 +16,13 @@ import 'package:plant_collector/models/cloud_db.dart';
 
 class PlantTile extends StatelessWidget {
   final bool connectionLibrary;
+  final bool communityView;
   final String collectionID;
   final PlantData plant;
   final List<dynamic> possibleParents;
   PlantTile({
     @required this.connectionLibrary,
+    @required this.communityView,
     @required this.collectionID,
     @required this.plant,
     @required this.possibleParents,
@@ -41,11 +43,12 @@ class PlantTile extends StatelessWidget {
             .thumbnailPackage(imageURL: plant.images[0], plantID: plant.id)
             .then(
           (thumbUrl) {
-            Provider.of<CloudDB>(context).updateDocumentInCollection(
-                data: CloudDB.updatePairFull(
-                    key: PlantKeys.thumbnail, value: thumbUrl),
-                collection: DBFolder.plants,
-                documentName: plant.id);
+            Provider.of<CloudDB>(context).updateDocumentL1(
+              collection: DBFolder.plants,
+              document: plant.id,
+              data: CloudDB.updatePairFull(
+                  key: PlantKeys.thumbnail, value: thumbUrl),
+            );
           },
         );
       }
@@ -104,6 +107,7 @@ class PlantTile extends StatelessWidget {
                 MaterialPageRoute(
                   builder: (context) => PlantScreen(
                     connectionLibrary: connectionLibrary,
+                    communityView: communityView,
                     plantID: plant.id,
                     forwardingCollectionID: collectionID,
                   ),

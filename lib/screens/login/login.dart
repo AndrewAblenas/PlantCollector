@@ -78,7 +78,7 @@ class LoginScreen extends StatelessWidget {
             },
           ),
           SizedBox(
-            height: 20.0,
+            height: 10.0,
           ),
           ButtonAuth(
             text: 'Sign in',
@@ -112,15 +112,47 @@ class LoginScreen extends StatelessWidget {
               }
             },
           ),
+          //TODO maybe implement in the future
+//          GoogleAuthButton(
+//              text: 'oogle Sign in',
+//              onPress: () async {
+//                //login the user with GOOGLE
+//                FirebaseUser user =
+//                    await Provider.of<UserAuth>(context).signInWithGoogle();
+//                //check if verified
+//                bool verified =
+//                    Provider.of<UserAuth>(context).userIsVerified(user: user);
+//                //if user is logged in and verified
+//                if (user != null && verified == true) {
+//                  //have to sent to loading first to then sent to route and initiate first stream
+//                  Navigator.pushNamed(context, 'loading');
+//                } else {
+//                  showDialog(
+//                    context: context,
+//                    builder: (BuildContext context) {
+//                      return DialogConfirm(
+//                        title: 'Sign in Issue',
+//                        text: 'We had trouble signing you in. Please try again.'
+//                            '\n\nIf you recently registered, please respond to the email we sent you.',
+//                        buttonText: 'OK',
+//                        onPressed: () {
+//                          Navigator.pop(context);
+//                        },
+//                      );
+//                    },
+//                  );
+//                }
+//              }),
           Padding(
-            padding: EdgeInsets.all(20.0),
+            padding: EdgeInsets.all(10.0),
             child: FlatButton(
               child: Text(
                 'Register a new account',
                 style: TextStyle(
-                  color: kGreenMedium,
+                  color: kGreenDark,
                   fontSize:
                       AppTextSize.small * MediaQuery.of(context).size.width,
+                  fontWeight: AppTextWeight.medium,
                 ),
               ),
               onPressed: () {

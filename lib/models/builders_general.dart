@@ -2,14 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/models/data_types/collection_data.dart';
 import 'package:plant_collector/models/data_types/group_data.dart';
+import 'package:plant_collector/models/data_types/journal_data.dart';
 import 'package:plant_collector/models/data_types/plant_data.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
+import 'package:plant_collector/models/global.dart';
 import 'package:plant_collector/screens/dialog/dialog_screen_select.dart';
 import 'package:plant_collector/screens/library/widgets/group_delete.dart';
 import 'package:plant_collector/screens/library/widgets/collection_card.dart';
 import 'package:plant_collector/screens/library/widgets/group_card.dart';
+import 'package:plant_collector/screens/plant/widgets/add_journal_button.dart';
+import 'package:plant_collector/screens/plant/widgets/journal_tile.dart';
 import 'package:plant_collector/screens/plant/widgets/viewer_utility_buttons.dart';
-import 'package:plant_collector/screens/plant/widgets/journal_button.dart';
 import 'package:plant_collector/screens/search/widgets/search_tile_plant.dart';
 import 'package:plant_collector/widgets/dialogs/color_picker/button_color.dart';
 import 'package:plant_collector/widgets/dialogs/select/dialog_functions.dart';
@@ -97,7 +100,7 @@ class UIBuilders extends ChangeNotifier {
         children: <Widget>[
           InfoTip(
               text: 'You\'re Library is currently empty.  \n'
-                  'Tap the "Create New Group" button below to get started.  ')
+                  'Tap the "Create New ${GlobalStrings.group}" button below to get started.  ')
         ],
       );
     }
@@ -261,15 +264,12 @@ class UIBuilders extends ChangeNotifier {
     keyList.remove(PlantKeys.thumbnail);
     keyList.remove(PlantKeys.images);
     keyList.remove(PlantKeys.likes);
+    keyList.remove(PlantKeys.journal);
+    keyList.remove(PlantKeys.owner);
+    keyList.remove(PlantKeys.clones);
     //need null check to deal with issues on plant delete
     //connection library check will hide journal unless plant belongs to user
     if (plant != null) {
-      //first add a journal button if user plant
-      if (connectionLibrary == false) {
-        infoCardList.add(
-          JournalButton(plant: plant),
-        );
-      }
       //for  all these strings in the list
       for (String key in keyList) {
         //check to see that they aren't set to default value (hidden)
@@ -310,8 +310,17 @@ class UIBuilders extends ChangeNotifier {
         ),
       );
     }
-    //add a clone button when viewing friend library and green thumb
-    if (connectionLibrary == true) {
+    //add a clone button and greenthumb when viewing friend library and green thumb
+    if (connectionLibrary == false) {
+      infoCardList.add(
+        AddJournalButton(plantID: plant.id),
+      );
+      if (plant.journal != null && plant.journal.length > 0) {
+        Column entries =
+            displayJournalTiles(journals: plant.journal, plantID: plant.id);
+        infoCardList.add(entries);
+      }
+    } else {
       infoCardList.add(
         Row(
           children: <Widget>[
@@ -325,6 +334,65 @@ class UIBuilders extends ChangeNotifier {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: infoCardList,
+    );
+  }
+
+  static Image getBadge({@required int userTotalPlants}) {
+    //initialize empty string
+    String imageFile;
+
+    //determine which image to assign
+    if (userTotalPlants == 0 || userTotalPlants == null) {
+      imageFile = 'assets/images/badges/BadgeSmallBlackL1.png';
+    } else if (userTotalPlants < 10) {
+      imageFile = 'assets/images/badges/BadgeSmallBlackL2.png';
+    } else if (userTotalPlants < 25) {
+      imageFile = 'assets/images/badges/BadgeSmallBlackL3.png';
+    } else if (userTotalPlants < 100) {
+      imageFile = 'assets/images/badges/BadgeSmallBlackL4.png';
+    } else if (userTotalPlants < 500) {
+      imageFile = 'assets/images/badges/BadgeSmallBlackL5.png';
+    } else {
+      imageFile = 'assets/images/badges/BadgeSmallBlackL6.png';
+    }
+
+    //return the image
+    return Image.asset(imageFile);
+  }
+
+  static Column displayJournalTiles(
+      {@required List journals, @required String plantID}) {
+    //initialize blank list of widgets
+    List<Widget> journalEntries = [];
+
+    //create a journal entry for each item in list
+    for (Map entry in journals) {
+      JournalData entryBuild = JournalData.fromMap(map: entry);
+
+      //allow the post to be edited only for 24hrs
+      bool showEdit =
+          (DateTime.now().millisecondsSinceEpoch - int.parse(entryBuild.date) <=
+                  86400000)
+              ? true
+              : false;
+
+      //add the journal entry
+      journalEntries.add(
+        JournalTile(
+          journal: entryBuild,
+          showDate: true,
+          showEdit: showEdit,
+          plantID: plantID,
+          //to prevent a copy of journal data from being passed to each widget if no edit
+          journalList: showEdit == true ? journals : null,
+        ),
+      );
+    }
+
+    //return the entries in a column
+    return Column(
+      //reverse the entries so most recent is first
+      children: journalEntries.reversed.toList(),
     );
   }
 

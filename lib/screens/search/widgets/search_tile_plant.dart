@@ -21,6 +21,7 @@ class SearchPlantTile extends StatelessWidget {
           MaterialPageRoute(
             builder: (context) => PlantScreen(
               connectionLibrary: false,
+              communityView: false,
               plantID: plant.id,
               forwardingCollectionID: collectionID,
             ),
@@ -28,54 +29,55 @@ class SearchPlantTile extends StatelessWidget {
         );
       },
       child: ContainerWrapper(
-          marginVertical: 0.0,
-          color: AppTextColor.white,
-          child: Padding(
-            padding: EdgeInsets.all(0.03 * MediaQuery.of(context).size.width),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    //Nickname
-                    SizedBox(
-                      width: 0.8 * MediaQuery.of(context).size.width,
-                      child: Text(
-                        plant != null ? plant.name : '',
-                        softWrap: false,
-                        overflow: TextOverflow.fade,
-                        style: TextStyle(
-                          color: AppTextColor.black,
-                          fontWeight: AppTextWeight.medium,
-                          fontSize: AppTextSize.large *
-                              MediaQuery.of(context).size.width,
-                        ),
+        marginVertical: 0.0,
+        color: AppTextColor.white,
+        child: Padding(
+          padding: EdgeInsets.all(0.03 * MediaQuery.of(context).size.width),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  //Nickname
+                  SizedBox(
+                    width: 0.8 * MediaQuery.of(context).size.width,
+                    child: Text(
+                      plant != null ? plant.name : '',
+                      softWrap: false,
+                      overflow: TextOverflow.fade,
+                      style: TextStyle(
+                        color: AppTextColor.black,
+                        fontWeight: AppTextWeight.medium,
+                        fontSize: AppTextSize.large *
+                            MediaQuery.of(context).size.width,
                       ),
                     ),
-                    //Genus, Species, Variety
-                    SizedBox(
-                      width: 0.8 * MediaQuery.of(context).size.width,
-                      child: Text(
-                        plant != null
-                            ? '${plant.genus} ${plant.species} ${plant.variety}'
-                            : '',
-                        softWrap: false,
-                        overflow: TextOverflow.fade,
-                        style: TextStyle(
-                          color: AppTextColor.black,
-                          fontWeight: AppTextWeight.medium,
-                          fontSize: AppTextSize.tiny *
-                              MediaQuery.of(context).size.width,
-                        ),
+                  ),
+                  //Genus, Species, Variety
+                  SizedBox(
+                    width: 0.8 * MediaQuery.of(context).size.width,
+                    child: Text(
+                      plant != null
+                          ? '${plant.genus} ${plant.species} ${plant.variety}'
+                          : '',
+                      softWrap: false,
+                      overflow: TextOverflow.fade,
+                      style: TextStyle(
+                        color: AppTextColor.black,
+                        fontWeight: AppTextWeight.medium,
+                        fontSize: AppTextSize.tiny *
+                            MediaQuery.of(context).size.width,
                       ),
                     ),
-                  ],
-                ),
-                Icon(Icons.arrow_forward),
-              ],
-            ),
-          )),
+                  ),
+                ],
+              ),
+              Icon(Icons.arrow_forward),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

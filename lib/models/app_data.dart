@@ -18,6 +18,9 @@ class AppData extends ChangeNotifier {
   String newDataInput;
   String selectedDialogButtonItem;
   bool hideButton;
+  //custom tabs
+  int customTabSelected;
+  String plantQueryField;
   //used to pass ID to image tile
   String forwardingPlantID;
   File cameraCapture;
@@ -35,6 +38,7 @@ class AppData extends ChangeNotifier {
   List<CollectionData> currentUserCollections;
   List<PlantData> currentUserPlants;
   UserData currentUserInfo;
+  UserData connectionUserInfo;
   bool showTips;
   //connection
   List<GroupData> connectionGroups;
@@ -207,6 +211,7 @@ class AppData extends ChangeNotifier {
     final plant = PlantData(
       id: newPlantID,
       name: newDataInput,
+      owner: currentUserInfo.id,
     );
     return plant;
   }
@@ -248,6 +253,18 @@ class AppData extends ChangeNotifier {
 //METHOD TO SET NEW DATA INPUT
   void setNewDataInput(value) {
     newDataInput = value;
+    notifyListeners();
+  }
+
+  //METHOD TO SET CUSTOM TAB INPUT
+  void setCustomTabSelected({@required int tabNumber}) {
+    customTabSelected = tabNumber;
+    notifyListeners();
+  }
+
+  //METHOD TO SET CUSTOM TAB QUERY FIELD
+  void setPlantQueryField({@required String queryField}) {
+    plantQueryField = queryField;
     notifyListeners();
   }
 

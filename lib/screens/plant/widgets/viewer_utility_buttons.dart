@@ -40,14 +40,13 @@ class ViewerUtilityButtons extends StatelessWidget {
                           //generate a new ID
                           String plantID = AppData.generateID(prefix: 'plant_');
                           //clean the plant data
-                          Map data = CloudDB.cleanPlant(
+                          Map data = Provider.of<CloudDB>(context).cleanPlant(
                               plantData: plant.toMap(), id: plantID);
                           //add new plant to userPlants
-                          Provider.of<CloudDB>(context)
-                              .insertDocumentToCollection(
-                                  data: data,
-                                  collection: DBFolder.plants,
-                                  documentName: data[PlantKeys.id]);
+                          Provider.of<CloudDB>(context).setDocumentL1(
+                              data: data,
+                              collection: DBFolder.plants,
+                              document: data[PlantKeys.id]);
                           //COLLECTION
                           //first check if clone collection exists
                           bool match = false;
@@ -75,6 +74,7 @@ class ViewerUtilityButtons extends StatelessWidget {
                                     documentName: DBDefaultDocument.clone,
                                     merge: true);
                           }
+
                           //update
                           Provider.of<CloudDB>(context)
                               .updateArrayInDocumentInCollection(
@@ -118,6 +118,12 @@ class ViewerUtilityButtons extends StatelessWidget {
                                   folder: DBFolder.groups,
                                   documentName: DBDefaultDocument.import,
                                   action: true);
+
+                          //now that the cloning is complete, add to original plant clone count
+
+                          //update the original plant clone count
+                          Provider.of<CloudDB>(context).updatePlantCloneCount(
+                              plantID: plant.id, currentValue: plant.clones);
 
                           //close
                           Navigator.pop(context);
@@ -168,7 +174,7 @@ class ViewerUtilityButtons extends StatelessWidget {
               if (user != null) {
                 return GestureDetector(
                   onTap: () {
-                    Provider.of<CloudDB>(context).likePlant(
+                    Provider.of<CloudDB>(context).updatePlantLike(
                         plantID: plant.id,
                         likes: plant.likes,
                         likeList: user.likedPlants);

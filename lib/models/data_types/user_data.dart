@@ -2,6 +2,15 @@ import 'package:flutter/material.dart';
 
 //*****************USER*****************
 
+UserData testUser = UserData(
+  id: 'ID STRING',
+  email: 'EMAIL',
+  name: 'Alfredo try some super long name',
+  region: 'Vancouver, British Columbia, Canada',
+  about:
+      'I specialize in growing orchids, but have a broad assortment of plants inside and out.',
+);
+
 //ACCOUNT TYPES (to enable/disable various features)
 class UserTypes {
   static const String standard = 'standard';
@@ -27,6 +36,8 @@ class UserKeys {
   static const String blocked = 'userBlocked';
   static const String expandGroup = 'userCollapseGroup';
   static const String expandCollection = 'userCollapseCollection';
+  static const String tags = 'userTags';
+  static const String friends = 'userFriends';
   //local only
   static const String chatStarted = 'chatStarted';
 
@@ -47,6 +58,8 @@ class UserKeys {
     blocked: 'Blocked Users List',
     expandGroup: 'Expand Groups by Default',
     expandCollection: 'Expand Collections by Default',
+    tags: 'Search Tags',
+    friends: 'Friends List',
     //local only
     chatStarted: 'Chat Started'
   };
@@ -70,6 +83,8 @@ class UserData {
   final List blocked;
   final bool expandGroup;
   final bool expandCollection;
+  final List tags;
+  final List friends;
   //local only
   final bool chatStarted;
 
@@ -90,6 +105,9 @@ class UserData {
     this.blocked,
     this.expandGroup,
     this.expandCollection,
+    this.tags,
+    this.friends,
+    //local only
     this.chatStarted,
   });
 
@@ -111,6 +129,9 @@ class UserData {
       UserKeys.blocked: blocked,
       UserKeys.expandGroup: expandGroup,
       UserKeys.expandCollection: expandCollection,
+      UserKeys.tags: tags,
+      UserKeys.friends: friends,
+      //local only
       UserKeys.chatStarted: chatStarted,
     };
   }
@@ -133,6 +154,9 @@ class UserData {
       blocked: map[UserKeys.blocked] ?? [],
       expandGroup: map[UserKeys.expandGroup] ?? true,
       expandCollection: map[UserKeys.expandCollection] ?? true,
+      tags: map[UserKeys.tags] ?? [],
+      friends: map[UserKeys.friends] ?? [],
+      //local only
       chatStarted: map[UserKeys.chatStarted] ?? false,
     );
   }

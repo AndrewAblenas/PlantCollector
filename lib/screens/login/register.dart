@@ -64,7 +64,7 @@ class RegisterScreen extends StatelessWidget {
             );
           },
         ),
-        SizedBox(height: 20.0),
+        SizedBox(height: 10.0),
         ButtonAuth(
           text: 'Register',
           onPress: () async {
@@ -103,7 +103,7 @@ class RegisterScreen extends StatelessWidget {
                 context: context,
                 builder: (BuildContext context) {
                   return DialogConfirm(
-                    title: 'Sign in Issue',
+                    title: 'Registration Issue',
                     text:
                         'We had trouble registering you. Please check the email and password you provided and try again.'
                         '${Provider.of<UserAuth>(context).error != null ? Provider.of<UserAuth>(context).error : ''}',

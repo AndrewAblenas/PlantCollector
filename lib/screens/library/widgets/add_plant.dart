@@ -40,10 +40,11 @@ class AddPlant extends StatelessWidget {
                       Map data =
                           Provider.of<AppData>(context).plantNew().toMap();
                       //add new plant to userPlants
-                      Provider.of<CloudDB>(context).insertDocumentToCollection(
-                          data: data,
-                          collection: DBFolder.plants,
-                          documentName: data[PlantKeys.id]);
+                      Provider.of<CloudDB>(context).setDocumentL1(
+                        collection: DBFolder.plants,
+                        document: data[PlantKeys.id],
+                        data: data,
+                      );
                       //add plant reference to collection
                       Provider.of<CloudDB>(context)
                           .updateArrayInDocumentInCollection(

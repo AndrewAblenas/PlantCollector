@@ -5,12 +5,12 @@ import 'package:plant_collector/widgets/container_wrapper_gradient.dart';
 import 'package:provider/provider.dart';
 
 //SEARCH BAR WIDGET
-class SearchBar extends StatefulWidget {
+class SearchBarLive extends StatefulWidget {
   @override
-  _SearchBarState createState() => _SearchBarState();
+  _SearchBarLiveState createState() => _SearchBarLiveState();
 }
 
-class _SearchBarState extends State<SearchBar> {
+class _SearchBarLiveState extends State<SearchBarLive> {
   final TextEditingController _controller = TextEditingController();
 
   @override
@@ -37,22 +37,20 @@ class _SearchBarState extends State<SearchBar> {
               ),
               SizedBox(
                 width: 0.80 * MediaQuery.of(context).size.width,
-                child: Consumer<AppData>(builder: (context, AppData data, _) {
-                  return TextField(
-                    style: TextStyle(
-                      decoration: TextDecoration.none,
-                      color: AppTextColor.white,
-                      fontSize: AppTextSize.medium *
-                          MediaQuery.of(context).size.width,
-                      fontWeight: AppTextWeight.medium,
-                    ),
-                    minLines: 1,
-                    maxLines: 50,
-                    onChanged: (value) {
-                      data.setNewDataInput(value);
-                    },
-                  );
-                }),
+                child: TextField(
+                  style: TextStyle(
+                    decoration: TextDecoration.none,
+                    color: AppTextColor.white,
+                    fontSize:
+                        AppTextSize.medium * MediaQuery.of(context).size.width,
+                    fontWeight: AppTextWeight.medium,
+                  ),
+                  minLines: 1,
+                  maxLines: 50,
+                  onChanged: (value) {
+                    Provider.of<AppData>(context).setNewDataInput(value);
+                  },
+                ),
               ),
             ],
           ),

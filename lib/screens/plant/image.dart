@@ -43,12 +43,12 @@ class ImageScreen extends StatelessWidget {
                             plantID: Provider.of<AppData>(context)
                                 .forwardingPlantID);
                     //set thumb url
-                    Provider.of<CloudDB>(context).updateDocumentInCollection(
-                        data: CloudDB.updatePairFull(
-                            key: PlantKeys.thumbnail, value: thumbUrl),
-                        collection: DBFolder.plants,
-                        documentName:
-                            Provider.of<AppData>(context).forwardingPlantID);
+                    Provider.of<CloudDB>(context).updateDocumentL1(
+                      collection: DBFolder.plants,
+                      document: Provider.of<AppData>(context).forwardingPlantID,
+                      data: CloudDB.updatePairFull(
+                          key: PlantKeys.thumbnail, value: thumbUrl),
+                    );
 
                     Navigator.pop(context);
                   },

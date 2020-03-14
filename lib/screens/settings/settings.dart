@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/app_data.dart';
+import 'package:plant_collector/models/data_storage/firebase_folders.dart';
+import 'package:plant_collector/models/global.dart';
 import 'package:plant_collector/models/user.dart';
+import 'package:plant_collector/screens/settings/info_screen.dart';
 import 'package:plant_collector/screens/template/screen_template.dart';
 import 'package:plant_collector/widgets/bottom_bar.dart';
 import 'package:plant_collector/widgets/container_wrapper_gradient.dart';
@@ -62,6 +65,34 @@ class SettingsScreen extends StatelessWidget {
                     label: 'Account',
                     onPress: () {
                       Navigator.pushNamed(context, 'account');
+                    }),
+                SettingsButton(
+                    icon: Icons.security,
+                    label: 'Privacy',
+                    onPress: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => InfoScreen(
+                            title: GlobalStrings.privacy,
+                            documentName: DBDocument.privacyPolicy,
+                          ),
+                        ),
+                      );
+                    }),
+                SettingsButton(
+                    icon: Icons.people,
+                    label: 'Conduct',
+                    onPress: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => InfoScreen(
+                            title: GlobalStrings.guidelines,
+                            documentName: DBDocument.communityGuidelines,
+                          ),
+                        ),
+                      );
                     }),
 //                SettingsButton(
 //                    icon: Icons.cloud_upload,
