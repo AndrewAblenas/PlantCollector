@@ -10,7 +10,6 @@ import 'package:plant_collector/screens/dialog/dialog_screen_select.dart';
 import 'package:plant_collector/screens/plant/plant.dart';
 import 'package:provider/provider.dart';
 import 'package:plant_collector/models/builders_general.dart';
-import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 
@@ -39,18 +38,22 @@ class PlantTile extends StatelessWidget {
       //this check is for a blank but not null list
       if (length == 1) {
         //run thumbnail package to get thumb url
-        Provider.of<CloudStore>(context)
-            .thumbnailPackage(imageURL: plant.images[0], plantID: plant.id)
-            .then(
-          (thumbUrl) {
-            Provider.of<CloudDB>(context).updateDocumentL1(
-              collection: DBFolder.plants,
-              document: plant.id,
-              data: CloudDB.updatePairFull(
-                  key: PlantKeys.thumbnail, value: thumbUrl),
-            );
-          },
-        );
+        //delay to stop image ref call before DB knows it exists
+        //otherwise firebase sends an error that it doesn't exist
+        Future.delayed(Duration(seconds: 3)).then((value) {
+          Provider.of<CloudStore>(context)
+              .thumbnailPackage(imageURL: plant.images[0], plantID: plant.id)
+              .then(
+            (thumbUrl) {
+              Provider.of<CloudDB>(context).updateDocumentL1(
+                collection: DBFolder.plants,
+                document: plant.id,
+                data: CloudDB.updatePairFull(
+                    key: PlantKeys.thumbnail, value: thumbUrl),
+              );
+            },
+          );
+        });
       }
     }
 
@@ -63,7 +66,8 @@ class PlantTile extends StatelessWidget {
               //remove the auto generated import collections
               List<CollectionData> reducedParents = [];
               for (CollectionData collection in possibleParents) {
-                if (collection.id != DBDefaultDocument.clone) {
+                if (!DBDefaultDocument.collectionExclude
+                    .contains(collection.id)) {
                   reducedParents.add(collection);
                 }
               }
@@ -81,7 +85,7 @@ class PlantTile extends StatelessWidget {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: kGreenDark,
+//          color: kGreenDark,
 //          boxShadow: kShadowBox,
           shape: BoxShape.rectangle,
         ),

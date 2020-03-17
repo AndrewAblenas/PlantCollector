@@ -137,6 +137,8 @@ class GroupCard extends StatelessWidget {
                                       .currentUserPlants = plants;
                                   //update tally in user document
                                   if (plants != null &&
+                                      //there was an issue on sign out until I added
+                                      //another Navigator.pop to close both layers
                                       Provider.of<AppData>(context)
                                               .currentUserInfo !=
                                           null

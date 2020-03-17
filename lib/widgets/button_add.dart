@@ -1,28 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
-import 'package:plant_collector/widgets/container_card.dart';
 
 class ButtonAdd extends StatelessWidget {
   final String buttonText;
   final Function onPress;
-  final Color buttonColor;
   final IconData icon;
   final Color textColor;
   ButtonAdd(
       {@required this.buttonText,
       @required this.onPress,
-      @required this.buttonColor,
       this.icon,
       this.textColor});
 
   @override
   Widget build(BuildContext context) {
-    return ContainerCard(
-      color: buttonColor != null ? buttonColor : kGreenDark,
-      child: FlatButton(
+    return GestureDetector(
+      child: Container(
+        margin: EdgeInsets.all(
+          5.0 * MediaQuery.of(context).size.width * kScaleFactor,
+        ),
         padding: EdgeInsets.symmetric(vertical: 10.0),
-        textColor: AppTextColor.white,
+        decoration: BoxDecoration(
+            boxShadow: kShadowBox,
+            borderRadius: BorderRadius.all(
+              Radius.circular(
+                5.0,
+              ),
+            ),
+            gradient: kBackgroundGradientMid),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
@@ -42,10 +48,10 @@ class ButtonAdd extends StatelessWidget {
             ),
           ],
         ),
-        onPressed: () {
-          onPress();
-        },
       ),
+      onTap: () {
+        onPress();
+      },
     );
   }
 }

@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/text.dart';
-import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/models/user.dart';
 import 'package:plant_collector/screens/login/widgets/login_template.dart';
 import 'package:provider/provider.dart';
@@ -74,12 +73,11 @@ class RegisterScreen extends StatelessWidget {
             if (user != null) {
               //send email verification
               Provider.of<UserAuth>(context).userSendEmail();
-              Provider.of<CloudDB>(context).addUserDocument(
-                  data: UserData(
-                    id: user.uid,
-                    email: user.email,
-                  ).toMap(),
-                  userID: user.uid);
+              //set the user document
+              Provider.of<CloudDB>(context).createUserDocument(
+                userID: user.uid,
+                userEmail: user.email,
+              );
               //show dialog to update user
               showDialog(
                 context: context,

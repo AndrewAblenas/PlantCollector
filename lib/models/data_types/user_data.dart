@@ -25,6 +25,7 @@ class UserKeys {
   static const String name = 'userName';
   static const String email = 'userEmail';
   static const String type = 'userType';
+  static const String join = 'userJoinDate';
   static const String about = 'userAbout';
   static const String region = 'userRegion';
   static const String avatar = 'userAvatar';
@@ -47,6 +48,7 @@ class UserKeys {
     name: 'Name',
     email: 'Email',
     type: 'Account Type',
+    join: 'Join Date',
     about: 'About',
     region: 'Region',
     avatar: 'Avatar',
@@ -72,6 +74,7 @@ class UserData {
   final String name;
   final String email;
   final String type;
+  final int join;
   final String about;
   final String region;
   final String avatar;
@@ -94,6 +97,7 @@ class UserData {
     @required this.email,
     this.name,
     this.type,
+    this.join,
     this.about,
     this.region,
     this.avatar,
@@ -118,6 +122,7 @@ class UserData {
       UserKeys.email: email,
       UserKeys.name: name,
       UserKeys.type: type,
+      UserKeys.join: join,
       UserKeys.about: about,
       UserKeys.region: region,
       UserKeys.avatar: avatar,
@@ -143,6 +148,8 @@ class UserData {
       email: map[UserKeys.email] ?? '',
       name: map[UserKeys.name] ?? '',
       type: map[UserKeys.type] ?? UserTypes.standard,
+      //set default to January 1, 2020
+      join: map[UserKeys.join] ?? 1577836800,
       about: map[UserKeys.about] ?? '',
       region: map[UserKeys.region] ?? 'Earth',
       avatar: map[UserKeys.avatar] ?? '',

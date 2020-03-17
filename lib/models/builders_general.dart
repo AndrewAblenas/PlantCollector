@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:plant_collector/formats/colors.dart';
+import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 import 'package:plant_collector/models/data_types/collection_data.dart';
 import 'package:plant_collector/models/data_types/group_data.dart';
 import 'package:plant_collector/models/data_types/journal_data.dart';
@@ -99,8 +99,9 @@ class UIBuilders extends ChangeNotifier {
       groupColumn = Column(
         children: <Widget>[
           InfoTip(
-              text: 'You\'re Library is currently empty.  \n'
-                  'Tap the "Create New ${GlobalStrings.group}" button below to get started.  ')
+              text: 'You\'re Library is currently empty.  \n\n'
+                  'Tap the "+ Create New ${GlobalStrings.group}" button to build a shelf.  \n\n'
+                  'A "Houseplants" ${GlobalStrings.group} to display your indoor ${GlobalStrings.collections} might be a good place to start!  ')
         ],
       );
     }
@@ -113,17 +114,24 @@ class UIBuilders extends ChangeNotifier {
       @required String groupID,
       @required Color groupColor,
       @required bool connectionLibrary}) {
+    //check that they aren't default
     List<CollectionCard> collectionList = [];
     Column collectionColumn;
     if (userCollections != null && userCollections.length > 0) {
       for (CollectionData collection in userCollections) {
+        //connection view check for defaults
+        bool defaultView =
+            DBDefaultDocument.collectionExclude.contains(collection.id);
         //add collection card for each collection
         collectionList.add(
-          makeCollectionCard(
-              connectionLibrary: connectionLibrary,
-              collection: collection,
-              collectionTheme: groupColor,
-              groupID: groupID),
+          CollectionCard(
+            connectionLibrary: connectionLibrary,
+            defaultView: defaultView,
+            collection: collection,
+//      collectionPlantTotal: collectionPlantTotal,
+            colorTheme: groupColor,
+            groupID: groupID,
+          ),
         );
       }
       collectionColumn = Column(
@@ -136,9 +144,13 @@ class UIBuilders extends ChangeNotifier {
       collectionColumn = Column(
         children: <Widget>[
           InfoTip(
-              text: 'Groups are used to organize your plant collections.  \n\n'
-                  'You can rename this Group by holding down on the name.  Set the color by tapping the name.  \n\n'
-                  'You can only delete a Group when it is empty, via the button below.'),
+              text:
+                  '${GlobalStrings.groups} are used to display your ${GlobalStrings.collections}.  \n\n'
+                  'You can rename this ${GlobalStrings.group} by holding down on the name.  Set the color by tapping the name.  \n\n'
+                  'You can only delete a ${GlobalStrings.group} when it is empty, via the button below.  \n\n'
+                  'Next add a ${GlobalStrings.collection} to display on this ${GlobalStrings.group} '
+                  'via the "+ Add New ${GlobalStrings.collection}" button.  '
+                  'This could be a ${GlobalStrings.collection} of "Orchids", "Cacti", "Ferns", etc.  \n\n'),
           groupID == null ? null : GroupDelete(groupID: groupID),
         ],
       );
@@ -151,31 +163,6 @@ class UIBuilders extends ChangeNotifier {
       );
     }
     return collectionColumn;
-  }
-
-  //MAKE COLLECTION CARD
-  static CollectionCard makeCollectionCard(
-      {@required bool connectionLibrary,
-      @required CollectionData collection,
-      @required Color collectionTheme,
-      @required String groupID}) {
-    //get plant list
-    List<dynamic> plantList = collection.plants;
-    //initialize number of plants in collection to No Plants
-    int collectionPlantTotal = 0;
-    //if the plant list isn't empty
-    if (plantList.isNotEmpty) {
-      //then get the number of plants
-      collectionPlantTotal = plantList.length;
-    }
-    //return card
-    return CollectionCard(
-      connectionLibrary: connectionLibrary,
-      collection: collection,
-      collectionPlantTotal: collectionPlantTotal,
-      colorTheme: collectionTheme,
-      groupID: groupID,
-    );
   }
 
 //*****************PLANT SCREEN RELATED BUILDERS*****************
@@ -267,6 +254,14 @@ class UIBuilders extends ChangeNotifier {
     keyList.remove(PlantKeys.journal);
     keyList.remove(PlantKeys.owner);
     keyList.remove(PlantKeys.clones);
+    //add utility bar
+    infoCardList.add(
+      Row(
+        children: <Widget>[
+          ViewerUtilityButtons(plant: plant),
+        ],
+      ),
+    );
     //need null check to deal with issues on plant delete
     //connection library check will hide journal unless plant belongs to user
     if (plant != null) {
@@ -294,7 +289,6 @@ class UIBuilders extends ChangeNotifier {
       infoCardList.add(
         ButtonAdd(
           buttonText: 'Add Information',
-          buttonColor: kGreenDark,
           onPress: () {
             showDialog(
                 context: context,
@@ -310,25 +304,7 @@ class UIBuilders extends ChangeNotifier {
         ),
       );
     }
-    //add a clone button and greenthumb when viewing friend library and green thumb
-    if (connectionLibrary == false) {
-      infoCardList.add(
-        AddJournalButton(plantID: plant.id),
-      );
-      if (plant.journal != null && plant.journal.length > 0) {
-        Column entries =
-            displayJournalTiles(journals: plant.journal, plantID: plant.id);
-        infoCardList.add(entries);
-      }
-    } else {
-      infoCardList.add(
-        Row(
-          children: <Widget>[
-            ViewerUtilityButtons(plant: plant),
-          ],
-        ),
-      );
-    }
+
     print('displayInfoCards: COMPLETE');
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -388,6 +364,8 @@ class UIBuilders extends ChangeNotifier {
         ),
       );
     }
+    //now include the add button
+    journalEntries.add(AddJournalButton(plantID: plantID));
 
     //return the entries in a column
     return Column(

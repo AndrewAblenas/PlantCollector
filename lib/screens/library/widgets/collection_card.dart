@@ -3,6 +3,7 @@ import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/data_types/collection_data.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
+import 'package:plant_collector/models/data_types/group_data.dart';
 import 'package:plant_collector/models/data_types/plant_data.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/models/global.dart';
@@ -22,16 +23,17 @@ import 'package:plant_collector/formats/colors.dart';
 class CollectionCard extends StatelessWidget {
   final bool connectionLibrary;
   final CollectionData collection;
-  final int collectionPlantTotal;
   final String groupID;
   final Color colorTheme;
+  final bool defaultView;
 
-  CollectionCard(
-      {@required this.connectionLibrary,
-      @required this.collection,
-      @required this.collectionPlantTotal,
-      @required this.groupID,
-      @required this.colorTheme});
+  CollectionCard({
+    @required this.connectionLibrary,
+    @required this.collection,
+    @required this.groupID,
+    @required this.colorTheme,
+    @required this.defaultView,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +44,9 @@ class CollectionCard extends StatelessWidget {
     //get plants for the collection from the full list
     List<PlantData> collectionPlants = CloudDB.getPlantsFromList(
         collectionPlantIDs: collection.plants, plants: fullList);
+    //note collection plant total is calculated from this list instead of collection.plants
+    //to prevent range errors if an entry is in collection.plants but the plant is deleted
+    int collectionPlantTotal = collectionPlants.length;
     return TileWhite(
       child: Padding(
         padding: EdgeInsets.only(
@@ -54,8 +59,7 @@ class CollectionCard extends StatelessWidget {
               child: GestureDetector(
                 onLongPress: () {
                   //remove functionality for friend collection or auto generated
-                  if (connectionLibrary == false &&
-                      collection.id != DBDefaultDocument.clone)
+                  if (connectionLibrary == false && defaultView == false)
                     showDialog(
                         context: context,
                         builder: (context) {
@@ -106,8 +110,7 @@ class CollectionCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    (connectionLibrary == false &&
-                            collection.id != DBDefaultDocument.clone)
+                    (connectionLibrary == false && defaultView == false)
                         ? Container(
                             width: 50.0 *
                                 MediaQuery.of(context).size.width *
@@ -118,7 +121,7 @@ class CollectionCard extends StatelessWidget {
                             child: FlatButton(
                               onPressed: () {
                                 if (connectionLibrary == false &&
-                                    collection.id != DBDefaultDocument.clone)
+                                    defaultView == false)
                                   showDialog(
                                     context: context,
                                     builder: (BuildContext context) {
@@ -178,13 +181,17 @@ class CollectionCard extends StatelessWidget {
                                             connectionLibrary == false)
                                         ? Column(
                                             children: <Widget>[
-                                              InfoTip(
-                                                  text:
-                                                      'A ${GlobalStrings.collection} holds your ${GlobalStrings.plants}.  \n\n'
-                                                      'You can move a ${GlobalStrings.collection} to a different ${GlobalStrings.group} via the arrow to the right of the ${GlobalStrings.collection} name.  \n\n'
-                                                      'Like ${GlobalStrings.groups}, ${GlobalStrings.collections} can only be deleted when empty, via the button below.  \n\n'
-                                                      'Add a ${GlobalStrings.plant} with the "+" button below.  \n\n'
-                                                      'Tap a ${GlobalStrings.plant} to visit the profile, hold down to move to another ${GlobalStrings.collection}.'),
+                                              Provider.of<AppData>(context)
+                                                          .showTips ==
+                                                      true
+                                                  ? InfoTip(
+                                                      text:
+                                                          'A ${GlobalStrings.collection} holds your ${GlobalStrings.plants}.  \n\n'
+                                                          'You can move a ${GlobalStrings.collection} to a different ${GlobalStrings.group} via the arrow to the right of the ${GlobalStrings.collection} name.  \n\n'
+                                                          'Like ${GlobalStrings.groups}, ${GlobalStrings.collections} can only be deleted when empty, via the button below.  \n\n'
+                                                          'Next, add a ${GlobalStrings.plant} with the green "+" button below.  '
+                                                          'Tap a ${GlobalStrings.plant} to visit the profile, hold down to move to another ${GlobalStrings.collection}.')
+                                                  : SizedBox(),
                                               Container(
                                                 decoration:
                                                     kButtonBoxDecoration,
@@ -219,15 +226,44 @@ class CollectionCard extends StatelessWidget {
                                                               'Are you sure you want to delete this ${GlobalStrings.collection}?',
                                                           buttonText: 'Remove',
                                                           onPressed: () {
-                                                            Provider.of<CloudDB>(
-                                                                    context)
-                                                                .deleteDocumentFromCollection(
-                                                                    documentID:
-                                                                        collection
-                                                                            .id,
-                                                                    collection:
-                                                                        DBFolder
-                                                                            .collections);
+                                                            //delete the collection
+                                                            Provider.of<CloudDB>(context).deleteDocumentL2(
+                                                                collectionL1:
+                                                                    DBFolder
+                                                                        .users,
+                                                                documentL1: Provider.of<
+                                                                            AppData>(
+                                                                        context)
+                                                                    .currentUserInfo
+                                                                    .id,
+                                                                collectionL2:
+                                                                    DBFolder
+                                                                        .collections,
+                                                                documentL2:
+                                                                    collection
+                                                                        .id);
+                                                            //remove collection reference from group
+                                                            Provider.of<CloudDB>(context).updateDocumentL2Array(
+                                                                collectionL1:
+                                                                    DBFolder
+                                                                        .users,
+                                                                documentL1: Provider.of<
+                                                                            AppData>(
+                                                                        context)
+                                                                    .currentUserInfo
+                                                                    .id,
+                                                                collectionL2:
+                                                                    DBFolder
+                                                                        .groups,
+                                                                documentL2:
+                                                                    groupID,
+                                                                key: GroupKeys
+                                                                    .collections,
+                                                                entries: [
+                                                                  collection.id
+                                                                ],
+                                                                action: false);
+                                                            //pop context
                                                             Navigator.pop(
                                                                 context);
                                                           },
@@ -247,16 +283,18 @@ class CollectionCard extends StatelessWidget {
                         ),
                         Builder(
                           builder: (context) {
-                            //check if library list contains at least one item
-//                        if (fullList.length >= 1) {
+                            //if friend library with no plants, this prevents empty white space
                             if (connectionLibrary == true &&
                                 collectionPlants.length == 0) {
                               return SizedBox();
-                            } else if (connectionLibrary == false &&
-                                collectionPlants.length == 0 &&
-                                collection.id == DBDefaultDocument.clone) {
-                              return SizedBox();
-                            } else {
+                            }
+//                            else if (connectionLibrary == false &&
+//                                    collectionPlants.length == 0
+////                                && defaultView == false
+//                                ) {
+//                              return SizedBox();
+//                            }
+                            else {
                               return GridView.builder(
                                 shrinkWrap: true,
                                 //allows scrolling
@@ -266,8 +304,7 @@ class CollectionCard extends StatelessWidget {
                                 //add additional button only for collection owner
                                 //no add button for auto generated
                                 itemCount: (connectionLibrary == false &&
-                                        collection.id !=
-                                            DBDefaultDocument.clone)
+                                        defaultView == false)
                                     ? collectionPlantTotal + 1
                                     : collectionPlantTotal,
                                 gridDelegate:

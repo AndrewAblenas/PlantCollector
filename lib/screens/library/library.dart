@@ -167,7 +167,6 @@ class LibraryScreen extends StatelessWidget {
               connectionLibrary == false
                   ? ButtonAdd(
                       buttonText: 'Create New ${GlobalStrings.group}',
-                      buttonColor: kGreenDark,
                       onPress: () {
                         showDialog(
                             context: context,

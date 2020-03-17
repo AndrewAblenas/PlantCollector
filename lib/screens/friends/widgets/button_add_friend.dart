@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/cloud_db.dart';
@@ -21,7 +20,6 @@ class ButtonAddFriend extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ButtonAdd(
-      buttonColor: kGreenDark,
       textColor: AppTextColor.white,
       icon: Icons.person_add,
       buttonText: 'Add Friend',

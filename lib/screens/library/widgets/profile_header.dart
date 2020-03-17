@@ -71,7 +71,7 @@ class ProfileHeader extends StatelessWidget {
                             .uid);
               //get image from camera
               File image = await Provider.of<CloudStore>(context)
-                  .getCameraImage(fromCamera: false);
+                  .getImageFile(fromCamera: false);
               //check to make sure the user didn't back out
               if (image != null) {
                 //upload image
@@ -133,7 +133,7 @@ class ProfileHeader extends StatelessWidget {
                               .uid);
                       //get image from camera
                       File image = await Provider.of<CloudStore>(context)
-                          .getCameraImage(fromCamera: false);
+                          .getImageFile(fromCamera: false);
                       //check to make sure the user didn't back out
                       if (image != null) {
                         //upload image

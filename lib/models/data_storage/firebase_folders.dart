@@ -41,4 +41,6 @@ class DBDefaultDocument {
   static const String import = 'import';
   //import collection names
   static const String clone = 'clone';
+  static const String orphaned = 'orphaned';
+  static const List<String> collectionExclude = [clone, orphaned];
 }

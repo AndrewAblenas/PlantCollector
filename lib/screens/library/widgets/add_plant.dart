@@ -5,6 +5,9 @@ import 'package:plant_collector/models/data_types/collection_data.dart';
 import 'package:plant_collector/models/data_types/plant_data.dart';
 import 'package:plant_collector/models/global.dart';
 import 'package:plant_collector/screens/dialog/dialog_screen_input.dart';
+import 'package:plant_collector/screens/dialog/dialog_screen_select.dart';
+import 'package:plant_collector/widgets/get_image_camera.dart';
+import 'package:plant_collector/widgets/get_image_gallery.dart';
 import 'package:provider/provider.dart';
 import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/cloud_db.dart';
@@ -30,30 +33,57 @@ class AddPlant extends StatelessWidget {
           ),
         ),
         onPressed: () {
+          //initialize data
+          Map data;
+          //first input the data for the plant
           showDialog(
               context: context,
               builder: (context) {
                 return DialogScreenInput(
                     title: 'Nickname your ${GlobalStrings.plant}',
                     acceptText: 'Add',
-                    acceptOnPress: () {
-                      Map data =
-                          Provider.of<AppData>(context).plantNew().toMap();
+                    acceptOnPress: () async {
+                      data = Provider.of<AppData>(context).plantNew().toMap();
                       //add new plant to userPlants
-                      Provider.of<CloudDB>(context).setDocumentL1(
+                      await Provider.of<CloudDB>(context).setDocumentL1(
                         collection: DBFolder.plants,
                         document: data[PlantKeys.id],
                         data: data,
                       );
                       //add plant reference to collection
-                      Provider.of<CloudDB>(context)
+                      await Provider.of<CloudDB>(context)
                           .updateArrayInDocumentInCollection(
                               arrayKey: CollectionKeys.plants,
                               entries: [data[PlantKeys.id]],
                               folder: DBFolder.collections,
                               documentName: collectionID,
                               action: true);
+                      //pop the first window
                       Navigator.pop(context);
+                      //add image functionality
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return DialogScreenSelect(
+                            title: 'Add a Photo',
+                            items: [
+                              GetImageCamera(
+                                  largeWidget: false,
+                                  widgetScale: 1.0,
+                                  pop: true,
+                                  plantID: data[PlantKeys.id]),
+                              SizedBox(
+                                height: 20.0,
+                              ),
+                              GetImageGallery(
+                                  largeWidget: false,
+                                  widgetScale: 1.0,
+                                  pop: true,
+                                  plantID: data[PlantKeys.id]),
+                            ],
+                          );
+                        },
+                      );
                     },
                     onChange: (input) {
                       Provider.of<AppData>(context).newDataInput = input;

@@ -29,7 +29,7 @@ class MessagePlant extends StatelessWidget {
             MaterialPageRoute(
               builder: (context) => PlantScreen(
                   connectionLibrary: connectionLibrary,
-                  communityView: false,
+                  communityView: true,
                   plantID: message.media,
                   forwardingCollectionID: null),
             ),

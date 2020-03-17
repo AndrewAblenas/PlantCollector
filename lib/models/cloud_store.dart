@@ -322,7 +322,7 @@ class CloudStore extends ChangeNotifier {
   //*****************CAMERA METHODS*****************
 
   //METHOD TO LAUNCH IMAGE PICKER AND GET IMAGE
-  Future<File> getCameraImage({@required bool fromCamera}) async {
+  Future<File> getImageFile({@required bool fromCamera}) async {
     File image;
     try {
       if (fromCamera == true) {
@@ -332,6 +332,21 @@ class CloudStore extends ChangeNotifier {
             maxWidth: cameraImageSize,
             maxHeight: cameraImageSize);
       } else {
+//        if (Platform.isAndroid) {
+//          print('Android');
+//          DeviceInfoPlugin deviceInfoInit = DeviceInfoPlugin();
+//          AndroidDeviceInfo deviceInfo = await deviceInfoInit.androidInfo;
+//          print('B');
+//          int versionNumber = deviceInfo.version.sdkInt;
+//          print('Android Version: $versionNumber');
+//          if (versionNumber >= 29) {
+//            image = await ImagePicker.pickImage(
+//                source: ImageSource.gallery,
+//                imageQuality: 90,
+//                maxWidth: cameraImageSize,
+//                maxHeight: cameraImageSize);
+//          }
+//        }
         image = await ImagePicker.pickImage(
             source: ImageSource.gallery,
             imageQuality: 90,
@@ -339,6 +354,7 @@ class CloudStore extends ChangeNotifier {
             maxHeight: cameraImageSize);
       }
     } catch (e) {
+      print('Error');
       image = null;
     }
     //make sure the image took

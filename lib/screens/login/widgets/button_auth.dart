@@ -5,7 +5,8 @@ import 'package:plant_collector/formats/text.dart';
 class ButtonAuth extends StatelessWidget {
   final String text;
   final Function onPress;
-  ButtonAuth({@required this.text, @required this.onPress});
+  final bool showImage;
+  ButtonAuth({@required this.text, @required this.onPress, this.showImage});
 
   @override
   Widget build(BuildContext context) {
@@ -32,11 +33,14 @@ class ButtonAuth extends StatelessWidget {
               ),
               child: Row(
                 children: <Widget>[
-                  Image(
-                    image: AssetImage('assets/images/app_icon_white_512.png'),
-                    height:
-                        AppTextSize.huge * MediaQuery.of(context).size.width,
-                  ),
+                  (showImage == false)
+                      ? SizedBox()
+                      : Image(
+                          image: AssetImage(
+                              'assets/images/app_icon_white_512.png'),
+                          height: AppTextSize.huge *
+                              MediaQuery.of(context).size.width,
+                        ),
                   Text(
                     ' $text',
                     textAlign: TextAlign.center,

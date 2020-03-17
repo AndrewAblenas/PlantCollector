@@ -195,8 +195,7 @@ class FeedbackButton extends StatelessWidget {
           },
         );
       },
-      buttonColor: AppTextColor.white,
-      textColor: AppTextColor.black,
+      textColor: AppTextColor.white,
       icon: icon,
     );
   }

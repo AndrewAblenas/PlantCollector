@@ -36,7 +36,7 @@ class _SearchBarLiveState extends State<SearchBarLive> {
                 width: 0.04 * MediaQuery.of(context).size.width,
               ),
               SizedBox(
-                width: 0.80 * MediaQuery.of(context).size.width,
+                width: 0.75 * MediaQuery.of(context).size.width,
                 child: TextField(
                   style: TextStyle(
                     decoration: TextDecoration.none,

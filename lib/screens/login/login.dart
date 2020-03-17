@@ -41,12 +41,24 @@ class LoginScreen extends StatelessWidget {
           Consumer<UserAuth>(builder: (context, userAuth, child) {
             return userAuth.showPasswordReset == true
                 ? FlatButton(
-                    child: Text(
-                      'Email Password Reset?',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: AppTextSize.medium *
-                            MediaQuery.of(context).size.width,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 10.0,
+                        horizontal: 20.0,
+                      ),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10.0),
+                          border: Border.all(
+                            width: 2.0,
+                            color: kGreenDark,
+                          )),
+                      child: Text(
+                        'Email Password Reset?',
+                        style: TextStyle(
+                          color: AppTextColor.black,
+                          fontSize: AppTextSize.medium *
+                              MediaQuery.of(context).size.width,
+                        ),
                       ),
                     ),
                     onPressed: () {
@@ -81,7 +93,7 @@ class LoginScreen extends StatelessWidget {
             height: 10.0,
           ),
           ButtonAuth(
-            text: 'Sign in',
+            text: 'Log In',
             onPress: () async {
               //log user in
               FirebaseUser user =
@@ -143,23 +155,32 @@ class LoginScreen extends StatelessWidget {
 //                  );
 //                }
 //              }),
-          Padding(
-            padding: EdgeInsets.all(10.0),
-            child: FlatButton(
-              child: Text(
-                'Register a new account',
-                style: TextStyle(
-                  color: kGreenDark,
-                  fontSize:
-                      AppTextSize.small * MediaQuery.of(context).size.width,
-                  fontWeight: AppTextWeight.medium,
-                ),
-              ),
-              onPressed: () {
-                Navigator.pushNamed(context, 'register');
-              },
-            ),
+          SizedBox(
+            height: 10.0,
           ),
+          ButtonAuth(
+              text: 'or Register',
+              showImage: false,
+              onPress: () {
+                Navigator.pushNamed(context, 'register');
+              }),
+//          Padding(
+//            padding: EdgeInsets.all(10.0),
+//            child: FlatButton(
+//              child: Text(
+//                'Register a new account',
+//                style: TextStyle(
+//                  color: kGreenDark,
+//                  fontSize:
+//                      AppTextSize.small * MediaQuery.of(context).size.width,
+//                  fontWeight: AppTextWeight.medium,
+//                ),
+//              ),
+//              onPressed: () {
+//                Navigator.pushNamed(context, 'register');
+//              },
+//            ),
+//          ),
         ],
       ),
     );

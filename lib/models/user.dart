@@ -137,7 +137,7 @@ class UserAuth extends ChangeNotifier {
       password = null;
     } catch (e) {
       signInAttempts++;
-      signInAttempts >= 2
+      signInAttempts >= 1
           ? showPasswordReset = true
           : showPasswordReset = false;
       print(e);

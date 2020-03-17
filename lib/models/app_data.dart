@@ -52,7 +52,8 @@ class AppData extends ChangeNotifier {
 
   //decide whether or not to show tips
   void showTipsHelpers() {
-    showTips = (currentUserGroups != null && currentUserGroups.length <= 3);
+    showTips = (currentUserGroups != null &&
+        (currentUserGroups.length < 3 || currentUserCollections.length < 3));
   }
 
   //*****************CHAT RELATED*****************//
@@ -165,18 +166,6 @@ class AppData extends ChangeNotifier {
     return group;
   }
 
-  //METHOD TO CREATE NEW Group
-  GroupData createDefaultGroup({@required String groupName}) {
-    final group = GroupData(
-      id: groupName,
-      name: groupName,
-      collections: [],
-      order: 0,
-      color: [],
-    );
-    return group;
-  }
-
   //*****************COLLECTION METHODS*****************
 
   //METHOD TO CREATE NEW COLLECTION
@@ -186,17 +175,6 @@ class AppData extends ChangeNotifier {
     final collection = CollectionData(
       id: generateCollectionID,
       name: newCollectionName,
-      plants: [],
-      creator: null,
-    );
-    return collection;
-  }
-
-  //METHOD TO CREATE NEW DEFAULT
-  CollectionData newDefaultCollection({@required String collectionName}) {
-    final collection = CollectionData(
-      id: collectionName,
-      name: collectionName,
       plants: [],
       creator: null,
     );

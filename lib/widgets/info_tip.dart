@@ -28,8 +28,8 @@ class InfoTip extends StatelessWidget {
                       //if no icon provided use default
                       icon != null ? icon : Icons.help_outline,
                       color: kGreenDark,
-                      size: AppTextSize.medium *
-                          MediaQuery.of(context).size.width,
+                      size:
+                          AppTextSize.huge * MediaQuery.of(context).size.width,
                     ),
                     SizedBox(
                       width: 20.0,

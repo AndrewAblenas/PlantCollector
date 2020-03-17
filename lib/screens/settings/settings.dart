@@ -28,7 +28,7 @@ class SettingsScreen extends StatelessWidget {
             ),
             GridView.count(
               shrinkWrap: true,
-              childAspectRatio: 1.1,
+              childAspectRatio: 1,
               crossAxisSpacing:
                   10.0 * MediaQuery.of(context).size.width * kScaleFactor,
               mainAxisSpacing:
@@ -46,6 +46,7 @@ class SettingsScreen extends StatelessWidget {
                       Provider.of<AppData>(context).currentUserCollections =
                           null;
                       Provider.of<AppData>(context).currentUserPlants = null;
+                      Navigator.pop(context);
                       Navigator.pushNamed(context, 'login');
                     }),
                 SettingsButton(
