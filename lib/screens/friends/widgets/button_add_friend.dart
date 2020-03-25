@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/cloud_db.dart';
-import 'package:plant_collector/models/data_types/friend_data.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/models/user.dart';
 import 'package:plant_collector/screens/dialog/dialog_screen_input.dart';
@@ -12,7 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:share/share.dart';
 
 class ButtonAddFriend extends StatelessWidget {
-  final List<FriendData> friends;
+  final List friends;
   ButtonAddFriend({
     @required this.friends,
   });
@@ -22,7 +21,7 @@ class ButtonAddFriend extends StatelessWidget {
     return ButtonAdd(
       textColor: AppTextColor.white,
       icon: Icons.person_add,
-      buttonText: 'Add Friend',
+      buttonText: 'By Email',
       onPress: () {
         //determine if user data saved
         bool userData = (Provider.of<AppData>(context).currentUserInfo != null);
@@ -71,7 +70,7 @@ class ButtonAddFriend extends StatelessWidget {
                               Provider.of<AppData>(context).newDataInput);
                       //look for ID in friend list
                       bool check = false;
-                      for (FriendData friend in friends) {
+                      for (UserData friend in friends) {
                         if (friend.id == friendID) {
                           check = true;
                         }

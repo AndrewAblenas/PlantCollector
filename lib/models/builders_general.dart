@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 import 'package:plant_collector/models/data_types/collection_data.dart';
 import 'package:plant_collector/models/data_types/group_data.dart';
@@ -7,9 +8,7 @@ import 'package:plant_collector/models/data_types/plant_data.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/models/global.dart';
 import 'package:plant_collector/screens/dialog/dialog_screen_select.dart';
-import 'package:plant_collector/screens/library/widgets/group_delete.dart';
 import 'package:plant_collector/screens/library/widgets/collection_card.dart';
-import 'package:plant_collector/screens/library/widgets/group_card.dart';
 import 'package:plant_collector/screens/plant/widgets/add_journal_button.dart';
 import 'package:plant_collector/screens/plant/widgets/journal_tile.dart';
 import 'package:plant_collector/screens/plant/widgets/viewer_utility_buttons.dart';
@@ -75,38 +74,38 @@ class UIBuilders extends ChangeNotifier {
   }
 
   //Generate Group widgets
-  static Column displayGroups(
-      {@required List<GroupData> userGroups,
-      @required bool connectionLibrary}) {
-    List<Widget> groupList = [];
-    Column groupColumn;
-    if (userGroups != null && userGroups.length >= 1) {
-      userGroups.sort((a, b) => (a.order).compareTo((b.order)));
-      for (GroupData group in userGroups) {
-        groupList.add(
-          GroupCard(
-            connectionLibrary: connectionLibrary,
-            group: group,
-            groups: userGroups,
-          ),
-        );
-      }
-      groupColumn = Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: groupList,
-      );
-    } else {
-      groupColumn = Column(
-        children: <Widget>[
-          InfoTip(
-              text: 'You\'re Library is currently empty.  \n\n'
-                  'Tap the "+ Create New ${GlobalStrings.group}" button to build a shelf.  \n\n'
-                  'A "Houseplants" ${GlobalStrings.group} to display your indoor ${GlobalStrings.collections} might be a good place to start!  ')
-        ],
-      );
-    }
-    return groupColumn;
-  }
+//  static Column displayGroups(
+//      {@required List<GroupData> userGroups,
+//      @required bool connectionLibrary}) {
+//    List<Widget> groupList = [];
+//    Column groupColumn;
+//    if (userGroups != null && userGroups.length >= 1) {
+//      userGroups.sort((a, b) => (a.order).compareTo((b.order)));
+//      for (GroupData group in userGroups) {
+//        groupList.add(
+//          GroupCard(
+//            connectionLibrary: connectionLibrary,
+//            group: group,
+//            groups: userGroups,
+//          ),
+//        );
+//      }
+//      groupColumn = Column(
+//        crossAxisAlignment: CrossAxisAlignment.stretch,
+//        children: groupList,
+//      );
+//    } else {
+//      groupColumn = Column(
+//        children: <Widget>[
+//          InfoTip(
+//              text: 'You\'re Library is currently empty.  \n\n'
+//                  'Tap the "+ Create New ${GlobalStrings.group}" button to build a shelf.  \n\n'
+//                  'A "Houseplants" ${GlobalStrings.group} to display your indoor ${GlobalStrings.collections} might be a good place to start!  ')
+//        ],
+//      );
+//    }
+//    return groupColumn;
+//  }
 
   //GENERATE COLLECTION WIDGETS
   static Column displayCollections(
@@ -115,25 +114,31 @@ class UIBuilders extends ChangeNotifier {
       @required Color groupColor,
       @required bool connectionLibrary}) {
     //check that they aren't default
-    List<CollectionCard> collectionList = [];
+    List<Widget> collectionList = [];
     Column collectionColumn;
+    //make sure that there are collections in the list
     if (userCollections != null && userCollections.length > 0) {
       for (CollectionData collection in userCollections) {
         //connection view check for defaults
         bool defaultView =
             DBDefaultDocument.collectionExclude.contains(collection.id);
-        //add collection card for each collection
-        collectionList.add(
-          CollectionCard(
-            connectionLibrary: connectionLibrary,
-            defaultView: defaultView,
-            collection: collection,
+        //hide default collections when empty
+        bool hide = (defaultView == true && collection.plants.length == 0);
+        if (hide == false) {
+          //add collection card for each collection
+          collectionList.add(
+            CollectionCard(
+              connectionLibrary: connectionLibrary,
+              defaultView: defaultView,
+              collection: collection,
 //      collectionPlantTotal: collectionPlantTotal,
-            colorTheme: groupColor,
-            groupID: groupID,
-          ),
-        );
+              colorTheme: groupColor,
+              groupID: groupID,
+            ),
+          );
+        }
       }
+      //set the column to return
       collectionColumn = Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: collectionList,
@@ -144,14 +149,12 @@ class UIBuilders extends ChangeNotifier {
       collectionColumn = Column(
         children: <Widget>[
           InfoTip(
-              text:
-                  '${GlobalStrings.groups} are used to display your ${GlobalStrings.collections}.  \n\n'
-                  'You can rename this ${GlobalStrings.group} by holding down on the name.  Set the color by tapping the name.  \n\n'
-                  'You can only delete a ${GlobalStrings.group} when it is empty, via the button below.  \n\n'
-                  'Next add a ${GlobalStrings.collection} to display on this ${GlobalStrings.group} '
-                  'via the "+ Add New ${GlobalStrings.collection}" button.  '
-                  'This could be a ${GlobalStrings.collection} of "Orchids", "Cacti", "Ferns", etc.  \n\n'),
-          groupID == null ? null : GroupDelete(groupID: groupID),
+              onPress: () {},
+              showAlways: true,
+              text: 'You\'re Library is currently empty.  \n\n'
+                  'Tap the "+ Build New ${GlobalStrings.collection}" button to build a ${GlobalStrings.collection}.  \n\n'
+                  'A "Houseplants" or "Orchids" ${GlobalStrings.collection} might be a good place to start!  '),
+//          groupID == null ? null : GroupDelete(groupID: groupID),
         ],
       );
     } else {
@@ -183,7 +186,6 @@ class UIBuilders extends ChangeNotifier {
         //get date from image name (more efficient than meta?)
         String frontRemoved = url.split('_image_')[1];
         String epochSeconds = frontRemoved.split('.jpg')[0];
-        print(epochSeconds);
         String date = formatDate(
             DateTime.fromMillisecondsSinceEpoch(int.parse(epochSeconds)),
             [MM, ' ', d, ', ', yyyy]);
@@ -211,30 +213,34 @@ class UIBuilders extends ChangeNotifier {
         ),
       );
     }
+    //if nothing in the list add a blank placeholder
+    //should only show on connection true with no photos
+    if (imageTileList.length <= 0)
+      imageTileList.add(Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            fit: BoxFit.cover,
+            image: AssetImage('assets/images/default.png'),
+          ),
+          boxShadow: kShadowBox,
+        ),
+      ));
     print('generateImageTileWidgets: COMPLETE');
     return imageTileList;
   }
 
   //REFORMAT PLANT INFO TO SHARE
   static String sharePlant({@required Map plantMap}) {
-    //TODO this needs to be greatly enhanced in how info is displayed
-    String plantShare;
+    //TODO add link
+    String plantShare = 'Check out this Plant!\n\n';
     if (plantMap != null) {
-      List<String> keyList = PlantKeys.descriptors.keys.toList();
-      keyList.remove(PlantKeys.id);
-      keyList.remove(PlantKeys.thumbnail);
-      keyList.remove(PlantKeys.images);
-      for (String key in keyList)
-        if (plantMap[key] != null) {
-          if (plantShare == null) {
-            plantShare = '${PlantKeys.descriptors[key]}: ${plantMap[key]}\n';
-          } else {
-            plantShare = plantShare +
-                '${PlantKeys.descriptors[key]}: ${plantMap[key]}\n';
-          }
+      for (String key in PlantKeys.visible)
+        if (plantMap[key] != null && plantMap[key] != '') {
+          plantShare =
+              plantShare + '${PlantKeys.descriptors[key]}: ${plantMap[key]}\n';
         }
     }
-    return plantShare + 'Shared via Plant Collector\n<future app store link>';
+    return plantShare + '\nSee it on Plant Collector:\n<future app store link>';
   }
 
   //GENERATE INFO CARD WIDGETS
@@ -244,16 +250,8 @@ class UIBuilders extends ChangeNotifier {
       @required BuildContext context}) {
     //create blank list to hold info card widgets
     List<Widget> infoCardList = [];
-    //create a list of all key values possible
-    List<String> keyList = PlantKeys.descriptors.keys.toList();
-    //remove what you don't want the user to see/edit
-    keyList.remove(PlantKeys.id);
-    keyList.remove(PlantKeys.thumbnail);
-    keyList.remove(PlantKeys.images);
-    keyList.remove(PlantKeys.likes);
-    keyList.remove(PlantKeys.journal);
-    keyList.remove(PlantKeys.owner);
-    keyList.remove(PlantKeys.clones);
+    //create a list of only the keys you want visible
+    List<String> keyList = PlantKeys.visible;
     //add utility bar
     infoCardList.add(
       Row(
@@ -459,13 +457,13 @@ class UIBuilders extends ChangeNotifier {
   static List<Widget> colorButtonsList(
       {@required List<Color> colors,
       @required Function onPress,
-      @required groupID}) {
+      @required collectionID}) {
     List<Widget> list = [];
     for (Color color in colors) {
       list.add(ButtonColor(
         color: color,
         onPress: onPress,
-        groupID: groupID,
+        collectionID: collectionID,
       ));
     }
     return list;

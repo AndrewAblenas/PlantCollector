@@ -22,6 +22,11 @@ class SearchUserTile extends StatelessWidget {
     //check if user is same as current user
     bool sameUser =
         (Provider.of<AppData>(context).currentUserInfo.id == user.id);
+    //check if sent
+    bool requestSent = (Provider.of<AppData>(context)
+        .currentUserInfo
+        .requestsSent
+        .contains(user.id));
     return UserTile(
       user: user,
       buttonRow: (alreadyFriends || sameUser)
@@ -71,26 +76,25 @@ class SearchUserTile extends StatelessWidget {
                   //determine dialog text
                   String title;
                   String dialogText;
-                  String buttonText = 'OK';
-                  Function onPressed = () {};
-                  //if all good send the request to friend
-                  Provider.of<CloudDB>(context)
-                      .sendConnectionRequest(connectionID: user.id);
-                  title = 'Request Sent';
+                  String buttonText = 'YES';
+
+                  title = 'Send Friend Request';
                   dialogText =
-                      'A request has been sent.  You will be able to share collections once it is accepted.';
+                      'Send a friend request?  If accepted, you will be able to share Libraries and chat.';
 
                   //show a dialog to provide feedback
                   showDialog(
                     context: context,
                     builder: (BuildContext context) {
                       return DialogConfirm(
-                        hideCancel: true,
+                        hideCancel: false,
                         title: title,
                         text: dialogText,
                         buttonText: buttonText,
                         onPressed: () {
-                          onPressed();
+                          //if all good send the request to friend
+                          Provider.of<CloudDB>(context)
+                              .sendConnectionRequest(connectionID: user.id);
                           Navigator.pop(context);
                         },
                       );
@@ -100,7 +104,9 @@ class SearchUserTile extends StatelessWidget {
               },
               child: Container(
                 decoration: BoxDecoration(
-                  gradient: kBackgroundGradientMid,
+                  gradient: (requestSent == true)
+                      ? kBackgroundGradientSolidGrey
+                      : kBackgroundGradientMid,
                   borderRadius: BorderRadius.all(
                     Radius.circular(
                       5.0,
@@ -113,7 +119,7 @@ class SearchUserTile extends StatelessWidget {
                     horizontal: 10.0,
                   ),
                   child: Text(
-                    'ADD',
+                    (requestSent == true) ? 'SENT' : 'ADD',
                     style: TextStyle(
                       color: AppTextColor.white,
                       fontWeight: AppTextWeight.heavy,

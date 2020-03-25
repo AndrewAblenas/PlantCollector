@@ -8,9 +8,11 @@ import 'package:plant_collector/formats/colors.dart';
 class DialogColorPicker extends StatelessWidget {
   final String title;
   final Function onPressed;
-  final String groupID;
+  final String collectionID;
   DialogColorPicker(
-      {@required this.title, @required this.onPressed, @required this.groupID});
+      {@required this.title,
+      @required this.onPressed,
+      @required this.collectionID});
 
   @override
   Widget build(BuildContext context) {
@@ -45,19 +47,23 @@ class DialogColorPicker extends StatelessWidget {
 //                  width: 1.0,
 //                ),
 //              ),
-              height: 220 * MediaQuery.of(context).size.width * kScaleFactor,
+              height: 360 * MediaQuery.of(context).size.width * kScaleFactor,
               width: 300 * MediaQuery.of(context).size.width * kScaleFactor,
               child: ListView(
                 primary: false,
                 children: <Widget>[
                   GridView.count(
-                    crossAxisCount: 3,
+                    crossAxisCount: 4,
+                    crossAxisSpacing:
+                        AppTextSize.small * MediaQuery.of(context).size.width,
+                    mainAxisSpacing:
+                        AppTextSize.small * MediaQuery.of(context).size.width,
                     primary: false,
                     shrinkWrap: true,
                     children: UIBuilders.colorButtonsList(
                         colors: kGroupColors,
                         onPress: onPressed,
-                        groupID: groupID),
+                        collectionID: collectionID),
                   ),
                 ],
               ),

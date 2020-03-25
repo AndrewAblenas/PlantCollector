@@ -2,9 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/builders_general.dart';
+import 'package:plant_collector/models/global.dart';
 import 'package:plant_collector/screens/search/widgets/search_bar_live.dart';
 import 'package:plant_collector/screens/template/screen_template.dart';
 import 'package:plant_collector/widgets/bottom_bar.dart';
+import 'package:plant_collector/widgets/info_tip.dart';
 import 'package:provider/provider.dart';
 
 class SearchScreen extends StatelessWidget {
@@ -13,6 +15,7 @@ class SearchScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScreenTemplate(
+      implyLeading: false,
       bottomBar: BottomBar(selectionNumber: 4),
       screenTitle: 'Search',
       child: Column(
@@ -30,18 +33,29 @@ class SearchScreen extends StatelessWidget {
               ),
               child: Consumer<AppData>(
                 builder: (context, AppData data, _) {
-                  return GridView.count(
-                    childAspectRatio: 5,
-                    mainAxisSpacing: 0.01 * MediaQuery.of(context).size.width,
-                    crossAxisCount: 1,
-                    shrinkWrap: true,
-                    primary: false,
-                    children: UIBuilders.searchPlants(
-                      searchInput: data.newDataInput,
-                      plantData: data.currentUserPlants,
-                      collections: data.currentUserCollections,
-                    ),
-                  );
+                  bool hasPlants = (data.currentUserPlants.length > 0);
+                  Widget display = (hasPlants == true)
+                      ? GridView.count(
+                          childAspectRatio: 5,
+                          mainAxisSpacing:
+                              0.01 * MediaQuery.of(context).size.width,
+                          crossAxisCount: 1,
+                          shrinkWrap: true,
+                          primary: false,
+                          children: UIBuilders.searchPlants(
+                            searchInput: data.newDataInput,
+                            plantData: data.currentUserPlants,
+                            collections: data.currentUserCollections,
+                          ),
+                        )
+                      : InfoTip(
+                          onPress: () {},
+                          showAlways: true,
+                          text:
+                              'You don\'t currently have any ${GlobalStrings.plants} to search through.  \n\n'
+                              'Add some in your ${GlobalStrings.library} (the bottom middle button).  \n\n'
+                              'Then you will be able to search through them live here.  ');
+                  return display;
                 },
               ),
             ),

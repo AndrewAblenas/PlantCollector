@@ -18,6 +18,10 @@ class AppData extends ChangeNotifier {
   String newDataInput;
   String selectedDialogButtonItem;
   bool hideButton;
+  //custom stream
+  int customFeedSelected;
+  Type customFeedType;
+  String customFeedQueryField;
   //custom tabs
   int customTabSelected;
   String plantQueryField;
@@ -52,8 +56,9 @@ class AppData extends ChangeNotifier {
 
   //decide whether or not to show tips
   void showTipsHelpers() {
-    showTips = (currentUserGroups != null &&
-        (currentUserGroups.length < 3 || currentUserCollections.length < 3));
+    if (currentUserCollections != null) {
+      showTips = (currentUserCollections.length < 3);
+    }
   }
 
   //*****************CHAT RELATED*****************//
@@ -177,6 +182,7 @@ class AppData extends ChangeNotifier {
       name: newCollectionName,
       plants: [],
       creator: null,
+      color: [],
     );
     return collection;
   }
@@ -184,13 +190,15 @@ class AppData extends ChangeNotifier {
   //*****************PLANT METHODS*****************
 
   //METHOD TO CREATE NEW PLANT
-  PlantData plantNew() {
+  Map plantNew() {
     String newPlantID = generateID(prefix: 'plant_');
-    final plant = PlantData(
+    Map<String, dynamic> plant = PlantData(
       id: newPlantID,
       name: newDataInput,
       owner: currentUserInfo.id,
-    );
+      created: DateTime.now().millisecondsSinceEpoch,
+      isVisible: false,
+    ).toMap();
     return plant;
   }
 
@@ -237,6 +245,17 @@ class AppData extends ChangeNotifier {
   //METHOD TO SET CUSTOM TAB INPUT
   void setCustomTabSelected({@required int tabNumber}) {
     customTabSelected = tabNumber;
+    notifyListeners();
+  }
+
+  void setCustomFeedSelected({
+    @required int selectedNumber,
+    @required Type selectedType,
+    @required String selectedQueryField,
+  }) {
+    customFeedSelected = selectedNumber;
+    customFeedType = selectedType;
+    customFeedQueryField = selectedQueryField;
     notifyListeners();
   }
 

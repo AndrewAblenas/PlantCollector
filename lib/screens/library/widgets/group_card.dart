@@ -321,7 +321,7 @@ class GroupHeader extends StatelessWidget {
                           onPressed: () {
                             Navigator.pop(context);
                           },
-                          groupID: group.id,
+                          collectionID: group.id,
                         );
                       },
                     );

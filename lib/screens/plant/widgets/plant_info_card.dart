@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
+import 'package:plant_collector/models/data_types/plant_data.dart';
 import 'package:plant_collector/screens/dialog/dialog_screen_input.dart';
 import 'package:plant_collector/widgets/container_card.dart';
 import 'package:plant_collector/widgets/dialogs/dialog_confirm.dart';
@@ -19,7 +20,7 @@ class PlantInfoCard extends StatelessWidget {
   final String plantID;
   final String cardKey;
   final String displayLabel;
-  final String displayText;
+  final dynamic displayText;
   PlantInfoCard(
       {@required this.connectionLibrary,
       @required this.plantID,
@@ -42,12 +43,11 @@ class PlantInfoCard extends StatelessWidget {
                 onPressed: () {
                   Provider.of<AppData>(context).newDataInput = null;
                   Provider.of<CloudDB>(context).updateDocumentL1(
-                    collection: DBFolder.plants,
-                    document: plantID,
-                    data: CloudDB.updatePairFull(
-                        key: cardKey,
-                        value: Provider.of<AppData>(context).newDataInput),
-                  );
+                      collection: DBFolder.plants,
+                      document: plantID,
+                      data: {
+                        cardKey: Provider.of<AppData>(context).newDataInput
+                      });
                   Navigator.pop(context);
                 },
               );
@@ -62,7 +62,7 @@ class PlantInfoCard extends StatelessWidget {
             Padding(
               padding: EdgeInsets.only(top: 5.0),
               child: Text(
-                '$displayText',
+                displayText.toString(),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize:
@@ -73,71 +73,68 @@ class PlantInfoCard extends StatelessWidget {
                 ),
               ),
             ),
-            connectionLibrary == false
-                ? Container(
-                    height:
-                        24.0 * MediaQuery.of(context).size.width * kScaleFactor,
-                    child: FlatButton(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          Icon(
-                            Icons.edit,
-                            size: AppTextSize.tiny *
-                                MediaQuery.of(context).size.width,
-                            color: kGreenMedium,
-                          ),
-                          SizedBox(
-                            width: 5.0 *
-                                MediaQuery.of(context).size.width *
-                                kScaleFactor,
-                          ),
-                          Text(
-                            '$displayLabel',
-                            textAlign: TextAlign.start,
-                            style: TextStyle(
-                              fontSize: AppTextSize.small *
-                                  MediaQuery.of(context).size.width,
-                              fontWeight: AppTextWeight.heavy,
-                              color: kGreenMedium,
-                            ),
-                          ),
-                        ],
-                      ),
-                      onPressed: () {
-                        if (connectionLibrary == false) {
-                          showDialog(
-                              context: context,
-                              builder: (context) {
-                                return DialogScreenInput(
-                                    title: 'Update Information',
-                                    acceptText: 'Update',
-                                    acceptOnPress: () {
-                                      //update the info with a map
-                                      Provider.of<CloudDB>(context)
-                                          .updateDocumentL1(
-                                        collection: DBFolder.plants,
-                                        document: plantID,
-                                        data: CloudDB.updatePairFull(
-                                            key: cardKey,
-                                            value: Provider.of<AppData>(context)
-                                                .newDataInput),
-                                      );
-                                      //pop context
-                                      Navigator.pop(context);
-                                    },
-                                    onChange: (input) {
-                                      Provider.of<AppData>(context)
-                                          .newDataInput = input;
-                                    },
-                                    cancelText: 'Cancel',
-                                    hintText: displayText);
-                              });
-                        }
-                      },
+            Container(
+              height: 24.0 * MediaQuery.of(context).size.width * kScaleFactor,
+              child: FlatButton(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Icon(
+                      Icons.edit,
+                      size:
+                          AppTextSize.tiny * MediaQuery.of(context).size.width,
+                      color: kGreenMedium,
                     ),
-                  )
-                : SizedBox(),
+                    SizedBox(
+                      width: 5.0 *
+                          MediaQuery.of(context).size.width *
+                          kScaleFactor,
+                    ),
+                    Text(
+                      '$displayLabel',
+                      textAlign: TextAlign.start,
+                      style: TextStyle(
+                        fontSize: AppTextSize.small *
+                            MediaQuery.of(context).size.width,
+                        fontWeight: AppTextWeight.heavy,
+                        color: kGreenMedium,
+                      ),
+                    ),
+                  ],
+                ),
+                onPressed: () {
+                  if (connectionLibrary == false) {
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return DialogScreenInput(
+                              title: 'Update Information',
+                              acceptText: 'Update',
+                              acceptOnPress: () {
+                                //update the info with a map
+                                Provider.of<CloudDB>(context).updateDocumentL1(
+                                  collection: DBFolder.plants,
+                                  document: plantID,
+                                  data: {
+                                    cardKey: Provider.of<AppData>(context)
+                                        .newDataInput,
+                                    PlantKeys.update: CloudDB.timeNowMS()
+                                  },
+                                );
+                                //pop context
+                                Navigator.pop(context);
+                              },
+                              onChange: (input) {
+                                Provider.of<AppData>(context).newDataInput =
+                                    input;
+                              },
+                              cancelText: 'Cancel',
+                              hintText: displayText.toString());
+                        });
+                  }
+                },
+              ),
+            )
           ],
         ),
       ),

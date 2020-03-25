@@ -4,8 +4,10 @@ import 'package:plant_collector/widgets/tile_white.dart';
 
 class SectionHeader extends StatelessWidget {
   final String title;
+  final Widget leading;
   SectionHeader({
     @required this.title,
+    this.leading,
   });
 
   @override
@@ -17,6 +19,7 @@ class SectionHeader extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            (leading == null) ? SizedBox() : leading,
             Text(
               title != null ? title : '',
               style: TextStyle(

@@ -33,6 +33,10 @@ class DBDocument {
   static const String communityGuidelines = 'community_guidelines';
   static const String privacyPolicy = 'privacy_policy';
   static const String communication = 'communication';
+  static const String reportedPlants = 'reported_plants';
+  static const String reportedUser = 'reported_users';
+  static const String reportersPlants = 'reporters_plants';
+  static const String reportersUsers = 'reporters_users';
 }
 
 //FOLDERS FOR MOVING/IMPORTING

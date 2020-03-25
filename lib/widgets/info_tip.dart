@@ -9,12 +9,18 @@ class InfoTip extends StatelessWidget {
   final Icon icon;
   final String text;
   final Function onPress;
-  InfoTip({@required this.text, this.icon, this.onPress});
+  final bool showAlways;
+  InfoTip(
+      {@required this.text,
+      this.icon,
+      @required this.onPress,
+      this.showAlways});
 
   @override
   Widget build(BuildContext context) {
     //if show tips is true display tip otherwise empty widget
-    return Provider.of<AppData>(context).showTips == true
+    return (Provider.of<AppData>(context).showTips == true ||
+            showAlways == true)
         ? TileWhite(
             child: FlatButton(
               child: Padding(

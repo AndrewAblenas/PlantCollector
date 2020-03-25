@@ -43,7 +43,7 @@ class AddPlant extends StatelessWidget {
                     title: 'Nickname your ${GlobalStrings.plant}',
                     acceptText: 'Add',
                     acceptOnPress: () async {
-                      data = Provider.of<AppData>(context).plantNew().toMap();
+                      data = Provider.of<AppData>(context).plantNew();
                       //add new plant to userPlants
                       await Provider.of<CloudDB>(context).setDocumentL1(
                         collection: DBFolder.plants,

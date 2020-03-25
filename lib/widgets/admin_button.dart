@@ -9,10 +9,12 @@ class AdminButton extends StatelessWidget {
   const AdminButton({
     @required this.label,
     @required this.onPress,
+    this.color,
   });
 
   final String label;
   final Function onPress;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
@@ -30,20 +32,17 @@ class AdminButton extends StatelessWidget {
                 5.0,
               ),
               child: ContainerWrapper(
-                color: Colors.red,
+                color: (color != null) ? color : Colors.red,
                 marginVertical: 0.0,
                 child: Padding(
                   padding: EdgeInsets.all(10.0),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: Text(
-                      '!ADMIN: ${label.toUpperCase()}',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          color: AppTextColor.white,
-                          fontSize: AppTextSize.medium *
-                              MediaQuery.of(context).size.width),
-                    ),
+                  child: Text(
+                    '!ADMIN: $label',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color: AppTextColor.white,
+                        fontSize: AppTextSize.small *
+                            MediaQuery.of(context).size.width),
                   ),
                 ),
               ),

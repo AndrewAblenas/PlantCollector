@@ -45,11 +45,14 @@ class PlantTile extends StatelessWidget {
               .thumbnailPackage(imageURL: plant.images[0], plantID: plant.id)
               .then(
             (thumbUrl) {
+              //generate data map
+              Map<String, dynamic> data = {
+                PlantKeys.thumbnail: thumbUrl,
+              };
               Provider.of<CloudDB>(context).updateDocumentL1(
                 collection: DBFolder.plants,
                 document: plant.id,
-                data: CloudDB.updatePairFull(
-                    key: PlantKeys.thumbnail, value: thumbUrl),
+                data: data,
               );
             },
           );

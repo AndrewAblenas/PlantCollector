@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+//import 'package:google_sign_in/google_sign_in.dart';
 
 class UserAuth extends ChangeNotifier {
   //Variables
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  final GoogleSignIn googleSignIn = GoogleSignIn();
+//  final GoogleSignIn googleSignIn = GoogleSignIn();
   String email;
   String password;
   String passwordValidate;
@@ -42,10 +42,10 @@ class UserAuth extends ChangeNotifier {
 //  }
 
   //PASSWORD CONTENTS
-  //One Capital Letter, One Small Letter, One Number, One Special
+  //One Capital Letter, One Small Letter
   bool validatePasswordContents(String password) {
-    String pattern =
-        r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~.]).{8,}$';
+    String pattern = r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[!@#\$&*~.]).{8,}$';
+//    (?=.*?[0-9])
     RegExp regExp = new RegExp(pattern);
     return regExp.hasMatch(password);
   }
@@ -63,37 +63,37 @@ class UserAuth extends ChangeNotifier {
 
   //*****************GOOGLE SIGN IN*****************//
 
-  //TODO validate app for google sign in console.developers.google.com/apis
-  //TODO plant collector, settings, android, add fingerprint
+  //validate app for google sign in console.developers.google.com/apis
+  //plant collector, settings, android, add fingerprint
   //SIGN IN THE USER WITH GOOGLE
-  Future<FirebaseUser> signInWithGoogle() async {
-    final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
-    final GoogleSignInAuthentication googleSignInAuthentication =
-        await googleSignInAccount.authentication;
+//  Future<FirebaseUser> signInWithGoogle() async {
+//    final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
+//    final GoogleSignInAuthentication googleSignInAuthentication =
+//        await googleSignInAccount.authentication;
+//
+//    //generate token
+//    final AuthCredential credential = GoogleAuthProvider.getCredential(
+//      accessToken: googleSignInAuthentication.accessToken,
+//      idToken: googleSignInAuthentication.idToken,
+//    );
+//
+//    //now generate a firebase user from the retrieved credentials
+//    final AuthResult authResult =
+//        await _firebaseAuth.signInWithCredential(credential);
+//    final FirebaseUser user = authResult.user;
+//
+//    assert(!user.isAnonymous);
+//    assert(await user.getIdToken() != null);
+//
+//    signedInUser = await _firebaseAuth.currentUser();
+//    assert(user.uid == signedInUser.uid);
+//
+//    return signedInUser;
+//  }
 
-    //generate token
-    final AuthCredential credential = GoogleAuthProvider.getCredential(
-      accessToken: googleSignInAuthentication.accessToken,
-      idToken: googleSignInAuthentication.idToken,
-    );
-
-    //now generate a firebase user from the retrieved credentials
-    final AuthResult authResult =
-        await _firebaseAuth.signInWithCredential(credential);
-    final FirebaseUser user = authResult.user;
-
-    assert(!user.isAnonymous);
-    assert(await user.getIdToken() != null);
-
-    signedInUser = await _firebaseAuth.currentUser();
-    assert(user.uid == signedInUser.uid);
-
-    return signedInUser;
-  }
-
-  void signOutGoogle() async {
-    await googleSignIn.signOut();
-  }
+//  void signOutGoogle() async {
+//    await googleSignIn.signOut();
+//  }
 
   //*****************USER METHODS*****************//
 

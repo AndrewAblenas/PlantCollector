@@ -20,6 +20,31 @@ class PlantKeys {
   static const String owner = 'plantOwner';
   static const String clones = 'plantTotalClones';
   static const String journal = 'plantJournal';
+  static const String water = 'plantWatering';
+  static const String fertilize = 'plantFertilizing';
+  static const String price = 'plantPrice';
+  static const String update = 'plantLastUpdate';
+  static const String created = 'PlantCreationDate';
+  static const String want = 'plantWant';
+  static const String sell = 'plantSell';
+  static const String isVisible = 'isVisible';
+  static const String isFlagged = 'isFlagged';
+
+  //VISIBLE LIST
+  static const List<String> visible = [
+    name,
+    variety,
+    genus,
+    species,
+    quantity,
+    bloom,
+    repot,
+    division,
+    notes,
+    water,
+    fertilize,
+    price,
+  ];
 
   //DESCRIPTORS
   static const Map<String, String> descriptors = {
@@ -38,7 +63,16 @@ class PlantKeys {
     likes: 'Total Greenthumbs',
     owner: 'Owner',
     clones: 'Total Clones Made',
-    journal: 'Journal Entries'
+    journal: 'Journal Entries',
+    water: 'Watering',
+    fertilize: 'Fertilizing',
+    price: 'Price',
+    update: 'Last Update',
+    created: 'Addition Date',
+    want: 'On Wishlist',
+    sell: 'For Sale',
+    isVisible: 'Visible In Feed',
+    isFlagged: 'Flagged Innappropriate'
   };
 }
 
@@ -60,26 +94,43 @@ class PlantData {
   final String owner;
   final int clones;
   final List journal;
+  final String water;
+  final String fertilize;
+  final String price;
+  final int update;
+  final int created;
+  final bool want;
+  final bool sell;
+  final bool isVisible;
+  final bool isFlagged;
 
   //CONSTRUCTOR
-  PlantData({
-    @required this.id,
-    @required this.name,
-    this.variety,
-    this.genus,
-    this.species,
-    this.quantity,
-    this.bloom,
-    this.repot,
-    this.division,
-    this.notes,
-    this.thumbnail,
-    this.images,
-    this.likes,
-    this.owner,
-    this.clones,
-    this.journal,
-  });
+  PlantData(
+      {@required this.id,
+      @required this.name,
+      this.variety,
+      this.genus,
+      this.species,
+      this.quantity,
+      this.bloom,
+      this.repot,
+      this.division,
+      this.notes,
+      this.thumbnail,
+      this.images,
+      this.likes,
+      this.owner,
+      this.clones,
+      this.journal,
+      this.water,
+      this.fertilize,
+      this.price,
+      this.update,
+      @required this.created,
+      this.want,
+      this.sell,
+      @required this.isVisible,
+      this.isFlagged});
 
   //TO MAP
   Map<String, dynamic> toMap() {
@@ -100,6 +151,15 @@ class PlantData {
       PlantKeys.owner: owner,
       PlantKeys.clones: clones,
       PlantKeys.journal: journal,
+      PlantKeys.water: water,
+      PlantKeys.fertilize: fertilize,
+      PlantKeys.price: price,
+      PlantKeys.update: update,
+      PlantKeys.created: created,
+      PlantKeys.want: want,
+      PlantKeys.sell: sell,
+      PlantKeys.isVisible: isVisible,
+      PlantKeys.isFlagged: isFlagged,
     };
   }
 
@@ -123,9 +183,23 @@ class PlantData {
         owner: map[PlantKeys.owner] ?? '',
         clones: map[PlantKeys.clones] ?? 0,
         journal: map[PlantKeys.journal] ?? [],
+        water: map[PlantKeys.water] ?? '',
+        fertilize: map[PlantKeys.fertilize] ?? '',
+        price: map[PlantKeys.price] ?? '',
+        update: map[PlantKeys.update] ?? 1577836800000,
+        created: map[PlantKeys.created] ?? 1577836800000,
+        want: map[PlantKeys.want] ?? false,
+        sell: map[PlantKeys.sell] ?? false,
+        isVisible: map[PlantKeys.isVisible] ?? false,
+        isFlagged: map[PlantKeys.isFlagged] ?? false,
       );
     } else {
-      return PlantData(id: '', name: '');
+      return PlantData(
+        id: '',
+        name: '',
+        created: 1577836800000,
+        isVisible: false,
+      );
     }
   }
 }

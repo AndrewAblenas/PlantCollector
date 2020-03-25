@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/app_data.dart';
-import 'package:plant_collector/widgets/container_wrapper_gradient.dart';
+import 'package:plant_collector/screens/search/widgets/search_bar_wrapper.dart';
 import 'package:provider/provider.dart';
 
 //SEARCH BAR WIDGET
@@ -25,7 +25,7 @@ class _SearchBarLiveState extends State<SearchBarLive> {
       padding: EdgeInsets.symmetric(
         horizontal: 0.02 * MediaQuery.of(context).size.width,
       ),
-      child: ContainerWrapperGradient(
+      child: SearchBarWrapper(
         marginVertical: 0.0,
         child: Padding(
           padding: const EdgeInsets.all(10.0),

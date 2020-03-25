@@ -1,12 +1,11 @@
 import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/text.dart';
-import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/builders_general.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/widgets/container_wrapper.dart';
-import 'package:provider/provider.dart';
 
 //SEARCH TILE
 class UserTile extends StatelessWidget {
@@ -25,6 +24,7 @@ class UserTile extends StatelessWidget {
           children: <Widget>[
             //Nickname
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 CircleAvatar(
                   radius:
@@ -40,8 +40,8 @@ class UserTile extends StatelessWidget {
                 SizedBox(
                   width: AppTextSize.tiny * MediaQuery.of(context).size.width,
                 ),
-                SizedBox(
-                  width: 0.5 * MediaQuery.of(context).size.width,
+                Expanded(
+//                  width: 0.5 * MediaQuery.of(context).size.width,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
@@ -53,36 +53,21 @@ class UserTile extends StatelessWidget {
                             child: UIBuilders.getBadge(
                                 userTotalPlants: user.plants),
                           ),
-                          Text(
-                            user != null ? user.name : '',
-                            softWrap: false,
-                            overflow: TextOverflow.fade,
-                            style: TextStyle(
-                              color: AppTextColor.black,
-                              fontWeight: AppTextWeight.medium,
-                              fontSize: AppTextSize.large *
-                                  MediaQuery.of(context).size.width,
+                          Expanded(
+                            child: Text(
+                              user != null ? user.name : '',
+                              softWrap: false,
+                              overflow: TextOverflow.fade,
+                              style: TextStyle(
+                                color: AppTextColor.black,
+                                fontWeight: AppTextWeight.medium,
+                                fontSize: AppTextSize.large *
+                                    MediaQuery.of(context).size.width,
+                              ),
                             ),
                           ),
                         ],
                       ),
-                      //ADMIN AND CREATOR VISIBLE ONLY
-                      (Provider.of<AppData>(context).currentUserInfo.type ==
-                                  UserTypes.admin ||
-                              Provider.of<AppData>(context)
-                                      .currentUserInfo
-                                      .type ==
-                                  UserTypes.creator)
-                          ? Text(
-                              user.id,
-                              style: TextStyle(
-                                fontSize: AppTextSize.tiny *
-                                    MediaQuery.of(context).size.width,
-                                fontWeight: AppTextWeight.medium,
-                                color: AppTextColor.black,
-                              ),
-                            )
-                          : SizedBox(),
                       Text(
                         user != null ? user.region : '',
                         softWrap: false,
@@ -97,7 +82,6 @@ class UserTile extends StatelessWidget {
                     ],
                   ),
                 ),
-                Expanded(child: SizedBox()),
                 buttonRow,
               ],
             ),
@@ -117,6 +101,18 @@ class UserTile extends StatelessWidget {
                 ),
               ),
             ),
+            //ADMIN AND CREATOR VISIBLE ONLY
+//            (Provider.of<AppData>(context).currentUserInfo.type ==
+//                        UserTypes.admin ||
+//                    Provider.of<AppData>(context).currentUserInfo.type ==
+//                        UserTypes.creator)
+//                ? AdminButton(
+//                    label: 'Report ${user.id}',
+//                    onPress: () {
+//                      Provider.of<CloudDB>(context)
+//                          .reportUser(userID: user.id, issue: 'Admin Report');
+//                    })
+//                : SizedBox(),
           ],
         ),
       ),

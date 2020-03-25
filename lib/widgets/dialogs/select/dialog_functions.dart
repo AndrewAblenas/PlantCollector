@@ -3,6 +3,7 @@ import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 import 'package:plant_collector/models/data_types/collection_data.dart';
 import 'package:plant_collector/models/data_types/group_data.dart';
+import 'package:plant_collector/models/data_types/plant_data.dart';
 import 'package:plant_collector/screens/dialog/dialog_screen_input.dart';
 import 'package:plant_collector/widgets/dialogs/select/dialog_item.dart';
 import 'package:provider/provider.dart';
@@ -106,11 +107,12 @@ class DialogItemPlant extends StatelessWidget {
                   acceptOnPress: () {
                     //update the value with map
                     Provider.of<CloudDB>(context).updateDocumentL1(
-                        data: CloudDB.updatePairFull(
-                            key: buttonKey,
-                            value: Provider.of<AppData>(context).newDataInput),
                         collection: DBFolder.plants,
-                        document: plantID);
+                        document: plantID,
+                        data: {
+                          buttonKey: Provider.of<AppData>(context).newDataInput,
+                          PlantKeys.update: CloudDB.timeNowMS(),
+                        });
                     //pop context
                     Navigator.pop(context);
                   },

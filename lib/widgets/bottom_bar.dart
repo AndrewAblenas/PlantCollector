@@ -5,8 +5,11 @@ import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 import 'package:plant_collector/models/data_types/collection_data.dart';
-import 'package:plant_collector/models/data_types/group_data.dart';
 import 'package:plant_collector/models/data_types/plant_data.dart';
+import 'package:plant_collector/screens/discover/discover.dart';
+import 'package:plant_collector/screens/friends/friends.dart';
+import 'package:plant_collector/screens/search/search.dart';
+import 'package:plant_collector/screens/settings/settings.dart';
 import 'package:provider/provider.dart';
 
 //BOTTOM NAVIGATION BAR
@@ -21,14 +24,33 @@ class BottomBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
+          //if you change the order and tab numbers, make sure to update screens tab numbers too
           BottomTab(
             symbol: Icon(
-              Icons.settings,
+              Icons.blur_circular,
               color: AppTextColor.white,
               size: AppTextSize.huge * MediaQuery.of(context).size.width,
             ),
             navigate: () {
-              Navigator.pushNamed(context, 'settings');
+              //set default custom tab number to 2 on page load
+              if (Provider.of<AppData>(context).customTabSelected == null)
+                //set the number directly to prevent call of the notify listeners
+                Provider.of<AppData>(context).customTabSelected = 2;
+
+              //if the tab selected is null then assign a value
+              if (Provider.of<AppData>(context).customFeedSelected == null) {
+                Provider.of<AppData>(context).customFeedSelected = 3;
+                Provider.of<AppData>(context).customFeedType = PlantData;
+                Provider.of<AppData>(context).customFeedQueryField =
+                    PlantKeys.created;
+              }
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DiscoverScreen(),
+                ),
+              );
             },
             tabSelected: selectionNumber,
             tabNumber: 1,
@@ -40,7 +62,12 @@ class BottomBar extends StatelessWidget {
               size: AppTextSize.huge * MediaQuery.of(context).size.width,
             ),
             navigate: () {
-              Navigator.pushNamed(context, 'connections');
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FriendsScreen(),
+                ),
+              );
             },
             tabSelected: selectionNumber,
             tabNumber: 2,
@@ -66,29 +93,29 @@ class BottomBar extends StatelessWidget {
             ),
             navigate: () {
               Provider.of<AppData>(context).setNewDataInput('');
-              Navigator.pushNamed(context, 'search');
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SearchScreen(),
+                ),
+              );
             },
             tabSelected: selectionNumber,
             tabNumber: 4,
           ),
           BottomTab(
             symbol: Icon(
-              Icons.blur_circular,
+              Icons.settings,
               color: AppTextColor.white,
               size: AppTextSize.huge * MediaQuery.of(context).size.width,
             ),
             navigate: () {
-              //these check are to make sure custom tabs are set right
-              //set default custom tab number to 2 on page load
-              if (Provider.of<AppData>(context).customTabSelected == null)
-                //set the number directly to prevent call of the notify listeners
-                Provider.of<AppData>(context).customTabSelected = 2;
-              //set default query field
-              if (Provider.of<AppData>(context).plantQueryField == null)
-                Provider.of<AppData>(context)
-                    .setPlantQueryField(queryField: PlantKeys.id);
-
-              Navigator.pushNamed(context, 'community');
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SettingsScreen(),
+                ),
+              );
             },
             tabSelected: selectionNumber,
             tabNumber: 5,
@@ -156,30 +183,6 @@ class BottomTab extends StatelessWidget {
                   match: matchCollection,
                   defaultDocument: defaultCollection,
                 );
-
-                //GROUP
-                //first check if import group exists
-                bool matchGroup = false;
-                String groupID = DBDefaultDocument.import;
-                for (GroupData group
-                    in Provider.of<AppData>(context).currentUserGroups) {
-                  if (group.id == groupID) matchGroup = true;
-                }
-                //provide default document
-                Map defaultGroup = Provider.of<CloudDB>(context)
-                    .newDefaultGroup(
-                      groupName: groupID,
-                    )
-                    .toMap();
-                //now complete cloning
-                Provider.of<CloudDB>(context).updateDefaultDocumentL2(
-                  collectionL2: DBFolder.groups,
-                  documentL2: groupID,
-                  key: GroupKeys.collections,
-                  entries: [collectionID],
-                  match: matchGroup,
-                  defaultDocument: defaultGroup,
-                );
               }
               Navigator.pop(context);
             } else {
@@ -192,7 +195,9 @@ class BottomTab extends StatelessWidget {
         child: Container(
           height: double.infinity,
           decoration: BoxDecoration(
-            color: tabSelected == tabNumber ? kGreenMedium : kGreenDark,
+            gradient: tabSelected == tabNumber
+                ? kBackgroundGradient
+                : kBackgroundGradientSolidDark,
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(
                   5.0 * MediaQuery.of(context).size.width * kScaleFactor),

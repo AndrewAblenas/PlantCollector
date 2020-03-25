@@ -1,19 +1,21 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_collector/models/cloud_store.dart';
 import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 import 'package:plant_collector/models/data_types/collection_data.dart';
-import 'package:plant_collector/models/data_types/friend_data.dart';
 import 'package:plant_collector/models/data_types/group_data.dart';
 import 'package:plant_collector/models/data_types/plant_data.dart';
-import 'package:plant_collector/models/data_types/request_data.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/models/global.dart';
+import 'package:plant_collector/models/user.dart';
 import 'package:plant_collector/screens/dialog/dialog_screen_input.dart';
+import 'package:plant_collector/screens/library/widgets/Announcements.dart';
 import 'package:plant_collector/widgets/bottom_bar.dart';
 import 'package:plant_collector/widgets/button_add.dart';
 import 'package:plant_collector/screens/library/widgets/profile_header.dart';
+import 'package:plant_collector/widgets/container_wrapper.dart';
 import 'package:provider/provider.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/builders_general.dart';
@@ -46,12 +48,12 @@ class LibraryScreen extends StatelessWidget {
     }
     return MultiProvider(
       providers: [
-        StreamProvider<List<RequestData>>.value(
-          value: Provider.of<CloudDB>(context).streamRequestsData(),
-        ),
-        StreamProvider<List<FriendData>>.value(
-          value: Provider.of<CloudDB>(context).streamFriendsData(),
-        ),
+//        StreamProvider<List<RequestData>>.value(
+//          value: Provider.of<CloudDB>(context).streamRequestsData(),
+//        ),
+//        StreamProvider<List<FriendData>>.value(
+//          value: Provider.of<CloudDB>(context).streamFriendsData(),
+//        ),
         StreamProvider<UserData>.value(
           value: CloudDB.streamUserData(userID: userID),
         ),
@@ -95,6 +97,9 @@ class LibraryScreen extends StatelessWidget {
           ),
         ),
         body: Container(
+//          decoration: BoxDecoration(
+//            gradient: kBackgroundGradientBlues,
+//          ),
           padding: EdgeInsets.only(
             top: 0.0,
             left: 0.01 * MediaQuery.of(context).size.width,
@@ -103,7 +108,16 @@ class LibraryScreen extends StatelessWidget {
           ),
           child: ListView(
             children: <Widget>[
-              SizedBox(height: 20.0),
+              SizedBox(height: 10.0),
+              (connectionLibrary == false &&
+                      Provider.of<UserAuth>(context).signedInUser != null)
+                  ? FutureProvider<DocumentSnapshot>.value(
+                      value:
+                          Provider.of<CloudDB>(context).streamCommunication(),
+                      child: Announcements(),
+                    )
+                  : SizedBox(),
+              SizedBox(height: 10.0),
               Container(
                 constraints: BoxConstraints(
                     //this is a workaround to prevent listview jump when loading the contained streams
@@ -125,80 +139,157 @@ class LibraryScreen extends StatelessWidget {
                   }
                 }),
               ),
-              Consumer<List<GroupData>>(
-                  builder: (context, List<GroupData> groups, _) {
-                if (groups != null) {
-                  if (connectionLibrary == false) {
-                    //save for use anywhere
-                    Provider.of<AppData>(context).currentUserGroups = groups;
-                    //update tally in user document
-                    if (groups != null &&
-                        Provider.of<AppData>(context).currentUserInfo != null
-                        //don't bother updating if the values are the same
-                        &&
-                        groups.length !=
-                            Provider.of<AppData>(context)
-                                .currentUserInfo
-                                .groups) {
-                      //update group count key value pair
-                      Map countData = CloudDB.updatePairFull(
-                          key: UserKeys.groups, value: groups.length);
-                      //upload to DB
-                      Provider.of<CloudDB>(context).updateUserDocument(
-                        data: countData,
-                      );
-                    }
-                  } else {
-                    //save for use anywhere
-                    Provider.of<AppData>(context).connectionGroups = groups;
-                  }
-                  return UIBuilders.displayGroups(
-                      connectionLibrary: connectionLibrary,
-                      userGroups: connectionLibrary == false
-                          ? Provider.of<AppData>(context).currentUserGroups
-                          : Provider.of<AppData>(context).connectionGroups);
-                } else {
-                  return SizedBox();
-                }
-              }),
+              ContainerWrapper(
+                child: Column(
+                  children: <Widget>[
+                    Consumer<List<CollectionData>>(
+                      builder: (context, List<CollectionData> collections, _) {
+                        if (collections == null) return Column();
+                        if (connectionLibrary == false) {
+                          Provider.of<AppData>(context).currentUserCollections =
+                              collections;
+                          //update tally in user document
+                          if (collections != null &&
+                              Provider.of<AppData>(context).currentUserInfo !=
+                                  null
+                              //don't bother updating if the values are the same
+                              &&
+                              collections.length !=
+                                  Provider.of<AppData>(context)
+                                      .currentUserInfo
+                                      .collections) {
+                            Map countData = CloudDB.updatePairFull(
+                                key: UserKeys.collections,
+                                value: collections.length);
+                            Provider.of<CloudDB>(context).updateUserDocument(
+                              data: countData,
+                            );
+                          }
+                        } else {
+                          Provider.of<AppData>(context).connectionCollections =
+                              collections;
+                        }
+//                  List<CollectionData> groupCollections =
+//                  CloudDB.getMapsFromList(
+//                    groupCollectionIDs: group.collections,
+//                    collections: connectionLibrary == false
+//                        ? Provider.of<AppData>(context)
+//                        .currentUserCollections
+//                        : Provider.of<AppData>(context)
+//                        .connectionCollections,
+//                  );
+                        return Consumer<List<PlantData>>(
+                          builder: (context, List<PlantData> plants, _) {
+                            if (plants != null) {
+                              if (connectionLibrary == false) {
+                                //save plants for use elsewhere
+                                Provider.of<AppData>(context)
+                                    .currentUserPlants = plants;
+                                //update tally in user document
+                                if (plants != null &&
+                                    //there was an issue on sign out until I added
+                                    //another Navigator.pop to close both layers
+                                    Provider.of<AppData>(context)
+                                            .currentUserInfo !=
+                                        null) {
+                                  //update photo count
+                                  int tally = 0;
+                                  for (PlantData plant in plants) {
+                                    int photos = plant.images.length;
+                                    tally = tally + photos;
+                                  }
+
+                                  if (
+                                      //don't bother updating if the values are the same
+                                      plants.length !=
+                                          Provider.of<AppData>(context)
+                                              .currentUserInfo
+                                              .plants) {
+                                    Map countData = CloudDB.updatePairFull(
+                                        key: UserKeys.plants,
+                                        value: plants.length);
+                                    Provider.of<CloudDB>(context)
+                                        .updateUserDocument(
+                                      data: countData,
+                                    );
+                                  } else if (
+                                      //don't bother updating if the values are the same
+                                      tally !=
+                                          Provider.of<AppData>(context)
+                                              .currentUserInfo
+                                              .photos) {
+                                    Map photoCountData = CloudDB.updatePairFull(
+                                        key: UserKeys.photos, value: tally);
+                                    Provider.of<CloudDB>(context)
+                                        .updateUserDocument(
+                                      data: photoCountData,
+                                    );
+                                  }
+                                }
+                              } else {
+                                //save plants for use elsewhere
+                                Provider.of<AppData>(context).connectionPlants =
+                                    plants;
+                              }
+                              return UIBuilders.displayCollections(
+                                  connectionLibrary: connectionLibrary,
+                                  groupID: null,
+                                  groupColor: null,
+                                  userCollections: connectionLibrary == false
+                                      ? Provider.of<AppData>(context)
+                                          .currentUserCollections
+                                      : Provider.of<AppData>(context)
+                                          .connectionCollections);
+                            } else {
+                              return SizedBox();
+                            }
+                          },
+                        );
+                      },
+                    ),
+                    connectionLibrary == false
+                        ? ButtonAdd(
+                            buttonText: 'Build New ${GlobalStrings.collection}',
+                            onPress: () {
+                              showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return DialogScreenInput(
+                                        title:
+                                            'Build new ${GlobalStrings.collection}',
+                                        acceptText: 'Create',
+                                        acceptOnPress: () {
+                                          //create a map from the data
+                                          CollectionData collection =
+                                              Provider.of<AppData>(context)
+                                                  .newCollection();
+                                          //upload new collection data
+                                          Provider.of<CloudDB>(context)
+                                              .insertDocumentToCollection(
+                                                  data: collection.toMap(),
+                                                  collection:
+                                                      DBFolder.collections,
+                                                  documentName: collection.id);
+                                          //pop context
+                                          Navigator.pop(context);
+                                        },
+                                        onChange: (input) {
+                                          Provider.of<AppData>(context)
+                                              .newDataInput = input;
+                                        },
+                                        cancelText: 'Cancel',
+                                        hintText: null);
+                                  });
+                            },
+                          )
+                        : SizedBox(),
+                  ],
+                ),
+              ),
               SizedBox(
                 height: 15,
               ),
-              connectionLibrary == false
-                  ? ButtonAdd(
-                      buttonText: 'Create New ${GlobalStrings.group}',
-                      onPress: () {
-                        showDialog(
-                            context: context,
-                            builder: (context) {
-                              return DialogScreenInput(
-                                  title: 'Create new ${GlobalStrings.group}',
-                                  acceptText: 'Create',
-                                  acceptOnPress: () {
-                                    //create initial group map
-                                    GroupData group =
-                                        Provider.of<AppData>(context)
-                                            .createGroup();
-                                    //upload to groups
-                                    Provider.of<CloudDB>(context)
-                                        .insertDocumentToCollection(
-                                            data: group.toMap(),
-                                            collection: DBFolder.groups,
-                                            documentName: group.id);
-                                    //close the screen
-                                    Navigator.pop(context);
-                                  },
-                                  onChange: (input) {
-                                    Provider.of<AppData>(context).newDataInput =
-                                        input;
-                                  },
-                                  cancelText: 'Cancel',
-                                  hintText: null);
-                            });
-                      },
-                    )
-                  : SizedBox(),
-              SizedBox(height: 20.0),
+              SizedBox(height: 10.0),
             ],
           ),
         ),

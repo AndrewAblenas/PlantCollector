@@ -64,7 +64,7 @@ class TextSection extends StatelessWidget {
             child: Text(
               text,
               style: kBodyText,
-              textAlign: TextAlign.justify,
+              textAlign: TextAlign.start,
             ),
           ),
           SizedBox(height: 20.0),

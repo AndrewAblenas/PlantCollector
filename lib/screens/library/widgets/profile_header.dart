@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/app_data.dart';
+import 'package:plant_collector/models/builders_general.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/cloud_store.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
@@ -56,7 +57,15 @@ class ProfileHeader extends StatelessWidget {
                     });
             },
             child: SectionHeader(
-                title: (user.name != '') ? user.name : 'Hold to Set Name'),
+              title: (user.name != '') ? user.name : 'Hold to Set Name',
+              leading: Container(
+                margin: EdgeInsets.only(
+                  right: 5.0,
+                ),
+                width: 0.07 * MediaQuery.of(context).size.width,
+                child: UIBuilders.getBadge(userTotalPlants: user.plants),
+              ),
+            ),
           ),
           SizedBox(
             height: 5.0,
@@ -220,10 +229,10 @@ class ProfileHeader extends StatelessWidget {
               ),
               Expanded(
                 child: StatCard(
-                  cardLabel: user.groups == 1
-                      ? GlobalStrings.group
-                      : GlobalStrings.groups,
-                  cardValue: user.groups != 0 ? user.groups.toString() : '0',
+                  cardLabel: user.photos == 1
+                      ? GlobalStrings.photo
+                      : GlobalStrings.photos,
+                  cardValue: user.photos != 0 ? user.photos.toString() : '0',
                 ),
               ),
 //              Expanded(

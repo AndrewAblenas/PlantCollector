@@ -1,9 +1,11 @@
 //String constants so I don't have to change the name everywhere manually
 class GlobalStrings {
-  static const String group = 'Shelf';
-  static const String groups = 'Shelves';
-  static const String collection = 'Collection';
-  static const String collections = 'Collections';
+  static const String group = 'Group';
+  static const String groups = 'Groups';
+  static const String photo = 'Photo';
+  static const String photos = 'Photos';
+  static const String collection = 'Shelf';
+  static const String collections = 'Shelves';
   static const String plant = 'Plant';
   static const String plants = 'Plants';
   static const String library = 'Library';
@@ -24,4 +26,9 @@ class GlobalStrings {
   static const String announcements = 'Announcements';
   static const String privacy = 'Privacy Policy';
   static const String guidelines = 'Community Guidelines';
+}
+
+class GlobalLinks {
+  static const String defaultImage =
+      'https://firebasestorage.googleapis.com/v0/b/plant-collector-15db2.appspot.com/o/general%2Fui%2Fdefault_image.png?alt=media&token=9345ffa6-0cda-4bd7-8219-058be8850450';
 }

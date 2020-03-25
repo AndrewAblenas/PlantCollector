@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
+import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/data_types/message_data.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
@@ -26,41 +27,57 @@ class SocialUpdates extends StatelessWidget {
           SizedBox(
             height: 5.0,
           ),
-          TileWhite(
-            bottomPadding: 5.0,
-            child: Consumer<List<UserData>>(
-              builder: (context, List<UserData> users, _) {
-                if (users != null) {
-                  List<Widget> connectionList = [];
-                  for (UserData user in users) {
-                    //check for message history
-                    //generate a widget
-                    if (user.chatStarted) {
-                      Widget conversationWidget = ChatBubble(user: user);
-                      connectionList.add(conversationWidget);
-                    }
+          Consumer<UserData>(
+            builder: (context, UserData user, _) {
+              if (user == null || user.chats.length <= 0) {
+                //show infotip otherwise show
+                return Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: InfoTip(
+                          onPress: () {},
+                          showAlways: true,
+                          text:
+                              'What\'s better than a plant person?  A community of plant people!  \n\n'
+                              'After you add a friend, and they accept, you\'ll be able to start a chat from the "Connections" section below.  \n\n'),
+                    ),
+                  ],
+                );
+              } else {
+                List<Widget> connectionList = [];
+                for (String friend in user.chats) {
+                  //check for message history
+                  //generate a widget
+                  if (Provider.of<AppData>(context)
+                      .currentUserInfo
+                      .chats
+                      .contains(friend)) {
+                    Widget conversationWidget = FutureProvider<Map>.value(
+                      value: Provider.of<CloudDB>(context)
+                          .getConnectionProfile(connectionID: friend),
+                      child: Consumer<Map>(builder: (context, Map friend, _) {
+                        if (friend == null) {
+                          return SizedBox();
+                        } else {
+                          UserData profile = UserData.fromMap(map: friend);
+                          return ChatBubble(user: profile);
+                        }
+                      }),
+                    );
+                    connectionList.add(conversationWidget);
                   }
-                  return GridView.count(
+                }
+                return TileWhite(
+                  child: GridView.count(
                     primary: false,
                     shrinkWrap: true,
                     crossAxisCount: 5,
                     children: connectionList,
                     childAspectRatio: 1,
-                  );
-                } else {
-                  //show infotip otherwise show
-                  return Column(
-                    children: <Widget>[
-                      InfoTip(
-                          text:
-                              'What\'s better than a plant person?  A community of plant people!  \n\n'
-                              'After you add a friend, and they accept, you\'ll be able to chat and view each other\'s plant Collections!  \n\n'
-                              'Add a friend to get started sharing.  '),
-                    ],
-                  );
-                }
-              },
-            ),
+                  ),
+                );
+              }
+            },
           ),
         ],
       ),
@@ -96,7 +113,6 @@ class ChatBubble extends StatelessWidget {
                   unreadList.add(message.reference.path);
                 }
               }
-              //TODO see local_notification for notes
               int unread = unreadList.length;
 //                                        if (unread >= 1 &&
 //                                            messages.documentChanges.length >=
@@ -135,8 +151,12 @@ class ChatBubble extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.loose,
                   children: <Widget>[
-                    ChatAvatar(
-                      avatarLink: user.avatar,
+                    Container(
+                      decoration: BoxDecoration(
+                          shape: BoxShape.circle, boxShadow: kShadowBox),
+                      child: ChatAvatar(
+                        avatarLink: user.avatar,
+                      ),
                     ),
                     unread >= 1
                         ? NotificationBubble(count: unread)

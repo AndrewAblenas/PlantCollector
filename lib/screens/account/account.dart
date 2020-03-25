@@ -1,10 +1,12 @@
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/cloud_store.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
+import 'package:plant_collector/models/global.dart';
 import 'package:plant_collector/screens/account/widgets/settings_card.dart';
 import 'package:plant_collector/widgets/container_wrapper.dart';
 import 'package:provider/provider.dart';
@@ -92,6 +94,23 @@ class AccountScreen extends StatelessWidget {
                               dialogText:
                                   'Tell others a bit about your plant collection.',
                             ),
+                            ContainerWrapper(
+                              marginVertical: 5.0,
+                              color: AppTextColor.white,
+                              child: Container(
+                                height: 0.4 * MediaQuery.of(context).size.width,
+                                width: 0.4 * MediaQuery.of(context).size.width,
+                                padding: EdgeInsets.all(
+                                  5.0,
+                                ),
+                                child: (user.avatar == '')
+                                    ? Image.asset('assets/images/default.png')
+                                    : CachedNetworkImage(
+                                        imageUrl: user.avatar,
+                                        fit: BoxFit.cover,
+                                      ),
+                              ),
+                            ),
                             SettingsCard(
                               onSubmit: null,
                               allowDialog: false,
@@ -134,6 +153,23 @@ class AccountScreen extends StatelessWidget {
                               cardLabel: 'Picture',
                               cardText: 'Update Picture',
                               dialogText: 'Please set your display picture.',
+                            ),
+                            ContainerWrapper(
+                              marginVertical: 5.0,
+                              color: AppTextColor.white,
+                              child: Container(
+                                height: 0.4 * MediaQuery.of(context).size.width,
+//                              width: 0.4 * MediaQuery.of(context).size.width,
+                                padding: EdgeInsets.all(
+                                  5.0,
+                                ),
+                                child: (user.background == '')
+                                    ? Image.asset('assets/images/default.png')
+                                    : CachedNetworkImage(
+                                        imageUrl: user.background,
+                                        fit: BoxFit.cover,
+                                      ),
+                              ),
                             ),
                             SettingsCard(
                               onSubmit: null,
@@ -178,25 +214,25 @@ class AccountScreen extends StatelessWidget {
                               cardText: 'Update Banner',
                               dialogText: 'Please set your profile banner.',
                             ),
-                            SettingsCard(
-                                confirmDialog: true,
-                                onSubmit: () {
-                                  //update settings
-                                  Provider.of<CloudDB>(context)
-                                      .updateUserDocument(
-                                    data: CloudDB.updatePairFull(
-                                      key: UserKeys.expandGroup,
-                                      value: (user.expandGroup == false),
-                                    ),
-                                  );
-                                  Navigator.pop(context);
-                                },
-                                onPress: null,
-                                cardLabel: 'Collapse Groups by Default',
-                                dialogText:
-                                    'Change default settings for app launch?',
-                                cardText:
-                                    user.expandGroup == true ? 'No' : 'Yes'),
+//                            SettingsCard(
+//                                confirmDialog: true,
+//                                onSubmit: () {
+//                                  //update settings
+//                                  Provider.of<CloudDB>(context)
+//                                      .updateUserDocument(
+//                                    data: CloudDB.updatePairFull(
+//                                      key: UserKeys.expandGroup,
+//                                      value: (user.expandGroup == false),
+//                                    ),
+//                                  );
+//                                  Navigator.pop(context);
+//                                },
+//                                onPress: null,
+//                                cardLabel: 'Collapse Groups by Default',
+//                                dialogText:
+//                                    'Change default settings for app launch?',
+//                                cardText:
+//                                    user.expandGroup == true ? 'No' : 'Yes'),
                             SettingsCard(
                                 confirmDialog: true,
                                 onSubmit: () {
@@ -211,7 +247,8 @@ class AccountScreen extends StatelessWidget {
                                   Navigator.pop(context);
                                 },
                                 onPress: null,
-                                cardLabel: 'Collapse Collections by Default',
+                                cardLabel:
+                                    'Collapse ${GlobalStrings.collections} by Default',
                                 dialogText:
                                     'Change default settings for app launch?',
                                 cardText: user.expandCollection == true
@@ -221,7 +258,6 @@ class AccountScreen extends StatelessWidget {
                         );
                       }
                     }),
-                    //TODO could swap this to StreamProvider
                     StreamBuilder<FirebaseUser>(
                       stream: Provider.of<UserAuth>(context)
                           .getCurrentUser()

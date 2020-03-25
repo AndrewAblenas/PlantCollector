@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
+import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/models/global.dart';
 import 'package:plant_collector/models/user.dart';
 import 'package:plant_collector/screens/settings/info_screen.dart';
@@ -13,8 +14,15 @@ import 'package:provider/provider.dart';
 class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    bool admin = (Provider.of<AppData>(context).currentUserInfo.type ==
+            UserTypes.creator ||
+        Provider.of<AppData>(context).currentUserInfo.type == UserTypes.admin);
     return ScreenTemplate(
+      implyLeading: false,
       screenTitle: 'Settings',
+      bottomBar: BottomBar(
+        selectionNumber: 5,
+      ),
       child: Padding(
         padding: EdgeInsets.symmetric(
           horizontal: 10.0 * MediaQuery.of(context).size.width * kScaleFactor,
@@ -26,8 +34,25 @@ class SettingsScreen extends StatelessWidget {
             SizedBox(
               height: 10.0 * MediaQuery.of(context).size.width * kScaleFactor,
             ),
+            admin
+                ? Padding(
+                    padding: EdgeInsets.only(
+                        bottom: 10.0 *
+                            MediaQuery.of(context).size.width *
+                            kScaleFactor),
+                    child: SettingsButton(
+                        icon: Icons.work,
+                        label: 'Admin Tools',
+                        onPress: () {
+                          if (admin) {
+                            Navigator.pushNamed(context, 'admin');
+                          }
+                        }),
+                  )
+                : SizedBox(),
             GridView.count(
               shrinkWrap: true,
+              padding: EdgeInsets.only(bottom: 5.0),
               childAspectRatio: 1,
               crossAxisSpacing:
                   10.0 * MediaQuery.of(context).size.width * kScaleFactor,
@@ -37,29 +62,10 @@ class SettingsScreen extends StatelessWidget {
               primary: false,
               children: <Widget>[
                 SettingsButton(
-                    icon: Icons.exit_to_app,
-                    label: 'Sign Out',
-                    onPress: () {
-                      Provider.of<UserAuth>(context).signOutUser();
-                      Provider.of<UserAuth>(context).signedInUser = null;
-                      Provider.of<AppData>(context).currentUserGroups = null;
-                      Provider.of<AppData>(context).currentUserCollections =
-                          null;
-                      Provider.of<AppData>(context).currentUserPlants = null;
-                      Navigator.pop(context);
-                      Navigator.pushNamed(context, 'login');
-                    }),
-                SettingsButton(
                     icon: Icons.info_outline,
                     label: 'About',
                     onPress: () {
                       Navigator.pushNamed(context, 'about');
-                    }),
-                SettingsButton(
-                    icon: Icons.feedback,
-                    label: 'Feedback',
-                    onPress: () {
-                      Navigator.pushNamed(context, 'feedback');
                     }),
                 SettingsButton(
                     icon: Icons.account_box,
@@ -95,18 +101,36 @@ class SettingsScreen extends StatelessWidget {
                         ),
                       );
                     }),
+//TODO
 //                SettingsButton(
 //                    icon: Icons.cloud_upload,
 //                    label: 'Upload',
 //                    onPress: () {
-//                      //TODO
 //                    }),
 //                SettingsButton(
 //                    icon: Icons.cloud_download,
 //                    label: 'Download',
 //                    onPress: () {
-//                      //TODO
 //                    }),
+                SettingsButton(
+                    icon: Icons.feedback,
+                    label: 'Feedback',
+                    onPress: () {
+                      Navigator.pushNamed(context, 'feedback');
+                    }),
+                SettingsButton(
+                    icon: Icons.exit_to_app,
+                    label: 'Sign Out',
+                    onPress: () {
+                      Provider.of<UserAuth>(context).signOutUser();
+                      Provider.of<UserAuth>(context).signedInUser = null;
+                      Provider.of<AppData>(context).currentUserGroups = null;
+                      Provider.of<AppData>(context).currentUserCollections =
+                          null;
+                      Provider.of<AppData>(context).currentUserPlants = null;
+                      Navigator.pop(context);
+                      Navigator.pushNamed(context, 'login');
+                    }),
               ],
             ),
             SizedBox(
@@ -114,9 +138,6 @@ class SettingsScreen extends StatelessWidget {
             ),
           ],
         ),
-      ),
-      bottomBar: BottomBar(
-        selectionNumber: 1,
       ),
     );
   }

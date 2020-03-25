@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/app_data.dart';
-import 'package:plant_collector/widgets/container_wrapper_gradient.dart';
+import 'package:plant_collector/screens/search/widgets/search_bar_wrapper.dart';
 import 'package:plant_collector/widgets/tile_white.dart';
 import 'package:provider/provider.dart';
 
@@ -16,7 +16,7 @@ class SearchBarSubmit extends StatelessWidget {
       padding: EdgeInsets.symmetric(
         horizontal: 0.0,
       ),
-      child: ContainerWrapperGradient(
+      child: SearchBarWrapper(
         marginVertical: 0.0,
         child: Padding(
           padding: const EdgeInsets.all(10.0),
@@ -30,7 +30,12 @@ class SearchBarSubmit extends StatelessWidget {
                   ),
                   SizedBox(
                     width: 0.7 * MediaQuery.of(context).size.width,
-                    child: TextField(
+                    child: TextFormField(
+                      keyboardType: TextInputType.text,
+                      textInputAction: TextInputAction.search,
+                      onFieldSubmitted: (value) {
+                        onPress();
+                      },
                       style: TextStyle(
                         decoration: TextDecoration.none,
                         color: AppTextColor.white,
@@ -39,9 +44,11 @@ class SearchBarSubmit extends StatelessWidget {
                         fontWeight: AppTextWeight.medium,
                       ),
                       minLines: 1,
-                      maxLines: 50,
+                      maxLines: 1,
                       onChanged: (value) {
                         Provider.of<AppData>(context).newDataInput = value;
+                        int length = value.length;
+                        if (value[length - 1] == '\n') onPress();
                       },
                     ),
                   ),
@@ -63,15 +70,22 @@ class SearchBarSubmit extends StatelessWidget {
                   ),
                 ],
               ),
-              Text(
-                'exact username search, including capitalization',
-                style: TextStyle(
-                  decoration: TextDecoration.none,
-                  color: AppTextColor.white,
-                  fontSize:
-                      AppTextSize.tiny * MediaQuery.of(context).size.width,
-                  fontWeight: AppTextWeight.medium,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  SizedBox(),
+                  Text(
+                    'exact user name search through all users (including capitalization)',
+                    style: TextStyle(
+                      decoration: TextDecoration.none,
+                      color: AppTextColor.white,
+                      fontSize:
+                          AppTextSize.tiny * MediaQuery.of(context).size.width,
+                      fontWeight: AppTextWeight.medium,
+                    ),
+                  ),
+                  SizedBox(),
+                ],
               )
             ],
           ),

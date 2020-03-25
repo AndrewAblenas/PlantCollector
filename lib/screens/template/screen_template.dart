@@ -6,16 +6,19 @@ class ScreenTemplate extends StatelessWidget {
   final String screenTitle;
   final Widget child;
   final Widget bottomBar;
+  final bool implyLeading;
   ScreenTemplate({
     @required this.screenTitle,
     @required this.child,
     this.bottomBar,
+    this.implyLeading,
   });
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kGreenLight,
       appBar: AppBar(
+        automaticallyImplyLeading: (implyLeading == null) ? true : false,
         backgroundColor: kGreenDark,
         centerTitle: true,
         elevation: 20.0,

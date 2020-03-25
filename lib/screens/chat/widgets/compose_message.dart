@@ -3,13 +3,13 @@ import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/cloud_db.dart';
-import 'package:plant_collector/models/data_types/friend_data.dart';
+import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 import 'package:plant_collector/models/data_types/message_data.dart';
+import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:provider/provider.dart';
 
 class ComposeMessage extends StatefulWidget {
-  final bool convoStarted;
-  ComposeMessage({@required this.convoStarted});
+  ComposeMessage();
   @override
   _ComposeMessageState createState() => _ComposeMessageState();
 }
@@ -31,7 +31,6 @@ class _ComposeMessageState extends State<ComposeMessage> {
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
-        //TODO complete action, maybe provide stickers
         SizedBox(
           width: 40.0 * MediaQuery.of(context).size.width * kScaleFactor,
 //          child: FlatButton(
@@ -86,19 +85,24 @@ class _ComposeMessageState extends State<ComposeMessage> {
               );
               CloudDB.sendMessage(message: message, document: document);
               //check if chat started
-              if (!widget.convoStarted) {
+              if (!Provider.of<AppData>(context)
+                  .currentUserInfo
+                  .chats
+                  .contains(connectionID)) {
                 //set chat as started for current user
-                Provider.of<CloudDB>(context).updateConnectionDocument(
-                    pathID: currentID,
-                    documentID: connectionID,
-                    key: FriendKeys.chatStarted,
-                    value: true);
+                Provider.of<CloudDB>(context).updateDocumentL1Array(
+                    collection: DBFolder.users,
+                    document: currentID,
+                    key: UserKeys.chats,
+                    entries: [connectionID],
+                    action: true);
                 //set chat as started for other user
-                Provider.of<CloudDB>(context).updateConnectionDocument(
-                    pathID: connectionID,
-                    documentID: currentID,
-                    key: FriendKeys.chatStarted,
-                    value: true);
+                Provider.of<CloudDB>(context).updateDocumentL1Array(
+                    collection: DBFolder.users,
+                    document: connectionID,
+                    key: UserKeys.chats,
+                    entries: [currentID],
+                    action: true);
               }
               //clear data input and field text
               Provider.of<AppData>(context).newDataInput = null;

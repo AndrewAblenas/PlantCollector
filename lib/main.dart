@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/user.dart';
 import 'package:plant_collector/screens/about/reference.dart';
+import 'package:plant_collector/screens/admin/admin.dart';
 import 'package:plant_collector/screens/chat/chat.dart';
 import 'package:plant_collector/screens/discover//discover.dart';
 import 'package:plant_collector/screens/friends//friends.dart';
@@ -90,6 +91,7 @@ class PlantCollector extends StatelessWidget {
               ),
           'feedback': (context) => FeedbackScreen(),
           'search': (context) => SearchScreen(),
+          'admin': (context) => AdminScreen(),
         },
       ),
     );

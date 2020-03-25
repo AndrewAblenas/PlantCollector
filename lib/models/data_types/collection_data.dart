@@ -8,13 +8,15 @@ class CollectionKeys {
   static const String name = 'collectionName';
   static const String plants = 'collectionPlantList';
   static const String creator = 'collectionCreatorID';
+  static const String color = 'collectionColor';
 
   //DESCRIPTORS
   static const Map<String, String> descriptors = {
     id: 'Collection ID',
     name: 'Name',
     plants: 'Plant List',
-    creator: 'Creator'
+    creator: 'Creator',
+    color: 'Color',
   };
 }
 
@@ -24,6 +26,7 @@ class CollectionData {
   final String name;
   final List plants;
   final String creator;
+  final List<dynamic> color;
 
   //CONSTRUCTOR
   CollectionData({
@@ -31,6 +34,7 @@ class CollectionData {
     @required this.name,
     @required this.plants,
     @required this.creator,
+    @required this.color,
   });
 
   //TO MAP
@@ -40,6 +44,7 @@ class CollectionData {
       CollectionKeys.name: name,
       CollectionKeys.plants: plants,
       CollectionKeys.creator: creator,
+      CollectionKeys.color: color,
     };
   }
 
@@ -50,6 +55,7 @@ class CollectionData {
       name: map[CollectionKeys.name] ?? '',
       plants: map[CollectionKeys.plants] ?? [],
       creator: map[CollectionKeys.creator] ?? '',
+      color: map[CollectionKeys.color] ?? [],
     );
   }
 }

@@ -6,11 +6,10 @@ import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 import 'package:plant_collector/models/data_types/collection_data.dart';
-import 'package:plant_collector/models/data_types/friend_data.dart';
-import 'package:plant_collector/models/data_types/group_data.dart';
 import 'package:plant_collector/models/data_types/message_data.dart';
 import 'package:plant_collector/models/data_types/plant_data.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
+import 'package:plant_collector/screens/chat/chat.dart';
 import 'package:plant_collector/screens/dialog/dialog_screen.dart';
 import 'package:plant_collector/widgets/container_card.dart';
 import 'package:plant_collector/widgets/dialogs/dialog_confirm.dart';
@@ -46,12 +45,12 @@ class ViewerUtilityButtons extends StatelessWidget {
                             onPressed: () {
                               //PLANT
                               //generate a new ID
-                              String plantID =
+                              String newPlantID =
                                   AppData.generateID(prefix: 'plant_');
                               //clean the plant data
                               Map data = Provider.of<CloudDB>(context)
                                   .cleanPlant(
-                                      plantData: plant.toMap(), id: plantID);
+                                      plantData: plant.toMap(), id: newPlantID);
                               //add new plant to userPlants
                               Provider.of<CloudDB>(context).setDocumentL1(
                                   data: data,
@@ -75,42 +74,50 @@ class ViewerUtilityButtons extends StatelessWidget {
                                         collectionName: collectionID,
                                       )
                                       .toMap();
-                              //now complete cloning
+                              //now complete cloning to collection
                               Provider.of<CloudDB>(context)
                                   .updateDefaultDocumentL2(
                                 collectionL2: DBFolder.collections,
                                 documentL2: collectionID,
                                 key: CollectionKeys.plants,
-                                entries: [plantID],
+                                entries: [newPlantID],
                                 match: matchCollection,
                                 defaultDocument: defaultCollection,
                               );
+                              //finally update the original plant clone count
+                              Map<String, dynamic> update = {
+                                PlantKeys.clones: plant.clones + 1
+                              };
+                              Provider.of<CloudDB>(context).updateDocumentL1(
+                                  collection: DBFolder.plants,
+                                  document: plant.id,
+                                  data: update);
 
                               //GROUP
                               //first check if import group exists
-                              bool matchGroup = false;
-                              String groupID = DBDefaultDocument.import;
-                              for (GroupData group
-                                  in Provider.of<AppData>(context)
-                                      .currentUserGroups) {
-                                if (group.id == groupID) matchGroup = true;
-                              }
-                              //provide default document
-                              Map defaultGroup = Provider.of<CloudDB>(context)
-                                  .newDefaultGroup(
-                                    groupName: groupID,
-                                  )
-                                  .toMap();
-                              //now complete cloning
-                              Provider.of<CloudDB>(context)
-                                  .updateDefaultDocumentL2(
-                                collectionL2: DBFolder.groups,
-                                documentL2: groupID,
-                                key: GroupKeys.collections,
-                                entries: [collectionID],
-                                match: matchGroup,
-                                defaultDocument: defaultGroup,
-                              );
+//                              bool matchGroup = false;
+//                              String groupID = DBDefaultDocument.import;
+//                              for (GroupData group
+//                                  in Provider.of<AppData>(context)
+//                                      .currentUserGroups) {
+//                                if (group.id == groupID) matchGroup = true;
+//                              }
+//                              //provide default document
+//                              Map defaultGroup = Provider.of<CloudDB>(context)
+//                                  .newDefaultGroup(
+//                                    groupName: groupID,
+//                                  )
+//                                  .toMap();
+//                              //now complete cloning
+//                              Provider.of<CloudDB>(context)
+//                                  .updateDefaultDocumentL2(
+//                                collectionL2: DBFolder.groups,
+//                                documentL2: groupID,
+//                                key: GroupKeys.collections,
+//                                entries: [collectionID],
+//                                match: matchGroup,
+//                                defaultDocument: defaultGroup,
+//                              );
 
                               //close
                               Navigator.pop(context);
@@ -131,28 +138,29 @@ class ViewerUtilityButtons extends StatelessWidget {
                         builder: (BuildContext context) => DialogScreen(
                           title: 'Share Plant',
                           children: <Widget>[
-                            StreamProvider<List<FriendData>>.value(
-                              value: Provider.of<CloudDB>(context)
-                                  .streamFriendsData(),
-                              child: Consumer<List<FriendData>>(
-                                builder:
-                                    (context, List<FriendData> friends, _) {
+                            Provider<List>.value(
+                              value: Provider.of<AppData>(context)
+                                  .currentUserInfo
+                                  .friends,
+                              child: Consumer<List>(
+                                builder: (context, List friends, _) {
                                   if (friends != null && friends.length >= 1) {
                                     List<Widget> connectionList = [];
-                                    for (FriendData friend in friends) {
-                                      connectionList.add(
-                                        FutureProvider<Map>.value(
-                                          value: Provider.of<CloudDB>(context)
-                                              .getConnectionProfile(
-                                                  connectionID: friend.id),
-                                          child: Consumer<Map>(
-                                            builder:
-                                                (context, Map friendSnap, _) {
-                                              if (friendSnap != null) {
-                                                UserData friend =
-                                                    UserData.fromMap(
-                                                        map: friendSnap);
-                                                return GestureDetector(
+                                    for (String friend in friends) {
+                                      connectionList
+                                          .add(FutureProvider<Map>.value(
+                                        value: Provider.of<CloudDB>(context)
+                                            .getConnectionProfile(
+                                                connectionID: friend),
+                                        child: Consumer<Map>(
+                                          builder: (context, Map friendMap, _) {
+                                            if (friendMap == null) {
+                                              return SizedBox();
+                                            } else {
+                                              UserData profile =
+                                                  UserData.fromMap(
+                                                      map: friendMap);
+                                              return GestureDetector(
                                                   onTap: () {
                                                     //get document name
                                                     String document = Provider
@@ -160,7 +168,7 @@ class ViewerUtilityButtons extends StatelessWidget {
                                                                 context)
                                                         .conversationDocumentName(
                                                             connectionId:
-                                                                friend.id);
+                                                                friend);
                                                     //create message
                                                     MessageData message =
                                                         Provider.of<CloudDB>(
@@ -174,109 +182,102 @@ class ViewerUtilityButtons extends StatelessWidget {
                                                     CloudDB.sendMessage(
                                                         message: message,
                                                         document: document);
+                                                    //pop the window
                                                     Navigator.pop(context);
+                                                    //navigate to chat
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (BuildContext
+                                                                context) =>
+                                                            ChatScreen(
+                                                          friend: profile,
+                                                        ),
+                                                      ),
+                                                    );
                                                   },
-                                                  child: Padding(
+                                                  child: Container(
                                                     padding:
-                                                        EdgeInsets.all(2.0),
-                                                    child: Column(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
+                                                        EdgeInsets.all(5.0),
+                                                    child: Stack(
+                                                      alignment: Alignment
+                                                          .bottomCenter,
                                                       children: <Widget>[
-                                                        SizedBox(
-                                                          height: 50.0,
-                                                          width: 50.0,
-                                                          child: CircleAvatar(
-                                                            backgroundColor:
-                                                                AppTextColor
-                                                                    .white,
-                                                            backgroundImage: friend
-                                                                        .avatar !=
-                                                                    ''
-                                                                ? CachedNetworkImageProvider(
-                                                                    friend
-                                                                        .avatar)
-                                                                : AssetImage(
-                                                                    'assets/images/default.png',
-                                                                  ),
+                                                        Container(
+                                                          height: 200.0,
+                                                          width: 200.0,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            image:
+                                                                DecorationImage(
+                                                              image: profile
+                                                                          .avatar !=
+                                                                      ''
+                                                                  ? CachedNetworkImageProvider(
+                                                                      profile
+                                                                          .avatar)
+                                                                  : AssetImage(
+                                                                      'assets/images/default.png',
+                                                                    ),
+                                                              fit: BoxFit.cover,
+                                                            ),
+                                                            shape:
+                                                                BoxShape.circle,
                                                           ),
                                                         ),
-                                                        plant.name != ''
-                                                            ? Padding(
-                                                                padding: EdgeInsets.all(1.0 *
-                                                                    MediaQuery.of(
-                                                                            context)
-                                                                        .size
-                                                                        .width *
-                                                                    kScaleFactor),
-                                                                child:
-                                                                    Container(
-                                                                  color: const Color(
-                                                                      0x44000000),
-                                                                  margin: EdgeInsets.all(2.0 *
-                                                                      MediaQuery.of(
-                                                                              context)
-                                                                          .size
-                                                                          .width *
-                                                                      kScaleFactor),
-                                                                  padding: EdgeInsets.all(3.0 *
-                                                                      MediaQuery.of(
-                                                                              context)
-                                                                          .size
-                                                                          .width *
-                                                                      kScaleFactor),
-                                                                  constraints:
-                                                                      BoxConstraints(
-                                                                    maxHeight: 18.0 *
-                                                                        MediaQuery.of(context)
-                                                                            .size
-                                                                            .width *
-                                                                        kScaleFactor,
-                                                                  ),
-                                                                  child: Text(
-                                                                    friend.name,
-                                                                    textAlign:
-                                                                        TextAlign
-                                                                            .center,
-                                                                    overflow:
-                                                                        TextOverflow
-                                                                            .fade,
-                                                                    style:
-                                                                        TextStyle(
-                                                                      fontSize: AppTextSize
-                                                                              .tiny *
-                                                                          MediaQuery.of(context)
-                                                                              .size
-                                                                              .width,
-                                                                      color: Colors
-                                                                          .white,
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              )
-                                                            : SizedBox(),
+                                                        Container(
+                                                          color:
+                                                              kGreenMediumOpacity,
+                                                          padding:
+                                                              EdgeInsets.all(
+                                                                  4.0),
+                                                          constraints:
+                                                              BoxConstraints(
+                                                            maxHeight: 20.0 *
+                                                                MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .width *
+                                                                kScaleFactor,
+                                                          ),
+                                                          child: Text(
+                                                            profile.name,
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .fade,
+                                                            style: TextStyle(
+                                                              fontSize: AppTextSize
+                                                                      .tiny *
+                                                                  MediaQuery.of(
+                                                                          context)
+                                                                      .size
+                                                                      .width,
+                                                              color:
+                                                                  Colors.white,
+                                                            ),
+                                                          ),
+                                                        ),
                                                       ],
                                                     ),
-                                                  ),
-                                                );
-                                              } else {
-                                                return SizedBox();
-                                              }
-                                            },
-                                          ),
+                                                  ));
+                                            }
+                                          },
                                         ),
-                                      );
+                                      ));
                                     }
-                                    //add a cancel button
                                     return GridView.count(
                                       primary: false,
                                       shrinkWrap: true,
                                       crossAxisCount: 5,
                                       children: connectionList,
-                                      childAspectRatio: 0.75,
+//                                      childAspectRatio: 1.0,
                                     );
                                   } else {
                                     return InfoTip(
+                                        onPress: () {},
+                                        showAlways: true,
                                         text: 'First add some friends,  \n'
                                             'then you can share to chat!');
                                   }
@@ -284,15 +285,14 @@ class ViewerUtilityButtons extends StatelessWidget {
                               ),
                             ),
                             SizedBox(
-                              height: AppTextSize.large *
-                                  MediaQuery.of(context).size.width,
+                              height: 20.0,
                             ),
                             GestureDetector(
                               onTap: () {
                                 Navigator.pop(context);
                               },
                               child: Text(
-                                'CANCEL',
+                                'Cancel',
                                 style: TextStyle(
                                   fontSize: AppTextSize.large *
                                       MediaQuery.of(context).size.width,

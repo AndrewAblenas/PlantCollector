@@ -67,6 +67,14 @@ class GetImageCamera extends StatelessWidget {
               key: PlantKeys.images,
               entries: [url],
               action: true);
+          //update document last updated time
+          Provider.of<CloudDB>(context).updateDocumentL1(
+              collection: DBFolder.plants,
+              document: plantID,
+              data: {
+                PlantKeys.update: CloudDB.timeNowMS(),
+                PlantKeys.isVisible: true,
+              });
           //pop context
           if (pop == true) {
             Navigator.pop(context);

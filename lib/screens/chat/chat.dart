@@ -197,9 +197,7 @@ class ChatScreen extends StatelessWidget {
                 width: MediaQuery.of(context).size.width,
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 5.0),
-                  child: ComposeMessage(
-                    convoStarted: friend.chatStarted,
-                  ),
+                  child: ComposeMessage(),
                 ),
               ),
             ],

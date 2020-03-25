@@ -21,7 +21,6 @@ class AboutScreen extends StatelessWidget {
       ),
       body: ListView(
         children: <Widget>[
-          SizedBox(height: 10.0),
           Padding(
             padding: EdgeInsets.all(5.0),
             child: ContainerWrapper(
@@ -30,22 +29,61 @@ class AboutScreen extends StatelessWidget {
                 children: <Widget>[
                   ReferenceButton(
                     title: GlobalStrings.app,
+                    icon: null,
                     text:
-                        'The purpose of ${GlobalStrings.app} is to provide an easy, intuitive, and feature rich tool to create and share your own personal ${GlobalStrings.plant} ${GlobalStrings.library}.  '
-                        'Your ${GlobalStrings.library} is organized into ${GlobalStrings.groups}.  \n\n'
-                        'Each of these ${GlobalStrings.groups} contain any ${GlobalStrings.collections} that you have added.  '
-                        'These ${GlobalStrings.collections} in turn, are where you add your ${GlobalStrings.plants}.  ',
+                        'The purpose of ${GlobalStrings.app} is to provide an easy, intuitive, and feature rich tool to create and share your own personal ${GlobalStrings.plant} ${GlobalStrings.library}.  \n\n'
+                        'The first tab is the ${GlobalStrings.discover} section.  Here you can find new Plants and new Friends.  \n\n'
+                        'This is followed by the Search tab which allows you to search through your personal ${GlobalStrings.plant} Library.  \n\n'
+                        'The centre tab provides access to your personal ${GlobalStrings.library}.  '
+                        'Here you can build ${GlobalStrings.collections} (just like at home) to display your ${GlobalStrings.plants}.  \n\n'
+                        'The fourth tab gives you access to your ${GlobalStrings.friends} where you can view their ${GlobalStrings.libraries}, start chats and accept ${GlobalStrings.friend} requests.  \n\n'
+                        'Finally the ${GlobalStrings.settings} tab provides access to various information and settings.  ',
+                  ),
+                  ReferenceButton(
+                    title: '${GlobalStrings.discover}',
+                    icon: Icons.blur_circular,
+                    text:
+                        'The ${GlobalStrings.discover} section provides feeds of everyone\'s ${GlobalStrings.plants}.  '
+                        'Here you can view Most Cloned, Most ${GlobalStrings.greenThumb}ed, Newest, and Recently Updated ${GlobalStrings.plants}.  The Top Collectors by total plant count are also shown.  ',
+                  ),
+                  ReferenceButton(
+                    title: '${GlobalStrings.clone}',
+                    indent: true,
+                    icon: Icons.control_point_duplicate,
+                    text:
+                        'When viewing a plant you can ${GlobalStrings.clone} (copy) the ${GlobalStrings.plant} data.  '
+                        'This makes it easy if you have the same ${GlobalStrings.plant}, received a division, or would like to add it to a wishlist.  \n\n'
+                        'The Plant will automatically be added to the "Cloned" ${GlobalStrings.collection} in your ${GlobalStrings.library}.  '
+                        'The ${GlobalStrings.journal} entries and images will not be copied and the Cloned Plant will not be shown in the ${GlobalStrings.discover} section until you add new images.  \n\n',
+                  ),
+                  ReferenceButton(
+                    title: '${GlobalStrings.greenThumb}',
+                    indent: true,
+                    icon: Icons.thumb_up,
+                    text:
+                        'When viewing a ${GlobalStrings.plant} you can provide positive feedback by tapping the thumbs up button.  '
+                        'This is called giving a ${GlobalStrings.greenThumb}.  ',
+                  ),
+                  ReferenceButton(
+                    title: 'Search',
+                    icon: Icons.search,
+                    text:
+                        'The Search section allows you to live search through your personal ${GlobalStrings.plants}.  '
+                        'This will return results for ${GlobalStrings.plants} with the matching nickname, cultivar/variety, species, or genus.  ',
                   ),
                   ReferenceButton(
                     title: GlobalStrings.library,
+                    icon: null,
                     text:
                         'Your ${GlobalStrings.library} is the main page of this app.  '
                         'This page displays your profile header and is where you add all your ${GlobalStrings.plants}.  \n\n'
-                        'After you have added some ${GlobalStrings.friends}, you will be able to view their ${GlobalStrings.libraries} as well.  '
-                        'Their ${GlobalStrings.libraries} via the ${GlobalStrings.discover} tab at the bottom of the screen.  ',
+                        'Once you add some ${GlobalStrings.friends} you will be able to view their ${GlobalStrings.libraries} '
+                        'via the ${GlobalStrings.friends} section.  ',
                   ),
                   ReferenceButton(
                     title: 'Profile Header',
+                    icon: Icons.table_chart,
+                    indent: true,
                     text:
                         'The Profile Header displays information about you and your ${GlobalStrings.library}.  '
                         'The information displayed can be changed right on screen.  \n\n'
@@ -53,70 +91,88 @@ class AboutScreen extends StatelessWidget {
                         'Note this information can also be updated by tapping the ${GlobalStrings.settings} tab, then ${GlobalStrings.account}.  ',
                   ),
                   ReferenceButton(
-                    title: GlobalStrings.groups,
-                    text:
-                        '${GlobalStrings.groups} hold your ${GlobalStrings.collections} and are used to organize your ${GlobalStrings.library}.  '
-                        'You can add a new ${GlobalStrings.group} by tapping the Add ${GlobalStrings.group} button at the bottom of the ${GlobalStrings.library} page.  \n\n'
-                        'To rename, hold down on the ${GlobalStrings.group} name.  '
-                        'Tap the ${GlobalStrings.group} name to customize it\'s colour.  '
-                        'An arrow to the right of the name allows you to collapse or expand the ${GlobalStrings.group}.  \n\n'
-                        'When there are no ${GlobalStrings.collections}, a delete button is deplayed so you can delete the ${GlobalStrings.group}.  '
-                        'At the end of each ${GlobalStrings.group} there is a button that allows you to add ${GlobalStrings.collections}.  ',
-                  ),
-                  ReferenceButton(
                     title: GlobalStrings.collections,
+                    icon: Icons.storage,
+                    indent: true,
                     text:
                         '${GlobalStrings.collections} contain your ${GlobalStrings.plants} and allow you to add new ones.  '
                         'You can rename a ${GlobalStrings.collection} by holding down on the ${GlobalStrings.collection} name.  \n\n'
-                        'An arrow to the right of the name allows you to move the ${GlobalStrings.collection} to a different ${GlobalStrings.group}.  '
-                        'A ${GlobalStrings.collection} can only be deleted when it no longe holds any ${GlobalStrings.plants}.  '
-                        'An arrow at the bottom allows you to collapse or expand the ${GlobalStrings.collection}.  \n\n'
+                        'An arrow to the right of the name allows you to expand or collapse the ${GlobalStrings.collection}.  Hold down on this arrow to change the colour.  \n\n'
+                        'A ${GlobalStrings.collection} can only be deleted when it no longer holds any ${GlobalStrings.plants}.  '
                         'Tap the green add button to add a new ${GlobalStrings.plant}.  '
                         'Holding down on a ${GlobalStrings.plant} tile will allow you to move it to another ${GlobalStrings.collection}.  ',
                   ),
                   ReferenceButton(
                     title: GlobalStrings.plants,
+                    icon: Icons.local_florist,
+                    indent: true,
                     text:
-                        'Tapping on a ${GlobalStrings.plant} tile will bring you to your ${GlobalStrings.plant}\'s profile.  '
-                        'Here you can add, edit, delete, share, or hide information.  '
+                        'Tapping on a ${GlobalStrings.plant} tile will bring you to the ${GlobalStrings.plant}\'s profile.  '
+                        'Here you can add, edit, delete, share, or hide information.  \n\n'
                         'You can also add photos of your ${GlobalStrings.plant}.  '
-                        'To view a full sized photo, just tap on the image.  \n\n'
-                        'You can set any uploaded image as a thumbnail for the ${GlobalStrings.plant} by tapping the grid icon (bottom right hand corner of the image).  '
+                        'To view a full sized photo, just tap on the image.  '
+                        'You can set any uploaded image as a thumbnail for the ${GlobalStrings.plant} by tapping the grid icon (bottom right hand corner of the image).  \n\n'
+                        'When you have more photos, the display will switch from carousel to a gridview.  When this happens, tap the image, then hold down on the full sized image to set as a thumbnail.  \n\n'
                         'Note: The first image added will be set as the ${GlobalStrings.plant} thumbnail by default.  \n\n'
                         'JOURNAL\n\n'
                         'A ${GlobalStrings.journal} is attached to each ${GlobalStrings.plant}, allowing you to keep track of your ${GlobalStrings.plant} related activities.  '
                         'These entries can be edited for 24hrs then are locked.  '
-                        'The ${GlobalStrings.journal} is only visible to you and cannot be viewed by ${GlobalStrings.friends}.  \n\n'
-                        'CLONE\n\n'
-                        'When viewing a ${GlobalStrings.friend}\'s plant you can ${GlobalStrings.clone} (copy) the ${GlobalStrings.plant} data.  '
-                        'This makes it easy if you have the same ${GlobalStrings.plant}, received a division, or would like to add it to a wishlist.  '
-                        'The ${GlobalStrings.journal} entries and images will not be copied.  \n\n'
-                        'Another button is provided next to the ${GlobalStrings.clone} button that allows you to like a ${GlobalStrings.friend}\'s ${GlobalStrings.plant}.  '
-                        'This is called giving a ${GlobalStrings.greenThumb}.  ',
+                        'The ${GlobalStrings.journal} is only visible to you and cannot be viewed by ${GlobalStrings.friends}.  \n\n',
                   ),
                   ReferenceButton(
-                    title: '${GlobalStrings.friends} and Chat',
+                    title: '${GlobalStrings.friends}',
+                    icon: Icons.people,
                     text:
-                        'You can add ${GlobalStrings.friends} by their email address to view their ${GlobalStrings.plant} ${GlobalStrings.library} and chat.  '
-                        'If their email address is not found, you will be able to send an invite link.  '
-                        'They have to accept your request before you will see them as a ${GlobalStrings.friend}.  \n\n'
-                        'NOTIFICATIONS\n\n'
+                        'The ${GlobalStrings.friends} section is where you manage your Friends and chat.  '
+                        'Once your Friend request is accepted you will see them as a ${GlobalStrings.friend}.  \n\n',
+                  ),
+                  ReferenceButton(
+                    title: 'Requests',
+                    indent: true,
+                    icon: Icons.accessibility_new,
+                    text:
+                        'When people send you a friend request it will be displayed at the top of the ${GlobalStrings.friend} screen.  '
+                        'You can accept or delete their request by tapping the appropriate buttons.  ',
+                  ),
+                  ReferenceButton(
+                    title: 'Current Chats',
+                    indent: true,
+                    icon: Icons.message,
+                    text:
+                        'After you have started a chat with a ${GlobalStrings.friend} it will be displayed with a notification bubble in Current Chats.  '
+                        'Chats are started via the message button in the section below.  ',
+                  ),
+                  ReferenceButton(
+                    title: 'Connections',
+                    indent: true,
+                    icon: Icons.people,
+                    text:
+                        'Connections displays all of your accepted ${GlobalStrings.friends}.  '
+                        'You can start a chat here, view a ${GlobalStrings.friends}\'s ${GlobalStrings.library}, or remove someone by holding down on their tile. ',
+                  ),
+                  ReferenceButton(
+                    title: 'Notifications',
+                    indent: true,
+                    icon: Icons.thumb_up,
+                    text:
                         'Currently, if the app is closed, you will not receive message notifications.  '
-                        'Message notifications will only be displayed while the app is running.  '
-                        'The social aspect is in the early stages.  ',
+                        'For the time being, any notifications will only be displayed while the app is running.  ',
                   ),
                   ReferenceButton(
-                    title: '${GlobalStrings.discover}',
+                    title: '${GlobalStrings.settings}',
+                    icon: Icons.settings,
                     text:
-                        'The ${GlobalStrings.discover} section allows you to view other users ${GlobalStrings.plants}, provides ${GlobalStrings.announcements}, shows Top Collectors, and allows you to exact name search for a User.  \n\n'
-                        'The newest, most cloned, and most ${GlobalStrings.greenThumb}ed ${GlobalStrings.plants} are shown here to allow you to discover new ${GlobalStrings.plants}, clone a ${GlobalStrings.plant} to your ${GlobalStrings.collection}, and discover new Users.  ',
+                        'The ${GlobalStrings.settings} screen allows you view various categorgies of useful information and update your account.  ',
                   ),
                   ReferenceButton(
                     title: 'Version and Development',
-                    text:
-                        'The ${GlobalStrings.app} app is still undergoing development and testing.  '
+                    icon: Icons.developer_mode,
+                    text: 'Development is ongoing.  '
                         'Please feel free to share any suggestions you may have to improve the application.  '
                         'This can be done via tapping the ${GlobalStrings.settings} tab then ${GlobalStrings.feedback} button.  ',
+                  ),
+                  SizedBox(
+                    height: 5.0,
                   ),
                 ],
               ),
@@ -129,9 +185,16 @@ class AboutScreen extends StatelessWidget {
 }
 
 class ReferenceButton extends StatelessWidget {
+  final IconData icon;
   final String title;
   final String text;
-  ReferenceButton({@required this.title, @required this.text});
+  final bool indent;
+  ReferenceButton({
+    @required this.icon,
+    @required this.title,
+    @required this.text,
+    this.indent = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -144,18 +207,52 @@ class ReferenceButton extends StatelessWidget {
           ),
         );
       },
-      child: TileWhite(
-        bottomPadding: 0.0,
-        child: Container(
-          width: double.infinity,
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Text(
-              title,
-              style: kHeaderText,
+      child: Row(
+        children: <Widget>[
+          indent
+              ? Padding(
+                  padding: EdgeInsets.only(left: 20.0),
+                  child: Icon(
+                    Icons.subdirectory_arrow_right,
+                    size: AppTextSize.large * MediaQuery.of(context).size.width,
+                    color: AppTextColor.white,
+                  ),
+                )
+              : SizedBox(),
+          Expanded(
+            child: TileWhite(
+              bottomPadding: 0.0,
+              child: Container(
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Row(
+                    children: <Widget>[
+                      (icon != null)
+                          ? Icon(
+                              icon,
+                              size: AppTextSize.large *
+                                  MediaQuery.of(context).size.width,
+                            )
+                          : Container(
+                              width: AppTextSize.large *
+                                  MediaQuery.of(context).size.width,
+                              child: Image.asset(
+                                'assets/images/badges/BadgeSmallBlackL4.png',
+                              )),
+                      SizedBox(
+                        width: 5.0,
+                      ),
+                      Text(
+                        title,
+                        style: kHeaderText,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

@@ -30,6 +30,10 @@ class PlantScreen extends StatelessWidget {
       @required this.forwardingCollectionID});
   @override
   Widget build(BuildContext context) {
+    //check if admin
+    bool admin = (Provider.of<AppData>(context).currentUserInfo.type ==
+            UserTypes.creator ||
+        Provider.of<AppData>(context).currentUserInfo.type == UserTypes.admin);
     return StreamProvider<DocumentSnapshot>.value(
       value: Provider.of<CloudDB>(context).streamPlant(
           userID: connectionLibrary == false
@@ -154,71 +158,10 @@ class PlantScreen extends StatelessWidget {
                                       ),
                                     ),
                               //ADMIN AND CREATOR ONLY FUNCTION!
-                              Provider.of<AppData>(context)
-                                          .currentUserInfo
-                                          .type !=
-                                      UserTypes.creator
-                                  ? SizedBox()
-                                  : AdminButton(
-                                      label: 'Delete user plant',
-                                      onPress: () {
-                                        showDialog(
-                                          context: context,
-                                          builder: (BuildContext context) {
-                                            return DialogConfirm(
-                                                title: 'Remove Plant',
-                                                text:
-                                                    'Are you sure you would like to remove this plant?  All photos and all related information will be permanently deleted.  '
-                                                    '\n\nThis cannot be undone!',
-                                                buttonText: 'Delete',
-                                                onPressed: () async {
-                                                  //get the collection
-                                                  List<CollectionData>
-                                                      collections =
-                                                      await CloudDB
-                                                          .futureCollectionsData(
-                                                              userID:
-                                                                  plant.owner);
-                                                  //check for plant id
-                                                  for (CollectionData collection
-                                                      in collections) {
-                                                    if (collection.plants
-                                                        .contains(plant.id)) {
-                                                      //remove plant reference from collection
-                                                      await Provider.of<
-                                                              CloudDB>(context)
-                                                          .updateDocumentL2Array(
-                                                        collectionL1:
-                                                            DBFolder.users,
-                                                        documentL1: plant.owner,
-                                                        collectionL2: DBFolder
-                                                            .collections,
-                                                        documentL2:
-                                                            collection.id,
-                                                        key: CollectionKeys
-                                                            .plants,
-                                                        entries: [plantID],
-                                                        action: false,
-                                                      );
-                                                    }
-                                                  }
-                                                  //delete plant
-                                                  await Provider.of<CloudDB>(
-                                                          context)
-                                                      .deleteDocumentL1(
-                                                          document: plantID,
-                                                          collection:
-                                                              DBFolder.plants);
-                                                  //pop dialog
-                                                  Navigator.pop(context);
-                                                  //pop old plant profile
-                                                  Navigator.pop(context);
-                                                  //NOTE: deletion of images is handled by a DB function
-                                                });
-                                          },
-                                        );
-                                      },
-                                    )
+                              admin
+                                  ? PlantAdminFunctions(
+                                      plant: plant, plantID: plantID)
+                                  : SizedBox(),
                             ],
                           ),
                         ),
@@ -244,17 +187,18 @@ class PlantScreen extends StatelessWidget {
             SizedBox(
               height: 10,
             ),
-            connectionLibrary == false
-                ? Consumer<DocumentSnapshot>(
-                    builder: (context, DocumentSnapshot plantSnap, _) {
-                      if (plantSnap != null) {
-                        PlantData plant =
-                            PlantData.fromMap(map: plantSnap.data);
-                        return Row(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            ActionButton(
+            Consumer<DocumentSnapshot>(
+              builder: (context, DocumentSnapshot plantSnap, _) {
+                if (plantSnap != null) {
+                  PlantData plant = PlantData.fromMap(map: plantSnap.data);
+                  //if it is your personal library return delete/share
+                  return Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      //if you own the library then show delete
+                      (connectionLibrary == false)
+                          ? ActionButton(
                               icon: Icons.delete_forever,
                               action: () {
                                 showDialog(
@@ -298,46 +242,187 @@ class PlantScreen extends StatelessWidget {
                                   },
                                 );
                               },
-                            ),
-                            SizedBox(height: 10),
-                            ActionButton(
-                              icon: Icons.share,
+                            )
+                          //otherwise provide an option to report
+                          : ActionButton(
+                              icon: Icons.report_problem,
                               action: () {
-                                Share.share(
-                                  UIBuilders.sharePlant(
-                                      plantMap: plantSnap.data),
-                                  subject:
-                                      'Check out this plant via Plant Collector!',
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return DialogConfirm(
+                                        title: 'Report Plant',
+                                        hideCancel: false,
+                                        text:
+                                            'Does this content not meet the Community Guidelines?  \n\n'
+                                            'Please report only non-plant, offensive, or spam related profiles.  '
+                                            'Note, misuse of this button may lead to your account being disabled.  ',
+                                        buttonText: 'Report',
+                                        onPressed: () async {
+                                          //report user
+                                          Provider.of<CloudDB>(context)
+                                              .reportPlant(
+                                                  offendingPlantID: plant.id,
+                                                  reportingUser:
+                                                      Provider.of<AppData>(
+                                                              context)
+                                                          .currentUserInfo
+                                                          .id);
+                                          //pop dialog
+                                          Navigator.pop(context);
+                                        });
+                                  },
                                 );
                               },
                             ),
-                          ],
-                        );
-                      } else {
-                        return SizedBox();
-                      }
-                    },
-                  )
-                //otherwise provide an option to clone the plant
-                : SizedBox(),
+                      //share plant to in app chat recipient
+//                      Expanded(child: ShareViaChat(plantID: plantID)),
+                      ActionButton(
+                        icon: Icons.share,
+                        action: () {
+                          Share.share(
+                            UIBuilders.sharePlant(plantMap: plantSnap.data),
+                            subject:
+                                'Check out this plant via Plant Collector!',
+                          );
+                        },
+                      ),
+                    ],
+                  );
+                } else {
+                  return SizedBox();
+                }
+              },
+            ),
             //ADMIN AND CREATOR ONLY VISIBLE
-            (Provider.of<AppData>(context).currentUserInfo.type ==
-                        UserTypes.admin ||
-                    Provider.of<AppData>(context).currentUserInfo.type ==
-                        UserTypes.creator)
-                ? Text(
-                    plantID,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: AppTextColor.black,
-                      fontWeight: AppTextWeight.medium,
-                    ),
-                  )
-                : SizedBox(),
+//            admin
+//                ? Text(
+//                    plantID,
+//                    textAlign: TextAlign.center,
+//                    style: TextStyle(
+//                      color: AppTextColor.black,
+//                      fontWeight: AppTextWeight.medium,
+//                    ),
+//                  )
+//                : SizedBox(),
             SizedBox(height: 10),
           ],
         ),
       ),
+    );
+  }
+}
+
+class PlantAdminFunctions extends StatelessWidget {
+  const PlantAdminFunctions({
+    @required this.plant,
+    @required this.plantID,
+  });
+
+  final PlantData plant;
+  final String plantID;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: <Widget>[
+        Expanded(
+          child: AdminButton(
+            label: 'Delete Plant and Report User',
+            onPress: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return DialogConfirm(
+                      title: 'Delete Plant',
+                      text:
+                          'Does this plant not meet the Community Guidelines?  '
+                          '\n\nIf you choose to delete, this cannot be undone!',
+                      buttonText: 'Delete',
+                      hideCancel: false,
+                      onPressed: () async {
+                        //report user
+                        Provider.of<CloudDB>(context).reportUser(
+                            userID: plant.owner,
+                            reportingUser: Provider.of<AppData>(context)
+                                .currentUserInfo
+                                .id);
+                        //get the collection
+                        List<CollectionData> collections =
+                            await CloudDB.futureCollectionsData(
+                                userID: plant.owner);
+                        //check for plant id
+                        for (CollectionData collection in collections) {
+                          if (collection.plants.contains(plant.id)) {
+                            //remove plant reference from collection
+                            await Provider.of<CloudDB>(context)
+                                .updateDocumentL2Array(
+                              collectionL1: DBFolder.users,
+                              documentL1: plant.owner,
+                              collectionL2: DBFolder.collections,
+                              documentL2: collection.id,
+                              key: CollectionKeys.plants,
+                              entries: [plantID],
+                              action: false,
+                            );
+                          }
+                        }
+                        //delete plant
+                        await Provider.of<CloudDB>(context).deleteDocumentL1(
+                            document: plantID, collection: DBFolder.plants);
+                        //pop dialog
+                        Navigator.pop(context);
+                        //pop old plant profile
+                        Navigator.pop(context);
+                        //NOTE: deletion of images is handled by a DB function
+                      });
+                },
+              );
+            },
+          ),
+        ),
+        plant.isFlagged
+            ? Expanded(
+                child: AdminButton(
+                  label: 'Unflag this Plant',
+                  color: Colors.blue,
+                  onPress: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return DialogConfirm(
+                            title: 'Remove Plant Flag',
+                            text:
+                                'Does this plant meet the Community Guidelines?  '
+                                'If so, would you like to remove the flag?  ',
+                            buttonText: 'Yes',
+                            hideCancel: false,
+                            onPressed: () async {
+                              //package data
+                              Map<String, dynamic> data = {
+                                PlantKeys.isFlagged: false
+                              };
+
+                              //upload changes
+                              await Provider.of<CloudDB>(context)
+                                  .updateDocumentL1(
+                                collection: DBFolder.plants,
+                                document: plant.id,
+                                data: data,
+                              );
+
+                              //pop dialog
+                              Navigator.pop(context);
+                              //pop old plant profile
+                              Navigator.pop(context);
+                            });
+                      },
+                    );
+                  },
+                ),
+              )
+            : SizedBox()
+      ],
     );
   }
 }

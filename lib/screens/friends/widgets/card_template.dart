@@ -38,26 +38,32 @@ class CardTemplate extends StatelessWidget {
             ),
             SizedBox(
                 width: AppTextSize.tiny * MediaQuery.of(context).size.width),
-            Container(
-              alignment: Alignment.center,
-              padding: EdgeInsets.symmetric(
-                horizontal: 3.0,
-                vertical: 4.0,
-              ),
-              child: Text(
-                (user != null && user.name != null) ? user.name : '',
-                overflow: TextOverflow.fade,
-                softWrap: false,
-                style: TextStyle(
-                  fontSize:
-                      AppTextSize.large * MediaQuery.of(context).size.width,
-                  fontWeight: AppTextWeight.medium,
-                  color: AppTextColor.black,
+            Expanded(
+              child: Container(
+                alignment: Alignment.center,
+                padding: EdgeInsets.symmetric(
+                  horizontal: 3.0,
+                  vertical: 4.0,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    Expanded(
+                      child: Text(
+                        (user != null && user.name != null) ? user.name : '',
+                        overflow: TextOverflow.fade,
+                        softWrap: false,
+                        style: TextStyle(
+                          fontSize: AppTextSize.large *
+                              MediaQuery.of(context).size.width,
+                          fontWeight: AppTextWeight.medium,
+                          color: AppTextColor.black,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-            Expanded(
-              child: SizedBox(),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,

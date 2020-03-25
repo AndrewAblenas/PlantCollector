@@ -13,7 +13,7 @@ class ActionButton extends StatelessWidget {
       child: Icon(
         icon,
         size: AppTextSize.huge * MediaQuery.of(context).size.width,
-        color: kGreenMedium,
+        color: kGreenMediumOpacity,
       ),
       onPressed: () {
         action();

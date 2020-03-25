@@ -32,7 +32,7 @@ class RegisterScreen extends StatelessWidget {
             return response;
           },
         ),
-        SizedBox(height: 20.0),
+        SizedBox(height: 10.0),
         Consumer<UserAuth>(
           builder: (context, userAuth, child) {
             return Column(
@@ -40,8 +40,8 @@ class RegisterScreen extends StatelessWidget {
                 InputCard(
                   keyboardType: TextInputType.text,
                   cardPrompt: userAuth.passwordHelper == false
-                      ? 'Ensure your password has at least 8 characters.'
-                          '\n\nIt must contain a special character, capital letter, small letter, and number.'
+                      ? 'Ensure your password has at least 8 characters '
+                          'and contains a capital letter (A-Z), small letter (a-b), a special character (!@#\\\$&*~.)'
                       : 'Create a secure password',
                   obscureText: true,
                   onChanged: (input) {
@@ -49,7 +49,6 @@ class RegisterScreen extends StatelessWidget {
                     userAuth.password = input;
                   },
                 ),
-                SizedBox(height: 20.0),
                 InputCard(
                   keyboardType: TextInputType.text,
                   cardPrompt: 'Please confirm your password',
@@ -63,7 +62,6 @@ class RegisterScreen extends StatelessWidget {
             );
           },
         ),
-        SizedBox(height: 10.0),
         ButtonAuth(
           text: 'Register',
           onPress: () async {
@@ -85,8 +83,8 @@ class RegisterScreen extends StatelessWidget {
                   return DialogConfirm(
                     title: 'Account Created',
                     text:
-                        'Next you\'ll receive an email from us to verify your account.\n\n'
-                        'Then you can get started building your first plant Collection!',
+                        'You\'ll receive an email from us shortly.  Ensure you follow the link to verify.\n\n'
+                        'Then you can get started building your Collection Library!',
                     buttonText: 'OK',
                     onPressed: () {
                       Navigator.pop(context);
