@@ -21,12 +21,15 @@ class PlantInfoCard extends StatelessWidget {
   final String cardKey;
   final String displayLabel;
   final dynamic displayText;
-  PlantInfoCard(
-      {@required this.connectionLibrary,
-      @required this.plantID,
-      @required this.cardKey,
-      @required this.displayLabel,
-      @required this.displayText});
+  final bool italicize;
+  PlantInfoCard({
+    @required this.connectionLibrary,
+    @required this.plantID,
+    @required this.cardKey,
+    @required this.displayLabel,
+    @required this.displayText,
+    @required this.italicize,
+  });
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -65,6 +68,8 @@ class PlantInfoCard extends StatelessWidget {
                 displayText.toString(),
                 textAlign: TextAlign.center,
                 style: TextStyle(
+                  fontStyle:
+                      (italicize == true) ? FontStyle.italic : FontStyle.normal,
                   fontSize:
                       AppTextSize.huge * MediaQuery.of(context).size.width,
                   fontWeight: AppTextWeight.medium,
@@ -79,12 +84,15 @@ class PlantInfoCard extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    Icon(
-                      Icons.edit,
-                      size:
-                          AppTextSize.tiny * MediaQuery.of(context).size.width,
-                      color: kGreenMedium,
-                    ),
+                    //only show the edit icon for current user library
+                    (connectionLibrary == false)
+                        ? Icon(
+                            Icons.edit,
+                            size: AppTextSize.tiny *
+                                MediaQuery.of(context).size.width,
+                            color: kGreenMedium,
+                          )
+                        : SizedBox(),
                     SizedBox(
                       width: 5.0 *
                           MediaQuery.of(context).size.width *
@@ -111,16 +119,36 @@ class PlantInfoCard extends StatelessWidget {
                               title: 'Update Information',
                               acceptText: 'Update',
                               acceptOnPress: () {
-                                //update the info with a map
-                                Provider.of<CloudDB>(context).updateDocumentL1(
-                                  collection: DBFolder.plants,
-                                  document: plantID,
-                                  data: {
-                                    cardKey: Provider.of<AppData>(context)
-                                        .newDataInput,
-                                    PlantKeys.update: CloudDB.timeNowMS()
-                                  },
-                                );
+                                //format search categories to lower case
+                                String value =
+                                    Provider.of<AppData>(context).newDataInput;
+
+                                //empty check
+                                if (value != null && value != '') {
+                                  //storage formatting check
+                                  List<String> toFormat = [
+                                    PlantKeys.variety,
+                                    PlantKeys.hybrid,
+                                    PlantKeys.species,
+                                    PlantKeys.genus,
+                                  ];
+                                  if (toFormat.contains(cardKey)) {
+                                    value = value.toLowerCase();
+                                  }
+                                  //update
+                                  Provider.of<CloudDB>(context)
+                                      .updateDocumentL1(
+                                    collection: DBFolder.plants,
+                                    document: plantID,
+                                    data: {
+                                      cardKey: value,
+                                      PlantKeys.update: CloudDB.timeNowMS()
+                                    },
+                                  );
+                                }
+                                //clear data
+                                Provider.of<AppData>(context).newDataInput =
+                                    null;
                                 //pop context
                                 Navigator.pop(context);
                               },
@@ -129,7 +157,11 @@ class PlantInfoCard extends StatelessWidget {
                                     input;
                               },
                               cancelText: 'Cancel',
-                              hintText: displayText.toString());
+                              //in the case of variety, don't pass the single quotes and spaces
+                              hintText: (cardKey != PlantKeys.variety)
+                                  ? displayText.toString()
+                                  : displayText.toString().substring(
+                                      1, displayText.toString().length - 1));
                         });
                   }
                 },

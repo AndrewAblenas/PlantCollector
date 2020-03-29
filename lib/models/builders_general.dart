@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
+import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 import 'package:plant_collector/models/data_types/collection_data.dart';
 import 'package:plant_collector/models/data_types/group_data.dart';
@@ -22,6 +23,7 @@ import 'package:plant_collector/screens/plant/widgets/plant_photo.dart';
 import 'package:date_format/date_format.dart';
 import 'package:plant_collector/screens/plant/widgets/add_photo.dart';
 import 'package:plant_collector/widgets/info_tip.dart';
+import 'package:plant_collector/widgets/section_header.dart';
 
 class UIBuilders extends ChangeNotifier {
   //*****************LIBRARY PAGE RELATED BUILDERS*****************
@@ -58,6 +60,7 @@ class UIBuilders extends ChangeNotifier {
         if (plant.name.toLowerCase().contains(searchInput) ||
             plant.genus.toLowerCase().contains(searchInput) ||
             plant.species.toLowerCase().contains(searchInput) ||
+            plant.hybrid.toLowerCase().contains(searchInput) ||
             plant.variety.toLowerCase().contains(searchInput)) {
           String collectionID;
           for (CollectionData collection in collections) {
@@ -112,12 +115,17 @@ class UIBuilders extends ChangeNotifier {
       {@required List<CollectionData> userCollections,
       @required String groupID,
       @required Color groupColor,
-      @required bool connectionLibrary}) {
+      @required bool connectionLibrary,
+      @required bool sortAlphabetically}) {
     //check that they aren't default
     List<Widget> collectionList = [];
     Column collectionColumn;
     //make sure that there are collections in the list
     if (userCollections != null && userCollections.length > 0) {
+      //sort if needed
+      if (sortAlphabetically == true) {
+        userCollections.sort((a, b) => (a.name).compareTo((b.name)));
+      }
       for (CollectionData collection in userCollections) {
         //connection view check for defaults
         bool defaultView =
@@ -153,7 +161,8 @@ class UIBuilders extends ChangeNotifier {
               showAlways: true,
               text: 'You\'re Library is currently empty.  \n\n'
                   'Tap the "+ Build New ${GlobalStrings.collection}" button to build a ${GlobalStrings.collection}.  \n\n'
-                  'A "Houseplants" or "Orchids" ${GlobalStrings.collection} might be a good place to start!  '),
+                  'A "Houseplants" or "Orchids" ${GlobalStrings.collection} might be a good place to start!  \n\n'
+                  'Your Library and Plants are visible to other plant lovers.'),
 //          groupID == null ? null : GroupDelete(groupID: groupID),
         ],
       );
@@ -243,6 +252,79 @@ class UIBuilders extends ChangeNotifier {
     return plantShare + '\nSee it on Plant Collector:\n<future app store link>';
   }
 
+  //FORMAT INFORMATION TO DISPLAY NAME PROPERLY
+  static String formatPlantName(
+      {@required String type, @required String displayText}) {
+    if (displayText != null && displayText != '') {
+      if (type == PlantKeys.genus) {
+        displayText = displayText[0].toUpperCase() + displayText.substring(1);
+      } else if (type == PlantKeys.species) {
+        displayText = displayText.toLowerCase();
+      } else if (type == PlantKeys.hybrid) {
+        List<String> splitList = displayText.split(' ');
+        List<String> newList = [];
+        for (String word in splitList) {
+          word = word[0].toUpperCase() + word.substring(1);
+          newList.add(word);
+        }
+        displayText = newList.join(' ');
+      } else if (type == PlantKeys.variety) {
+        List<String> splitList = displayText.split(' ');
+        List<String> newList = [];
+        for (String word in splitList) {
+          word = word[0].toUpperCase() + word.substring(1);
+          newList.add(word);
+        }
+        displayText = "'" + newList.join(' ') + "'";
+      } else {
+        displayText = displayText;
+      }
+    }
+    return displayText;
+  }
+
+  //ITALICIZE PLANT NAME
+  static bool italicizePlantName({@required String type}) {
+    bool italicize = false;
+    if (type == PlantKeys.genus || type == PlantKeys.species) {
+      italicize = true;
+    }
+    return italicize;
+  }
+
+  static List<Widget> buildPlantName(
+      {@required List<List<String>> substrings,
+      @required BuildContext context}) {
+    //passing a list with index 0 as key and 1 as value
+    List<Widget> list = [];
+    for (List<String> substring in substrings) {
+      if (substring[1] != null && substring[1] != '') {
+        String name =
+            formatPlantName(type: substring[0], displayText: substring[1]);
+        bool italicize = italicizePlantName(type: substring[0]);
+        Widget section = Container(
+          child: Text(
+            name,
+            softWrap: true,
+            overflow: TextOverflow.fade,
+            style: TextStyle(
+              fontStyle:
+                  (italicize == true) ? FontStyle.italic : FontStyle.normal,
+              color: AppTextColor.black,
+              fontWeight: AppTextWeight.medium,
+              fontSize: AppTextSize.tiny * MediaQuery.of(context).size.width,
+            ),
+          ),
+        );
+        list.add(section);
+        list.add(SizedBox(
+          width: 0.01 * MediaQuery.of(context).size.width,
+        ));
+      }
+    }
+    return list;
+  }
+
   //GENERATE INFO CARD WIDGETS
   static Column displayInfoCards(
       {@required bool connectionLibrary,
@@ -270,7 +352,10 @@ class UIBuilders extends ChangeNotifier {
         if (plantMap[key] != null && plantMap[key] != '') {
           //if not default then create a widget and add to the list
           String displayLabel = PlantKeys.descriptors[key];
-          String displayText = plantMap[key];
+          //display info differently depending on what it is
+          String displayText =
+              formatPlantName(type: key, displayText: plantMap[key]);
+          bool italicize = italicizePlantName(type: key);
           infoCardList.add(
             PlantInfoCard(
               connectionLibrary: connectionLibrary,
@@ -278,6 +363,7 @@ class UIBuilders extends ChangeNotifier {
               cardKey: key.toString(),
               displayLabel: displayLabel,
               displayText: displayText,
+              italicize: italicize,
             ),
           );
         }
@@ -335,7 +421,9 @@ class UIBuilders extends ChangeNotifier {
   }
 
   static Column displayJournalTiles(
-      {@required List journals, @required String plantID}) {
+      {@required List journals,
+      @required String plantID,
+      @required bool connectionLibrary}) {
     //initialize blank list of widgets
     List<Widget> journalEntries = [];
 
@@ -344,11 +432,14 @@ class UIBuilders extends ChangeNotifier {
       JournalData entryBuild = JournalData.fromMap(map: entry);
 
       //allow the post to be edited only for 24hrs
-      bool showEdit =
-          (DateTime.now().millisecondsSinceEpoch - int.parse(entryBuild.date) <=
-                  86400000)
-              ? true
-              : false;
+      bool showEdit = false;
+      if (connectionLibrary == false) {
+        showEdit = (DateTime.now().millisecondsSinceEpoch -
+                    int.parse(entryBuild.date) <=
+                86400000)
+            ? true
+            : false;
+      }
 
       //add the journal entry
       journalEntries.add(
@@ -362,8 +453,14 @@ class UIBuilders extends ChangeNotifier {
         ),
       );
     }
-    //now include the add button
-    journalEntries.add(AddJournalButton(plantID: plantID));
+    //now include the add button only for user library
+    journalEntries.add((connectionLibrary == false)
+        ? AddJournalButton(plantID: plantID)
+        : SizedBox());
+    //add the header for all
+    journalEntries.add(SectionHeader(
+      title: 'JOURNAL',
+    ));
 
     //return the entries in a column
     return Column(

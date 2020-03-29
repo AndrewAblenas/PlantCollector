@@ -13,6 +13,8 @@ class DBFolder {
   static const String quarantinePlants = 'quarantine_plants';
   static const String quarantineUsers = 'quarantine_users';
   static const String users = 'users';
+  static const String announcements = 'announcements';
+  static const String communications = 'communications';
 }
 
 //STORAGE PATHS
@@ -37,6 +39,7 @@ class DBDocument {
   static const String reportedUser = 'reported_users';
   static const String reportersPlants = 'reporters_plants';
   static const String reportersUsers = 'reporters_users';
+  static const String adminToUser = 'admin_to_user';
 }
 
 //FOLDERS FOR MOVING/IMPORTING

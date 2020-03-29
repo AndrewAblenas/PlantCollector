@@ -19,12 +19,14 @@ class PlantTile extends StatelessWidget {
   final String collectionID;
   final PlantData plant;
   final List<dynamic> possibleParents;
+  final bool hideNew;
   PlantTile({
     @required this.connectionLibrary,
     @required this.communityView,
     @required this.collectionID,
     @required this.plant,
     @required this.possibleParents,
+    this.hideNew = false,
   });
 
   @override
@@ -124,7 +126,7 @@ class PlantTile extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                AppData.isNew(idWithTime: plant.id)
+                (AppData.isNew(idWithTime: plant.id) && hideNew == false)
                     ? Padding(
                         padding: EdgeInsets.all(1.0 *
                             MediaQuery.of(context).size.width *

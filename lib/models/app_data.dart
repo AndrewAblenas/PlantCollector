@@ -18,11 +18,17 @@ class AppData extends ChangeNotifier {
   String newDataInput;
   String selectedDialogButtonItem;
   bool hideButton;
-  //custom stream
+  //Discover Page state - Custom Tabs
   int customFeedSelected;
   Type customFeedType;
   String customFeedQueryField;
-  //custom tabs
+  //Search Page state - Tab Bar Top
+  int tabBarTopSelected;
+  //Search Page - Selected Fields
+  Map<String, dynamic> searchQueryInput = {};
+  //search bar live input
+  String searchBarLiveInput;
+  //Custom Tabs
   int customTabSelected;
   String plantQueryField;
   //used to pass ID to image tile
@@ -48,6 +54,18 @@ class AppData extends ChangeNotifier {
   List<GroupData> connectionGroups;
   List<CollectionData> connectionCollections;
   List<PlantData> connectionPlants;
+
+  //*****************NOTIFICATIONS*****************//
+
+  List<dynamic> getFriendsList() {
+    if (currentUserInfo != null) {
+      List<dynamic> friendsList = currentUserInfo.friends;
+      return friendsList;
+    } else {
+      return [];
+    }
+  }
+
   //*****************NOTIFICATIONS*****************//
 
   FlutterLocalNotificationsPlugin notifications;
@@ -237,14 +255,25 @@ class AppData extends ChangeNotifier {
   //*****************BUILDER FUNCTIONS AND RELATED*****************
 
 //METHOD TO SET NEW DATA INPUT
-  void setNewDataInput(value) {
+  void setInputNewData(value) {
     newDataInput = value;
     notifyListeners();
   }
 
+  //METHOD TO SET NEW DATA INPUT SEARCH BAR LIVE
+  void setInputSearchBarLive(value) {
+    searchBarLiveInput = value;
+    notifyListeners();
+  }
+
   //METHOD TO SET CUSTOM TAB INPUT
-  void setCustomTabSelected({@required int tabNumber}) {
+  void setInputCustomTabSelected({@required int tabNumber}) {
     customTabSelected = tabNumber;
+    notifyListeners();
+  }
+
+  void setTabBarTopSelected({@required int tabNumber}) {
+    tabBarTopSelected = tabNumber;
     notifyListeners();
   }
 

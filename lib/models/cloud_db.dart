@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_collector/models/data_types/collection_data.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
+import 'package:plant_collector/models/data_types/communication_data.dart';
 import 'package:plant_collector/models/data_types/friend_data.dart';
 import 'package:plant_collector/models/data_types/group_data.dart';
 import 'package:plant_collector/models/data_types/journal_data.dart';
@@ -65,13 +66,33 @@ class CloudDB extends ChangeNotifier {
         snap.documents.map((doc) => PlantData.fromMap(map: doc.data)).toList());
   }
 
+  //get a snapshot of the user announcements
+  Future<List<CommunicationData>> streamAnnouncements() {
+    try {
+      return _db.collection(DBFolder.announcements).getDocuments().then(
+          (snap) => snap.documents
+              .map((doc) => CommunicationData.fromMap(map: doc.data))
+              .toList());
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
   //get a snapshot of the top user files
-  Future<DocumentSnapshot> streamCommunication() {
+  Stream<List<CommunicationData>> streamAdminToUser() {
     try {
       return _db
-          .collection(DBFolder.app)
-          .document(DBDocument.communication)
-          .get();
+          .collection(DBFolder.communications)
+          .document(DBDocument.adminToUser)
+          .collection(currentUserFolder)
+          .snapshots()
+          .map((snap) => snap.documents.map((doc) {
+                //add the document reference for later
+                Map map = doc.data;
+                map[CommunicationKeys.reference] = doc.reference;
+                return CommunicationData.fromMap(map: map);
+              }).toList());
     } catch (e) {
       print(e);
       return null;
@@ -173,6 +194,30 @@ class CloudDB extends ChangeNotifier {
 //        .collection(DBFolder.collections)
 //        .snapshots();
 //  }
+
+  //stream user query
+  static Stream<List<PlantData>> streamUserPlantQuery(
+      {@required Map<String, dynamic> queryMap}) {
+    //map keys to list to iterate through
+    List<String> keys = queryMap.keys.toList();
+    //initialize query
+    Query query = _db
+        .collection(DBFolder.plants)
+        .where(PlantKeys.isVisible, isEqualTo: true);
+    //add to query for each search term
+    for (String key in keys) {
+      query = query.where(key, isEqualTo: queryMap[key]);
+    }
+    //Now get the stream the stream
+    Stream<QuerySnapshot> stream = query
+        //this seems to return nothing if no likes field
+//            .orderBy(PlantKeys.likes, descending: true)
+        .limit(48)
+        .snapshots();
+    //convert and return
+    return stream.map((snap) =>
+        snap.documents.map((doc) => PlantData.fromMap(map: doc.data)).toList());
+  }
 
   //provide a stream of all collections
   static Stream<List<CollectionData>> streamCollectionsData(
@@ -341,6 +386,14 @@ class CloudDB extends ChangeNotifier {
   static Stream<UserData> streamUserData({@required userID}) {
     Stream<DocumentSnapshot> stream =
         _db.collection(usersPath).document(userID).snapshots();
+    //return specific data type
+    return stream.map((doc) => UserData.fromMap(map: doc.data));
+  }
+
+  //provide a stream current user
+  Stream<UserData> streamCurrentUser() {
+    Stream<DocumentSnapshot> stream =
+        _db.collection(usersPath).document(currentUserFolder).snapshots();
     //return specific data type
     return stream.map((doc) => UserData.fromMap(map: doc.data));
   }
@@ -1001,6 +1054,13 @@ class CloudDB extends ChangeNotifier {
         .collection(collectionL2)
         .document(documentL2)
         .setData(data, merge: merge);
+  }
+
+  //UPDATE DOCUMENT LEVEL 1
+  Future<void> updateDocument(
+      {@required DocumentReference reference, @required Map data}) {
+    Map<String, dynamic> map = data;
+    return reference.updateData(map);
   }
 
   //UPDATE DOCUMENT LEVEL 1

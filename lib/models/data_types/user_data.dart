@@ -43,6 +43,8 @@ class UserKeys {
   static const String requestsSent = 'userSentRequests';
   static const String requestsReceived = 'userReceivedRequests';
   static const String chats = 'userChats';
+  static const String privateLibrary = 'privateLibrary';
+  static const String sortAlphabetically = 'sortCollectionsAlphabetically';
   //local only
   static const String chatStarted = 'chatStarted';
 
@@ -70,6 +72,8 @@ class UserKeys {
     requestsSent: 'Sent Friend Requests',
     requestsReceived: 'Received Friend Requests',
     chats: 'Friend Chats',
+    privateLibrary: 'Only Allow Friends to View Library',
+    sortAlphabetically: 'Display Shelves Alphabetically',
     //local only
     chatStarted: 'Chat Started',
   };
@@ -100,6 +104,8 @@ class UserData {
   final List requestsSent;
   final List requestsReceived;
   final List chats;
+  final bool privateLibrary;
+  final bool sortAlphabetically;
   //local only
   final bool chatStarted;
 
@@ -127,6 +133,8 @@ class UserData {
     this.requestsSent,
     this.requestsReceived,
     this.chats,
+    this.privateLibrary,
+    this.sortAlphabetically,
     //local only
     this.chatStarted,
   });
@@ -156,6 +164,8 @@ class UserData {
       UserKeys.requestsSent: requestsSent,
       UserKeys.requestsReceived: requestsReceived,
       UserKeys.chats: chats,
+      UserKeys.privateLibrary: privateLibrary,
+      UserKeys.sortAlphabetically: sortAlphabetically,
       //local only
       UserKeys.chatStarted: chatStarted,
     };
@@ -187,6 +197,8 @@ class UserData {
       requestsSent: map[UserKeys.requestsSent] ?? [],
       requestsReceived: map[UserKeys.requestsReceived] ?? [],
       chats: map[UserKeys.chats] ?? [],
+      privateLibrary: map[UserKeys.privateLibrary] ?? false,
+      sortAlphabetically: map[UserKeys.sortAlphabetically] ?? false,
       //local only
       chatStarted: map[UserKeys.chatStarted] ?? false,
     );

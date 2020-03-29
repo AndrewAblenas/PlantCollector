@@ -17,7 +17,8 @@ class FeedScroll extends StatelessWidget {
       width: MediaQuery.of(context).size.width,
       height: 0.15 * MediaQuery.of(context).size.width,
       decoration: BoxDecoration(
-        gradient: kBackgroundGradientMidReversed,
+//        gradient: kBackgroundGradientMidReversed,
+        color: kGreenDark,
       ),
       child: Consumer<int>(builder: (context, selectedFeed, _) {
         //initialize

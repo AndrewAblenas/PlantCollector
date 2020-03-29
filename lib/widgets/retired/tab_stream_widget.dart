@@ -33,7 +33,7 @@ class TabStreamWidget extends StatelessWidget {
                   ),
                   onPress: () {
                     Provider.of<AppData>(context)
-                        .setCustomTabSelected(tabNumber: 1);
+                        .setInputCustomTabSelected(tabNumber: 1);
                     Provider.of<AppData>(context)
                         .setPlantQueryField(queryField: PlantKeys.clones);
                   },
@@ -48,7 +48,7 @@ class TabStreamWidget extends StatelessWidget {
                   ),
                   onPress: () {
                     Provider.of<AppData>(context)
-                        .setCustomTabSelected(tabNumber: 2);
+                        .setInputCustomTabSelected(tabNumber: 2);
                     Provider.of<AppData>(context)
                         .setPlantQueryField(queryField: PlantKeys.id);
                   },
@@ -63,7 +63,7 @@ class TabStreamWidget extends StatelessWidget {
                   ),
                   onPress: () {
                     Provider.of<AppData>(context)
-                        .setCustomTabSelected(tabNumber: 3);
+                        .setInputCustomTabSelected(tabNumber: 3);
                     Provider.of<AppData>(context)
                         .setPlantQueryField(queryField: PlantKeys.likes);
                   },

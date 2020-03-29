@@ -3,6 +3,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
+import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/cloud_store.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
@@ -73,7 +74,10 @@ class GetImageCamera extends StatelessWidget {
               document: plantID,
               data: {
                 PlantKeys.update: CloudDB.timeNowMS(),
-                PlantKeys.isVisible: true,
+                //if a user has chosen to hide their library except from friends don't make globally visible
+                PlantKeys.isVisible: !Provider.of<AppData>(context)
+                    .currentUserInfo
+                    .privateLibrary,
               });
           //pop context
           if (pop == true) {

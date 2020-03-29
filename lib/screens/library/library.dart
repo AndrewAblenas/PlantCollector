@@ -1,17 +1,18 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_collector/models/cloud_store.dart';
 import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 import 'package:plant_collector/models/data_types/collection_data.dart';
+import 'package:plant_collector/models/data_types/communication_data.dart';
 import 'package:plant_collector/models/data_types/group_data.dart';
 import 'package:plant_collector/models/data_types/plant_data.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/models/global.dart';
 import 'package:plant_collector/models/user.dart';
 import 'package:plant_collector/screens/dialog/dialog_screen_input.dart';
-import 'package:plant_collector/screens/library/widgets/Announcements.dart';
+import 'package:plant_collector/screens/library/widgets/announcements.dart';
+import 'package:plant_collector/screens/library/widgets/communications.dart';
 import 'package:plant_collector/widgets/bottom_bar.dart';
 import 'package:plant_collector/widgets/button_add.dart';
 import 'package:plant_collector/screens/library/widgets/profile_header.dart';
@@ -109,12 +110,30 @@ class LibraryScreen extends StatelessWidget {
           child: ListView(
             children: <Widget>[
               SizedBox(height: 10.0),
+              //show direct user messages and announcements on user library only
               (connectionLibrary == false &&
                       Provider.of<UserAuth>(context).signedInUser != null)
-                  ? FutureProvider<DocumentSnapshot>.value(
-                      value:
-                          Provider.of<CloudDB>(context).streamCommunication(),
-                      child: Announcements(),
+                  ? Column(
+                      children: <Widget>[
+                        StreamProvider<List<CommunicationData>>.value(
+                          value:
+                              Provider.of<CloudDB>(context).streamAdminToUser(),
+                          child: Communications(
+                            title: 'Account',
+                            color: Colors.yellowAccent,
+                          ),
+                        ),
+                        SizedBox(
+                          height: 15.0,
+                        ),
+                        FutureProvider<List<CommunicationData>>.value(
+                          value: Provider.of<CloudDB>(context)
+                              .streamAnnouncements(),
+                          child: Announcements(
+                            title: 'Announcements',
+                          ),
+                        ),
+                      ],
                     )
                   : SizedBox(),
               SizedBox(height: 10.0),
@@ -232,6 +251,11 @@ class LibraryScreen extends StatelessWidget {
                                     plants;
                               }
                               return UIBuilders.displayCollections(
+                                  //sort personal and community based on current user preference
+                                  sortAlphabetically:
+                                      Provider.of<AppData>(context)
+                                          .currentUserInfo
+                                          .sortAlphabetically,
                                   connectionLibrary: connectionLibrary,
                                   groupID: null,
                                   groupColor: null,

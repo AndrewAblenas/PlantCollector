@@ -41,7 +41,7 @@ class JournalTile extends StatelessWidget {
                       Text(
                         journal.title.toUpperCase(),
                         style: TextStyle(
-                          fontSize: AppTextSize.large *
+                          fontSize: AppTextSize.medium *
                               MediaQuery.of(context).size.width,
                           color: AppTextColor.black,
                           fontWeight: AppTextWeight.medium,
@@ -164,6 +164,7 @@ class JournalTile extends StatelessWidget {
                           style: TextStyle(
                             fontSize: AppTextSize.small *
                                 MediaQuery.of(context).size.width,
+                            fontWeight: AppTextWeight.medium,
                             color: AppTextColor.black,
                           ),
                         ),

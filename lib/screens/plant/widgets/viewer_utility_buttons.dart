@@ -367,10 +367,20 @@ class UtilityButton extends StatelessWidget {
       onTap: () {
         onPress();
       },
-      child: Padding(
+      child: Container(
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(5.0),
+            border: Border.all(
+              width: 1.0,
+              color: AppTextColor.light,
+            )),
+        margin: EdgeInsets.symmetric(
+          horizontal: 5.0 * MediaQuery.of(context).size.width * kScaleFactor,
+          vertical: 2.0 * MediaQuery.of(context).size.width * kScaleFactor,
+        ),
         padding: EdgeInsets.symmetric(
           horizontal: 5.0 * MediaQuery.of(context).size.width * kScaleFactor,
-          vertical: 10.0 * MediaQuery.of(context).size.width * kScaleFactor,
+          vertical: 8.0 * MediaQuery.of(context).size.width * kScaleFactor,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,

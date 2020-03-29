@@ -7,16 +7,18 @@ class ScreenTemplate extends StatelessWidget {
   final Widget child;
   final Widget bottomBar;
   final bool implyLeading;
+  final backgroundColor;
   ScreenTemplate({
     @required this.screenTitle,
     @required this.child,
     this.bottomBar,
     this.implyLeading,
+    this.backgroundColor = kGreenLight,
   });
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kGreenLight,
+      backgroundColor: backgroundColor,
       appBar: AppBar(
         automaticallyImplyLeading: (implyLeading == null) ? true : false,
         backgroundColor: kGreenDark,

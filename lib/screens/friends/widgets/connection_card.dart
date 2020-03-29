@@ -15,71 +15,85 @@ class ConnectionCard extends StatelessWidget {
   ConnectionCard({@required this.user, @required this.isRequest});
   @override
   Widget build(BuildContext context) {
-    return CardTemplate(
-      user: user,
-      buttonRow: <Widget>[
-        Container(
-//          width: 40 * MediaQuery.of(context).size.width * kScaleFactor,
-          child: GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (BuildContext context) => LibraryScreen(
-                    userID: user.id,
-                    connectionLibrary: true,
-                  ),
-                ),
-              );
-            },
-            child: Icon(
-              Icons.photo_library,
-              size: AppTextSize.large * MediaQuery.of(context).size.width,
-              color: kGreenDark,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) => LibraryScreen(
+              userID: user.id,
+              connectionLibrary: true,
             ),
           ),
-        ),
-        SizedBox(width: AppTextSize.medium * MediaQuery.of(context).size.width),
-        Container(
-//          width: 40 * MediaQuery.of(context).size.width * kScaleFactor,
-          child: GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (BuildContext context) => ChatScreen(
-                    friend: user,
-                  ),
-                ),
-              );
-            },
-            child: Icon(
-              Icons.chat,
-              size: AppTextSize.large * MediaQuery.of(context).size.width,
-              color: kGreenMedium,
-            ),
-          ),
-        ),
-      ],
-      onLongPress: () {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return DialogConfirm(
-              title: 'Remove Contact',
-              text:
-                  'Are you sure you would like to remove this contact?  You will no longer be able to chat or view each other\'s Libraries.',
-              buttonText: 'Remove',
-              hideCancel: false,
-              onPressed: () {
-                Provider.of<CloudDB>(context)
-                    .removeConnection(connectionID: user.id);
-                Navigator.pop(context);
-              },
-            );
-          },
         );
       },
+      child: CardTemplate(
+        user: user,
+        buttonRow: <Widget>[
+//        Container(
+////          width: 40 * MediaQuery.of(context).size.width * kScaleFactor,
+//          child: GestureDetector(
+//            onTap: () {
+//              Navigator.push(
+//                context,
+//                MaterialPageRoute(
+//                  builder: (BuildContext context) => LibraryScreen(
+//                    userID: user.id,
+//                    connectionLibrary: true,
+//                  ),
+//                ),
+//              );
+//            },
+//            child: Icon(
+//              Icons.photo_library,
+//              size: AppTextSize.large * MediaQuery.of(context).size.width,
+//              color: kGreenDark,
+//            ),
+//          ),
+//        ),
+          SizedBox(
+              width: AppTextSize.medium * MediaQuery.of(context).size.width),
+          Container(
+//          width: 40 * MediaQuery.of(context).size.width * kScaleFactor,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (BuildContext context) => ChatScreen(
+                      friend: user,
+                    ),
+                  ),
+                );
+              },
+              child: Icon(
+                Icons.chat,
+                size: AppTextSize.large * MediaQuery.of(context).size.width,
+                color: kGreenMedium,
+              ),
+            ),
+          ),
+        ],
+        onLongPress: () {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return DialogConfirm(
+                title: 'Remove Contact',
+                text:
+                    'Are you sure you would like to remove this contact?  You will no longer be able to chat or view each other\'s Libraries.',
+                buttonText: 'Remove',
+                hideCancel: false,
+                onPressed: () {
+                  Provider.of<CloudDB>(context)
+                      .removeConnection(connectionID: user.id);
+                  Navigator.pop(context);
+                },
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }

@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
-import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/data_types/message_data.dart';
@@ -11,6 +10,7 @@ import 'package:plant_collector/screens/chat/chat.dart';
 import 'package:plant_collector/widgets/chat_avatar.dart';
 import 'package:plant_collector/widgets/container_wrapper.dart';
 import 'package:plant_collector/widgets/info_tip.dart';
+import 'package:plant_collector/widgets/notification_bubble.dart';
 import 'package:plant_collector/widgets/section_header.dart';
 import 'package:plant_collector/widgets/tile_white.dart';
 import 'package:provider/provider.dart';
@@ -67,15 +67,39 @@ class SocialUpdates extends StatelessWidget {
                     connectionList.add(conversationWidget);
                   }
                 }
-                return TileWhite(
-                  child: GridView.count(
-                    primary: false,
-                    shrinkWrap: true,
-                    crossAxisCount: 5,
-                    children: connectionList,
-                    childAspectRatio: 1,
-                  ),
-                );
+                //if shorter than five, bail on gridview to allow center
+                if (connectionList.length < 5) {
+                  //new widget list
+                  List<Widget> connectionListRepack = [];
+                  //wrap in a sized box
+                  for (Widget item in connectionList) {
+                    Widget repack = SizedBox(
+                      height: 0.18 * MediaQuery.of(context).size.width,
+                      width: 0.18 * MediaQuery.of(context).size.width,
+                      child: item,
+                    );
+                    connectionListRepack.add(repack);
+                  }
+                  return TileWhite(
+                    bottomPadding: 5.0,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: connectionListRepack,
+                    ),
+                  );
+                } else {
+                  return TileWhite(
+                    bottomPadding: 5.0,
+                    child: GridView.count(
+                      primary: false,
+                      shrinkWrap: true,
+                      crossAxisCount: 5,
+                      children: connectionList,
+                      childAspectRatio: 1,
+                    ),
+                  );
+                }
               }
             },
           ),
@@ -168,35 +192,6 @@ class ChatBubble extends StatelessWidget {
               return SizedBox();
             }
           },
-        ),
-      ),
-    );
-  }
-}
-
-class NotificationBubble extends StatelessWidget {
-  const NotificationBubble({
-    Key key,
-    @required this.count,
-  }) : super(key: key);
-
-  final int count;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(2.0),
-      decoration: BoxDecoration(
-        color: kGreenDark,
-        borderRadius: BorderRadius.all(
-          Radius.circular(2.0),
-        ),
-      ),
-      child: Text(
-        count.toString(),
-        style: TextStyle(
-          fontSize: AppTextSize.small * MediaQuery.of(context).size.width,
-          color: AppTextColor.white,
         ),
       ),
     );

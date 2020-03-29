@@ -240,6 +240,27 @@ class AccountScreen extends StatelessWidget {
                                   Provider.of<CloudDB>(context)
                                       .updateUserDocument(
                                     data: CloudDB.updatePairFull(
+                                      key: UserKeys.sortAlphabetically,
+                                      value: (user.sortAlphabetically == false),
+                                    ),
+                                  );
+                                  Navigator.pop(context);
+                                },
+                                onPress: null,
+                                cardLabel:
+                                    'Display ${GlobalStrings.collections} Alphabetically',
+                                dialogText:
+                                    'Display alphabetically next time the app starts?  Note jumping will occur when adding or renaming a Shelf.',
+                                cardText: user.sortAlphabetically == true
+                                    ? 'Yes'
+                                    : 'No'),
+                            SettingsCard(
+                                confirmDialog: true,
+                                onSubmit: () {
+                                  //update settings
+                                  Provider.of<CloudDB>(context)
+                                      .updateUserDocument(
+                                    data: CloudDB.updatePairFull(
                                       key: UserKeys.expandCollection,
                                       value: (user.expandCollection == false),
                                     ),
@@ -254,6 +275,25 @@ class AccountScreen extends StatelessWidget {
                                 cardText: user.expandCollection == true
                                     ? 'No'
                                     : 'Yes'),
+                            SettingsCard(
+                                confirmDialog: true,
+                                onSubmit: () {
+                                  //update settings
+                                  Provider.of<CloudDB>(context)
+                                      .updateUserDocument(
+                                    data: CloudDB.updatePairFull(
+                                      key: UserKeys.privateLibrary,
+                                      value: !user.privateLibrary,
+                                    ),
+                                  );
+                                  Navigator.pop(context);
+                                },
+                                onPress: null,
+                                cardLabel: 'Only Allow Friends to View Library',
+                                dialogText:
+                                    'Change Library and Discover Stream visibility settings?',
+                                cardText:
+                                    user.privateLibrary == true ? 'Yes' : 'No'),
                           ],
                         );
                       }

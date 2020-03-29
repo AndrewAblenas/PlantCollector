@@ -195,15 +195,21 @@ class ProfileHeader extends StatelessWidget {
           (user != null && user.about.length > 0 && connectionLibrary == true)
               ? ContainerCard(
                   color: AppTextColor.white,
-                  child: Text(
-                    user.about,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize:
-                          AppTextSize.small * MediaQuery.of(context).size.width,
-                      fontWeight: AppTextWeight.medium,
-                      color: AppTextColor.black,
-                    ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Text(
+                        user.about,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: AppTextSize.small *
+                              MediaQuery.of(context).size.width,
+                          fontWeight: AppTextWeight.medium,
+                          color: AppTextColor.black,
+                        ),
+                      ),
+                    ],
                   ),
                 )
               : SizedBox(),

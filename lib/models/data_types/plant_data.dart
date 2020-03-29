@@ -9,6 +9,7 @@ class PlantKeys {
   static const String variety = 'plantVariety';
   static const String genus = 'plantGenus';
   static const String species = 'plantSpecies';
+  static const String hybrid = 'plantHybrid';
   static const String quantity = 'plantQuantity';
   static const String bloom = 'plantBloom';
   static const String repot = 'plantRepot';
@@ -34,8 +35,9 @@ class PlantKeys {
   static const List<String> visible = [
     name,
     variety,
-    genus,
+    hybrid,
     species,
+    genus,
     quantity,
     bloom,
     repot,
@@ -50,9 +52,10 @@ class PlantKeys {
   static const Map<String, String> descriptors = {
     id: 'Plant Library ID',
     name: 'Display Name',
-    variety: 'Cultivar/Variety',
-    genus: 'Genus',
+    variety: 'Cultivar/Variety/Clone',
     species: 'Species',
+    hybrid: 'Hybrid',
+    genus: 'Genus',
     quantity: 'Quantity',
     bloom: 'Bloom Time',
     repot: 'Last Repot',
@@ -81,8 +84,9 @@ class PlantData {
   final String id;
   final String name;
   final String variety;
-  final String genus;
   final String species;
+  final String hybrid;
+  final String genus;
   final String quantity;
   final String bloom;
   final String repot;
@@ -109,8 +113,9 @@ class PlantData {
       {@required this.id,
       @required this.name,
       this.variety,
-      this.genus,
       this.species,
+      this.hybrid,
+      this.genus,
       this.quantity,
       this.bloom,
       this.repot,
@@ -138,8 +143,9 @@ class PlantData {
       PlantKeys.id: id,
       PlantKeys.name: name,
       PlantKeys.variety: variety,
-      PlantKeys.genus: genus,
       PlantKeys.species: species,
+      PlantKeys.hybrid: hybrid,
+      PlantKeys.genus: genus,
       PlantKeys.quantity: quantity,
       PlantKeys.bloom: bloom,
       PlantKeys.repot: repot,
@@ -170,8 +176,9 @@ class PlantData {
         id: map[PlantKeys.id] ?? '',
         name: map[PlantKeys.name] ?? '',
         variety: map[PlantKeys.variety] ?? '',
-        genus: map[PlantKeys.genus] ?? '',
         species: map[PlantKeys.species] ?? '',
+        hybrid: map[PlantKeys.hybrid] ?? '',
+        genus: map[PlantKeys.genus] ?? '',
         quantity: map[PlantKeys.quantity] ?? '',
         bloom: map[PlantKeys.bloom] ?? '',
         repot: map[PlantKeys.repot] ?? '',

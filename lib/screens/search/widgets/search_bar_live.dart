@@ -48,7 +48,7 @@ class _SearchBarLiveState extends State<SearchBarLive> {
                   minLines: 1,
                   maxLines: 50,
                   onChanged: (value) {
-                    Provider.of<AppData>(context).setNewDataInput(value);
+                    Provider.of<AppData>(context).setInputSearchBarLive(value);
                   },
                 ),
               ),

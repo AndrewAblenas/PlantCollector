@@ -15,7 +15,7 @@ class AddJournalButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ButtonAdd(
-        buttonText: 'New Journal Entry',
+        buttonText: 'New Entry',
         icon: Icons.edit,
         onPress: () {
           //open an input screen

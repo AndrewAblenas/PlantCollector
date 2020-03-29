@@ -9,6 +9,7 @@ class DialogScreenInput extends StatelessWidget {
   final Function acceptOnPress;
   final Function onChange;
   final String cancelText;
+//  final Function cancelFunction;
   final String hintText;
   final bool smallText;
   DialogScreenInput(
@@ -17,6 +18,7 @@ class DialogScreenInput extends StatelessWidget {
       @required this.acceptOnPress,
       @required this.onChange,
       @required this.cancelText,
+//        @required this.cancelFunction,
       @required this.hintText,
       this.smallText});
   @override
@@ -57,6 +59,7 @@ class DialogScreenInput extends StatelessWidget {
             Expanded(
               child: FlatButton(
                 onPressed: () {
+//                  Provider.of<AppData>(context).newDataInput = null;
                   Navigator.pop(context);
                 },
                 child: Text(

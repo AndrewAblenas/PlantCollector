@@ -162,6 +162,7 @@ class GroupCard extends StatelessWidget {
                                       .connectionPlants = plants;
                                 }
                                 return UIBuilders.displayCollections(
+                                    sortAlphabetically: false,
                                     connectionLibrary: connectionLibrary,
                                     userCollections: groupCollections,
                                     groupID: group.id,

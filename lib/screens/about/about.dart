@@ -65,20 +65,35 @@ class AboutScreen extends StatelessWidget {
                         'This is called giving a ${GlobalStrings.greenThumb}.  ',
                   ),
                   ReferenceButton(
-                    title: 'Search',
-                    icon: Icons.search,
-                    text:
-                        'The Search section allows you to live search through your personal ${GlobalStrings.plants}.  '
-                        'This will return results for ${GlobalStrings.plants} with the matching nickname, cultivar/variety, species, or genus.  ',
-                  ),
+                      title: 'Search',
+                      icon: Icons.search,
+                      text:
+                          'The Search section allows you to search through both your own personal ${GlobalStrings.plants} and all visible community ${GlobalStrings.plants}.  '
+                          'This provides a quick way to find a ${GlobalStrings.plant} by name.  '),
+                  ReferenceButton(
+                      title: 'My Plants',
+                      icon: Icons.person_outline,
+                      indent: true,
+                      text:
+                          'Here you can filter through your own personal ${GlobalStrings.plant} ${GlobalStrings.library}.  '
+                          'The more detailed your ${GlobalStrings.plant} profiles, the easier it is to find one.  \n\n'
+                          'Any ${GlobalStrings.plants} that have matching information in the Display Name, Variety, Hybrid, Species, or Genus will be filtered live.'),
+                  ReferenceButton(
+                      title: 'All Plants',
+                      icon: Icons.people_outline,
+                      indent: true,
+                      text:
+                          'This tab allows you to search through all visible community ${GlobalStrings.plants}.  '
+                          'Only ${GlobalStrings.plants} with exact text matches will be shown in the results.  '),
                   ReferenceButton(
                     title: GlobalStrings.library,
                     icon: null,
                     text:
                         'Your ${GlobalStrings.library} is the main page of this app.  '
                         'This page displays your profile header and is where you add all your ${GlobalStrings.plants}.  \n\n'
-                        'Once you add some ${GlobalStrings.friends} you will be able to view their ${GlobalStrings.libraries} '
-                        'via the ${GlobalStrings.friends} section.  ',
+                        'Your ${GlobalStrings.library} is visible to the community by default.  '
+                        'If made private, only accepted ${GlobalStrings.friends} will be able to view your ${GlobalStrings.library} '
+                        'via the ${GlobalStrings.friends} page.  ',
                   ),
                   ReferenceButton(
                     title: 'Profile Header',
@@ -113,11 +128,13 @@ class AboutScreen extends StatelessWidget {
                         'To view a full sized photo, just tap on the image.  '
                         'You can set any uploaded image as a thumbnail for the ${GlobalStrings.plant} by tapping the grid icon (bottom right hand corner of the image).  \n\n'
                         'When you have more photos, the display will switch from carousel to a gridview.  When this happens, tap the image, then hold down on the full sized image to set as a thumbnail.  \n\n'
-                        'Note: The first image added will be set as the ${GlobalStrings.plant} thumbnail by default.  \n\n'
+                        'Note: The first image added will be set as the ${GlobalStrings.plant} thumbnail.  '
+                        'After you add an image the ${GlobalStrings.plant} becomes visible to the community unless your ${GlobalStrings.library} is private.  \n\n'
                         'JOURNAL\n\n'
                         'A ${GlobalStrings.journal} is attached to each ${GlobalStrings.plant}, allowing you to keep track of your ${GlobalStrings.plant} related activities.  '
-                        'These entries can be edited for 24hrs then are locked.  '
-                        'The ${GlobalStrings.journal} is only visible to you and cannot be viewed by ${GlobalStrings.friends}.  \n\n',
+                        'These entries can only be edited for 24hrs to allow spelling and grammar fixes.  '
+                        'After this time they are locked to editing.  '
+                        'All ${GlobalStrings.journal}s are visible to the community if the ${GlobalStrings.plant} is visible.  ',
                   ),
                   ReferenceButton(
                     title: '${GlobalStrings.friends}',
@@ -145,7 +162,7 @@ class AboutScreen extends StatelessWidget {
                   ReferenceButton(
                     title: 'Connections',
                     indent: true,
-                    icon: Icons.people,
+                    icon: Icons.people_outline,
                     text:
                         'Connections displays all of your accepted ${GlobalStrings.friends}.  '
                         'You can start a chat here, view a ${GlobalStrings.friends}\'s ${GlobalStrings.library}, or remove someone by holding down on their tile. ',

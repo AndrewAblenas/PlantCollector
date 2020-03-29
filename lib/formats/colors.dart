@@ -57,7 +57,7 @@ Color convertColor({@required List<dynamic> storedColor}) {
 //SHADOWS
 
 //Box Shadow
-const Color kShadowColor = Color(0x66000000);
+const Color kShadowColor = Color(0x44000000);
 const List<Shadow> kShadowText = [Shadow(color: kShadowColor, blurRadius: 5.0)];
 const List<BoxShadow> kShadowBox = [
   BoxShadow(
