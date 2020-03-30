@@ -20,14 +20,22 @@ class StatCard extends StatelessWidget {
       ),
       child: Column(
         children: <Widget>[
-          Text(
-            cardValue != null ? cardValue.toString() : '0',
-            style: TextStyle(
-              fontSize:
-                  AppTextSize.gigantic * MediaQuery.of(context).size.width,
-              fontWeight: FontWeight.w300,
-              color: kGreenDark,
+          Expanded(
+            child: Center(
+              child: Text(
+                cardValue != null ? cardValue.toString() : '0',
+                style: TextStyle(
+                  //reduce the font size as the value length increases
+                  fontSize: 0.7 *
+                      ((cardValue.length >= 4)
+                          ? AppTextSize.gigantic * 3 / cardValue.length
+                          : AppTextSize.gigantic) *
+                      MediaQuery.of(context).size.width,
+                  fontWeight: FontWeight.w300,
+                  color: kGreenDark,
 //              shadows: kShadowText,
+                ),
+              ),
             ),
           ),
           Container(
@@ -35,7 +43,7 @@ class StatCard extends StatelessWidget {
             width: 60.0 * MediaQuery.of(context).size.width * kScaleFactor,
             color: kGreenMedium,
           ),
-          const SizedBox(height: 10.0),
+          SizedBox(height: 10.0),
           Text(
             cardLabel,
             style: TextStyle(

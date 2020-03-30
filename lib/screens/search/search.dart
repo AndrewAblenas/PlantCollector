@@ -4,17 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/app_data.dart';
-import 'package:plant_collector/models/builders_general.dart';
 import 'package:plant_collector/models/data_types/plant_data.dart';
 import 'package:plant_collector/models/data_types/simple_button.dart';
-import 'package:plant_collector/models/global.dart';
 import 'package:plant_collector/screens/query/query.dart';
-import 'package:plant_collector/screens/search/widgets/search_bar_live.dart';
+import 'package:plant_collector/screens/search/search_my_plants.dart';
 import 'package:plant_collector/screens/search/widgets/tab_bar_top.dart';
 import 'package:plant_collector/screens/template/screen_template.dart';
 import 'package:plant_collector/widgets/bottom_bar.dart';
 import 'package:plant_collector/widgets/button_add.dart';
-import 'package:plant_collector/widgets/info_tip.dart';
 import 'package:provider/provider.dart';
 
 class SearchScreen extends StatelessWidget {
@@ -35,12 +32,18 @@ class SearchScreen extends StatelessWidget {
               items: [
                 SimpleButton(
                     label: 'My Plants',
-                    onPress: () {},
+                    onPress: () {
+                      //reset map
+                      Provider.of<AppData>(context).searchQueryInput = {};
+                    },
                     queryField: null,
                     type: null),
                 SimpleButton(
                     label: 'All Plants',
-                    onPress: () {},
+                    onPress: () {
+                      //reset map
+                      Provider.of<AppData>(context).searchQueryInput = {};
+                    },
                     queryField: null,
                     type: null),
               ],
@@ -52,50 +55,7 @@ class SearchScreen extends StatelessWidget {
                   return SizedBox();
                 } else {
                   if (tab == 1) {
-                    return Column(
-                      children: <Widget>[
-                        SearchBarLive(),
-                        SizedBox(
-                          height: 0.01 * MediaQuery.of(context).size.width,
-                        ),
-                        Expanded(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal:
-                                  0.02 * MediaQuery.of(context).size.width,
-                            ),
-                            child: Consumer<AppData>(
-                              builder: (context, AppData data, _) {
-                                bool hasPlants =
-                                    (data.currentUserPlants != null &&
-                                        data.currentUserPlants.length > 0);
-                                Widget display = (hasPlants == true)
-                                    ? ListView(
-//                                        childAspectRatio: 5,
-//                                        crossAxisCount: 1,
-                                        shrinkWrap: true,
-                                        primary: false,
-                                        children: UIBuilders.searchPlants(
-                                          searchInput: data.searchBarLiveInput,
-                                          plantData: data.currentUserPlants,
-                                          collections:
-                                              data.currentUserCollections,
-                                        ),
-                                      )
-                                    : InfoTip(
-                                        onPress: () {},
-                                        showAlways: true,
-                                        text:
-                                            'You don\'t currently have any ${GlobalStrings.plants} to search through.  \n\n'
-                                            'Add some in your ${GlobalStrings.library} (the bottom middle button).  \n\n'
-                                            'Then you will be able to search through them live here.  ');
-                                return display;
-                              },
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
+                    return SearchMyPlants();
                   } else if (tab == 2) {
                     //list of possible search criteria
                     List<String> queryOptions = [
@@ -116,8 +76,12 @@ class SearchScreen extends StatelessWidget {
                             decoration:
                                 BoxDecoration(gradient: kBackgroundGradientMid),
                             width: double.infinity,
-                            margin: EdgeInsets.all(
-                                0.02 * MediaQuery.of(context).size.width),
+                            margin: EdgeInsets.symmetric(
+                              vertical:
+                                  0.02 * MediaQuery.of(context).size.width,
+                              horizontal:
+                                  0.01 * MediaQuery.of(context).size.width,
+                            ),
                             padding: EdgeInsets.symmetric(
                                 horizontal:
                                     0.02 * MediaQuery.of(context).size.width,
@@ -162,10 +126,10 @@ class SearchScreen extends StatelessWidget {
                     //now the search button
                     widgets.add(Padding(
                       padding: EdgeInsets.symmetric(
-                          vertical: 0.05 * MediaQuery.of(context).size.width,
-                          horizontal: 0.18 * MediaQuery.of(context).size.width),
+                        vertical: 0.05 * MediaQuery.of(context).size.width,
+                      ),
                       child: ButtonAdd(
-                          buttonText: 'Search',
+                          buttonText: 'Search Plants',
                           icon: Icons.search,
                           onPress: () {
                             //NOTE copy this to QueryTile onSubmit

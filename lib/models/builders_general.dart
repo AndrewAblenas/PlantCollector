@@ -213,9 +213,9 @@ class UIBuilders extends ChangeNotifier {
     if (connectionLibrary == false) {
       //place image add at the beginning for carousel
       //place at the end if grid view
-      int index = (listURL != null && listURL.length >= 8 ? listURL.length : 0);
+//      int index = (listURL != null && listURL.length >= 8 ? listURL.length : 0);
       imageTileList.insert(
-        index,
+        0,
         AddPhoto(
           plantID: plantID,
           largeWidget: largeWidget,

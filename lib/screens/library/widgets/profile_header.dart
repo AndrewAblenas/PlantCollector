@@ -213,34 +213,37 @@ class ProfileHeader extends StatelessWidget {
                   ),
                 )
               : SizedBox(),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Expanded(
-                child: StatCard(
-                  cardLabel: user.plants == 1
-                      ? GlobalStrings.plant
-                      : GlobalStrings.plants,
-                  cardValue: user.plants != 0 ? user.plants.toString() : '0',
+          SizedBox(
+            height: 0.33 * MediaQuery.of(context).size.width,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Expanded(
+                  child: StatCard(
+                    cardLabel: user.plants == 1
+                        ? GlobalStrings.plant
+                        : GlobalStrings.plants,
+                    cardValue: user.plants != 0 ? user.plants.toString() : '0',
+                  ),
                 ),
-              ),
-              Expanded(
-                child: StatCard(
-                  cardLabel: user.collections == 1
-                      ? GlobalStrings.collection
-                      : GlobalStrings.collections,
-                  cardValue:
-                      user.collections != 0 ? user.collections.toString() : '0',
+                Expanded(
+                  child: StatCard(
+                    cardLabel: user.collections == 1
+                        ? GlobalStrings.collection
+                        : GlobalStrings.collections,
+                    cardValue: user.collections != 0
+                        ? user.collections.toString()
+                        : '0',
+                  ),
                 ),
-              ),
-              Expanded(
-                child: StatCard(
-                  cardLabel: user.photos == 1
-                      ? GlobalStrings.photo
-                      : GlobalStrings.photos,
-                  cardValue: user.photos != 0 ? user.photos.toString() : '0',
+                Expanded(
+                  child: StatCard(
+                    cardLabel: user.photos == 1
+                        ? GlobalStrings.photo
+                        : GlobalStrings.photos,
+                    cardValue: user.photos != 0 ? user.photos.toString() : '0',
+                  ),
                 ),
-              ),
 //              Expanded(
 //                child: StatCard(
 //                  cardLabel: 'Photo',
@@ -249,7 +252,8 @@ class ProfileHeader extends StatelessWidget {
 //                  ),
 //                ),
 //              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

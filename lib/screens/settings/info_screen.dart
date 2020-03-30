@@ -18,8 +18,7 @@ class InfoScreen extends StatelessWidget {
       screenTitle: title,
       child: Padding(
         padding: EdgeInsets.symmetric(
-          horizontal: 10.0 * MediaQuery.of(context).size.width * kScaleFactor,
-          vertical: 0.0,
+          horizontal: 0.01 * MediaQuery.of(context).size.width,
         ),
         child: ListView(
           primary: true,
@@ -28,85 +27,81 @@ class InfoScreen extends StatelessWidget {
               height: 10.0 * MediaQuery.of(context).size.width * kScaleFactor,
             ),
 //            SectionHeader(title: title),
-            Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: 5.0,
-              ),
-              child: ContainerWrapper(
-                marginVertical: 2.0,
-                color: AppTextColor.white,
-                child: FutureProvider.value(
-                  //change this to the right stream
-                  value: Provider.of<CloudDB>(context).getDocumentL1(
-                      collection: DBFolder.app, document: documentName),
-                  child: Consumer<DocumentSnapshot>(
-                    builder: (context, DocumentSnapshot future, _) {
-                      //make sure future is not null
-                      if (future != null && future.data != null) {
-                        //extract the data
-                        Map communication = future.data;
-                        List keys = communication.keys.toList();
-                        List<Widget> widgets = [];
+            ContainerWrapper(
+              marginVertical: 2.0,
+              color: AppTextColor.white,
+              child: FutureProvider.value(
+                //change this to the right stream
+                value: Provider.of<CloudDB>(context).getDocumentL1(
+                    collection: DBFolder.app, document: documentName),
+                child: Consumer<DocumentSnapshot>(
+                  builder: (context, DocumentSnapshot future, _) {
+                    //make sure future is not null
+                    if (future != null && future.data != null) {
+                      //extract the data
+                      Map communication = future.data;
+                      List keys = communication.keys.toList();
+                      List<Widget> widgets = [];
 
-                        //get the different
-                        for (String key in keys) {
-                          List contentMapList = communication[key];
+                      //get the different
+                      for (String key in keys) {
+                        List contentMapList = communication[key];
 
-                          for (Map section in contentMapList) {
-                            Widget article = Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Text(
-                                  section['title'],
-                                  style: TextStyle(
-                                    color: AppTextColor.black,
-                                    fontWeight: AppTextWeight.medium,
-                                    fontSize: AppTextSize.medium *
-                                        MediaQuery.of(context).size.width,
-                                  ),
-                                ),
-                                Container(
-                                  margin: EdgeInsets.symmetric(vertical: 5.0),
-                                  width: double.infinity,
-                                  height: 2.0,
-                                  color: kGreenDark,
-                                ),
-                                Text(
-                                  section['text'],
-                                  style: TextStyle(
-                                    color: AppTextColor.black,
-                                    fontWeight: AppTextWeight.medium,
-                                    fontSize: AppTextSize.small *
-                                        MediaQuery.of(context).size.width,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 10.0,
-                                ),
-                              ],
-                            );
-                            widgets.add(article);
-                          }
-                        }
-
-                        return Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.all(
-                            10.0,
-                          ),
-                          child: Column(
+                        for (Map section in contentMapList) {
+                          Widget article = Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: widgets,
-                          ),
-                        );
-                      } else {
-                        return SizedBox();
+                            children: <Widget>[
+                              Text(
+                                section['title'],
+                                style: TextStyle(
+                                  color: AppTextColor.black,
+                                  fontWeight: AppTextWeight.medium,
+                                  fontSize: AppTextSize.medium *
+                                      MediaQuery.of(context).size.width,
+                                ),
+                              ),
+                              Container(
+                                margin: EdgeInsets.symmetric(vertical: 5.0),
+                                width: double.infinity,
+                                height: 2.0,
+                                color: kGreenDark,
+                              ),
+                              Text(
+                                section['text'],
+                                style: TextStyle(
+                                  color: AppTextColor.black,
+                                  fontWeight: AppTextWeight.medium,
+                                  fontSize: AppTextSize.small *
+                                      MediaQuery.of(context).size.width,
+                                ),
+                              ),
+                              SizedBox(
+                                height: 10.0,
+                              ),
+                            ],
+                          );
+                          widgets.add(article);
+                        }
                       }
-                    },
-                  ),
+
+                      return Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.all(
+                          10.0,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: widgets,
+                        ),
+                      );
+                    } else {
+                      return SizedBox();
+                    }
+                  },
                 ),
               ),
             ),
+
             SizedBox(
               height: 10.0 * MediaQuery.of(context).size.width * kScaleFactor,
             ),

@@ -118,30 +118,28 @@ class PlantPhoto extends StatelessWidget {
                       SizedBox(
                         width: largeWidget ? 30 : 0,
                       ),
-                      Padding(
-                        padding: EdgeInsets.all(largeWidget
+                      Container(
+                        margin: EdgeInsets.all(largeWidget
                             ? 5.0
                             : 1.0 *
                                 MediaQuery.of(context).size.width *
                                 kScaleFactor),
-                        child: Container(
-                          color: Color(0x33000000),
-                          padding: EdgeInsets.all(3 *
-                              MediaQuery.of(context).size.width *
-                              kScaleFactor),
-                          child: Text(
-                            imageDate,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              //change text size depending on widget size
-                              fontSize: largeWidget
-                                  ? AppTextSize.medium *
-                                      MediaQuery.of(context).size.width
-                                  : 0.9 *
-                                      AppTextSize.tiny *
-                                      MediaQuery.of(context).size.width,
-                              color: Colors.white,
-                            ),
+                        color: Color(0x33000000),
+                        padding: EdgeInsets.all(3 *
+                            MediaQuery.of(context).size.width *
+                            kScaleFactor),
+                        child: Text(
+                          imageDate,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            //change text size depending on widget size
+                            fontSize: largeWidget
+                                ? AppTextSize.medium *
+                                    MediaQuery.of(context).size.width
+                                : 0.85 *
+                                    AppTextSize.tiny *
+                                    MediaQuery.of(context).size.width,
+                            color: Colors.white,
                           ),
                         ),
                       ),

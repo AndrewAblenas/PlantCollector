@@ -151,6 +151,8 @@ class BottomBar extends StatelessWidget {
                   if (Provider.of<AppData>(context).tabBarTopSelected == null) {
                     Provider.of<AppData>(context).tabBarTopSelected = 1;
                   }
+                  //reset map
+                  Provider.of<AppData>(context).searchQueryInput = {};
                   Navigator.of(context)
                       .push(tabTransition(nextPage: SearchScreen()));
 //                  Navigator.push(

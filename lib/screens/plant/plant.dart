@@ -85,15 +85,16 @@ class PlantScreen extends StatelessWidget {
                         return Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal:
-                                  0.03 * MediaQuery.of(context).size.width),
+                                  0.01 * MediaQuery.of(context).size.width),
                           child: ContainerWrapper(
                             color: kGreenMedium,
                             marginVertical: 0.0,
                             child: Padding(
-                              padding: EdgeInsets.all(
-                                5.0 *
-                                    MediaQuery.of(context).size.width *
-                                    kScaleFactor,
+                              padding: EdgeInsets.symmetric(
+                                horizontal:
+                                    0.01 * MediaQuery.of(context).size.width,
+                                vertical:
+                                    0.02 * MediaQuery.of(context).size.width,
                               ),
                               child: GridView.count(
                                 crossAxisCount: 3,
@@ -172,16 +173,20 @@ class PlantScreen extends StatelessWidget {
 //                          (connectionLibrary == true)
 //                              ? SizedBox()
 //                              :
-                          ContainerWrapper(
-                            child: Column(
-                              children: <Widget>[
-                                UIBuilders.displayJournalTiles(
-                                    connectionLibrary: connectionLibrary,
-                                    journals: plant.journal,
-                                    plantID: plant.id)
-                              ],
-                            ),
-                          ),
+                          //display nothing for connection if no journal entries
+                          (connectionLibrary == true &&
+                                  plant.journal.length == 0)
+                              ? SizedBox()
+                              : ContainerWrapper(
+                                  child: Column(
+                                    children: <Widget>[
+                                      UIBuilders.displayJournalTiles(
+                                          connectionLibrary: connectionLibrary,
+                                          journals: plant.journal,
+                                          plantID: plant.id)
+                                    ],
+                                  ),
+                                ),
                         ],
                       );
                     } else {

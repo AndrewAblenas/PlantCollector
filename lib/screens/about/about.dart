@@ -179,7 +179,7 @@ class AboutScreen extends StatelessWidget {
                     title: '${GlobalStrings.settings}',
                     icon: Icons.settings,
                     text:
-                        'The ${GlobalStrings.settings} screen allows you view various categorgies of useful information and update your account.  ',
+                        'The ${GlobalStrings.settings} screen allows you to view various categories of useful information and update your account.  ',
                   ),
                   ReferenceButton(
                     title: 'Version and Development',

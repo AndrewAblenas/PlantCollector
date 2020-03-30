@@ -26,7 +26,7 @@ class GetImageGallery extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FlatButton(
-      color: largeWidget ? AppTextColor.white : kGreenMedium,
+      color: largeWidget ? AppTextColor.white : Color(0x00000000),
       padding: EdgeInsets.all(10.0 * widgetScale),
       child: CircleAvatar(
         foregroundColor: kGreenDark,

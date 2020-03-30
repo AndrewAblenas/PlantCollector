@@ -23,7 +23,7 @@ class _SearchBarLiveState extends State<SearchBarLive> {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: 0.02 * MediaQuery.of(context).size.width,
+        horizontal: 0.01 * MediaQuery.of(context).size.width,
       ),
       child: SearchBarWrapper(
         marginVertical: 0.0,
