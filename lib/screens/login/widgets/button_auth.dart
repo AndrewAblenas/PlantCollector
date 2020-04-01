@@ -4,9 +4,15 @@ import 'package:plant_collector/formats/text.dart';
 
 class ButtonAuth extends StatelessWidget {
   final String text;
+  final double textSize;
   final Function onPress;
   final bool showImage;
-  ButtonAuth({@required this.text, @required this.onPress, this.showImage});
+  ButtonAuth({
+    @required this.text,
+    @required this.onPress,
+    this.showImage,
+    this.textSize = AppTextSize.huge,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -46,8 +52,7 @@ class ButtonAuth extends StatelessWidget {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize:
-                          AppTextSize.huge * MediaQuery.of(context).size.width,
+                      fontSize: textSize * MediaQuery.of(context).size.width,
                       fontWeight: FontWeight.w300,
                     ),
                   ),

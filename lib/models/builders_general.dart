@@ -21,7 +21,6 @@ import 'package:plant_collector/widgets/button_add.dart';
 import 'package:plant_collector/screens/plant/widgets/plant_info_card.dart';
 import 'package:plant_collector/screens/plant/widgets/plant_photo.dart';
 import 'package:date_format/date_format.dart';
-import 'package:plant_collector/screens/plant/widgets/add_photo.dart';
 import 'package:plant_collector/widgets/info_tip.dart';
 import 'package:plant_collector/widgets/section_header.dart';
 
@@ -209,22 +208,9 @@ class UIBuilders extends ChangeNotifier {
         );
       }
     } else {}
-    //add an image add button to the list
-    if (connectionLibrary == false) {
-      //place image add at the beginning for carousel
-      //place at the end if grid view
-//      int index = (listURL != null && listURL.length >= 8 ? listURL.length : 0);
-      imageTileList.insert(
-        0,
-        AddPhoto(
-          plantID: plantID,
-          largeWidget: largeWidget,
-        ),
-      );
-    }
     //if nothing in the list add a blank placeholder
     //should only show on connection true with no photos
-    if (imageTileList.length <= 0)
+    if (imageTileList.length <= 0 && connectionLibrary == true)
       imageTileList.add(Container(
         decoration: BoxDecoration(
           image: DecorationImage(

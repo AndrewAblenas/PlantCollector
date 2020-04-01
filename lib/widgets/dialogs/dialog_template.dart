@@ -18,11 +18,7 @@ class DialogTemplate extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(15.0),
-          gradient: LinearGradient(
-            colors: [kGreenMedium, kGreenLight],
-            begin: Alignment.bottomCenter,
-            end: Alignment.topCenter,
-          ),
+          gradient: kBackgroundGradient,
         ),
         child: Padding(
           padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
@@ -39,33 +35,31 @@ class DialogTemplate extends StatelessWidget {
                   fontSize:
                       AppTextSize.large * MediaQuery.of(context).size.width,
                   fontWeight: AppTextWeight.heavy,
-                  color: AppTextColor.black,
+                  color: AppTextColor.white,
+                  shadows: kShadowText,
                 ),
               ),
               SizedBox(
                 height: 10.0,
               ),
-              SizedBox(
-                height: 1.0,
-                width: double.infinity,
-                child: Container(
-                  color: kGreenDark,
+//              SizedBox(
+//                height: 1.0,
+//                width: double.infinity,
+//                child: Container(
+//                  color: kGreenDark,
+//                ),
+//              ),
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 20.0),
+                child: Text(
+                  text != null ? '$text' : '',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontSize: AppTextSize.medium *
+                          MediaQuery.of(context).size.width,
+                      fontWeight: AppTextWeight.medium,
+                      color: AppTextColor.white),
                 ),
-              ),
-              SizedBox(
-                height: 20.0,
-              ),
-              Text(
-                text != null ? '$text' : '',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    fontSize:
-                        AppTextSize.medium * MediaQuery.of(context).size.width,
-                    fontWeight: AppTextWeight.medium,
-                    color: AppTextColor.black),
-              ),
-              SizedBox(
-                height: 20.0,
               ),
               Column(
                 children: list,

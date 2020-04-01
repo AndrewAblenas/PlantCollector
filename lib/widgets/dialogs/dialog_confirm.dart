@@ -27,16 +27,14 @@ class DialogConfirm extends StatelessWidget {
           children: <Widget>[
             hideCancel == false
                 ? Expanded(
-                    child: RaisedButton(
-                      color: kGreenDark,
-                      textColor: Colors.white,
+                    child: FlatButton(
                       child: Text(
                         'CANCEL',
                         style: TextStyle(
-                          fontWeight: AppTextWeight.medium,
                           fontSize: AppTextSize.medium *
                               MediaQuery.of(context).size.width,
-                          color: AppTextColor.white,
+                          fontWeight: AppTextWeight.medium,
+                          color: kButtonCancel,
                         ),
                       ),
                       onPressed: () {
@@ -49,16 +47,14 @@ class DialogConfirm extends StatelessWidget {
               width: 20.0,
             ),
             Expanded(
-              child: RaisedButton(
-                color: kGreenDark,
-                textColor: Colors.white,
+              child: FlatButton(
                 child: Text(
-                  buttonText == null ? 'CONFIRM' : buttonText.toUpperCase(),
+                  'CONFIRM',
                   style: TextStyle(
-                    fontWeight: AppTextWeight.medium,
                     fontSize:
                         AppTextSize.medium * MediaQuery.of(context).size.width,
-                    color: AppTextColor.white,
+                    fontWeight: AppTextWeight.medium,
+                    color: kButtonAccept,
                   ),
                 ),
                 onPressed: () {

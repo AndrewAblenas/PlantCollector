@@ -105,6 +105,7 @@ class PlantPhoto extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                         builder: (context) => ImageScreen(
+                              connectionLibrary: connectionLibrary,
                               imageURL: imageURL,
                             )));
               },

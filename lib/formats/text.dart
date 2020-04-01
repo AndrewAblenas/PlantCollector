@@ -24,6 +24,7 @@ class AppTextWeight {
 //Color
 class AppTextColor {
   static const Color white = Color(0xFFFFFFFF);
+  static const Color whitish = Color(0xFFeeeeee);
   static const Color light = Color(0xFFbebebe);
   static const Color medium = Color(0xFF656565);
   static const Color dark = Color(0xFF494949);

@@ -20,46 +20,44 @@ class MessagePlant extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FlatButton(
-      onPressed: () {
-        Provider.of<CloudDB>(context).connectionUserFolder = message.sender;
-        if (message.media != null || message.media != '') {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => PlantScreen(
-                  connectionLibrary: connectionLibrary,
-                  communityView: true,
-                  plantID: message.media,
-                  forwardingCollectionID: null),
-            ),
-          );
-        }
-      },
-      child: StreamProvider<DocumentSnapshot>.value(
-        value: Provider.of<CloudDB>(context)
-            .streamPlant(plantID: message.media, userID: message.sender),
-        child: Consumer<DocumentSnapshot>(
-          builder: (context, DocumentSnapshot plantSnap, _) {
-            if (plantSnap == null) {
-              return SizedBox(
-                height:
-                    120.0 * MediaQuery.of(context).size.width * kScaleFactor,
-              );
-            } else if (plantSnap.data == null) {
-              return Text(
-                'Nothing to display!'
-                '\n\nThis plant profile could not be found. It may have been deleted.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize:
-                      AppTextSize.message * MediaQuery.of(context).size.width,
-                  fontWeight: AppTextWeight.medium,
-                  color: AppTextColor.light,
-                ),
-              );
-            } else {
-              return Column(
+    return StreamProvider<DocumentSnapshot>.value(
+      value: Provider.of<CloudDB>(context).streamPlant(plantID: message.media),
+      child: Consumer<DocumentSnapshot>(
+        builder: (context, DocumentSnapshot plantSnap, _) {
+          if (plantSnap == null) {
+            return SizedBox(
+              height: 120.0 * MediaQuery.of(context).size.width * kScaleFactor,
+            );
+          } else if (plantSnap.data == null) {
+            return Text(
+              'Nothing to display!'
+              '\n\nThis plant profile could not be found. It may have been deleted.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize:
+                    AppTextSize.message * MediaQuery.of(context).size.width,
+                fontWeight: AppTextWeight.medium,
+                color: AppTextColor.light,
+              ),
+            );
+          } else {
+            return FlatButton(
+              onPressed: () {
+//        Provider.of<CloudDB>(context).connectionUserFolder = message.sender;
+                if (message.media != null || message.media != '') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PlantScreen(
+                          connectionLibrary: connectionLibrary,
+                          communityView: true,
+                          plantID: message.media,
+                          forwardingCollectionID: null),
+                    ),
+                  );
+                }
+              },
+              child: Column(
                 children: <Widget>[
                   Container(
                     width: 120.0 *
@@ -88,10 +86,10 @@ class MessagePlant extends StatelessWidget {
                     ),
                   ),
                 ],
-              );
-            }
-          },
-        ),
+              ),
+            );
+          }
+        },
       ),
     );
   }

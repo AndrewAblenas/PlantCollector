@@ -42,7 +42,7 @@ class LibraryScreen extends StatelessWidget {
       Provider.of<AppData>(context).showTipsHelpers();
     } else {
       //make friend ID available to CloudDB and CloudStore instances to display friend library
-      Provider.of<CloudDB>(context).setConnectionFolder(connectionID: userID);
+//      Provider.of<CloudDB>(context).setConnectionFolder(connectionID: userID);
       Provider.of<CloudStore>(context)
           .setConnectionFolder(connectionID: userID);
       Provider.of<AppData>(context).showTips = false;

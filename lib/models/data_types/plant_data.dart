@@ -30,6 +30,8 @@ class PlantKeys {
   static const String sell = 'plantSell';
   static const String isVisible = 'isVisible';
   static const String isFlagged = 'isFlagged';
+  static const String isHousePlant = 'isHousePlant';
+  static const String dateAcquired = 'dateAcquired';
 
   //VISIBLE LIST
   static const List<String> visible = [
@@ -52,7 +54,7 @@ class PlantKeys {
   static const Map<String, String> descriptors = {
     id: 'Plant Library ID',
     name: 'Display Name',
-    variety: 'Cultivar/Variety/Clone',
+    variety: 'Variety/Clone',
     species: 'Species',
     hybrid: 'Hybrid',
     genus: 'Genus',
@@ -75,7 +77,9 @@ class PlantKeys {
     want: 'On Wishlist',
     sell: 'For Sale',
     isVisible: 'Visible In Feed',
-    isFlagged: 'Flagged Innappropriate'
+    isFlagged: 'Flagged Innappropriate',
+    isHousePlant: 'Grown Indoors',
+    dateAcquired: 'Date Acquired',
   };
 }
 
@@ -107,6 +111,8 @@ class PlantData {
   final bool sell;
   final bool isVisible;
   final bool isFlagged;
+  final bool isHousePlant;
+  final int dateAcquired;
 
   //CONSTRUCTOR
   PlantData(
@@ -135,7 +141,9 @@ class PlantData {
       this.want,
       this.sell,
       @required this.isVisible,
-      this.isFlagged});
+      this.isFlagged,
+      this.isHousePlant,
+      this.dateAcquired});
 
   //TO MAP
   Map<String, dynamic> toMap() {
@@ -166,6 +174,8 @@ class PlantData {
       PlantKeys.sell: sell,
       PlantKeys.isVisible: isVisible,
       PlantKeys.isFlagged: isFlagged,
+      PlantKeys.isHousePlant: isHousePlant,
+      PlantKeys.dateAcquired: dateAcquired,
     };
   }
 
@@ -199,6 +209,8 @@ class PlantData {
         sell: map[PlantKeys.sell] ?? false,
         isVisible: map[PlantKeys.isVisible] ?? false,
         isFlagged: map[PlantKeys.isFlagged] ?? false,
+        isHousePlant: map[PlantKeys.isHousePlant] ?? false,
+        dateAcquired: map[PlantKeys.dateAcquired] ?? 0,
       );
     } else {
       return PlantData(

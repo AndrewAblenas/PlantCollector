@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/text.dart';
-import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/builders_general.dart';
-import 'package:provider/provider.dart';
 import 'package:plant_collector/formats/colors.dart';
 
 class DialogColorPicker extends StatelessWidget {
@@ -16,7 +14,7 @@ class DialogColorPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Provider.of<AppData>(context).loadingStatus = false;
+//    Provider.of<AppData>(context).loadingStatus = false;
     return AlertDialog(
       backgroundColor: Colors.white,
       title: Text(

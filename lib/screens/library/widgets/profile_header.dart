@@ -199,14 +199,16 @@ class ProfileHeader extends StatelessWidget {
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      Text(
-                        user.about,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: AppTextSize.small *
-                              MediaQuery.of(context).size.width,
-                          fontWeight: AppTextWeight.medium,
-                          color: AppTextColor.black,
+                      Expanded(
+                        child: Text(
+                          user.about,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: AppTextSize.small *
+                                MediaQuery.of(context).size.width,
+                            fontWeight: AppTextWeight.medium,
+                            color: AppTextColor.black,
+                          ),
                         ),
                       ),
                     ],

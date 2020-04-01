@@ -17,10 +17,10 @@ class JournalScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return StreamProvider<DocumentSnapshot>.value(
       value: Provider.of<CloudDB>(context).streamPlant(
-          userID:
-//    connectionLibrary == false
-//    ?
-              Provider.of<CloudDB>(context).currentUserFolder,
+//          userID:
+////    connectionLibrary == false
+////    ?
+//              Provider.of<CloudDB>(context).currentUserFolder,
 //        : Provider.of<CloudDB>(context).connectionUserFolder,
           plantID: plant.id),
       child: ScreenTemplate(

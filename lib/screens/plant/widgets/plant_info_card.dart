@@ -4,11 +4,10 @@ import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 import 'package:plant_collector/models/data_types/plant_data.dart';
 import 'package:plant_collector/screens/dialog/dialog_screen_input.dart';
-import 'package:plant_collector/widgets/container_card.dart';
 import 'package:plant_collector/widgets/dialogs/dialog_confirm.dart';
+import 'package:plant_collector/widgets/tile_white.dart';
 import 'package:provider/provider.dart';
 import 'package:plant_collector/models/cloud_db.dart';
-import 'package:plant_collector/formats/colors.dart';
 
 //*****WIDGET PURPOSE*****//
 //to present a plant document key/value pair
@@ -58,7 +57,8 @@ class PlantInfoCard extends StatelessWidget {
           );
         }
       },
-      child: ContainerCard(
+      child: TileWhite(
+        bottomPadding: 0.0,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
@@ -73,8 +73,8 @@ class PlantInfoCard extends StatelessWidget {
                   fontSize:
                       AppTextSize.huge * MediaQuery.of(context).size.width,
                   fontWeight: AppTextWeight.medium,
-                  color: AppTextColor.white,
-                  shadows: kShadowText,
+                  color: AppTextColor.dark,
+//                  shadows: kShadowText,
                 ),
               ),
             ),
@@ -90,7 +90,7 @@ class PlantInfoCard extends StatelessWidget {
                             Icons.edit,
                             size: AppTextSize.tiny *
                                 MediaQuery.of(context).size.width,
-                            color: kGreenMedium,
+                            color: AppTextColor.light,
                           )
                         : SizedBox(),
                     SizedBox(
@@ -105,7 +105,7 @@ class PlantInfoCard extends StatelessWidget {
                         fontSize: AppTextSize.small *
                             MediaQuery.of(context).size.width,
                         fontWeight: AppTextWeight.heavy,
-                        color: kGreenMedium,
+                        color: AppTextColor.light,
                       ),
                     ),
                   ],

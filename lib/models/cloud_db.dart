@@ -24,7 +24,7 @@ class CloudDB extends ChangeNotifier {
   //variables
   String currentUserFolder;
   List<List<Map>> libraryBundle;
-  String connectionUserFolder;
+//  String connectionUserFolder;
 
   //*****************INITIALIZE*****************//
 
@@ -34,9 +34,9 @@ class CloudDB extends ChangeNotifier {
   }
 
   //this is to provide the user ID to this class
-  void setConnectionFolder({@required String connectionID}) {
-    connectionUserFolder = connectionID;
-  }
+//  void setConnectionFolder({@required String connectionID}) {
+//    connectionUserFolder = connectionID;
+//  }
 
   //*****************REFERENCES*****************
 
@@ -120,8 +120,7 @@ class CloudDB extends ChangeNotifier {
 
   //provide a stream of one specific plant document
   //NOTE userID is required as it may be from a connection in chat
-  Stream<DocumentSnapshot> streamPlant(
-      {@required String plantID, @required userID}) {
+  Stream<DocumentSnapshot> streamPlant({@required String plantID}) {
     return _db.collection(DBFolder.plants).document(plantID).snapshots();
   }
 
@@ -794,18 +793,18 @@ class CloudDB extends ChangeNotifier {
   }
 
   //update a piece of data in a other friend collection (userPlants, userCollections, or userSets)
-  Future<void> updateDocumentInCollectionOther(
-      {@required Map data,
-      @required String collection,
-      @required String documentName}) {
-    //create, write, and/or merge
-    return _db
-        .collection(usersPath)
-        .document(connectionUserFolder)
-        .collection(collection)
-        .document(documentName)
-        .updateData(data);
-  }
+//  Future<void> updateDocumentInCollectionOther(
+//      {@required Map data,
+//      @required String collection,
+//      @required String documentName}) {
+//    //create, write, and/or merge
+//    return _db
+//        .collection(usersPath)
+//        .document(connectionUserFolder)
+//        .collection(collection)
+//        .document(documentName)
+//        .updateData(data);
+//  }
 
   //add or overwrite document in a user collection (userPlants, userCollections, or userSets)
   Future<void> insertDocumentToCollection(
@@ -851,32 +850,32 @@ class CloudDB extends ChangeNotifier {
   }
 
   //add or remove item in specific array in specific document in specific collection of other user
-  Future<void> updateArrayInDocumentInOtherCollection(
-      {@required String arrayKey,
-      @required List entries,
-      @required String folder,
-      @required String documentName,
-      //true to add false to remove
-      @required bool action}) async {
-    if (entries != null) {
-      //create, write, and/or merge
-      if (action == true) {
-        return await _db
-            .collection(usersPath)
-            .document(connectionUserFolder)
-            .collection(folder)
-            .document(documentName)
-            .updateData({arrayKey: FieldValue.arrayUnion(entries)});
-      } else if (action == false) {
-        return await _db
-            .collection(usersPath)
-            .document(connectionUserFolder)
-            .collection(folder)
-            .document(documentName)
-            .updateData({arrayKey: FieldValue.arrayRemove(entries)});
-      }
-    } else {}
-  }
+//  Future<void> updateArrayInDocumentInOtherCollection(
+//      {@required String arrayKey,
+//      @required List entries,
+//      @required String folder,
+//      @required String documentName,
+//      //true to add false to remove
+//      @required bool action}) async {
+//    if (entries != null) {
+//      //create, write, and/or merge
+//      if (action == true) {
+//        return await _db
+//            .collection(usersPath)
+//            .document(connectionUserFolder)
+//            .collection(folder)
+//            .document(documentName)
+//            .updateData({arrayKey: FieldValue.arrayUnion(entries)});
+//      } else if (action == false) {
+//        return await _db
+//            .collection(usersPath)
+//            .document(connectionUserFolder)
+//            .collection(folder)
+//            .document(documentName)
+//            .updateData({arrayKey: FieldValue.arrayRemove(entries)});
+//      }
+//    } else {}
+//  }
 
   //delete specific document in specific collection
   Future<void> deleteDocumentFromCollection(

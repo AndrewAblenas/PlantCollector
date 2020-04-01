@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/screens/search/widgets/search_bar_wrapper.dart';
@@ -75,10 +76,10 @@ class SearchBarSubmit extends StatelessWidget {
                 children: <Widget>[
                   SizedBox(),
                   Text(
-                    'exact user name search through all users (including capitalization)',
+                    'exact user name search through all users',
                     style: TextStyle(
                       decoration: TextDecoration.none,
-                      color: AppTextColor.white,
+                      color: kGreenLight,
                       fontSize:
                           AppTextSize.tiny * MediaQuery.of(context).size.width,
                       fontWeight: AppTextWeight.medium,

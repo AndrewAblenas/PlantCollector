@@ -3,7 +3,6 @@ import 'package:date_format/date_format.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'dart:io';
 import 'package:plant_collector/models/data_types/collection_data.dart';
 import 'package:plant_collector/models/data_types/group_data.dart';
 import 'package:plant_collector/models/data_types/journal_data.dart';
@@ -12,12 +11,12 @@ import 'package:plant_collector/models/data_types/user_data.dart';
 
 class AppData extends ChangeNotifier {
   //Plant Library Variables
-  String newPlantVariety;
-  String currentPlantID;
+//  String newPlantVariety;
+//  String currentPlantID;
   //Collection Library variablesFav
   String newDataInput;
-  String selectedDialogButtonItem;
-  bool hideButton;
+//  String selectedDialogButtonItem;
+//  bool hideButton;
   //Discover Page state - Custom Tabs
   int customFeedSelected;
   Type customFeedType;
@@ -33,27 +32,61 @@ class AppData extends ChangeNotifier {
   String plantQueryField;
   //used to pass ID to image tile
   String forwardingPlantID;
-  File cameraCapture;
-  List<File> imageFileList;
-  String localPathSaved;
-  bool loadingStatus;
+//  File cameraCapture;
+//  List<File> imageFileList;
+//  String localPathSaved;
   //Formatting
   Column collectionColumn = Column();
-  //path and directories
-  String pathPlants;
-  String pathSettings;
-  //stream savers
   //current user
   List<GroupData> currentUserGroups;
   List<CollectionData> currentUserCollections;
   List<PlantData> currentUserPlants;
   UserData currentUserInfo;
   UserData connectionUserInfo;
-  bool showTips;
   //connection
   List<GroupData> connectionGroups;
   List<CollectionData> connectionCollections;
   List<PlantData> connectionPlants;
+  //tips
+  bool showTips;
+
+  //*****************SIGN OUT CLEAR DATA*****************//
+
+  void clearAppData() {
+    //to be used at logout
+
+    //Collection Library variablesFav
+    newDataInput = null;
+    //Discover Page state - Custom Tabs
+    customFeedSelected = null;
+    customFeedType = null;
+    customFeedQueryField = null;
+    //Search Page state - Tab Bar Top
+    tabBarTopSelected = null;
+    //Search Page - Selected Fields
+    searchQueryInput = {};
+    //search bar live input
+    searchBarLiveInput = null;
+    //Custom Tabs
+    customTabSelected = null;
+    plantQueryField = null;
+    //used to pass ID to image tile
+    forwardingPlantID = null;
+    //Formatting
+    collectionColumn = Column();
+    //current user
+    currentUserInfo = null;
+    currentUserGroups = null;
+    currentUserCollections = null;
+    currentUserPlants = null;
+    //connection
+    connectionUserInfo = null;
+    connectionGroups = null;
+    connectionCollections = null;
+    connectionPlants = null;
+    //tips
+    showTips = null;
+  }
 
   //*****************NOTIFICATIONS*****************//
 
@@ -168,10 +201,10 @@ class AppData extends ChangeNotifier {
   //*****************CAMERA/IMAGE/FOLDER METHODS*****************
 
   //METHOD TO DELETE PLANT FOLDER
-  Future<void> folderPlantDelete({@required plantID}) async {
-    Directory folder = Directory('$pathPlants/$plantID');
-    folder.delete(recursive: true);
-  }
+//  Future<void> folderPlantDelete({@required plantID}) async {
+//    Directory folder = Directory('$pathPlants/$plantID');
+//    folder.delete(recursive: true);
+//  }
 
   //*****************GROUP METHODS*****************
 

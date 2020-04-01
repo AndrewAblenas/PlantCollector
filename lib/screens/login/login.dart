@@ -156,10 +156,21 @@ class LoginScreen extends StatelessWidget {
 //                }
 //              }),
           SizedBox(
-            height: 10.0,
+            height: 5.0,
+          ),
+          Text(
+            'or',
+            style: TextStyle(
+              fontSize: AppTextSize.medium * MediaQuery.of(context).size.width,
+              color: kGreenMedium,
+            ),
+          ),
+          SizedBox(
+            height: 5.0,
           ),
           ButtonAuth(
-              text: 'or Register',
+              text: 'Start Here',
+              textSize: AppTextSize.large,
               showImage: false,
               onPress: () {
                 Navigator.pushNamed(context, 'register');

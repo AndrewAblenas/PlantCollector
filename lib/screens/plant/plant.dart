@@ -6,12 +6,16 @@ import 'package:plant_collector/models/data_types/collection_data.dart';
 import 'package:plant_collector/models/data_types/communication_data.dart';
 import 'package:plant_collector/models/data_types/plant_data.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
+import 'package:plant_collector/screens/plant/widgets/add_photo.dart';
 import 'package:plant_collector/screens/plant/widgets/carousel_standard.dart';
 import 'package:plant_collector/screens/search/widgets/search_tile_user.dart';
 import 'package:plant_collector/widgets/admin_button.dart';
 import 'package:plant_collector/screens/plant/widgets/action_button.dart';
 import 'package:plant_collector/widgets/container_wrapper.dart';
+import 'package:plant_collector/widgets/container_wrapper_gradient.dart';
 import 'package:plant_collector/widgets/dialogs/dialog_confirm.dart';
+import 'package:plant_collector/widgets/get_image_camera.dart';
+import 'package:plant_collector/widgets/get_image_gallery.dart';
 import 'package:provider/provider.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/builders_general.dart';
@@ -36,11 +40,7 @@ class PlantScreen extends StatelessWidget {
             UserTypes.creator ||
         Provider.of<AppData>(context).currentUserInfo.type == UserTypes.admin);
     return StreamProvider<DocumentSnapshot>.value(
-      value: Provider.of<CloudDB>(context).streamPlant(
-          userID: connectionLibrary == false
-              ? Provider.of<CloudDB>(context).currentUserFolder
-              : Provider.of<CloudDB>(context).connectionUserFolder,
-          plantID: plantID),
+      value: Provider.of<CloudDB>(context).streamPlant(plantID: plantID),
       child: StreamProvider<UserData>.value(
         value: Provider.of<CloudDB>(context).streamCurrentUser(),
         child: Scaffold(
@@ -65,7 +65,7 @@ class PlantScreen extends StatelessWidget {
                       PlantData plant = PlantData.fromMap(map: plantSnap.data);
                       //check number of widgets to decide what type to build
                       bool largeWidget =
-                          (plant.images != null && plant.images.length >= 8)
+                          (plant.images != null && plant.images.length >= 9)
                               ? false
                               : true;
                       List<Widget> items = UIBuilders.generateImageTileWidgets(
@@ -81,7 +81,7 @@ class PlantScreen extends StatelessWidget {
                       );
                       //if there are too many photos, it's annoying to scroll.
                       //create a grid view to display instead
-                      if (plant.images != null && plant.images.length >= 8) {
+                      if (plant.images != null && plant.images.length >= 9) {
                         return Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal:
@@ -89,27 +89,80 @@ class PlantScreen extends StatelessWidget {
                           child: ContainerWrapper(
                             color: kGreenMedium,
                             marginVertical: 0.0,
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal:
-                                    0.01 * MediaQuery.of(context).size.width,
-                                vertical:
-                                    0.02 * MediaQuery.of(context).size.width,
-                              ),
-                              child: GridView.count(
-                                crossAxisCount: 3,
-                                primary: false,
-                                shrinkWrap: true,
-                                mainAxisSpacing:
-                                    0.005 * MediaQuery.of(context).size.width,
-                                crossAxisSpacing:
-                                    0.005 * MediaQuery.of(context).size.width,
-                                children: items,
-                              ),
+                            child: Column(
+                              children: <Widget>[
+                                connectionLibrary == true
+                                    ? SizedBox()
+                                    : Padding(
+                                        padding: EdgeInsets.only(
+                                          top: 0.01 *
+                                              MediaQuery.of(context).size.width,
+                                          left: 0.01 *
+                                              MediaQuery.of(context).size.width,
+                                          right: 0.01 *
+                                              MediaQuery.of(context).size.width,
+                                        ),
+                                        child: Row(
+                                          children: <Widget>[
+                                            Expanded(
+                                              child: ContainerWrapperGradient(
+                                                marginVertical: 0.0,
+                                                child: GetImageGallery(
+                                                    largeWidget: false,
+                                                    widgetScale: 0.3,
+                                                    plantID: plant.id),
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              width: 0.01 *
+                                                  MediaQuery.of(context)
+                                                      .size
+                                                      .width,
+                                            ),
+                                            Expanded(
+                                              child: ContainerWrapperGradient(
+                                                marginVertical: 0.0,
+                                                child: GetImageCamera(
+                                                    largeWidget: false,
+                                                    widgetScale: 0.3,
+                                                    plantID: plant.id),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                GridView.count(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 0.01 *
+                                        MediaQuery.of(context).size.width,
+                                    vertical: 0.02 *
+                                        MediaQuery.of(context).size.width,
+                                  ),
+                                  crossAxisCount: 3,
+                                  primary: false,
+                                  shrinkWrap: true,
+                                  mainAxisSpacing:
+                                      0.005 * MediaQuery.of(context).size.width,
+                                  crossAxisSpacing:
+                                      0.005 * MediaQuery.of(context).size.width,
+                                  children: items,
+                                ),
+                              ],
                             ),
                           ),
                         );
-                      } else if (items.length >= 1) {
+                      } else if (items.length >= 0) {
+                        //add an image add button to the list for user library
+                        if (connectionLibrary == false) {
+                          //place image add at the beginning for carousel
+                          items.insert(
+                            0,
+                            AddPhoto(
+                              plantID: plantID,
+                              largeWidget: largeWidget,
+                            ),
+                          );
+                        }
                         return CarouselStandard(
                           items: items,
                           connectionLibrary: connectionLibrary,

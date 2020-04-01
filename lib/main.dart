@@ -1,5 +1,6 @@
 //import list
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/user.dart';
 import 'package:plant_collector/screens/about/reference.dart';
@@ -27,6 +28,13 @@ import 'package:plant_collector/formats/colors.dart';
 
 //main function call to launch app
 void main() {
+  //change the navigation bar to match
+  SystemChrome.setSystemUIOverlayStyle(
+    SystemUiOverlayStyle(
+      systemNavigationBarColor: Colors.black,
+      systemNavigationBarIconBrightness: Brightness.light,
+    ),
+  );
   runApp(
     MultiProvider(
       providers: [
@@ -81,7 +89,7 @@ class PlantCollector extends StatelessWidget {
               communityView: null,
               plantID: null,
               forwardingCollectionID: null),
-          'image': (context) => ImageScreen(),
+          'image': (context) => ImageScreen(connectionLibrary: null),
           'settings': (context) => SettingsScreen(),
           'account': (context) => AccountScreen(),
           'connections': (context) => FriendsScreen(),

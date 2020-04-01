@@ -11,9 +11,9 @@ import 'package:plant_collector/models/data_types/plant_data.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/screens/chat/chat.dart';
 import 'package:plant_collector/screens/dialog/dialog_screen.dart';
-import 'package:plant_collector/widgets/container_card.dart';
 import 'package:plant_collector/widgets/dialogs/dialog_confirm.dart';
 import 'package:plant_collector/widgets/info_tip.dart';
+import 'package:plant_collector/widgets/tile_white.dart';
 import 'package:provider/provider.dart';
 
 class ViewerUtilityButtons extends StatelessWidget {
@@ -23,8 +23,8 @@ class ViewerUtilityButtons extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 0.98 * MediaQuery.of(context).size.width,
-      child: ContainerCard(
-        color: AppTextColor.white,
+      child: TileWhite(
+        bottomPadding: 0.0,
         child: Row(
           mainAxisSize: MainAxisSize.max,
           children: <Widget>[
@@ -127,6 +127,9 @@ class ViewerUtilityButtons extends StatelessWidget {
                   },
                   text: 'Clone',
                   icon: Icons.control_point_duplicate),
+            ),
+            SizedBox(
+              width: 0.01 * MediaQuery.of(context).size.width,
             ),
             Expanded(
               flex: 1,
@@ -309,6 +312,9 @@ class ViewerUtilityButtons extends StatelessWidget {
                   text: 'Share',
                   icon: Icons.person),
             ),
+            SizedBox(
+              width: 0.01 * MediaQuery.of(context).size.width,
+            ),
             Expanded(
               flex: 1,
               child: StreamProvider<UserData>.value(
@@ -372,15 +378,15 @@ class UtilityButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(5.0),
             border: Border.all(
               width: 1.0,
-              color: AppTextColor.light,
+              color: AppTextColor.whitish,
             )),
         margin: EdgeInsets.symmetric(
-          horizontal: 5.0 * MediaQuery.of(context).size.width * kScaleFactor,
-          vertical: 2.0 * MediaQuery.of(context).size.width * kScaleFactor,
+          horizontal: 0.005 * MediaQuery.of(context).size.width,
+          vertical: 0.005 * MediaQuery.of(context).size.width,
         ),
         padding: EdgeInsets.symmetric(
-          horizontal: 5.0 * MediaQuery.of(context).size.width * kScaleFactor,
-          vertical: 8.0 * MediaQuery.of(context).size.width * kScaleFactor,
+          horizontal: 0.01 * MediaQuery.of(context).size.width,
+          vertical: 0.015 * MediaQuery.of(context).size.width,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,

@@ -211,7 +211,6 @@ class StreamDescription extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-//          gradient: kBackgroundGradientMidReversed,
         color: kGreenDark,
       ),
       child: Padding(
