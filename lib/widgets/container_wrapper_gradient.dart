@@ -4,9 +4,11 @@ import 'package:plant_collector/formats/colors.dart';
 class ContainerWrapperGradient extends StatelessWidget {
   final Widget child;
   final double marginVertical;
+  final Gradient gradient;
   ContainerWrapperGradient({
     @required this.child,
     this.marginVertical,
+    this.gradient = kGradientDarkMidGreen,
   });
 
   @override
@@ -18,7 +20,7 @@ class ContainerWrapperGradient extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10.0),
-        gradient: kBackgroundGradientMid,
+        gradient: gradient,
         boxShadow: kShadowBox,
       ),
       child: child,

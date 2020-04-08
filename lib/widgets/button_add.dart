@@ -28,7 +28,7 @@ class ButtonAdd extends StatelessWidget {
                 5.0,
               ),
             ),
-            gradient: kBackgroundGradientMid),
+            gradient: kGradientDarkMidGreen),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[

@@ -2,8 +2,8 @@ name: plant_collector
 description: Create a digital collection of all your plants
 # Always remember to update the version number
 # 2020-03-24
-# TODO version number
-version: 1.1.2
+# TODO version number, and version code
+version: 1.2.0+0
 
 environment:
   sdk: ">=2.1.0 <3.0.0"

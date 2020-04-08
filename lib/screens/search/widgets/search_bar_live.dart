@@ -31,7 +31,11 @@ class _SearchBarLiveState extends State<SearchBarLive> {
           padding: const EdgeInsets.all(10.0),
           child: Row(
             children: <Widget>[
-              Icon(Icons.search),
+              Icon(
+                Icons.search,
+                size: AppTextSize.large * MediaQuery.of(context).size.width,
+                color: AppTextColor.white,
+              ),
               SizedBox(
                 width: 0.04 * MediaQuery.of(context).size.width,
               ),

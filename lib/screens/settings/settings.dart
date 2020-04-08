@@ -23,7 +23,7 @@ class SettingsScreen extends StatelessWidget {
       bottomBar: BottomBar(
         selectionNumber: 5,
       ),
-      child: Padding(
+      body: Padding(
         padding: EdgeInsets.symmetric(
           horizontal: 10.0 * MediaQuery.of(context).size.width * kScaleFactor,
           vertical: 0.0,

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 import 'package:plant_collector/models/data_types/collection_data.dart';
@@ -8,18 +9,19 @@ import 'package:plant_collector/models/data_types/plant_data.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/screens/plant/widgets/add_photo.dart';
 import 'package:plant_collector/screens/plant/widgets/carousel_standard.dart';
+import 'package:plant_collector/screens/plant/widgets/plant_flowering.dart';
+import 'package:plant_collector/screens/plant/widgets/viewer_utility_buttons.dart';
 import 'package:plant_collector/screens/search/widgets/search_tile_user.dart';
+import 'package:plant_collector/screens/template/screen_template.dart';
 import 'package:plant_collector/widgets/admin_button.dart';
 import 'package:plant_collector/screens/plant/widgets/action_button.dart';
 import 'package:plant_collector/widgets/container_wrapper.dart';
-import 'package:plant_collector/widgets/container_wrapper_gradient.dart';
 import 'package:plant_collector/widgets/dialogs/dialog_confirm.dart';
-import 'package:plant_collector/widgets/get_image_camera.dart';
-import 'package:plant_collector/widgets/get_image_gallery.dart';
+import 'package:plant_collector/widgets/get_image.dart';
+import 'package:plant_collector/widgets/tile_white.dart';
 import 'package:provider/provider.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/builders_general.dart';
-import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:share/share.dart';
 
@@ -35,40 +37,51 @@ class PlantScreen extends StatelessWidget {
       @required this.forwardingCollectionID});
   @override
   Widget build(BuildContext context) {
-    //check if admin
-    bool admin = (Provider.of<AppData>(context).currentUserInfo.type ==
+    //*****SET WIDGET VISIBILITY START*****//
+
+    //how many photos before to change to grid from carousel view
+    int changeToGridView = 9;
+
+    //only display certain elements for admin
+    bool showAdmin = (Provider.of<AppData>(context).currentUserInfo.type ==
             UserTypes.creator ||
         Provider.of<AppData>(context).currentUserInfo.type == UserTypes.admin);
+
+    //only show add image if user created plant
+    bool showAddImage = (connectionLibrary == false);
+
+    //show plant owner tile
+    bool showOwnerUserInfo = (communityView == true);
+
+    //only show delete for plant owner
+    bool showDeleteInsteadOfReport = (connectionLibrary == false);
+
+    //*****SET WIDGET VISIBILITY END*****//
+
     return StreamProvider<DocumentSnapshot>.value(
       value: Provider.of<CloudDB>(context).streamPlant(plantID: plantID),
       child: StreamProvider<UserData>.value(
         value: Provider.of<CloudDB>(context).streamCurrentUser(),
-        child: Scaffold(
+        child: ScreenTemplate(
           backgroundColor: kGreenLight,
-          appBar: AppBar(
-            backgroundColor: kGreenDark,
-            centerTitle: true,
-            elevation: 20.0,
-            title: Text(
-              'Plant Profile',
-              style: kAppBarTitle,
-            ),
-          ),
+          screenTitle: 'Plant Profile',
           body: ListView(
             children: <Widget>[
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 10),
                 child: Consumer<DocumentSnapshot>(
                   builder: (context, DocumentSnapshot plantSnap, _) {
-                    //after the first image has been taken, this will be rebuilt
                     if (plantSnap != null) {
+                      //convert snap into something useful
                       PlantData plant = PlantData.fromMap(map: plantSnap.data);
-                      //check number of widgets to decide what type to build
-                      bool largeWidget =
-                          (plant.images != null && plant.images.length >= 9)
-                              ? false
-                              : true;
-                      List<Widget> items = UIBuilders.generateImageTileWidgets(
+                      //check number of images to decide whether to build carousel or grid
+                      bool carouselView = (plant.images != null &&
+                              plant.images.length >= changeToGridView)
+                          ? false
+                          : true;
+                      List<Widget> imageWidgets =
+                          UIBuilders.generateImageTileWidgets(
+                        plantOwner: plant.owner,
                         connectionLibrary: connectionLibrary,
                         plantID: plantID,
                         thumbnail: plant != null ? plant.thumbnail : null,
@@ -77,11 +90,11 @@ class PlantScreen extends StatelessWidget {
                         listURL: plant.images != null
                             ? plant.images.reversed.toList()
                             : null,
-                        largeWidget: largeWidget,
+                        largeWidget: carouselView,
                       );
                       //if there are too many photos, it's annoying to scroll.
                       //create a grid view to display instead
-                      if (plant.images != null && plant.images.length >= 9) {
+                      if (carouselView == false) {
                         return Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal:
@@ -91,51 +104,15 @@ class PlantScreen extends StatelessWidget {
                             marginVertical: 0.0,
                             child: Column(
                               children: <Widget>[
-                                connectionLibrary == true
-                                    ? SizedBox()
-                                    : Padding(
-                                        padding: EdgeInsets.only(
-                                          top: 0.01 *
-                                              MediaQuery.of(context).size.width,
-                                          left: 0.01 *
-                                              MediaQuery.of(context).size.width,
-                                          right: 0.01 *
-                                              MediaQuery.of(context).size.width,
-                                        ),
-                                        child: Row(
-                                          children: <Widget>[
-                                            Expanded(
-                                              child: ContainerWrapperGradient(
-                                                marginVertical: 0.0,
-                                                child: GetImageGallery(
-                                                    largeWidget: false,
-                                                    widgetScale: 0.3,
-                                                    plantID: plant.id),
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              width: 0.01 *
-                                                  MediaQuery.of(context)
-                                                      .size
-                                                      .width,
-                                            ),
-                                            Expanded(
-                                              child: ContainerWrapperGradient(
-                                                marginVertical: 0.0,
-                                                child: GetImageCamera(
-                                                    largeWidget: false,
-                                                    widgetScale: 0.3,
-                                                    plantID: plant.id),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
                                 GridView.count(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 0.01 *
+                                  padding: EdgeInsets.only(
+                                    left: 0.01 *
                                         MediaQuery.of(context).size.width,
-                                    vertical: 0.02 *
+                                    right: 0.01 *
+                                        MediaQuery.of(context).size.width,
+                                    top: 0.01 *
+                                        MediaQuery.of(context).size.width,
+                                    bottom: 0.02 *
                                         MediaQuery.of(context).size.width,
                                   ),
                                   crossAxisCount: 3,
@@ -145,30 +122,29 @@ class PlantScreen extends StatelessWidget {
                                       0.005 * MediaQuery.of(context).size.width,
                                   crossAxisSpacing:
                                       0.005 * MediaQuery.of(context).size.width,
-                                  children: items,
+                                  children: imageWidgets,
                                 ),
                               ],
                             ),
                           ),
                         );
-                      } else if (items.length >= 0) {
+                      } else {
                         //add an image add button to the list for user library
-                        if (connectionLibrary == false) {
+                        if (showAddImage == true) {
                           //place image add at the beginning for carousel
-                          items.insert(
+                          imageWidgets.insert(
                             0,
                             AddPhoto(
+                              plantCreationDate: plant.created,
                               plantID: plantID,
-                              largeWidget: largeWidget,
+                              largeWidget: carouselView,
                             ),
                           );
                         }
                         return CarouselStandard(
-                          items: items,
+                          items: imageWidgets,
                           connectionLibrary: connectionLibrary,
                         );
-                      } else {
-                        return SizedBox();
                       }
                     } else {
                       return SizedBox();
@@ -190,14 +166,29 @@ class PlantScreen extends StatelessWidget {
                           ContainerWrapper(
                             child: Column(
                               children: <Widget>[
+                                Row(
+                                  children: <Widget>[
+                                    ViewerUtilityButtons(plant: plant),
+                                  ],
+                                ),
+                                (plant.bloomSequence.length > 0)
+                                    ? PlantFlowering(
+                                        plant: plant,
+                                        connectionLibrary: connectionLibrary,
+                                      )
+                                    : SizedBox(),
+                                //make sure this is the same number as carousel
+                                (showAddImage == true &&
+                                        plant.images.length >= changeToGridView)
+                                    ? GridViewAddImages(plant: plant)
+                                    : SizedBox(),
                                 UIBuilders.displayInfoCards(
                                   connectionLibrary: connectionLibrary,
                                   plant: plant,
                                   context: context,
                                 ),
-                                communityView == false
-                                    ? SizedBox()
-                                    : FutureProvider<UserData>.value(
+                                (showOwnerUserInfo == true)
+                                    ? FutureProvider<UserData>.value(
                                         value: CloudDB.futureUserData(
                                           userID: plant.owner,
                                         ),
@@ -214,9 +205,10 @@ class PlantScreen extends StatelessWidget {
                                             }
                                           },
                                         ),
-                                      ),
+                                      )
+                                    : SizedBox(),
                                 //ADMIN AND CREATOR ONLY FUNCTION!
-                                admin
+                                (showAdmin == true)
                                     ? PlantAdminFunctions(
                                         plant: plant, plantID: plantID)
                                     : SizedBox(),
@@ -261,7 +253,7 @@ class PlantScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         //if you own the library then show delete
-                        (connectionLibrary == false)
+                        (showDeleteInsteadOfReport == true)
                             ? ActionButton(
                                 icon: Icons.delete_forever,
                                 action: () {
@@ -272,8 +264,8 @@ class PlantScreen extends StatelessWidget {
                                         title: 'Remove Plant',
                                         text:
                                             'Are you sure you would like to remove this plant?  All photos and all related information will be permanently deleted.  '
-                                            '\n\nThis cannot be undone!',
-                                        buttonText: 'Delete',
+                                            'This cannot be undone!',
+                                        buttonText: 'DELETE',
                                         hideCancel: false,
                                         onPressed: () {
                                           //pop dialog
@@ -342,7 +334,9 @@ class PlantScreen extends StatelessWidget {
                                 },
                               ),
                         //share plant to in app chat recipient
-//                      Expanded(child: ShareViaChat(plantID: plantID)),
+                        SizedBox(
+                          width: 0.12 * MediaQuery.of(context).size.width,
+                        ),
                         ActionButton(
                           icon: Icons.share,
                           action: () {
@@ -376,6 +370,48 @@ class PlantScreen extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class GridViewAddImages extends StatelessWidget {
+  const GridViewAddImages({
+    @required this.plant,
+  });
+
+  final PlantData plant;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: <Widget>[
+        Expanded(
+          child: TileWhite(
+            bottomPadding: 0.0,
+            rightPadding: 2.5,
+            child: GetImage(
+                iconColor: AppTextColor.dark,
+                imageFromCamera: false,
+                plantCreationDate: plant.created,
+                largeWidget: false,
+                widgetScale: 0.3,
+                plantID: plant.id),
+          ),
+        ),
+        Expanded(
+          child: TileWhite(
+            bottomPadding: 0.0,
+            leftPadding: 2.5,
+            child: GetImage(
+                iconColor: AppTextColor.dark,
+                imageFromCamera: true,
+                plantCreationDate: plant.created,
+                largeWidget: false,
+                widgetScale: 0.3,
+                plantID: plant.id),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -446,7 +482,6 @@ class PlantAdminFunctions extends StatelessWidget {
                                     'For more detail on our Guidelines, go to "Conduct" in the "Settings" tab.  ',
                                 read: false,
                                 type: CommunicationTypes.alert,
-                                icon: null,
                                 date: DateTime.now()
                                     .millisecondsSinceEpoch
                                     .toString(),

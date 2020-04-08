@@ -15,6 +15,13 @@ class ImageScreen extends StatelessWidget {
   ImageScreen({this.imageURL, @required this.connectionLibrary});
   @override
   Widget build(BuildContext context) {
+    //*****SET WIDGET VISIBILITY START*****//
+
+    //enable dialogs only if library belongs to the current user
+    bool enableDialogs = (connectionLibrary == false);
+
+    //*****SET WIDGET VISIBILITY END*****//
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: kGreenDark,
@@ -29,7 +36,7 @@ class ImageScreen extends StatelessWidget {
       body: Container(
         child: GestureDetector(
           onLongPress: () {
-            if (connectionLibrary == false) {
+            if (enableDialogs == true) {
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
@@ -39,22 +46,30 @@ class ImageScreen extends StatelessWidget {
                     text:
                         'Would you like to use this image as the plant thumbail image?',
                     onPressed: () async {
-                      //run thumbnail package to get thumb url
-                      String thumbUrl = await Provider.of<CloudStore>(context)
-                          .thumbnailPackage(
-                              imageURL: imageURL,
-                              plantID: Provider.of<AppData>(context)
-                                  .forwardingPlantID);
-                      //set thumb url
-                      Provider.of<CloudDB>(context).updateDocumentL1(
-                        collection: DBFolder.plants,
-                        document:
-                            Provider.of<AppData>(context).forwardingPlantID,
-                        data: CloudDB.updatePairFull(
-                            key: PlantKeys.thumbnail, value: thumbUrl),
-                      );
+                      if (connectionLibrary == false) {
+                        //run thumbnail package to get thumb url
+                        String thumbUrl = await Provider.of<CloudStore>(context)
+                            .thumbnailPackage(
+                                imageURL: imageURL,
+                                plantID: Provider.of<AppData>(context)
+                                    .forwardingPlantID);
+                        //package data
+                        Map<String, dynamic> data = {
+                          PlantKeys.thumbnail: thumbUrl,
+                          PlantKeys.isVisible: !Provider.of<AppData>(context)
+                              .currentUserInfo
+                              .privateLibrary
+                        };
+                        //set thumb url
+                        Provider.of<CloudDB>(context).updateDocumentL1(
+                          collection: DBFolder.plants,
+                          document:
+                              Provider.of<AppData>(context).forwardingPlantID,
+                          data: data,
+                        );
 
-                      Navigator.pop(context);
+                        Navigator.pop(context);
+                      }
                     },
                   );
                 },

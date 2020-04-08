@@ -56,7 +56,7 @@ class InputCard extends StatelessWidget {
             cardPrompt,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: kGreenMedium,
+              color: kGreenDark,
               fontSize: AppTextSize.small * MediaQuery.of(context).size.width,
             ),
           ),

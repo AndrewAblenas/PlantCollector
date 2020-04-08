@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:plant_collector/widgets/get_image_camera.dart';
-import 'package:plant_collector/widgets/get_image_gallery.dart';
+import 'package:plant_collector/widgets/get_image.dart';
 import 'package:plant_collector/formats/colors.dart';
 
 class AddPhoto extends StatelessWidget {
   final String plantID;
+  final int plantCreationDate;
   final bool largeWidget;
   AddPhoto({
     @required this.plantID,
+    @required this.plantCreationDate,
     @required this.largeWidget,
   });
 
@@ -21,7 +22,7 @@ class AddPhoto extends StatelessWidget {
         width: MediaQuery.of(context).size.width * 0.94,
         decoration: largeWidget
             ? BoxDecoration(
-                gradient: kBackgroundGradientMid,
+                gradient: kGradientDarkMidGreen,
                 boxShadow: [
                   BoxShadow(
                     color: kShadowColor,
@@ -32,17 +33,21 @@ class AddPhoto extends StatelessWidget {
                 ],
               )
             : BoxDecoration(
-                gradient: kBackgroundGradientMid,
+                gradient: kGradientDarkMidGreen,
               ),
         child: Column(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            GetImageCamera(
+            GetImage(
+                imageFromCamera: true,
+                plantCreationDate: plantCreationDate,
                 largeWidget: largeWidget,
                 widgetScale: widgetScale,
                 plantID: plantID),
-            GetImageGallery(
+            GetImage(
+                imageFromCamera: false,
+                plantCreationDate: plantCreationDate,
                 largeWidget: largeWidget,
                 widgetScale: widgetScale,
                 plantID: plantID),

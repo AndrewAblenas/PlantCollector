@@ -1,4 +1,5 @@
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
@@ -23,17 +24,46 @@ class PlantPhoto extends StatelessWidget {
   final String imageURL;
   final String imageDate;
   final bool largeWidget;
-  PlantPhoto(
-      {@required this.connectionLibrary,
-      @required this.imageURL,
-      @required this.imageDate,
-      @required this.largeWidget});
+  final String plantOwner;
+  PlantPhoto({
+    @required this.connectionLibrary,
+    @required this.imageURL,
+    @required this.imageDate,
+    @required this.largeWidget,
+    @required this.plantOwner,
+  });
 
   @override
   Widget build(BuildContext context) {
+    //*****SET WIDGET VISIBILITY START*****//
+
+    //only show set thumbnail for large widget and current user is owner
+    bool showSetThumbnail = (largeWidget == true && connectionLibrary == false);
+
+    //get the thumbnail image name for delete image and gridview display
+    String thumbName = CloudStore.getThumbName(imageUrl: imageURL);
+
+    //get the thumb reference
+    StorageReference thumbRef = Provider.of<CloudStore>(context).getImageRef(
+        ownerID: plantOwner,
+        imageName: thumbName,
+        imageExtension: 'jpg',
+        plantIDFolder: Provider.of<AppData>(context).forwardingPlantID);
+
+    //*****SET WIDGET VISIBILITY END*****//
+
     return Padding(
-      padding: EdgeInsets.all(largeWidget ? 4.0 : 0.0),
+      padding: EdgeInsets.all((largeWidget == true) ? 4.0 : 0.0),
       child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => ImageScreen(
+                        connectionLibrary: connectionLibrary,
+                        imageURL: imageURL,
+                      )));
+        },
         onLongPress: () {
           //allow long press to delete image, if this is the user library
           if (connectionLibrary == false) {
@@ -60,17 +90,8 @@ class PlantPhoto extends StatelessWidget {
                     //delete image
                     Provider.of<CloudStore>(context)
                         .deleteImage(imageReference: reference);
+
                     //*****REMOVE THUMBNAIL*****//
-                    //get the thumbnail image name from the full sized image url
-                    String imageName =
-                        CloudStore.getThumbName(imageUrl: imageURL);
-                    //get the thumb ref
-                    StorageReference thumbRef = Provider.of<CloudStore>(context)
-                        .getImageRef(
-                            imageName: imageName,
-                            imageExtension: 'jpg',
-                            plantIDFolder: Provider.of<AppData>(context)
-                                .forwardingPlantID);
                     //delete thumbnail
                     Provider.of<CloudStore>(context)
                         .deleteImage(imageReference: thumbRef);
@@ -82,130 +103,140 @@ class PlantPhoto extends StatelessWidget {
           }
         },
         child: Container(
-          margin: EdgeInsets.only(bottom: largeWidget ? 10.0 : 0.0),
-          decoration: largeWidget
+          width: MediaQuery.of(context).size.width * 0.94,
+          margin: EdgeInsets.only(bottom: (largeWidget == true) ? 10.0 : 0.0),
+          decoration: (largeWidget == true)
               ? BoxDecoration(
                   color: kGreenMedium,
                   boxShadow: kShadowBox,
                 )
               : BoxDecoration(color: kGreenMedium),
-          child: Container(
-            width: MediaQuery.of(context).size.width * 0.94,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                //TODO set to use thumbnail, not full image?, maybe send over proper URL during build
-                image: CachedNetworkImageProvider(imageURL),
-                fit: BoxFit.cover,
-                alignment: Alignment.center,
-              ),
-            ),
-            child: FlatButton(
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => ImageScreen(
-                              connectionLibrary: connectionLibrary,
-                              imageURL: imageURL,
-                            )));
-              },
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    mainAxisSize: MainAxisSize.max,
-                    children: <Widget>[
-                      SizedBox(
-                        width: largeWidget ? 30 : 0,
-                      ),
-                      Container(
-                        margin: EdgeInsets.all(largeWidget
-                            ? 5.0
-                            : 1.0 *
-                                MediaQuery.of(context).size.width *
-                                kScaleFactor),
-                        color: Color(0x33000000),
-                        padding: EdgeInsets.all(3 *
-                            MediaQuery.of(context).size.width *
-                            kScaleFactor),
-                        child: Text(
-                          imageDate,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            //change text size depending on widget size
-                            fontSize: largeWidget
-                                ? AppTextSize.medium *
-                                    MediaQuery.of(context).size.width
-                                : 0.85 *
-                                    AppTextSize.tiny *
-                                    MediaQuery.of(context).size.width,
-                            color: Colors.white,
-                          ),
+          child: Stack(fit: StackFit.expand, children: <Widget>[
+            (largeWidget == true)
+                ? CachedNetworkImage(
+                    imageUrl: imageURL,
+                    fit: BoxFit.cover,
+                  )
+                : FutureProvider<String>.value(
+                    value: Provider.of<CloudStore>(context)
+                        .getImageUrl(reference: thumbRef),
+                    child: Consumer<String>(
+                      builder: (context, String thumbURL, _) {
+                        if (thumbURL == null) {
+                          return SizedBox();
+                        } else {
+                          return CachedNetworkImage(
+                            imageUrl: thumbURL,
+                            fit: BoxFit.cover,
+                          );
+                        }
+                      },
+                    ),
+                  ),
+//              CachedNetworkImage(imageUrl: imageURL),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisSize: MainAxisSize.max,
+                  children: <Widget>[
+                    SizedBox(
+                      width: (largeWidget == true && showSetThumbnail == true)
+                          ? 30
+                          : 0,
+                    ),
+                    Container(
+                      margin: EdgeInsets.all((largeWidget == true)
+                          ? 5.0
+                          : 1.0 *
+                              MediaQuery.of(context).size.width *
+                              kScaleFactor),
+                      color: Color(0x55000000),
+                      padding: EdgeInsets.all(
+                          3 * MediaQuery.of(context).size.width * kScaleFactor),
+                      child: Text(
+                        imageDate,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          //change text size depending on widget size
+                          fontSize: (largeWidget == true)
+                              ? AppTextSize.medium *
+                                  MediaQuery.of(context).size.width
+                              : 1.0 *
+                                  AppTextSize.tiny *
+                                  MediaQuery.of(context).size.width,
+                          fontWeight: (largeWidget == true)
+                              ? AppTextWeight.medium
+                              : AppTextWeight.heavy,
+                          color: Colors.white,
                         ),
                       ),
-                      //only show set as thumbnail for large widget size
-                      largeWidget
-                          ? Container(
-                              width: 38 *
-                                  MediaQuery.of(context).size.width *
-                                  kScaleFactor,
-                              //only show set as thumbnail if user library
-                              child: connectionLibrary == false
-                                  ? FlatButton(
-                                      onPressed: () {
-                                        showDialog(
-                                          context: context,
-                                          builder: (BuildContext context) {
-                                            return DialogConfirm(
-                                              title: 'Plant Thumbnail',
-                                              text:
-                                                  'Would you like to use this image as the plant thumbail image?',
-                                              onPressed: () async {
-                                                //run thumbnail package to get thumb url
-                                                String thumbUrl = await Provider
-                                                        .of<CloudStore>(context)
-                                                    .thumbnailPackage(
-                                                        imageURL: imageURL,
-                                                        plantID: Provider.of<
-                                                                    AppData>(
-                                                                context)
-                                                            .forwardingPlantID);
-                                                //set thumb url
-                                                Provider.of<CloudDB>(context)
-                                                    .updateDocumentL1(
-                                                  collection: DBFolder.plants,
-                                                  document:
-                                                      Provider.of<AppData>(
-                                                              context)
-                                                          .forwardingPlantID,
-                                                  data: CloudDB.updatePairFull(
-                                                      key: PlantKeys.thumbnail,
-                                                      value: thumbUrl),
-                                                );
+                    ),
+                    //only show set as thumbnail for large widget size
+                    (showSetThumbnail == true)
+                        ? Container(
+                            width: 0.08 * MediaQuery.of(context).size.width,
+                            child: GestureDetector(
+                              onTap: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return DialogConfirm(
+                                      title: 'Plant Thumbnail',
+                                      text:
+                                          'Would you like to use this image as the plant thumbail image?',
+                                      onPressed: () async {
+                                        if (connectionLibrary == false) {
+                                          //run thumbnail package to get thumb url
+                                          String thumbUrl = await Provider.of<
+                                                  CloudStore>(context)
+                                              .thumbnailPackage(
+                                                  imageURL: imageURL,
+                                                  plantID: Provider.of<AppData>(
+                                                          context)
+                                                      .forwardingPlantID);
+                                          //package data
+                                          Map<String, dynamic> data = {
+                                            PlantKeys.thumbnail: thumbUrl,
+                                            PlantKeys.isVisible:
+                                                !Provider.of<AppData>(context)
+                                                    .currentUserInfo
+                                                    .privateLibrary
+                                          };
+                                          //set thumb url
+                                          Provider.of<CloudDB>(context)
+                                              .updateDocumentL1(
+                                            collection: DBFolder.plants,
+                                            document:
+                                                Provider.of<AppData>(context)
+                                                    .forwardingPlantID,
+                                            data: data,
+                                          );
 
-                                                Navigator.pop(context);
-                                              },
-                                            );
-                                          },
-                                        );
+                                          Navigator.pop(context);
+                                        }
                                       },
-                                      child: Icon(Icons.grid_on,
-                                          color: Color(0x55FFFFFF),
-                                          size: AppTextSize.huge *
-                                              MediaQuery.of(context)
-                                                  .size
-                                                  .width),
-                                    )
-                                  : SizedBox(),
-                            )
-                          : SizedBox(),
-                    ],
-                  ),
-                ],
-              ),
+                                    );
+                                  },
+                                );
+                              },
+                              child: Icon(Icons.grid_on,
+                                  color: Color(0x55FFFFFF),
+                                  size: AppTextSize.huge *
+                                      MediaQuery.of(context).size.width),
+                            ),
+                          )
+                        : SizedBox(
+//                              width: 38 *
+//                                  MediaQuery.of(context).size.width *
+//                                  kScaleFactor,
+                            ),
+                  ],
+                ),
+              ],
             ),
-          ),
+          ]),
         ),
       ),
     );

@@ -12,6 +12,7 @@ import 'package:plant_collector/screens/discover/discover.dart';
 import 'package:plant_collector/screens/friends/friends.dart';
 import 'package:plant_collector/screens/search/search.dart';
 import 'package:plant_collector/screens/settings/settings.dart';
+import 'package:plant_collector/widgets/set_username_bundle.dart';
 import 'package:provider/provider.dart';
 
 //BOTTOM NAVIGATION BAR
@@ -78,6 +79,20 @@ class BottomBar extends StatelessWidget {
                     navigate: () {
                       Navigator.of(context)
                           .push(tabTransition(nextPage: FriendsScreen()));
+                      //show dialog to prompt for user handle
+                      print(Provider.of<AppData>(context)
+                          .currentUserInfo
+                          .uniquePublicID);
+                      if (Provider.of<AppData>(context)
+                              .currentUserInfo
+                              .uniquePublicID ==
+                          '') {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return SetUsernameBundle();
+                            });
+                      }
 //                      Navigator.push(
 //                        context,
 //                        MaterialPageRoute(
@@ -263,7 +278,7 @@ class BottomTab extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: tabSelected == tabNumber
               ? kBackgroundGradient
-              : kBackgroundGradientSolidDark,
+              : kGradientGreenSolidDark,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(
                 5.0 * MediaQuery.of(context).size.width * kScaleFactor),

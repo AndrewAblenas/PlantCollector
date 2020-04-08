@@ -44,7 +44,7 @@ class UserAuth extends ChangeNotifier {
   //PASSWORD CONTENTS
   //One Capital Letter, One Small Letter
   bool validatePasswordContents(String password) {
-    String pattern = r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[!@#\$&*~.]).{8,}$';
+    String pattern = r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[!@#\/$&*~.]).{8,}$';
 //    (?=.*?[0-9])
     RegExp regExp = new RegExp(pattern);
     return regExp.hasMatch(password);

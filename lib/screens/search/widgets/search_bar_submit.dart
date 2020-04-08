@@ -25,12 +25,12 @@ class SearchBarSubmit extends StatelessWidget {
             children: <Widget>[
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   SizedBox(
                     width: 0.04 * MediaQuery.of(context).size.width,
                   ),
-                  SizedBox(
-                    width: 0.7 * MediaQuery.of(context).size.width,
+                  Expanded(
                     child: TextFormField(
                       keyboardType: TextInputType.text,
                       textInputAction: TextInputAction.search,
@@ -59,6 +59,7 @@ class SearchBarSubmit extends StatelessWidget {
                   GestureDetector(
                     onTap: () {
                       onPress();
+                      FocusScope.of(context).unfocus();
                     },
                     child: TileWhite(
                       child: Icon(
@@ -76,7 +77,7 @@ class SearchBarSubmit extends StatelessWidget {
                 children: <Widget>[
                   SizedBox(),
                   Text(
-                    'exact user name search through all users',
+                    'exact username search',
                     style: TextStyle(
                       decoration: TextDecoration.none,
                       color: kGreenLight,

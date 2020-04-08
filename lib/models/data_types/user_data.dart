@@ -45,6 +45,7 @@ class UserKeys {
   static const String chats = 'userChats';
   static const String privateLibrary = 'privateLibrary';
   static const String sortAlphabetically = 'sortCollectionsAlphabetically';
+  static const String uniquePublicID = 'uniquePublicID';
   //local only
   static const String chatStarted = 'chatStarted';
 
@@ -74,6 +75,7 @@ class UserKeys {
     chats: 'Friend Chats',
     privateLibrary: 'Only Allow Friends to View Library',
     sortAlphabetically: 'Display Shelves Alphabetically',
+    uniquePublicID: 'Unique Public User Handle',
     //local only
     chatStarted: 'Chat Started',
   };
@@ -106,6 +108,7 @@ class UserData {
   final List chats;
   final bool privateLibrary;
   final bool sortAlphabetically;
+  final String uniquePublicID;
   //local only
   final bool chatStarted;
 
@@ -135,6 +138,7 @@ class UserData {
     this.chats,
     this.privateLibrary,
     this.sortAlphabetically,
+    this.uniquePublicID,
     //local only
     this.chatStarted,
   });
@@ -166,6 +170,7 @@ class UserData {
       UserKeys.chats: chats,
       UserKeys.privateLibrary: privateLibrary,
       UserKeys.sortAlphabetically: sortAlphabetically,
+      UserKeys.uniquePublicID: uniquePublicID,
       //local only
       UserKeys.chatStarted: chatStarted,
     };
@@ -199,6 +204,7 @@ class UserData {
       chats: map[UserKeys.chats] ?? [],
       privateLibrary: map[UserKeys.privateLibrary] ?? false,
       sortAlphabetically: map[UserKeys.sortAlphabetically] ?? false,
+      uniquePublicID: map[UserKeys.uniquePublicID] ?? '',
       //local only
       chatStarted: map[UserKeys.chatStarted] ?? false,
     );

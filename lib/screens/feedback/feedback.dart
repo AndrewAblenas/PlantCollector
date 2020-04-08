@@ -18,7 +18,7 @@ class FeedbackScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return ScreenTemplate(
         screenTitle: 'Feedback',
-        child: ListView(
+        body: ListView(
           primary: false,
           shrinkWrap: true,
           children: <Widget>[
@@ -90,11 +90,10 @@ class FeedbackScreen extends StatelessWidget {
                             buttonText: 'Suggest Features',
                             type: DBDocument.feedbackFeatures,
                             icon: Icons.add_box),
-                        //TODO move this functionality to user profile page?
                         FeedbackButton(
                             promptA: 'Issue Title',
                             promptB:
-                                'Please describe the misconduct. Provide the offending user email if appropriate.',
+                                'Please describe the misconduct. Provide the offending user name, unique ID, or email if appropriate.',
                             buttonText: 'Report User',
                             type: DBDocument.feedbackAbuse,
                             icon: Icons.report_problem),

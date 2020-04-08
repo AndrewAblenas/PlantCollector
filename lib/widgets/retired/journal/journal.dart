@@ -25,7 +25,7 @@ class JournalScreen extends StatelessWidget {
           plantID: plant.id),
       child: ScreenTemplate(
         screenTitle: 'Journal',
-        child: ListView(
+        body: ListView(
           primary: false,
           shrinkWrap: true,
           children: <Widget>[

@@ -17,7 +17,7 @@ import 'package:plant_collector/screens/dialog/dialog_screen_input.dart';
 import 'package:plant_collector/screens/library/widgets/stat_card.dart';
 import 'package:plant_collector/widgets/container_card.dart';
 import 'package:plant_collector/widgets/container_wrapper.dart';
-import 'package:plant_collector/widgets/section_header.dart';
+import 'package:plant_collector/widgets/tile_white.dart';
 import 'package:provider/provider.dart';
 
 class ProfileHeader extends StatelessWidget {
@@ -26,12 +26,28 @@ class ProfileHeader extends StatelessWidget {
   ProfileHeader({@required this.connectionLibrary, @required this.user});
   @override
   Widget build(BuildContext context) {
+    //*****SET WIDGET VISIBILITY START*****//
+
+    //enable dialogs only if library belongs to the current user
+    bool enableDialogs = (connectionLibrary == false);
+
+    //enable dialogs only if library belongs to the current user
+    bool showUniquePublicID = (user != null &&
+        user.uniquePublicID != '' &&
+        user.uniquePublicID != 'not set');
+
+    //show about only for friend library if they have written something
+    bool displayAbout =
+        (user != null && user.about.length > 0 && connectionLibrary == true);
+
+    //*****SET WIDGET VISIBILITY END*****//
+
     return ContainerWrapper(
       child: Column(
         children: <Widget>[
           GestureDetector(
             onLongPress: () {
-              if (connectionLibrary == false)
+              if (enableDialogs == true)
                 showDialog(
                     context: context,
                     builder: (context) {
@@ -56,14 +72,75 @@ class ProfileHeader extends StatelessWidget {
                           hintText: user.name);
                     });
             },
-            child: SectionHeader(
-              title: (user.name != '') ? user.name : 'Hold to Set Name',
-              leading: Container(
-                margin: EdgeInsets.only(
-                  right: 5.0,
+            child: TileWhite(
+              bottomPadding: 0.0,
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Column(
+                  children: <Widget>[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Container(
+                          margin: EdgeInsets.only(
+                            right: 5.0,
+                          ),
+                          width: 0.07 * MediaQuery.of(context).size.width,
+                          child:
+                              UIBuilders.getBadge(userTotalPlants: user.plants),
+                        ),
+                        Text(
+                          (user.name != '') ? user.name : 'Hold to Set Name',
+                          style: TextStyle(
+                            fontSize: AppTextSize.huge *
+                                MediaQuery.of(context).size.width,
+                            fontWeight: AppTextWeight.medium,
+                          ),
+                        ),
+                      ],
+                    ),
+                    (showUniquePublicID == true)
+                        ? Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Text(
+                                '( ',
+                                softWrap: false,
+                                overflow: TextOverflow.fade,
+                                style: TextStyle(
+                                  color: AppTextColor.medium,
+                                  fontWeight: AppTextWeight.heavy,
+                                  fontSize: AppTextSize.small *
+                                      MediaQuery.of(context).size.width,
+                                ),
+                              ),
+                              Text(
+                                user.uniquePublicID,
+                                softWrap: false,
+                                overflow: TextOverflow.fade,
+                                style: TextStyle(
+                                  color: kGreenMedium,
+                                  fontWeight: AppTextWeight.heavy,
+                                  fontSize: AppTextSize.small *
+                                      MediaQuery.of(context).size.width,
+                                ),
+                              ),
+                              Text(
+                                ' )',
+                                softWrap: false,
+                                overflow: TextOverflow.fade,
+                                style: TextStyle(
+                                  color: AppTextColor.medium,
+                                  fontWeight: AppTextWeight.heavy,
+                                  fontSize: AppTextSize.small *
+                                      MediaQuery.of(context).size.width,
+                                ),
+                              ),
+                            ],
+                          )
+                        : SizedBox(),
+                  ],
                 ),
-                width: 0.07 * MediaQuery.of(context).size.width,
-                child: UIBuilders.getBadge(userTotalPlants: user.plants),
               ),
             ),
           ),
@@ -72,7 +149,7 @@ class ProfileHeader extends StatelessWidget {
           ),
           GestureDetector(
             onLongPress: () async {
-              if (connectionLibrary == false)
+              if (enableDialogs == true)
                 //set userID for use in path generation
                 Provider.of<CloudStore>(context).setUserFolder(
                     userID:
@@ -134,7 +211,7 @@ class ProfileHeader extends StatelessWidget {
                 ),
                 child: GestureDetector(
                   onLongPress: () async {
-                    if (connectionLibrary == false) {
+                    if (enableDialogs == true) {
                       //set userID for use in path generation
                       Provider.of<CloudStore>(context).setUserFolder(
                           userID: (await Provider.of<UserAuth>(context)
@@ -192,7 +269,7 @@ class ProfileHeader extends StatelessWidget {
             ),
           ),
           //Display an about section but not for your own profile
-          (user != null && user.about.length > 0 && connectionLibrary == true)
+          (displayAbout == true)
               ? ContainerCard(
                   color: AppTextColor.white,
                   child: Row(

@@ -3,25 +3,25 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
-import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/cloud_store.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 import 'package:plant_collector/models/data_types/plant_data.dart';
 import 'package:provider/provider.dart';
 
-class GetImageCamera extends StatelessWidget {
-  const GetImageCamera(
-      {Key key,
-      @required this.largeWidget,
-      @required this.widgetScale,
-      @required this.plantID,
-      this.pop})
-      : super(key: key);
+class GetImageGallery extends StatelessWidget {
+  const GetImageGallery({
+    @required this.largeWidget,
+    @required this.widgetScale,
+    @required this.plantID,
+    @required this.plantCreationDate,
+    this.pop,
+  });
 
   final bool largeWidget;
   final double widgetScale;
   final String plantID;
+  final int plantCreationDate;
   final bool pop;
 
   @override
@@ -35,7 +35,7 @@ class GetImageCamera extends StatelessWidget {
         radius:
             60 * MediaQuery.of(context).size.width * kScaleFactor * widgetScale,
         child: Icon(
-          Icons.camera_alt,
+          Icons.image,
           size: 80.0 *
               MediaQuery.of(context).size.width *
               kScaleFactor *
@@ -45,9 +45,10 @@ class GetImageCamera extends StatelessWidget {
       onPressed: () async {
         //get image from camera
         File image = await Provider.of<CloudStore>(context)
-            .getImageFile(fromCamera: true);
+            .getImageFile(fromCamera: false);
         //check to make sure the user didn't back out
         if (image != null) {
+          print('Image file is not null');
           //upload image
           StorageUploadTask upload = Provider.of<CloudStore>(context)
               .uploadTask(
@@ -73,11 +74,8 @@ class GetImageCamera extends StatelessWidget {
               collection: DBFolder.plants,
               document: plantID,
               data: {
-                PlantKeys.update: CloudDB.timeNowMS(),
-                //if a user has chosen to hide their library except from friends don't make globally visible
-                PlantKeys.isVisible: !Provider.of<AppData>(context)
-                    .currentUserInfo
-                    .privateLibrary,
+                PlantKeys.update:
+                    CloudDB.delayUpdateWrites(timeCreated: plantCreationDate),
               });
           //pop context
           if (pop == true) {

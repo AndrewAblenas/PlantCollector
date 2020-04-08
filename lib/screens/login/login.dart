@@ -124,7 +124,6 @@ class LoginScreen extends StatelessWidget {
               }
             },
           ),
-          //TODO maybe implement in the future
 //          GoogleAuthButton(
 //              text: 'oogle Sign in',
 //              onPress: () async {
@@ -156,17 +155,17 @@ class LoginScreen extends StatelessWidget {
 //                }
 //              }),
           SizedBox(
-            height: 5.0,
+            height: 10.0,
           ),
           Text(
-            'or',
+            'OR',
             style: TextStyle(
-              fontSize: AppTextSize.medium * MediaQuery.of(context).size.width,
-              color: kGreenMedium,
+              fontSize: AppTextSize.small * MediaQuery.of(context).size.width,
+              color: kGreenDark,
             ),
           ),
           SizedBox(
-            height: 5.0,
+            height: 10.0,
           ),
           ButtonAuth(
               text: 'Start Here',

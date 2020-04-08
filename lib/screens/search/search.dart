@@ -23,7 +23,7 @@ class SearchScreen extends StatelessWidget {
       implyLeading: false,
       bottomBar: BottomBar(selectionNumber: 4),
       screenTitle: 'Search',
-      child: Provider<int>.value(
+      body: Provider<int>.value(
         value: Provider.of<AppData>(context).tabBarTopSelected,
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -74,7 +74,7 @@ class SearchScreen extends StatelessWidget {
                         initialExpanded: false,
                         child: Container(
                             decoration:
-                                BoxDecoration(gradient: kBackgroundGradientMid),
+                                BoxDecoration(gradient: kGradientDarkMidGreen),
                             width: double.infinity,
                             margin: EdgeInsets.symmetric(
                               vertical:

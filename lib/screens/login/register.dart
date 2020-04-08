@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/user.dart';
 import 'package:plant_collector/screens/login/widgets/login_template.dart';
@@ -41,7 +42,7 @@ class RegisterScreen extends StatelessWidget {
                   keyboardType: TextInputType.text,
                   cardPrompt: userAuth.passwordHelper == false
                       ? 'Ensure your password has at least 8 characters '
-                          'and contains a capital letter (A-Z), small letter (a-b), a special character (!@#\\\$&*~.)'
+                          'and contains a capital letter (A-Z), small letter (a-b), a special character (!@#\\/\$&*~.)'
                       : 'Create a secure password',
                   obscureText: true,
                   onChanged: (input) {
@@ -84,9 +85,10 @@ class RegisterScreen extends StatelessWidget {
                     title: 'Account Created',
                     text:
                         'You\'ll receive an email from us shortly.  Ensure you follow the link to verify.\n\n'
-                        'Then you can get started building your Collection Library!',
+                        'Then you can get started building your Library!',
                     buttonText: 'OK',
                     onPressed: () {
+                      //pop the dialog
                       Navigator.pop(context);
                       //send to login page
                       Navigator.pop(context);
@@ -112,6 +114,33 @@ class RegisterScreen extends StatelessWidget {
               );
             }
           },
+        ),
+        SizedBox(
+          height: 25.0,
+        ),
+        GestureDetector(
+          onTap: () {
+            //go back by popping context
+            Navigator.pop(context);
+          },
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Icon(
+                Icons.arrow_back,
+                color: kGreenDark,
+                size: AppTextSize.small * MediaQuery.of(context).size.width,
+              ),
+              Text(
+                ' Back to Login',
+                style: TextStyle(
+                  color: kGreenDark,
+                  fontSize:
+                      AppTextSize.small * MediaQuery.of(context).size.width,
+                ),
+              ),
+            ],
+          ),
         ),
         SizedBox(
           height: 20.0,

@@ -16,7 +16,7 @@ class QueryScreen extends StatelessWidget {
       value: CloudDB.streamUserPlantQuery(queryMap: queryMap),
       child: ScreenTemplate(
         screenTitle: 'Results',
-        child: ListView(
+        body: ListView(
           children: <Widget>[
             Consumer<List<PlantData>>(
               builder: (context, results, _) {

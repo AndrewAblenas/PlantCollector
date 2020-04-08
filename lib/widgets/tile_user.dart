@@ -17,6 +17,15 @@ class UserTile extends StatelessWidget {
   UserTile({@required this.user, @required this.buttonRow});
   @override
   Widget build(BuildContext context) {
+    //*****SET WIDGET VISIBILITY START*****//
+
+    //enable dialogs only if library belongs to the current user
+    bool showUniquePublicID = (user != null &&
+        user.uniquePublicID != '' &&
+        user.uniquePublicID != 'not set');
+
+    //*****SET WIDGET VISIBILITY END*****//
+
     return GestureDetector(
       onTap: () {
         //Only navigate if the private library is false
@@ -70,7 +79,7 @@ class UserTile extends StatelessWidget {
                         Row(
                           children: <Widget>[
                             SizedBox(
-                              width: AppTextSize.medium *
+                              width: AppTextSize.large *
                                   MediaQuery.of(context).size.width,
                               child: UIBuilders.getBadge(
                                   userTotalPlants: user.plants),
@@ -101,6 +110,19 @@ class UserTile extends StatelessWidget {
                                 MediaQuery.of(context).size.width,
                           ),
                         ),
+                        (showUniquePublicID == true)
+                            ? Text(
+                                '( ${user.uniquePublicID} )',
+                                softWrap: false,
+                                overflow: TextOverflow.fade,
+                                style: TextStyle(
+                                  color: AppTextColor.black,
+                                  fontWeight: AppTextWeight.medium,
+                                  fontSize: AppTextSize.tiny *
+                                      MediaQuery.of(context).size.width,
+                                ),
+                              )
+                            : SizedBox(),
                       ],
                     ),
                   ),
@@ -108,7 +130,7 @@ class UserTile extends StatelessWidget {
                 ],
               ),
               SizedBox(
-                height: AppTextSize.tiny * MediaQuery.of(context).size.width,
+                height: 0.01 * MediaQuery.of(context).size.width,
               ),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,

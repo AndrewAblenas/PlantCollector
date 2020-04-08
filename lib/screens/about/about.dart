@@ -3,22 +3,16 @@ import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/global.dart';
 import 'package:plant_collector/screens/about/reference.dart';
+import 'package:plant_collector/screens/template/screen_template.dart';
 import 'package:plant_collector/widgets/container_wrapper.dart';
 import 'package:plant_collector/widgets/tile_white.dart';
 
 class AboutScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return ScreenTemplate(
       backgroundColor: kGreenLight,
-      appBar: AppBar(
-        backgroundColor: kGreenDark,
-        centerTitle: true,
-        title: Text(
-          'About',
-          style: kAppBarTitle,
-        ),
-      ),
+      screenTitle: 'About',
       body: ListView(
         children: <Widget>[
           Padding(
@@ -261,7 +255,12 @@ class ReferenceButton extends StatelessWidget {
                       ),
                       Text(
                         title,
-                        style: kHeaderText,
+                        style: TextStyle(
+                          color: AppTextColor.black,
+                          fontWeight: AppTextWeight.medium,
+                          fontSize: AppTextSize.medium *
+                              MediaQuery.of(context).size.width,
+                        ),
                       ),
                     ],
                   ),

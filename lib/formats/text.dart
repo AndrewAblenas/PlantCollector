@@ -32,11 +32,18 @@ class AppTextColor {
 }
 
 //AppBar
-const TextStyle kAppBarTitle = TextStyle(
-  color: Colors.white,
-  fontSize: 25.0,
-  fontWeight: FontWeight.w300,
-);
+//const TextStyle kAppBarTitle = TextStyle(
+//  color: Colors.white,
+//  fontSize: 25.0,
+//  fontWeight: FontWeight.w300,
+//);
+//AppBar
+class AppBarFormatting {
+  static const Color color = Colors.white;
+  static const double fontSize = 25.0 * kScaleFactor;
+  static const FontWeight fontWeight = FontWeight.w300;
+}
+
 //Header
 const TextStyle kHeaderText = TextStyle(
   color: Colors.black,

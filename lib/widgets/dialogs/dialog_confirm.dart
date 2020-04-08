@@ -8,12 +8,14 @@ class DialogConfirm extends StatelessWidget {
   final String text;
   final String buttonText;
   final Function onPressed;
+  final Function onCancel;
   final bool hideCancel;
   DialogConfirm(
       {this.title,
       this.text,
-      this.onPressed,
-      this.buttonText,
+      @required this.onPressed,
+      this.onCancel,
+      this.buttonText = 'CONFIRM',
       this.hideCancel});
 
   @override
@@ -27,46 +29,47 @@ class DialogConfirm extends StatelessWidget {
           children: <Widget>[
             hideCancel == false
                 ? Expanded(
-                    child: FlatButton(
+                    child: GestureDetector(
+                      onTap: () {
+                        if (onCancel != null) onCancel();
+                        Navigator.pop(context);
+                      },
                       child: Text(
                         'CANCEL',
+                        textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: AppTextSize.medium *
                               MediaQuery.of(context).size.width,
-                          fontWeight: AppTextWeight.medium,
+                          fontWeight: AppTextWeight.heavy,
                           color: kButtonCancel,
                         ),
                       ),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
                     ),
                   )
                 : SizedBox(),
-            SizedBox(
-              width: 20.0,
-            ),
+//            SizedBox(),
             Expanded(
-              child: FlatButton(
+              child: GestureDetector(
+                onTap: () {
+                  onPressed();
+                },
                 child: Text(
-                  'CONFIRM',
+                  buttonText.toUpperCase(),
+                  textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize:
                         AppTextSize.medium * MediaQuery.of(context).size.width,
-                    fontWeight: AppTextWeight.medium,
+                    fontWeight: AppTextWeight.heavy,
                     color: kButtonAccept,
                   ),
                 ),
-                onPressed: () {
-                  onPressed();
-                },
               ),
             ),
-            hideCancel == true
-                ? SizedBox(
-                    width: 20.0,
-                  )
-                : SizedBox(),
+//            hideCancel == true
+//                ? SizedBox(
+//                    width: 20.0,
+//                  )
+//                : SizedBox(),
           ],
         ),
       ],

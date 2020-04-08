@@ -15,6 +15,8 @@ class AppData extends ChangeNotifier {
 //  String currentPlantID;
   //Collection Library variablesFav
   String newDataInput;
+  List newListInput;
+  int newListInputIndex;
 //  String selectedDialogButtonItem;
 //  bool hideButton;
   //Discover Page state - Custom Tabs
@@ -49,6 +51,28 @@ class AppData extends ChangeNotifier {
   List<PlantData> connectionPlants;
   //tips
   bool showTips;
+
+  //*****************VALIDATE USERNAME*****************//
+
+  //One Capital Letter, One Small Letter
+  static bool validateUsernameContents(String username) {
+    String pattern = r'^[a-z0-9_.]+$';
+    RegExp regExp = new RegExp(pattern);
+    return regExp.hasMatch(username);
+  }
+
+  //PASSWORD LENGTH
+  static bool validateUsernameLength(String username) {
+    bool state;
+    if (username != null) {
+      (username.length >= 3 && username.length <= 20)
+          ? state = true
+          : state = false;
+    } else {
+      state = false;
+    }
+    return state;
+  }
 
   //*****************SIGN OUT CLEAR DATA*****************//
 
@@ -274,6 +298,33 @@ class AppData extends ChangeNotifier {
     return DateTime.now().millisecondsSinceEpoch - time <= 86400000 * 3;
   }
 
+  //get days and make list
+  static int daysInMonth({@required int month}) {
+    int totalDays;
+    List<int> months30 = [4, 6, 9, 11];
+    if (month == 2) {
+      totalDays = 28;
+    } else if (months30.contains(month)) {
+      totalDays = 30;
+    } else {
+      totalDays = 31;
+    }
+    return totalDays;
+  }
+
+  static int getDayOfYear({@required int month, @required int day}) {
+    //generate a list of months but exclude the last one
+    List<int> months = List<int>.generate((month), (i) => i + 1);
+    if (months.length > 0) months.removeAt(months.length - 1);
+    //start with day number
+    int dayOfYear = day;
+    //then add in previous month days
+    for (int entry in months) {
+      dayOfYear = dayOfYear + daysInMonth(month: entry);
+    }
+    return dayOfYear;
+  }
+
   //*****************JOURNAL METHODS*****************
 
   //CREATE JOURNAL ENTRY
@@ -286,6 +337,10 @@ class AppData extends ChangeNotifier {
   }
 
   //*****************BUILDER FUNCTIONS AND RELATED*****************
+
+  void notify() {
+    notifyListeners();
+  }
 
 //METHOD TO SET NEW DATA INPUT
   void setInputNewData(value) {

@@ -14,7 +14,7 @@ class AdminScreen extends StatelessWidget {
     return ScreenTemplate(
       implyLeading: false,
       screenTitle: '! Admin !',
-      child: Padding(
+      body: Padding(
         padding: EdgeInsets.symmetric(
           horizontal: 10.0 * MediaQuery.of(context).size.width * kScaleFactor,
           vertical: 0.0,

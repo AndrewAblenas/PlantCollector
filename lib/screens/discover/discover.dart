@@ -23,7 +23,7 @@ class DiscoverScreen extends StatelessWidget {
       implyLeading: false,
       screenTitle: GlobalStrings.discover,
       bottomBar: BottomBar(selectionNumber: 1),
-      child: Provider<int>.value(
+      body: Provider<int>.value(
         value: Provider.of<AppData>(context).customFeedSelected,
         //to provide friend details to show Add, Sent, no buttons
         child: StreamProvider<UserData>.value(

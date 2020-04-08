@@ -6,12 +6,16 @@ import 'package:plant_collector/screens/dialog/dialog_screen.dart';
 class DialogScreenSelect extends StatelessWidget {
   final String title;
   final List<Widget> items;
+  final Function onAccept;
   DialogScreenSelect({
     @required this.title,
     @required this.items,
+    this.onAccept,
   });
   @override
   Widget build(BuildContext context) {
+    bool showConfirm = (onAccept != null);
+
     List<Widget> noItems = [
       Text(
         'no items to select',
@@ -49,6 +53,24 @@ class DialogScreenSelect extends StatelessWidget {
                 ),
               ),
             ),
+            (showConfirm == true)
+                ? Expanded(
+                    child: FlatButton(
+                      onPressed: () {
+                        onAccept();
+                      },
+                      child: Text(
+                        'CONFIRM',
+                        style: TextStyle(
+                          fontSize: AppTextSize.large *
+                              MediaQuery.of(context).size.width,
+                          fontWeight: AppTextWeight.medium,
+                          color: kButtonAccept,
+                        ),
+                      ),
+                    ),
+                  )
+                : SizedBox(),
           ],
         )
       ],

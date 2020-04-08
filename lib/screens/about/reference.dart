@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
+import 'package:plant_collector/screens/template/screen_template.dart';
 import 'package:plant_collector/widgets/tile_white.dart';
 
 class ReferenceScreen extends StatelessWidget {
@@ -9,16 +10,9 @@ class ReferenceScreen extends StatelessWidget {
   ReferenceScreen({@required this.title, @required this.text});
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return ScreenTemplate(
       backgroundColor: kGreenLight,
-      appBar: AppBar(
-        backgroundColor: kGreenDark,
-        centerTitle: true,
-        title: Text(
-          'Reference',
-          style: kAppBarTitle,
-        ),
-      ),
+      screenTitle: 'Reference',
       body: ListView(
         children: <Widget>[
           Column(
@@ -50,7 +44,12 @@ class TextSection extends StatelessWidget {
             padding: const EdgeInsets.all(10.0),
             child: Text(
               title,
-              style: kHeaderText,
+              style: TextStyle(
+                color: AppTextColor.black,
+                fontWeight: AppTextWeight.medium,
+                fontSize:
+                    AppTextSize.medium * MediaQuery.of(context).size.width,
+              ),
             ),
           ),
           Container(
@@ -63,7 +62,11 @@ class TextSection extends StatelessWidget {
             padding: const EdgeInsets.all(10.0),
             child: Text(
               text,
-              style: kBodyText,
+              style: TextStyle(
+                color: AppTextColor.black,
+                fontWeight: AppTextWeight.medium,
+                fontSize: AppTextSize.small * MediaQuery.of(context).size.width,
+              ),
               textAlign: TextAlign.start,
             ),
           ),

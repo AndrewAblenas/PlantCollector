@@ -100,7 +100,7 @@ class SearchUserTile extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: (requestSent == true)
                     ? kBackgroundGradientSolidGrey
-                    : kBackgroundGradientMid,
+                    : kGradientDarkMidGreen,
                 borderRadius: BorderRadius.all(
                   Radius.circular(
                     5.0,

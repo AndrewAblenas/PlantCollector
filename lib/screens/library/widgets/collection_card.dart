@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/formats/text.dart';
+import 'package:plant_collector/models/builders_general.dart';
 import 'package:plant_collector/models/data_types/collection_data.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 import 'package:plant_collector/models/data_types/plant_data.dart';
@@ -8,7 +9,7 @@ import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/models/global.dart';
 import 'package:plant_collector/screens/dialog/dialog_screen_input.dart';
 import 'package:plant_collector/screens/library/widgets/add_plant.dart';
-import 'package:plant_collector/widgets/dialogs/color_picker/dialog_color_picker.dart';
+import 'package:plant_collector/widgets/dialogs/color_picker/dialog_picker.dart';
 import 'package:plant_collector/widgets/dialogs/dialog_confirm.dart';
 import 'package:plant_collector/screens/library/widgets/plant_tile.dart';
 import 'package:plant_collector/widgets/info_tip.dart';
@@ -39,13 +40,41 @@ class CollectionCard extends StatelessWidget {
     List<PlantData> fullList = (connectionLibrary == false)
         ? Provider.of<AppData>(context).currentUserPlants
         : Provider.of<AppData>(context).connectionPlants;
+
     //get plants for the collection from the full list
     List<PlantData> collectionPlants = CloudDB.getPlantsFromList(
         collectionPlantIDs: collection.plants, plants: fullList);
+
     //note collection plant total is calculated from this list instead of collection.plants
     //to prevent range errors if an entry is in collection.plants but the plant is deleted
     int collectionPlantTotal = collectionPlants.length;
+
+    //item count for gridview
+    int itemCountGridView = (connectionLibrary == false && defaultView == false)
+        ? collectionPlantTotal + 1
+        : collectionPlantTotal;
     Color colorTheme = convertColor(storedColor: collection.color);
+
+    //plant tile possible parents
+    List<CollectionData> plantTilePossibleParents = (connectionLibrary == false)
+        ? Provider.of<AppData>(context).currentUserCollections
+        : Provider.of<AppData>(context).connectionCollections;
+
+    //*****SET WIDGET VISIBILITY START*****//
+
+    //enable dialogs only if library belongs to the current user
+    bool showDeleteButton =
+        (collectionPlantTotal == 0 && connectionLibrary == false);
+
+    //prevent empty gridview build
+    bool hideGridView =
+        ((connectionLibrary == true && collectionPlants.length == 0) ||
+            (connectionLibrary == false &&
+                defaultView == true &&
+                collectionPlants.length == 0));
+
+    //*****SET WIDGET VISIBILITY END*****//
+
     return TileWhite(
       child: Consumer<UserData>(builder: (context, user, _) {
         if (user == null) {
@@ -65,7 +94,7 @@ class CollectionCard extends StatelessWidget {
                     expandedIcon: Icons.keyboard_arrow_up,
                   ),
                   //provide a delete button if the collection is empty
-                  (collectionPlantTotal == 0 && connectionLibrary == false)
+                  (showDeleteButton == true)
                       ? Column(
                           children: <Widget>[
                             Provider.of<AppData>(context).showTips == true
@@ -134,14 +163,15 @@ class CollectionCard extends StatelessWidget {
                   Builder(
                     builder: (context) {
                       //if friend library with no plants, this prevents empty white space
-                      if (connectionLibrary == true &&
-                          collectionPlants.length == 0) {
+                      if (hideGridView == true) {
                         return SizedBox();
-                      } else if (connectionLibrary == false &&
-                          defaultView == true &&
-                          collectionPlants.length == 0) {
-                        return SizedBox();
-                      } else {
+                      }
+//                      else if (connectionLibrary == false &&
+//                          defaultView == true &&
+//                          collectionPlants.length == 0) {
+//                        return SizedBox();
+//                      }
+                      else {
                         return GridView.builder(
                           shrinkWrap: true,
                           //allows scrolling
@@ -150,10 +180,7 @@ class CollectionCard extends StatelessWidget {
                           scrollDirection: Axis.vertical,
                           //add additional button only for collection owner
                           //no add button for auto generated
-                          itemCount: (connectionLibrary == false &&
-                                  defaultView == false)
-                              ? collectionPlantTotal + 1
-                              : collectionPlantTotal,
+                          itemCount: itemCountGridView,
                           gridDelegate:
                               SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: 3),
@@ -167,11 +194,7 @@ class CollectionCard extends StatelessWidget {
                                     kScaleFactor),
                                 child: PlantTile(
                                   connectionLibrary: connectionLibrary,
-                                  possibleParents: connectionLibrary == false
-                                      ? Provider.of<AppData>(context)
-                                          .currentUserCollections
-                                      : Provider.of<AppData>(context)
-                                          .connectionCollections,
+                                  possibleParents: plantTilePossibleParents,
                                   plant: collectionPlants[index],
                                   collectionID: collection.id,
                                   communityView: false,
@@ -228,6 +251,18 @@ class CollectionHeader extends StatelessWidget {
     //set plant number
     String collectionPlantTotal = collection.plants.length.toString();
 
+    //*****SET WIDGET VISIBILITY START*****//
+
+    //enable dialogs only for current user on their main Library page
+    bool enableDialogs = (connectionLibrary == false && defaultView == false);
+
+    //only allow current user to change color on their library
+    //exclude autogenerated
+    bool allowColorChange = (connectionLibrary == false &&
+        !DBDefaultDocument.collectionExclude.contains(collection.id));
+
+    //*****SET WIDGET VISIBILITY END*****//
+
     return Padding(
       padding: EdgeInsets.only(
         bottom: 14.0,
@@ -244,7 +279,7 @@ class CollectionHeader extends StatelessWidget {
             child: GestureDetector(
               onLongPress: () {
                 //remove functionality for friend collection or auto generated
-                if (connectionLibrary == false && defaultView == false)
+                if (enableDialogs == true)
                   showDialog(
                       context: context,
                       builder: (context) {
@@ -300,18 +335,18 @@ class CollectionHeader extends StatelessWidget {
                   GestureDetector(
                     //ALLOW A WAY TO SET COLOR
                     onLongPress: () {
-                      if ((connectionLibrary == false &&
-                          !DBDefaultDocument.collectionExclude
-                              .contains(collection.id)))
+                      if (allowColorChange == true)
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
-                            return DialogColorPicker(
+                            return DialogPicker(
                               title: 'Pick a Colour',
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              collectionID: collection.id,
+                              widgets: UIBuilders.colorButtonsList(
+                                  colors: kGroupColors,
+                                  onPress: () {
+                                    Navigator.pop(context);
+                                  },
+                                  collectionID: collection.id),
                             );
                           },
                         );

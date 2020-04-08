@@ -24,168 +24,178 @@ class FriendsScreen extends StatelessWidget {
       implyLeading: false,
       screenTitle: GlobalStrings.friends,
       bottomBar: BottomBar(selectionNumber: 2),
-      child: StreamProvider<UserData>.value(
+      body: StreamProvider<UserData>.value(
         value: CloudDB.streamUserData(
             userID: Provider.of<AppData>(context).currentUserInfo.id),
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 5.0),
-          child: ListView(
-            children: [
-              Consumer<UserData>(
-                builder: (context, UserData user, _) {
-                  if (user == null || user.requestsReceived.length < 1) {
-                    return SizedBox();
-                  } else {
-                    List<Widget> requestList = [];
-                    for (String request in user.requestsReceived) {
-                      List blocked = user.blocked;
-                      //only add card if not blocked
-                      if (!blocked.contains(request))
-                        requestList.add(
-                          FutureProvider<Map>.value(
-                            value: Provider.of<CloudDB>(context)
-                                .getConnectionProfile(connectionID: request),
-                            child: Consumer<Map>(
-                                builder: (context, Map friend, _) {
-                              if (friend == null) {
-                                return SizedBox();
-                              } else {
-                                UserData profile =
-                                    UserData.fromMap(map: friend);
-                                return RequestCard(user: profile);
-                              }
-                            }),
-                          ),
-                        );
-                    }
-                    return ContainerWrapper(
-                      child: Column(
-                        children: <Widget>[
-                          SectionHeader(
-                            title: 'Requests',
-                          ),
-                          SizedBox(
-                            height: 5.0,
-                          ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 5.0, vertical: 1.0),
-                            child: ListView(
-                              shrinkWrap: true,
-                              primary: false,
-                              children: requestList,
+          child: GestureDetector(
+            onTap: () {
+              FocusScopeNode currentFocus = FocusScope.of(context);
+
+              if (!currentFocus.hasPrimaryFocus) {
+                currentFocus.unfocus();
+              }
+            },
+            child: ListView(
+              children: [
+                Consumer<UserData>(
+                  builder: (context, UserData user, _) {
+                    if (user == null || user.requestsReceived.length < 1) {
+                      return SizedBox();
+                    } else {
+                      List<Widget> requestList = [];
+                      for (String request in user.requestsReceived) {
+                        List blocked = user.blocked;
+                        //only add card if not blocked
+                        if (!blocked.contains(request))
+                          requestList.add(
+                            FutureProvider<Map>.value(
+                              value: Provider.of<CloudDB>(context)
+                                  .getConnectionProfile(connectionID: request),
+                              child: Consumer<Map>(
+                                  builder: (context, Map friend, _) {
+                                if (friend == null) {
+                                  return SizedBox();
+                                } else {
+                                  UserData profile =
+                                      UserData.fromMap(map: friend);
+                                  return RequestCard(user: profile);
+                                }
+                              }),
                             ),
-                          ),
-                          SizedBox(
-                            height: 5.0,
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-                },
-              ),
-              Container(
-                constraints: BoxConstraints(
-                    //this is a workaround to prevent listview jump when loading the contained streams
-                    minHeight: 0.45 * MediaQuery.of(context).size.width),
-                child: SocialUpdates(),
-              ),
-              SearchBarSubmit(
-                onPress: () async {
-                  if (Provider.of<AppData>(context).newDataInput.length > 0) {
-                    List<UserData> results = await Provider.of<CloudDB>(context)
-                        .userSearchExact(
-                            input: Provider.of<AppData>(context).newDataInput);
-                    if (results != null) {
-                      List<Widget> resultWidgets = [];
-                      for (UserData user in results) {
-                        resultWidgets.add(SearchUserTile(user: user));
+                          );
                       }
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ResultsScreen(
-                            searchResults: resultWidgets,
-                          ),
+                      return ContainerWrapper(
+                        child: Column(
+                          children: <Widget>[
+                            SectionHeader(
+                              title: 'Requests',
+                            ),
+                            SizedBox(
+                              height: 5.0,
+                            ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 5.0, vertical: 1.0),
+                              child: ListView(
+                                shrinkWrap: true,
+                                primary: false,
+                                children: requestList,
+                              ),
+                            ),
+                            SizedBox(
+                              height: 5.0,
+                            ),
+                          ],
                         ),
                       );
                     }
-                  }
-                },
-              ),
-              Column(
-                children: <Widget>[
-                  ContainerWrapper(
-                    child: Column(
-                      children: <Widget>[
-                        SectionHeader(
-                          title: 'Connections',
-                        ),
-                        SizedBox(
-                          height: 5.0,
-                        ),
-                        Consumer<UserData>(
-                            builder: (context, UserData user, _) {
-                          if (user == null || user.friends.length < 1) {
-                            return InfoTip(
-                              onPress: () {},
-                              showAlways: true,
-                              text:
-                                  'If you know who you\'re looking for, you can search for them by username or email here.  \n\n'
-                                  'Otherwise, head on over to the ${GlobalStrings.discover} screen (bottom left button) to find Top Collectors or new ${GlobalStrings.friends} via their ${GlobalStrings.plants}.  ',
-                            );
-                          } else {
-                            List<Widget> connectionsCards = [];
-                            for (String friend in user.friends) {
-                              //create a list of connection cards
-                              connectionsCards.add(
-                                FutureProvider<Map>.value(
-                                  value: Provider.of<CloudDB>(context)
-                                      .getConnectionProfile(
-                                          connectionID: friend),
-                                  child: Consumer<Map>(
-                                      builder: (context, Map friend, _) {
-                                    if (friend == null) {
-                                      return SizedBox();
-                                    } else {
-                                      UserData profile =
-                                          UserData.fromMap(map: friend);
-                                      return ConnectionCard(
-                                        user: profile,
-                                        isRequest: false,
-                                      );
-                                    }
-                                  }),
-                                ),
+                  },
+                ),
+                Container(
+                  constraints: BoxConstraints(
+                      //this is a workaround to prevent listview jump when loading the contained streams
+                      minHeight: 0.45 * MediaQuery.of(context).size.width),
+                  child: SocialUpdates(),
+                ),
+                SearchBarSubmit(
+                  onPress: () async {
+                    if (Provider.of<AppData>(context).newDataInput.length > 0) {
+                      List<UserData> results =
+                          await Provider.of<CloudDB>(context).userSearchExact(
+                              input:
+                                  Provider.of<AppData>(context).newDataInput);
+                      if (results != null) {
+                        List<Widget> resultWidgets = [];
+                        for (UserData user in results) {
+                          resultWidgets.add(SearchUserTile(user: user));
+                        }
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ResultsScreen(
+                              searchResults: resultWidgets,
+                            ),
+                          ),
+                        );
+                      }
+                    }
+                  },
+                ),
+                Column(
+                  children: <Widget>[
+                    ContainerWrapper(
+                      child: Column(
+                        children: <Widget>[
+                          SectionHeader(
+                            title: 'Connections',
+                          ),
+                          SizedBox(
+                            height: 5.0,
+                          ),
+                          Consumer<UserData>(
+                              builder: (context, UserData user, _) {
+                            if (user == null || user.friends.length < 1) {
+                              return InfoTip(
+                                onPress: () {},
+                                showAlways: true,
+                                text:
+                                    'If you know who you\'re looking for, you can search for them by username or email here.  \n\n'
+                                    'Otherwise, head on over to the ${GlobalStrings.discover} screen (bottom left button) to find Top Collectors or new ${GlobalStrings.friends} via their ${GlobalStrings.plants}.  ',
+                              );
+                            } else {
+                              List<Widget> connectionsCards = [];
+                              for (String friend in user.friends) {
+                                //create a list of connection cards
+                                connectionsCards.add(
+                                  FutureProvider<Map>.value(
+                                    value: Provider.of<CloudDB>(context)
+                                        .getConnectionProfile(
+                                            connectionID: friend),
+                                    child: Consumer<Map>(
+                                        builder: (context, Map friend, _) {
+                                      if (friend == null) {
+                                        return SizedBox();
+                                      } else {
+                                        UserData profile =
+                                            UserData.fromMap(map: friend);
+                                        return ConnectionCard(
+                                          user: profile,
+                                          isRequest: false,
+                                        );
+                                      }
+                                    }),
+                                  ),
+                                );
+                              }
+                              return Column(
+                                children: <Widget>[
+                                  ButtonAddFriend(
+                                      friends: Provider.of<AppData>(context)
+                                          .currentUserInfo
+                                          .friends),
+                                  GridView.count(
+                                    shrinkWrap: true,
+                                    primary: false,
+                                    crossAxisCount: 1,
+                                    children: connectionsCards,
+                                    childAspectRatio: 5,
+                                  ),
+                                  SizedBox(
+                                    height: 5.0,
+                                  ),
+                                ],
                               );
                             }
-                            return Column(
-                              children: <Widget>[
-                                ButtonAddFriend(
-                                    friends: Provider.of<AppData>(context)
-                                        .currentUserInfo
-                                        .friends),
-                                GridView.count(
-                                  shrinkWrap: true,
-                                  primary: false,
-                                  crossAxisCount: 1,
-                                  children: connectionsCards,
-                                  childAspectRatio: 5,
-                                ),
-                                SizedBox(
-                                  height: 5.0,
-                                ),
-                              ],
-                            );
-                          }
-                        }),
-                      ],
+                          }),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

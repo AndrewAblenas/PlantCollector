@@ -16,7 +16,7 @@ class InfoScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return ScreenTemplate(
       screenTitle: title,
-      child: Padding(
+      body: Padding(
         padding: EdgeInsets.symmetric(
           horizontal: 0.01 * MediaQuery.of(context).size.width,
         ),

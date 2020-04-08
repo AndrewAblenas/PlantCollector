@@ -8,7 +8,9 @@ import 'package:plant_collector/models/cloud_store.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/models/global.dart';
 import 'package:plant_collector/screens/account/widgets/settings_card.dart';
+import 'package:plant_collector/screens/template/screen_template.dart';
 import 'package:plant_collector/widgets/container_wrapper.dart';
+import 'package:plant_collector/widgets/set_username_bundle.dart';
 import 'package:provider/provider.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/user.dart';
@@ -18,16 +20,9 @@ import 'package:plant_collector/formats/text.dart';
 class AccountScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return ScreenTemplate(
       backgroundColor: kGreenLight,
-      appBar: AppBar(
-        backgroundColor: kGreenDark,
-        centerTitle: true,
-        title: Text(
-          'Account',
-          style: kAppBarTitle,
-        ),
-      ),
+      screenTitle: 'Account',
       body: StreamProvider<UserData>.value(
         value: CloudDB.streamUserData(
             userID: Provider.of<CloudDB>(context).currentUserFolder),
@@ -250,7 +245,7 @@ class AccountScreen extends StatelessWidget {
                                 cardLabel:
                                     'Display ${GlobalStrings.collections} Alphabetically',
                                 dialogText:
-                                    'Display alphabetically next time the app starts?  Note jumping will occur when adding or renaming a Shelf.',
+                                    'Change this setting next time the app starts?  Note jumping will occur when adding or renaming a Shelf.',
                                 cardText: user.sortAlphabetically == true
                                     ? 'Yes'
                                     : 'No'),
@@ -294,6 +289,38 @@ class AccountScreen extends StatelessWidget {
                                     'Change Library and Discover Stream visibility settings?',
                                 cardText:
                                     user.privateLibrary == true ? 'Yes' : 'No'),
+                            SettingsCard(
+                              disableEdit: (Provider.of<AppData>(context)
+                                      .currentUserInfo
+                                      .uniquePublicID !=
+                                  ''),
+                              onSubmit: () {},
+                              confirmDialog: false,
+                              allowDialog: false,
+                              onPress: () {
+                                //if '' the value is null in the db
+                                //if 'not set' the user responded on to the friend popup with no
+                                if (Provider.of<AppData>(context)
+                                            .currentUserInfo
+                                            .uniquePublicID ==
+                                        '' ||
+                                    Provider.of<AppData>(context)
+                                            .currentUserInfo
+                                            .uniquePublicID ==
+                                        'not set') {
+                                  showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return SetUsernameBundle();
+                                      });
+                                }
+                              },
+                              cardLabel: 'Unique Username',
+                              //if null '' then display as not set
+                              cardText: (user.uniquePublicID == '')
+                                  ? 'not set'
+                                  : user.uniquePublicID,
+                            )
                           ],
                         );
                       }

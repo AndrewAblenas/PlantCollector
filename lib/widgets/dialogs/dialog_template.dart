@@ -21,7 +21,9 @@ class DialogTemplate extends StatelessWidget {
           gradient: kBackgroundGradient,
         ),
         child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+          padding: EdgeInsets.symmetric(
+              vertical: 0.05 * MediaQuery.of(context).size.width,
+              horizontal: 0.08 * MediaQuery.of(context).size.width),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
@@ -42,24 +44,21 @@ class DialogTemplate extends StatelessWidget {
               SizedBox(
                 height: 10.0,
               ),
-//              SizedBox(
-//                height: 1.0,
-//                width: double.infinity,
-//                child: Container(
-//                  color: kGreenDark,
-//                ),
-//              ),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 20.0),
                 child: Text(
                   text != null ? '$text' : '',
-                  textAlign: TextAlign.center,
+                  textAlign: TextAlign.left,
                   style: TextStyle(
-                      fontSize: AppTextSize.medium *
+                      fontSize: 1.1 *
+                          AppTextSize.small *
                           MediaQuery.of(context).size.width,
-                      fontWeight: AppTextWeight.medium,
+                      fontWeight: AppTextWeight.heavy,
                       color: AppTextColor.white),
                 ),
+              ),
+              SizedBox(
+                height: 0.05 * MediaQuery.of(context).size.width,
               ),
               Column(
                 children: list,

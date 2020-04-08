@@ -31,40 +31,47 @@ class PlantTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //use this time to set the plantTile image thumbnail to the first image
+    //*****AUTOMATICALLY SET FIRST ADDED IMAGE AS THUMBNAIL*****//
+
+    //if no thumbnail, and firsts image added, and current user Library
     if (plant.thumbnail == '' &&
-        plant.images != [] &&
+        plant.images.length == 1 &&
         connectionLibrary == false) {
-      List imageList = plant.images;
-      int length = imageList.length;
-      //this check is for a blank but not null list
-      if (length == 1) {
-        //run thumbnail package to get thumb url
-        //delay to stop image ref call before DB knows it exists
-        //otherwise firebase sends an error that it doesn't exist
-        Future.delayed(Duration(seconds: 3)).then((value) {
-          Provider.of<CloudStore>(context)
-              .thumbnailPackage(imageURL: plant.images[0], plantID: plant.id)
-              .then(
-            (thumbUrl) {
-              //generate data map
-              Map<String, dynamic> data = {
-                PlantKeys.thumbnail: thumbUrl,
-              };
-              Provider.of<CloudDB>(context).updateDocumentL1(
-                collection: DBFolder.plants,
-                document: plant.id,
-                data: data,
-              );
-            },
-          );
-        });
-      }
+      //delay to stop image ref call before DB knows it exists to avoid error
+      Future.delayed(Duration(seconds: 3)).then((value) {
+        //then generate the thumbnail URL
+        Provider.of<CloudStore>(context)
+            .thumbnailPackage(imageURL: plant.images[0], plantID: plant.id)
+            .then(
+          (thumbUrl) {
+            //then package the data
+            Map<String, dynamic> data = {
+              PlantKeys.thumbnail: thumbUrl,
+              //if a user has chosen to hide their library except from friends don't make globally visible
+              PlantKeys.isVisible:
+                  !Provider.of<AppData>(context).currentUserInfo.privateLibrary,
+            };
+            //and finally upload the new thumbnail URL
+            Provider.of<CloudDB>(context).updateDocumentL1(
+              collection: DBFolder.plants,
+              document: plant.id,
+              data: data,
+            );
+          },
+        );
+      });
     }
+
+    //*****SET WIDGET VISIBILITY START*****//
+
+    //enable dialogs only if library belongs to the current user
+    bool enableDialogs = (connectionLibrary == false);
+
+    //*****SET WIDGET VISIBILITY END*****//
 
     return GestureDetector(
       onLongPress: () {
-        if (connectionLibrary == false)
+        if (enableDialogs == true)
           showDialog(
             context: context,
             builder: (BuildContext context) {

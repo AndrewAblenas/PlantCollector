@@ -81,7 +81,7 @@ class TabBarTab extends StatelessWidget {
           decoration: BoxDecoration(
             gradient: (index == selected)
                 ? kBackgroundGradientReversed
-                : kBackgroundGradientSolidDark,
+                : kGradientGreenSolidDark,
           ),
           child: Padding(
             padding: EdgeInsets.all(5.0),

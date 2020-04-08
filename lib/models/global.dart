@@ -32,3 +32,66 @@ class GlobalLinks {
   static const String defaultImage =
       'https://firebasestorage.googleapis.com/v0/b/plant-collector-15db2.appspot.com/o/general%2Fui%2Fdefault_image.png?alt=media&token=9345ffa6-0cda-4bd7-8219-058be8850450';
 }
+
+class DatesCustom {
+  static const List monthNumbers = [
+    00,
+    01,
+    02,
+    03,
+    04,
+    05,
+    06,
+    07,
+    08,
+    09,
+    10,
+    11,
+    12
+  ];
+  static const List<String> monthAbbreviations = [
+    'N/A',
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec'
+  ];
+  static const List<int> monthDayCutoffs = [
+    0,
+    31,
+    59,
+    90,
+    120,
+    151,
+    181,
+    212,
+    243,
+    273,
+    304,
+    334,
+    365
+  ];
+  static const List<int> monthDayCount = [
+    0,
+    31,
+    28,
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    30,
+    31,
+    30,
+    31
+  ];
+}

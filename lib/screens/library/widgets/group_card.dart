@@ -7,7 +7,7 @@ import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/models/global.dart';
 import 'package:plant_collector/screens/dialog/dialog_screen_input.dart';
 import 'package:plant_collector/widgets/container_wrapper.dart';
-import 'package:plant_collector/widgets/dialogs/color_picker/dialog_color_picker.dart';
+import 'package:plant_collector/widgets/dialogs/color_picker/dialog_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/builders_general.dart';
@@ -317,12 +317,9 @@ class GroupHeader extends StatelessWidget {
                     showDialog(
                       context: context,
                       builder: (BuildContext context) {
-                        return DialogColorPicker(
+                        return DialogPicker(
                           title: 'Pick a Colour',
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          collectionID: group.id,
+                          widgets: <Widget>[],
                         );
                       },
                     );

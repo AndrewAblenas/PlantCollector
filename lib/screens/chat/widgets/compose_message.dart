@@ -46,7 +46,10 @@ class _ComposeMessageState extends State<ComposeMessage> {
         SizedBox(
           width: 0.70 * MediaQuery.of(context).size.width,
           child: TextField(
-            style: TextStyle(decoration: TextDecoration.none),
+            style: TextStyle(
+                decoration: TextDecoration.none,
+                fontSize:
+                    AppTextSize.small * MediaQuery.of(context).size.width),
             controller: _controller,
             minLines: 1,
             maxLines: 50,
@@ -61,6 +64,7 @@ class _ComposeMessageState extends State<ComposeMessage> {
             child: Icon(
               Icons.send,
               color: kGreenDark,
+              size: 30.0 * MediaQuery.of(context).size.width * kScaleFactor,
             ),
             onPressed: () {
               String text = Provider.of<AppData>(context).newDataInput;

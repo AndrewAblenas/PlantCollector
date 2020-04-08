@@ -5,7 +5,6 @@ import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 import 'package:plant_collector/models/data_types/collection_data.dart';
 import 'package:plant_collector/models/data_types/communication_data.dart';
-import 'package:plant_collector/models/data_types/group_data.dart';
 import 'package:plant_collector/models/data_types/plant_data.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/models/global.dart';
@@ -13,6 +12,7 @@ import 'package:plant_collector/models/user.dart';
 import 'package:plant_collector/screens/dialog/dialog_screen_input.dart';
 import 'package:plant_collector/screens/library/widgets/announcements.dart';
 import 'package:plant_collector/screens/library/widgets/communications.dart';
+import 'package:plant_collector/screens/template/screen_template.dart';
 import 'package:plant_collector/widgets/bottom_bar.dart';
 import 'package:plant_collector/widgets/button_add.dart';
 import 'package:plant_collector/screens/library/widgets/profile_header.dart';
@@ -20,7 +20,6 @@ import 'package:plant_collector/widgets/container_wrapper.dart';
 import 'package:provider/provider.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/builders_general.dart';
-import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/formats/colors.dart';
 
 //This screen is the main application screen.
@@ -47,6 +46,29 @@ class LibraryScreen extends StatelessWidget {
           .setConnectionFolder(connectionID: userID);
       Provider.of<AppData>(context).showTips = false;
     }
+    //*****SET WIDGET VISIBILITY START*****//
+
+    //title text and spacing
+    String screenTitle = (connectionLibrary == false)
+        ? 'My ${GlobalStrings.library}'
+        : '${GlobalStrings.friend} ${GlobalStrings.library}';
+//    double screenTitleSizedBoxWidth = (connectionLibrary == false) ? 0.0 : 50.0;
+
+    //show admin messages/announcements only if library belongs to the current user
+    bool showMessagesAnnouncements = (connectionLibrary == false &&
+        Provider.of<UserAuth>(context).signedInUser != null);
+
+    //show add shelf only if library belongs to the current user
+    bool showAddButton = (connectionLibrary == false);
+
+    //show add shelf only if library belongs to the current user
+    bool showBottomNavBar = (connectionLibrary == false);
+
+    //do not show title back button if library belongs to the current user
+    bool showTitleBackButton = (connectionLibrary == true);
+
+    //*****SET WIDGET VISIBILITY END*****//
+
     return MultiProvider(
       providers: [
 //        StreamProvider<List<RequestData>>.value(
@@ -58,9 +80,9 @@ class LibraryScreen extends StatelessWidget {
         StreamProvider<UserData>.value(
           value: CloudDB.streamUserData(userID: userID),
         ),
-        StreamProvider<List<GroupData>>.value(
-          value: CloudDB.streamGroupsData(userID: userID),
-        ),
+//        StreamProvider<List<GroupData>>.value(
+//          value: CloudDB.streamGroupsData(userID: userID),
+//        ),
         StreamProvider<List<CollectionData>>.value(
           value: CloudDB.streamCollectionsData(userID: userID),
         ),
@@ -68,35 +90,10 @@ class LibraryScreen extends StatelessWidget {
           value: CloudDB.streamPlantsData(userID: userID),
         ),
       ],
-      child: Scaffold(
+      child: ScreenTemplate(
+        screenTitle: screenTitle,
+        implyLeading: showTitleBackButton,
         backgroundColor: kGreenLight,
-        appBar: AppBar(
-          backgroundColor: kGreenDark,
-          centerTitle: true,
-          elevation: 20.0,
-          title: Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-//              const Image(
-//                image: AssetImage('assets/images/app_icon_white_128.png'),
-//                height: 26.0,
-//              ),
-//              const SizedBox(
-//                width: 5.0,
-//              ),
-              Text(
-                connectionLibrary == false
-                    ? 'My ${GlobalStrings.library}'
-                    : '${GlobalStrings.friend} ${GlobalStrings.library}',
-                style: kAppBarTitle,
-              ),
-              SizedBox(
-                width: connectionLibrary == false ? 0.0 : 50.0,
-              ),
-            ],
-          ),
-        ),
         body: Container(
 //          decoration: BoxDecoration(
 //            gradient: kBackgroundGradientBlues,
@@ -111,8 +108,7 @@ class LibraryScreen extends StatelessWidget {
             children: <Widget>[
               SizedBox(height: 10.0),
               //show direct user messages and announcements on user library only
-              (connectionLibrary == false &&
-                      Provider.of<UserAuth>(context).signedInUser != null)
+              (showMessagesAnnouncements == true)
                   ? Column(
                       children: <Widget>[
                         StreamProvider<List<CommunicationData>>.value(
@@ -159,6 +155,7 @@ class LibraryScreen extends StatelessWidget {
                 }),
               ),
               ContainerWrapper(
+                turnOffShadow: true,
                 child: Column(
                   children: <Widget>[
                     Consumer<List<CollectionData>>(
@@ -167,19 +164,31 @@ class LibraryScreen extends StatelessWidget {
                         if (connectionLibrary == false) {
                           Provider.of<AppData>(context).currentUserCollections =
                               collections;
+                          //initialize
+                          int filterTally = 0;
+                          //exclude any any auto-generated
+                          for (CollectionData collection
+                              in Provider.of<AppData>(context)
+                                  .currentUserCollections) {
+                            if (!DBDefaultDocument.collectionExclude
+                                .contains(collection.id)) {
+                              filterTally++;
+                            }
+                          }
                           //update tally in user document
-                          if (collections != null &&
+                          if (Provider.of<AppData>(context)
+                                      .currentUserCollections !=
+                                  null &&
                               Provider.of<AppData>(context).currentUserInfo !=
                                   null
                               //don't bother updating if the values are the same
                               &&
-                              collections.length !=
+                              filterTally !=
                                   Provider.of<AppData>(context)
                                       .currentUserInfo
                                       .collections) {
                             Map countData = CloudDB.updatePairFull(
-                                key: UserKeys.collections,
-                                value: collections.length);
+                                key: UserKeys.collections, value: filterTally);
                             Provider.of<CloudDB>(context).updateUserDocument(
                               data: countData,
                             );
@@ -188,15 +197,6 @@ class LibraryScreen extends StatelessWidget {
                           Provider.of<AppData>(context).connectionCollections =
                               collections;
                         }
-//                  List<CollectionData> groupCollections =
-//                  CloudDB.getMapsFromList(
-//                    groupCollectionIDs: group.collections,
-//                    collections: connectionLibrary == false
-//                        ? Provider.of<AppData>(context)
-//                        .currentUserCollections
-//                        : Provider.of<AppData>(context)
-//                        .connectionCollections,
-//                  );
                         return Consumer<List<PlantData>>(
                           builder: (context, List<PlantData> plants, _) {
                             if (plants != null) {
@@ -213,20 +213,26 @@ class LibraryScreen extends StatelessWidget {
                                         null) {
                                   //update photo count
                                   int tally = 0;
-                                  for (PlantData plant in plants) {
+                                  for (PlantData plant
+                                      in Provider.of<AppData>(context)
+                                          .currentUserPlants) {
                                     int photos = plant.images.length;
                                     tally = tally + photos;
                                   }
 
                                   if (
                                       //don't bother updating if the values are the same
-                                      plants.length !=
+                                      Provider.of<AppData>(context)
+                                              .currentUserPlants
+                                              .length !=
                                           Provider.of<AppData>(context)
                                               .currentUserInfo
                                               .plants) {
                                     Map countData = CloudDB.updatePairFull(
                                         key: UserKeys.plants,
-                                        value: plants.length);
+                                        value: Provider.of<AppData>(context)
+                                            .currentUserPlants
+                                            .length);
                                     Provider.of<CloudDB>(context)
                                         .updateUserDocument(
                                       data: countData,
@@ -271,7 +277,7 @@ class LibraryScreen extends StatelessWidget {
                         );
                       },
                     ),
-                    connectionLibrary == false
+                    (showAddButton == true)
                         ? ButtonAdd(
                             buttonText: 'Build New ${GlobalStrings.collection}',
                             onPress: () {
@@ -318,7 +324,7 @@ class LibraryScreen extends StatelessWidget {
           ),
         ),
         //only show the nav bar for user library not connection
-        bottomNavigationBar: connectionLibrary == false
+        bottomBar: (showBottomNavBar == true)
             ? BottomBar(
                 selectionNumber: 3,
               )

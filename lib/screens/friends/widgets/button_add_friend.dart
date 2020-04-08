@@ -70,8 +70,8 @@ class ButtonAddFriend extends StatelessWidget {
                               Provider.of<AppData>(context).newDataInput);
                       //look for ID in friend list
                       bool check = false;
-                      for (UserData friend in friends) {
-                        if (friend.id == friendID) {
+                      for (String friend in friends) {
+                        if (friend == friendID) {
                           check = true;
                         }
                       }
@@ -102,7 +102,7 @@ class ButtonAddFriend extends StatelessWidget {
                             .sendConnectionRequest(connectionID: friendID);
                         title = 'Request Sent';
                         dialogText =
-                            'A request has been sent.  You will be able to share collections once it is accepted.';
+                            'A request has been sent.  When it is accepted, your friend will show in the Connections list.';
                       } else {
                         //if all else fails, send an invite via share
                         title = 'Send Invite?';

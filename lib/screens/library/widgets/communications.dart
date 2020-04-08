@@ -2,6 +2,7 @@ import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
+import 'package:plant_collector/models/builders_general.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/data_types/communication_data.dart';
 import 'package:plant_collector/screens/library/widgets/Announcements.dart';
@@ -46,7 +47,10 @@ class Communications extends StatelessWidget {
                                 MediaQuery.of(context).size.width,
                           ),
                         ),
-                        message.icon,
+                        UIBuilders.communicationDataIcon(
+                            type: message.type,
+                            size: AppTextSize.large *
+                                MediaQuery.of(context).size.width),
                       ],
                     ),
                     Padding(
@@ -79,7 +83,7 @@ class Communications extends StatelessWidget {
                           top: 15.0,
                         ),
                         decoration: BoxDecoration(
-                          gradient: kBackgroundGradientMid,
+                          gradient: kGradientDarkMidGreen,
                           borderRadius: BorderRadius.all(
                             Radius.circular(
                               5.0,

@@ -92,10 +92,22 @@ const Gradient kBackgroundGradientReversed = LinearGradient(
   end: Alignment.bottomCenter,
 );
 
-const Gradient kBackgroundGradientMid = LinearGradient(
+const Gradient kGradientDarkMidGreen = LinearGradient(
   colors: [kGreenDark, kGreenMedium],
   begin: Alignment.bottomCenter,
   end: Alignment.topCenter,
+);
+
+const Gradient kGradientGreenHorizontalDarkMedLight = LinearGradient(
+  colors: [kGreenDark, kGreenMedium, kGreenLight],
+  begin: Alignment.centerLeft,
+  end: Alignment.centerRight,
+);
+
+const Gradient kGradientGreenHorizontalLightMedDark = LinearGradient(
+  colors: [kGreenLight, kGreenMedium, kGreenDark],
+  begin: Alignment.centerLeft,
+  end: Alignment.centerRight,
 );
 
 const Gradient kBackgroundGradientMidReversed = LinearGradient(
@@ -104,13 +116,13 @@ const Gradient kBackgroundGradientMidReversed = LinearGradient(
   end: Alignment.bottomCenter,
 );
 
-const Gradient kBackgroundGradientSolidDark = LinearGradient(
+const Gradient kGradientGreenSolidDark = LinearGradient(
   colors: [kGreenDark, kGreenDark],
   begin: Alignment.bottomCenter,
   end: Alignment.topCenter,
 );
 
-const Gradient kBackgroundGradientSolidLight = LinearGradient(
+const Gradient kGradientGreenSolidLight = LinearGradient(
   colors: [kGreenLight, kGreenLight],
   begin: Alignment.bottomCenter,
   end: Alignment.topCenter,

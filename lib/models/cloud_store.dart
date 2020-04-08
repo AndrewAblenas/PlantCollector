@@ -144,24 +144,33 @@ class CloudStore extends ChangeNotifier {
     String imageName = getThumbName(imageUrl: imageURL);
     //get the thumb ref
     StorageReference thumbRef = getImageRef(
-        imageName: imageName, imageExtension: 'jpg', plantIDFolder: plantID);
+        imageName: imageName,
+        imageExtension: 'jpg',
+        plantIDFolder: plantID,
+        ownerID: currentUserFolder);
     //get the thumb url
-    return await getImageUrl(reference: thumbRef);
+    return getImageUrl(reference: thumbRef);
   }
 
   //get thumbnail url from image url
   static String getThumbName({@required String imageUrl}) {
-    print(imageUrl);
     String imageName;
     if (imageUrl != null) {
       //remove prefix to image name
-      //note this only works if the images are saved to the plant 'image' folder.
-      String split = imageUrl.split('images%2F')[1];
-      //remove suffix to image name
-      imageName = split.split('.jpg')[0];
+      try {
+        //note this only works if the images are saved to the plant 'image' folder.
+        String split = imageUrl.split('images%2F')[1];
+        //remove suffix to image name
+        imageName = split.split('.jpg')[0];
+        imageName = imageName + '_200x200';
+      } catch (e) {
+        print(
+            'these images were uploaded to plant/plantID/plants instead of plant/plantID/images');
+        imageName = null;
+      }
     }
     //this suffice is as per the firebase extension that creates thumbnails
-    return imageName + '_200x200';
+    return imageName;
   }
 
   //get thumbnail url from image url
@@ -184,11 +193,12 @@ class CloudStore extends ChangeNotifier {
   StorageReference getImageRef(
       {@required String imageName,
       @required String imageExtension,
-      @required String plantIDFolder}) {
+      @required String plantIDFolder,
+      @required String ownerID}) {
     StorageReference ref;
     try {
       ref = _storage.ref().child(
-          '$mainFolder/$currentUserFolder/$plantsFolder/$plantIDFolder/$imageFolder/$imageName.$imageExtension');
+          '$mainFolder/$ownerID/$plantsFolder/$plantIDFolder/$imageFolder/$imageName.$imageExtension');
     } catch (e) {
       print(e);
     }
@@ -199,7 +209,8 @@ class CloudStore extends ChangeNotifier {
   Future<String> getImageUrl({@required StorageReference reference}) async {
     String url;
     try {
-      url = await reference.getDownloadURL();
+      String value = await reference.getDownloadURL();
+      url = value;
     } catch (e) {
       print(e);
     }

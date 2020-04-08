@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/text.dart';
-import 'package:plant_collector/models/builders_general.dart';
 import 'package:plant_collector/formats/colors.dart';
 
-class DialogColorPicker extends StatelessWidget {
+class DialogPicker extends StatelessWidget {
   final String title;
-  final Function onPressed;
-  final String collectionID;
-  DialogColorPicker(
+  final int columns;
+  final double listViewHeight;
+//  final Function onPressed;
+//  final String collectionID;
+  final List<Widget> widgets;
+  DialogPicker(
       {@required this.title,
-      @required this.onPressed,
-      @required this.collectionID});
+//      @required this.onPressed,
+//      @required this.collectionID,
+      @required this.widgets,
+      this.columns = 4,
+      this.listViewHeight});
 
   @override
   Widget build(BuildContext context) {
@@ -45,23 +50,22 @@ class DialogColorPicker extends StatelessWidget {
 //                  width: 1.0,
 //                ),
 //              ),
-              height: 360 * MediaQuery.of(context).size.width * kScaleFactor,
+              height: listViewHeight != null
+                  ? listViewHeight
+                  : 360 * MediaQuery.of(context).size.width * kScaleFactor,
               width: 300 * MediaQuery.of(context).size.width * kScaleFactor,
               child: ListView(
                 primary: false,
                 children: <Widget>[
                   GridView.count(
-                    crossAxisCount: 4,
+                    crossAxisCount: columns,
                     crossAxisSpacing:
                         AppTextSize.small * MediaQuery.of(context).size.width,
                     mainAxisSpacing:
                         AppTextSize.small * MediaQuery.of(context).size.width,
                     primary: false,
                     shrinkWrap: true,
-                    children: UIBuilders.colorButtonsList(
-                        colors: kGroupColors,
-                        onPress: onPressed,
-                        collectionID: collectionID),
+                    children: widgets,
                   ),
                 ],
               ),

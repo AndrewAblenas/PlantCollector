@@ -12,7 +12,7 @@ class LoginTemplate extends StatelessWidget {
       backgroundColor: kGreenLight,
       body: Container(
 //        decoration: BoxDecoration(
-//          gradient: kBackgroundGradientBlues,
+//          gradient: kBackgroundGradient,
 //        ),
         child: ListView(
           children: <Widget>[

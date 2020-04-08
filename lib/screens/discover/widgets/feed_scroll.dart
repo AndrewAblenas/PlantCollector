@@ -96,7 +96,7 @@ class FeedTile extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: (index == selected)
-                  ? kBackgroundGradientSolidLight
+                  ? kGradientGreenSolidLight
                   : kBackgroundGradientReversed,
             ),
             child: Padding(

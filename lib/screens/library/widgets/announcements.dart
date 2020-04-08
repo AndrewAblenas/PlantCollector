@@ -2,6 +2,7 @@ import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
+import 'package:plant_collector/models/builders_general.dart';
 import 'package:plant_collector/models/data_types/communication_data.dart';
 import 'package:plant_collector/widgets/container_wrapper.dart';
 import 'package:plant_collector/widgets/tile_white.dart';
@@ -10,10 +11,7 @@ import 'package:provider/provider.dart';
 class Announcements extends StatelessWidget {
   final String title;
   final Color color;
-  Announcements({
-    @required this.title,
-    this.color = kGreenDark,
-  });
+  Announcements({@required this.title, this.color = kGreenDark});
   @override
   Widget build(BuildContext context) {
     return ExpandableNotifier(
@@ -60,7 +58,10 @@ class Announcements extends StatelessWidget {
                                             MediaQuery.of(context).size.width,
                                       ),
                                     ),
-                                    message.icon,
+                                    UIBuilders.communicationDataIcon(
+                                        type: message.type,
+                                        size: AppTextSize.large *
+                                            MediaQuery.of(context).size.width),
                                   ],
                                 ),
                                 Padding(

@@ -15,6 +15,7 @@ class SettingsCard extends StatelessWidget {
   final bool allowDialog;
   final bool confirmDialog;
   final String dialogText;
+  final bool disableEdit;
   SettingsCard(
       {@required this.onSubmit,
       @required this.onPress,
@@ -22,9 +23,16 @@ class SettingsCard extends StatelessWidget {
       @required this.cardText,
       this.allowDialog,
       this.confirmDialog,
-      this.dialogText});
+      this.dialogText,
+      this.disableEdit = false});
   @override
   Widget build(BuildContext context) {
+    Color avatarBackground =
+        (disableEdit == true) ? kGreenMedium : kGreenMedium;
+
+    Color avatarForeground =
+        (disableEdit == true) ? Color(0x00FFFFFF) : kGreenDark;
+
     return ContainerCard(
       child: FlatButton(
         child: Container(
@@ -34,8 +42,8 @@ class SettingsCard extends StatelessWidget {
             mainAxisSize: MainAxisSize.max,
             children: <Widget>[
               CircleAvatar(
-                backgroundColor: kGreenMedium,
-                foregroundColor: kGreenDark,
+                backgroundColor: avatarBackground,
+                foregroundColor: avatarForeground,
                 radius: AppTextSize.tiny * MediaQuery.of(context).size.width,
                 child: Icon(
                   Icons.edit,

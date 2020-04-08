@@ -6,8 +6,7 @@ import 'package:plant_collector/models/data_types/plant_data.dart';
 import 'package:plant_collector/models/global.dart';
 import 'package:plant_collector/screens/dialog/dialog_screen_input.dart';
 import 'package:plant_collector/screens/dialog/dialog_screen_select.dart';
-import 'package:plant_collector/widgets/get_image_camera.dart';
-import 'package:plant_collector/widgets/get_image_gallery.dart';
+import 'package:plant_collector/widgets/get_image.dart';
 import 'package:provider/provider.dart';
 import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/cloud_db.dart';
@@ -15,7 +14,9 @@ import 'package:plant_collector/formats/colors.dart';
 
 class AddPlant extends StatelessWidget {
   final String collectionID;
-  AddPlant({@required this.collectionID});
+  AddPlant({
+    @required this.collectionID,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +68,9 @@ class AddPlant extends StatelessWidget {
                           return DialogScreenSelect(
                             title: 'Add a Photo',
                             items: [
-                              GetImageCamera(
+                              GetImage(
+                                  imageFromCamera: true,
+                                  plantCreationDate: data[PlantKeys.created],
                                   largeWidget: false,
                                   widgetScale: 1.0,
                                   pop: true,
@@ -75,7 +78,9 @@ class AddPlant extends StatelessWidget {
                               SizedBox(
                                 height: 20.0,
                               ),
-                              GetImageGallery(
+                              GetImage(
+                                  imageFromCamera: false,
+                                  plantCreationDate: data[PlantKeys.created],
                                   largeWidget: false,
                                   widgetScale: 1.0,
                                   pop: true,

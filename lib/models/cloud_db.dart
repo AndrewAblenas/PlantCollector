@@ -101,13 +101,12 @@ class CloudDB extends ChangeNotifier {
 
   //get a snapshot of the top user files
   Future<List<UserData>> userSearchExact({@required String input}) {
-    String inputCap = input;
-    inputCap[0].toUpperCase();
+    input = input.toLowerCase();
     try {
       return _db
           .collection(usersPath)
-          .where(UserKeys.name, isEqualTo: input)
-          .limit(50)
+          .where(UserKeys.uniquePublicID, isEqualTo: input)
+          .limit(5)
           .getDocuments()
           .then((snap) => snap.documents
               .map((doc) => UserData.fromMap(map: doc.data))
@@ -149,18 +148,30 @@ class CloudDB extends ChangeNotifier {
   Stream<List<PlantData>> streamCommunityPlantsTopDescending(
       {@required String field}) {
     //Provide a stream of the top plants sorted by field in descending order
-
+    Stream<QuerySnapshot> stream;
     //stream
-    Stream<QuerySnapshot> stream = _db
+    stream = _db
         .collection(DBFolder.plants)
         .where(PlantKeys.isVisible, isEqualTo: true)
-//        .orderBy(PlantKeys.isVisible)
         .orderBy(field, descending: true)
         .limit(99)
         .snapshots();
     //return specific data type
     return stream.map((snap) =>
         snap.documents.map((doc) => PlantData.fromMap(map: doc.data)).toList());
+  }
+
+  static int delayUpdateWrites({@required int timeCreated}) {
+    //get time now
+    int now = DateTime.now().millisecondsSinceEpoch;
+    //set cutoff date
+    int cutoffDate = now - (86400000 * 2);
+    //initialize
+    int lastUpdate;
+    if (timeCreated < cutoffDate) {
+      lastUpdate = now;
+    }
+    return lastUpdate;
   }
 
   //provide a stream of all groups
@@ -717,7 +728,7 @@ class CloudDB extends ChangeNotifier {
         genus: plantData[PlantKeys.genus],
         species: plantData[PlantKeys.species],
         variety: plantData[PlantKeys.variety],
-        bloom: plantData[PlantKeys.bloom],
+//        bloomSequence: plantData[PlantKeys.bloomSequence],
         thumbnail: plantData[PlantKeys.thumbnail],
         owner: currentUserFolder,
         created: timeNowMS(),

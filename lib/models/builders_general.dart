@@ -2,17 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
+import 'package:plant_collector/models/data_types/bloom_data.dart';
 import 'package:plant_collector/models/data_types/collection_data.dart';
+import 'package:plant_collector/models/data_types/communication_data.dart';
 import 'package:plant_collector/models/data_types/group_data.dart';
 import 'package:plant_collector/models/data_types/journal_data.dart';
 import 'package:plant_collector/models/data_types/plant_data.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/models/global.dart';
+import 'package:plant_collector/screens/dialog/dialog_item_bloom.dart';
 import 'package:plant_collector/screens/dialog/dialog_screen_select.dart';
 import 'package:plant_collector/screens/library/widgets/collection_card.dart';
 import 'package:plant_collector/screens/plant/widgets/add_journal_button.dart';
 import 'package:plant_collector/screens/plant/widgets/journal_tile.dart';
-import 'package:plant_collector/screens/plant/widgets/viewer_utility_buttons.dart';
+import 'package:plant_collector/screens/plant/widgets/plant_flowering.dart';
 import 'package:plant_collector/screens/search/widgets/search_tile_plant.dart';
 import 'package:plant_collector/widgets/dialogs/color_picker/button_color.dart';
 import 'package:plant_collector/widgets/dialogs/select/dialog_functions.dart';
@@ -23,6 +26,7 @@ import 'package:plant_collector/screens/plant/widgets/plant_photo.dart';
 import 'package:date_format/date_format.dart';
 import 'package:plant_collector/widgets/info_tip.dart';
 import 'package:plant_collector/widgets/section_header.dart';
+import 'package:plant_collector/widgets/tile_white.dart';
 
 class UIBuilders extends ChangeNotifier {
   //*****************LIBRARY PAGE RELATED BUILDERS*****************
@@ -34,6 +38,38 @@ class UIBuilders extends ChangeNotifier {
       Duration(milliseconds: 1000),
     );
     return 'Done';
+  }
+
+  //build icons
+  static Icon communicationDataIcon(
+      {@required String type, @required double size}) {
+    Icon icon;
+    if (type == CommunicationTypes.standard) {
+      icon = Icon(
+        Icons.message,
+        color: kGreenDark,
+        size: size,
+      );
+    } else if (type == CommunicationTypes.alert) {
+      icon = Icon(
+        Icons.error,
+        color: Colors.orange,
+        size: size,
+      );
+    } else if (type == CommunicationTypes.warning) {
+      icon = Icon(
+        Icons.warning,
+        color: Colors.red,
+        size: size,
+      );
+    } else {
+      icon = Icon(
+        Icons.message,
+        color: kGreenDark,
+        size: size,
+      );
+    }
+    return icon;
   }
 
   //Generate Search plant widgets
@@ -180,7 +216,8 @@ class UIBuilders extends ChangeNotifier {
 
   //GENERATE IMAGE TILE LIST FOR THE CAROUSEL
   static List<Widget> generateImageTileWidgets(
-      {@required bool connectionLibrary,
+      {@required String plantOwner,
+      @required bool connectionLibrary,
       @required String plantID,
       @required List<dynamic> listURL,
       @required String thumbnail,
@@ -200,6 +237,7 @@ class UIBuilders extends ChangeNotifier {
         //create image tiles
         imageTileList.add(
           PlantPhoto(
+            plantOwner: plantOwner,
             connectionLibrary: connectionLibrary,
             imageURL: url,
             imageDate: date,
@@ -229,7 +267,7 @@ class UIBuilders extends ChangeNotifier {
     //TODO add link
     String plantShare = 'Check out this Plant!\n\n';
     if (plantMap != null) {
-      for (String key in PlantKeys.visible)
+      for (String key in PlantKeys.visibleKeysList)
         if (plantMap[key] != null && plantMap[key] != '') {
           plantShare =
               plantShare + '${PlantKeys.descriptors[key]}: ${plantMap[key]}\n';
@@ -239,7 +277,7 @@ class UIBuilders extends ChangeNotifier {
   }
 
   //FORMAT INFORMATION TO DISPLAY NAME PROPERLY
-  static String formatPlantName(
+  static String formatPlantInfoCardText(
       {@required String type, @required String displayText}) {
     if (displayText != null && displayText != '') {
       if (type == PlantKeys.genus) {
@@ -262,6 +300,10 @@ class UIBuilders extends ChangeNotifier {
           newList.add(word);
         }
         displayText = "'" + newList.join(' ') + "'";
+      } else if (PlantKeys.listDatePickerKeys.contains(type)) {
+        int integer = int.parse(displayText);
+        DateTime date = DateTime.fromMillisecondsSinceEpoch(integer);
+        displayText = formatDate(date, [MM, ' ', d, ', ', yyyy]);
       } else {
         displayText = displayText;
       }
@@ -285,8 +327,8 @@ class UIBuilders extends ChangeNotifier {
     List<Widget> list = [];
     for (List<String> substring in substrings) {
       if (substring[1] != null && substring[1] != '') {
-        String name =
-            formatPlantName(type: substring[0], displayText: substring[1]);
+        String name = formatPlantInfoCardText(
+            type: substring[0], displayText: substring[1]);
         bool italicize = italicizePlantName(type: substring[0]);
         Widget section = Container(
           child: Text(
@@ -318,41 +360,82 @@ class UIBuilders extends ChangeNotifier {
       @required BuildContext context}) {
     //create blank list to hold info card widgets
     List<Widget> infoCardList = [];
+    //create list to hold combined name and bool to check each piece of data
+    List<Widget> combinedNameList = [];
+    bool showContainer = true;
+
     //create a list of only the keys you want visible
-    List<String> keyList = PlantKeys.visible;
-    //add utility bar
-    infoCardList.add(
-      Row(
-        children: <Widget>[
-          ViewerUtilityButtons(plant: plant),
-        ],
-      ),
-    );
+    List<String> keyList = PlantKeys.visibleKeysList.toList();
+    //remove bloom to show elsewhere
+    keyList.remove(PlantKeys.bloomSequence);
+
     //need null check to deal with issues on plant delete
     //connection library check will hide journal unless plant belongs to user
     if (plant != null) {
+      Map plantMap = plant.toMap();
+
       //for  all these strings in the list
       for (String key in keyList) {
         //check to see that they aren't set to default value (hidden)
-        Map plantMap = plant.toMap();
-        if (plantMap[key] != null && plantMap[key] != '') {
+        if (plantMap[key] != null &&
+            plantMap[key] != '' &&
+            //default date acquired
+            plantMap[key] != 1577836800000) {
           //if not default then create a widget and add to the list
           String displayLabel = PlantKeys.descriptors[key];
           //display info differently depending on what it is
-          String displayText =
-              formatPlantName(type: key, displayText: plantMap[key]);
-          bool italicize = italicizePlantName(type: key);
-          infoCardList.add(
-            PlantInfoCard(
-              connectionLibrary: connectionLibrary,
-              plantID: plant.id,
-              cardKey: key.toString(),
-              displayLabel: displayLabel,
-              displayText: displayText,
-              italicize: italicize,
-            ),
+          String displayText = formatPlantInfoCardText(
+            type: key,
+            displayText: plantMap[key].toString(),
           );
+          bool italicize = italicizePlantName(type: key);
+
+          //save previous bool
+          bool showContainerPrevious = showContainer;
+          //get new bool
+          showContainer = !PlantKeys.listPlantNameKeys.contains(key);
+          //if show container is set to true then the sublist is complete
+          //add this to the overall list appropriately wrapped
+          if (showContainer == true &&
+              showContainerPrevious == false &&
+              combinedNameList.length > 0) {
+            infoCardList.add(
+              TileWhite(
+                  bottomPadding: 0.0,
+                  child: Column(
+                    children: combinedNameList,
+                  )),
+            );
+            //after add, reset list to blank
+            combinedNameList = [];
+          }
+
+          Widget item = PlantInfoCard(
+            showContainer: showContainer,
+            dateCreated: plant.created,
+            connectionLibrary: connectionLibrary,
+            plantID: plant.id,
+            cardKey: key.toString(),
+            displayLabel: displayLabel,
+            displayText: displayText,
+            italicize: italicize,
+          );
+
+          (showContainer == true)
+              ? infoCardList.add(item)
+              : combinedNameList.add(item);
         }
+      }
+      //this is needed in case no none name fields follow
+      //if nothing pulled the trigger and reset the list to empty
+      if (combinedNameList.length > 0) {
+        infoCardList.add(
+          TileWhite(
+              bottomPadding: 0.0,
+              child: Column(
+                children: combinedNameList,
+              )),
+        );
       }
     }
     if (infoCardList.length < keyList.length && connectionLibrary == false) {
@@ -552,27 +635,164 @@ class UIBuilders extends ChangeNotifier {
     return list;
   }
 
+  //Create date buttons
+  static List<Widget> dateButtonsList(
+      {@required List numbers, @required int index1, @required int index2}) {
+    List<Widget> list = [];
+    for (int number in numbers) {
+      list.add(NumberButton(
+        value: number,
+        index1: index1,
+        index2: index2,
+      ));
+    }
+    return list;
+  }
+
+  //Create date buttons
+  static List<Widget> buildFloweringWidget({
+    @required List<BloomData> blooms,
+    @required String plantID,
+    @required connectionLibrary,
+  }) {
+    //list to return to widgets
+    List<Widget> list = [];
+
+    //go through each entry in the blooms list
+    for (BloomData bloom in blooms) {
+      List<Widget> bloomList = [];
+      Map<String, dynamic> bloomMap = bloom.toMap();
+      int previousValue = 0;
+
+      for (String key in bloomMap.keys.toList()) {
+        int currentValue = bloomMap[key];
+        if (previousValue != 0 && currentValue != 0) {
+          int duration;
+          if (currentValue > previousValue) {
+            duration = currentValue - previousValue;
+          } else if (currentValue == previousValue) {
+            duration = 1;
+          } else {
+            duration = 365 + currentValue - previousValue;
+          }
+          Gradient gradient;
+          String label;
+          if (key == BloomKeys.first) {
+            gradient = kGradientGreenHorizontalDarkMedLight;
+            label = 'Bud';
+          } else if (key == BloomKeys.last) {
+            gradient = kGradientGreenHorizontalLightMedDark;
+            label = 'Bloom';
+          } else if (key == BloomKeys.seed) {
+            gradient = kGradientGreenSolidDark;
+            label = 'Seed';
+          } else {
+            gradient = kGradientGreenSolidDark;
+          }
+          Widget period = BloomLine(
+            duration: duration,
+            gradient: gradient,
+            label: label,
+          );
+          bloomList.add(period);
+        }
+        if (currentValue != 0) {
+          String date = getDateFromDayOfYear(dayOfYear: currentValue);
+          Widget dateWidget = BloomDate(date: date);
+          bloomList.add(dateWidget);
+        }
+        previousValue = (currentValue != 0) ? currentValue : previousValue;
+      }
+      Widget sequenceRow = Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: bloomList,
+      );
+      list.add(PlantFloweringSequence(
+          plantID: plantID,
+          connectionLibrary: connectionLibrary,
+          sequenceRow: sequenceRow,
+          sequenceMap: bloomMap));
+    }
+    return list;
+  }
+
+  //get days and make list
+  static List<int> daysInMonth({@required int month}) {
+    int totalDays;
+    List<int> months30 = [4, 6, 9, 11];
+    if (month == 2) {
+      totalDays = 28;
+    } else if (months30.contains(month)) {
+      totalDays = 30;
+    } else {
+      totalDays = 31;
+    }
+    List<int> list = List<int>.generate(totalDays, (i) => i + 1);
+    return list;
+  }
+
+  //get days and make list
+  static String getDateFromDayOfYear({@required int dayOfYear}) {
+    //return the index (month number)
+    int index = DatesCustom.monthDayCutoffs
+        .indexWhere((element) => (dayOfYear <= element));
+    //get formatting for month number
+    String month = DatesCustom.monthAbbreviations[index];
+    //get the day number and format
+    //day of year minus previous month cutoff
+    String day =
+        (dayOfYear - DatesCustom.monthDayCutoffs[index - 1]).toString();
+    day = (day == '0') ? DatesCustom.monthDayCount[index].toString() : day;
+    String formattedDate = month + '\n' + day;
+    return formattedDate;
+  }
+
+  //get days and make list
+  static int getMonthFromDayOfYear({@required int dayOfYear}) {
+    int index = DatesCustom.monthDayCutoffs
+        .indexWhere((element) => (dayOfYear <= element));
+    return index;
+  }
+
+  static int getMonthDayFromDayOfYear({@required int dayOfYear}) {
+    int index = getMonthFromDayOfYear(dayOfYear: dayOfYear);
+    int day = (DatesCustom.monthDayCutoffs[index] - dayOfYear);
+    day = (day == 0) ? DatesCustom.monthDayCount[index] : day;
+    return day;
+  }
+
 //CREATE PLANT LIST BUTTONS
   static List<Widget> createDialogWidgetList({@required PlantData plant}) {
     //create a blank list to populate with widgets
     List<Widget> listItems = [];
     //create list of all plant keys in the constant map
-    List list = PlantKeys.descriptors.keys.toList();
-    list.remove(PlantKeys.thumbnail);
+    List list = PlantKeys.visibleKeysList;
+//    list.remove(PlantKeys.thumbnail);
     //create list of plant keys not displayed in plant screen
     List<String> plantKeysNotDisplayed = [];
     //needed for delete plant to prevent null[] call
     if (plant != null) {
+      Map plantMap = plant.toMap();
       for (String key in list) {
-        if (plant.toMap()[key] == '') {
+        if (plantMap[key] == '' ||
+            plantMap[key] == 1577836800000 ||
+            (key == PlantKeys.bloomSequence && plantMap[key].length == 0)) {
           plantKeysNotDisplayed.add(key);
         }
       }
     }
-    plantKeysNotDisplayed.remove(PlantKeys.images);
+//    plantKeysNotDisplayed.remove(PlantKeys.images);
     for (String key in plantKeysNotDisplayed) {
+      bool showDatePickerInstead = (PlantKeys.listDatePickerKeys.contains(key));
+      Map showListInput;
+      if (key == PlantKeys.bloomSequence) {
+        showListInput = BloomKeys.descriptors;
+      }
       listItems.add(
         DialogItemPlant(
+          showDatePickerInstead: showDatePickerInstead,
+          showListInput: showListInput,
+          timeCreated: plant.created,
           buttonKey: key,
           buttonText: PlantKeys.descriptors[key],
           plantID: plant.id,
@@ -582,5 +802,15 @@ class UIBuilders extends ChangeNotifier {
     return listItems;
   }
 
+  static List<Widget> generateDateButtons({@required Map map}) {
+    List<Widget> widgets = [SizedBox()];
+    List<String> keys = map.keys.toList();
+    for (String key in keys) {
+      int keyIndex = keys.indexOf(key);
+      Widget widget = DialogItemBloom(buttonText: map[key], index: keyIndex);
+      widgets.add(widget);
+    }
+    return widgets;
+  }
   //END OF SECTION
 }
