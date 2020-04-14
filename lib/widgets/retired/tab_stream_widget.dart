@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/cloud_db.dart';
-import 'package:plant_collector/models/data_types/plant_data.dart';
+import 'package:plant_collector/models/data_types/plant/plant_data.dart';
 import 'package:plant_collector/screens/library/widgets/plant_tile.dart';
 import 'package:plant_collector/widgets/container_wrapper.dart';
 import 'package:plant_collector/widgets/custom_tabs.dart';
@@ -74,9 +74,8 @@ class TabStreamWidget extends StatelessWidget {
             ),
           ),
           StreamProvider<List<PlantData>>.value(
-            value: Provider.of<CloudDB>(context)
-                .streamCommunityPlantsTopDescending(
-                    field: Provider.of<AppData>(context).plantQueryField),
+            value: CloudDB.streamCommunityPlantsTopDescending(
+                field: Provider.of<AppData>(context).plantQueryField),
             child: Consumer<List<PlantData>>(
               builder: (context, snap, _) {
                 if (snap == null) {

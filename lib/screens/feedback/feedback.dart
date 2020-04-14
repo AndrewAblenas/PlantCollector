@@ -157,7 +157,9 @@ class FeedbackButton extends StatelessWidget {
                           smallText: true,
                           acceptOnPress: () {
                             //save the title data
-                            Provider.of<CloudDB>(context).createDocument(
+                            CloudDB.setDocumentL1(
+                              //should auto generate ID
+                              document: null,
                               data: CloudDB.userFeedback(
                                 date: date,
                                 title: title,

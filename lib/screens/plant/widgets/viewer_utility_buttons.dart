@@ -7,7 +7,7 @@ import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 import 'package:plant_collector/models/data_types/collection_data.dart';
 import 'package:plant_collector/models/data_types/message_data.dart';
-import 'package:plant_collector/models/data_types/plant_data.dart';
+import 'package:plant_collector/models/data_types/plant/plant_data.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/screens/chat/chat.dart';
 import 'package:plant_collector/screens/dialog/dialog_screen.dart';
@@ -48,11 +48,14 @@ class ViewerUtilityButtons extends StatelessWidget {
                               String newPlantID =
                                   AppData.generateID(prefix: 'plant_');
                               //clean the plant data
-                              Map data = Provider.of<CloudDB>(context)
-                                  .cleanPlant(
-                                      plantData: plant.toMap(), id: newPlantID);
+                              Map data = AppData.cleanPlant(
+                                  plantData: plant.toMap(),
+                                  newPlantID: newPlantID,
+                                  newUserID: Provider.of<AppData>(context)
+                                      .currentUserInfo
+                                      .id);
                               //add new plant to userPlants
-                              Provider.of<CloudDB>(context).setDocumentL1(
+                              CloudDB.setDocumentL1(
                                   data: data,
                                   collection: DBFolder.plants,
                                   document: data[PlantKeys.id]);
@@ -69,11 +72,9 @@ class ViewerUtilityButtons extends StatelessWidget {
                               }
                               //provide default document
                               Map defaultCollection =
-                                  Provider.of<CloudDB>(context)
-                                      .newDefaultCollection(
-                                        collectionName: collectionID,
-                                      )
-                                      .toMap();
+                                  AppData.newDefaultCollection(
+                                collectionID: collectionID,
+                              ).toMap();
                               //now complete cloning to collection
                               Provider.of<CloudDB>(context)
                                   .updateDefaultDocumentL2(
@@ -88,7 +89,7 @@ class ViewerUtilityButtons extends StatelessWidget {
                               Map<String, dynamic> update = {
                                 PlantKeys.clones: plant.clones + 1
                               };
-                              Provider.of<CloudDB>(context).updateDocumentL1(
+                              CloudDB.updateDocumentL1(
                                   collection: DBFolder.plants,
                                   document: plant.id,
                                   data: update);
@@ -152,9 +153,8 @@ class ViewerUtilityButtons extends StatelessWidget {
                                     for (String friend in friends) {
                                       connectionList
                                           .add(FutureProvider<Map>.value(
-                                        value: Provider.of<CloudDB>(context)
-                                            .getConnectionProfile(
-                                                connectionID: friend),
+                                        value: CloudDB.getConnectionProfile(
+                                            connectionID: friend),
                                         child: Consumer<Map>(
                                           builder: (context, Map friendMap, _) {
                                             if (friendMap == null) {
@@ -174,14 +174,16 @@ class ViewerUtilityButtons extends StatelessWidget {
                                                                 friend);
                                                     //create message
                                                     MessageData message =
-                                                        Provider.of<CloudDB>(
-                                                                context)
-                                                            .createMessage(
-                                                                text: '',
-                                                                type: MessageKeys
-                                                                    .typePlant,
-                                                                media:
-                                                                    plant.id);
+                                                        AppData.createMessage(
+                                                            senderID: Provider
+                                                                    .of<AppData>(
+                                                                        context)
+                                                                .currentUserInfo
+                                                                .id,
+                                                            text: '',
+                                                            type: MessageKeys
+                                                                .typePlant,
+                                                            media: plant.id);
                                                     CloudDB.sendMessage(
                                                         message: message,
                                                         document: document);

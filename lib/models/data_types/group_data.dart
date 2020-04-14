@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:plant_collector/models/data_types/base_type.dart';
 
 //*****************GROUP*****************
 
@@ -49,12 +50,16 @@ class GroupData {
 
   //FROM MAP
   static GroupData fromMap({@required Map map}) {
-    return GroupData(
-      id: map[GroupKeys.id] ?? '',
-      name: map[GroupKeys.name] ?? '',
-      collections: map[GroupKeys.collections] ?? [],
-      order: map[GroupKeys.order] ?? 0,
-      color: map[GroupKeys.color] ?? [],
-    );
+    if (map != null) {
+      return GroupData(
+        id: DV.isString(value: map[GroupKeys.id]),
+        name: DV.isString(value: map[GroupKeys.name]),
+        collections: DV.isList(value: map[GroupKeys.collections]),
+        order: DV.isInt(value: map[GroupKeys.order]),
+        color: DV.isList(value: map[GroupKeys.color]),
+      );
+    } else {
+      return GroupData(id: '', name: '');
+    }
   }
 }

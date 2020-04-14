@@ -4,7 +4,7 @@ import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/data_types/journal_data.dart';
-import 'package:plant_collector/models/data_types/plant_data.dart';
+import 'package:plant_collector/models/data_types/plant/plant_data.dart';
 import 'package:plant_collector/screens/plant/widgets/add_journal_button.dart';
 import 'package:plant_collector/screens/plant/widgets/journal_tile.dart';
 import 'package:plant_collector/screens/template/screen_template.dart';
@@ -16,7 +16,7 @@ class JournalScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamProvider<DocumentSnapshot>.value(
-      value: Provider.of<CloudDB>(context).streamPlant(
+      value: CloudDB.streamPlant(
 //          userID:
 ////    connectionLibrary == false
 ////    ?

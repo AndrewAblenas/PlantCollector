@@ -25,7 +25,7 @@ class ButtonAuth extends StatelessWidget {
         GestureDetector(
           child: Container(
             decoration: BoxDecoration(
-              gradient: kGradientDarkMidGreen,
+              gradient: kGradientGreenVerticalDarkMed,
               borderRadius: BorderRadius.all(
                 Radius.circular(
                   5.0,

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
-import 'package:plant_collector/models/data_types/plant_data.dart';
+import 'package:plant_collector/models/data_types/plant/plant_data.dart';
 import 'package:plant_collector/screens/dialog/dialog_screen_input.dart';
 import 'package:plant_collector/widgets/dialogs/dialog_confirm.dart';
 import 'package:plant_collector/widgets/tile_white.dart';
@@ -71,7 +71,7 @@ class PlantInfoCard extends StatelessWidget {
                 text: 'Are you sure you would like to remove this information?',
                 onPressed: () {
                   Provider.of<AppData>(context).newDataInput = null;
-                  Provider.of<CloudDB>(context).updateDocumentL1(
+                  CloudDB.updateDocumentL1(
                       collection: DBFolder.plants,
                       document: plantID,
                       data: {
@@ -169,7 +169,8 @@ class PlantInfoCardContent extends StatelessWidget {
             ),
             onPressed: () async {
               if (enableDialogs == true) {
-                if (showDatePickerInstead == true) {
+                //check for date picker int fields first
+                if (PlantKeys.listDatePickerKeys.contains(cardKey)) {
                   DateTime date = await showDatePicker(
                     context: context,
                     initialDate: DateTime.now(),
@@ -181,17 +182,21 @@ class PlantInfoCardContent extends StatelessWidget {
                   if (date != null) {
                     int value = date.millisecondsSinceEpoch;
                     //update
-                    Provider.of<CloudDB>(context).updateDocumentL1(
+                    CloudDB.updateDocumentL1(
                       collection: DBFolder.plants,
                       document: plantID,
                       data: {
                         cardKey: value,
-                        PlantKeys.update:
-                            CloudDB.delayUpdateWrites(timeCreated: dateCreated)
+                        PlantKeys.update: CloudDB.delayUpdateWrites(
+                            timeCreated: dateCreated,
+                            document: Provider.of<AppData>(context)
+                                .currentUserInfo
+                                .id)
                       },
                     );
                   }
-                } else {
+                  //otherwise show the text input
+                } else if (PlantKeys.listStringKeys.contains(key)) {
                   showDialog(
                       context: context,
                       builder: (context) {
@@ -221,13 +226,16 @@ class PlantInfoCardContent extends StatelessWidget {
 //                                      integer = int.parse(value);
 //                                    }
                                 //update
-                                Provider.of<CloudDB>(context).updateDocumentL1(
+                                CloudDB.updateDocumentL1(
                                   collection: DBFolder.plants,
                                   document: plantID,
                                   data: {
                                     cardKey: value,
                                     PlantKeys.update: CloudDB.delayUpdateWrites(
-                                        timeCreated: dateCreated)
+                                        timeCreated: dateCreated,
+                                        document: Provider.of<AppData>(context)
+                                            .currentUserInfo
+                                            .id)
                                   },
                                 );
                               }
@@ -247,7 +255,8 @@ class PlantInfoCardContent extends StatelessWidget {
                                 : displayText.toString().substring(
                                     1, displayText.toString().length - 1));
                       });
-                }
+                  //future in case int select or similar is added
+                } else {}
               }
             },
           ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/text.dart';
-import 'package:plant_collector/models/data_types/plant_data.dart';
+import 'package:plant_collector/models/data_types/plant/plant_data.dart';
 import 'package:plant_collector/widgets/container_card.dart';
 import 'package:plant_collector/widgets/retired/journal/journal.dart';
 

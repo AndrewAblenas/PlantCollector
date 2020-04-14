@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-Route tabTransition({@required Widget nextPage}) {
+Route transitionSlideUp({@required Widget nextPage}) {
   return PageRouteBuilder(
     pageBuilder: (context, animation, secondaryAnimation) => nextPage,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
@@ -15,5 +15,11 @@ Route tabTransition({@required Widget nextPage}) {
         child: child,
       );
     },
+  );
+}
+
+Route transitionNone({@required Widget nextPage}) {
+  return PageRouteBuilder(
+    pageBuilder: (context, animation, secondaryAnimation) => nextPage,
   );
 }

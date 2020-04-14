@@ -8,7 +8,7 @@ class ContainerWrapperGradient extends StatelessWidget {
   ContainerWrapperGradient({
     @required this.child,
     this.marginVertical,
-    this.gradient = kGradientDarkMidGreen,
+    this.gradient = kGradientGreenVerticalDarkMed,
   });
 
   @override

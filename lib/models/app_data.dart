@@ -3,10 +3,12 @@ import 'package:date_format/date_format.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 import 'package:plant_collector/models/data_types/collection_data.dart';
 import 'package:plant_collector/models/data_types/group_data.dart';
 import 'package:plant_collector/models/data_types/journal_data.dart';
-import 'package:plant_collector/models/data_types/plant_data.dart';
+import 'package:plant_collector/models/data_types/message_data.dart';
+import 'package:plant_collector/models/data_types/plant/plant_data.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
 
 class AppData extends ChangeNotifier {
@@ -265,7 +267,7 @@ class AppData extends ChangeNotifier {
   //*****************PLANT METHODS*****************
 
   //METHOD TO CREATE NEW PLANT
-  Map plantNew() {
+  Map plantNew({@required String collectionID}) {
     String newPlantID = generateID(prefix: 'plant_');
     Map<String, dynamic> plant = PlantData(
       id: newPlantID,
@@ -273,8 +275,170 @@ class AppData extends ChangeNotifier {
       owner: currentUserInfo.id,
       created: DateTime.now().millisecondsSinceEpoch,
       isVisible: false,
+      want: (collectionID == DBDefaultDocument.wishList) ? true : false,
+      sell: (collectionID == DBDefaultDocument.sellList) ? true : false,
     ).toMap();
     return plant;
+  }
+
+  //METHOD TO CREATE NEW DEFAULT COLLECTION
+  static CollectionData newDefaultCollection(
+      {@required String collectionID, String collectionName}) {
+    final collection = CollectionData(
+      id: collectionID,
+      name: (collectionName == null) ? collectionID : collectionName,
+      plants: [],
+      creator: null,
+      color: [],
+    );
+    return collection;
+  }
+
+  //create message
+  static MessageData createMessage(
+      {@required String text,
+      @required String type,
+      @required String media,
+      @required senderID}) {
+    return MessageData(
+        sender: senderID,
+        time: DateTime.now().millisecondsSinceEpoch,
+        text: text,
+        read: false,
+        type: type,
+        media: media);
+  }
+
+  //get an individual map given an ID from a list of maps
+  static Map getDocumentFromList(
+      {@required List<Map> documents, @required String value}) {
+    Map match;
+    if (documents != null) {
+      for (Map document in documents) {
+        if (document.containsValue(value)) {
+          match = document;
+        }
+      }
+    }
+    return match;
+  }
+
+  //generate map to insert data to db (when value isn't from user input)
+  static Map<String, dynamic> updatePairFull(
+      {@required String key, @required value}) {
+    return {key: value};
+  }
+
+  //GET VALUE FROM MAP
+  static String getValue({@required Map data, @required String key}) {
+    String value;
+    if (data != null) {
+      value = data[key];
+    } else {
+      value = null;
+    }
+    return value;
+  }
+
+  //GET IMAGE COUNT
+  static String getImageCount({@required List<Map> plants}) {
+    int imageCount;
+    if (plants != null) {
+      for (Map plant in plants) {
+        List images = plant[PlantKeys.images];
+        if (images != null) {
+          imageCount = (imageCount == null ? 0 : imageCount + images.length);
+        } else {}
+      }
+    } else {
+      imageCount = 0;
+    }
+    print('getImageCount: Complete');
+    return imageCount == null ? '0' : imageCount.toString();
+  }
+
+  //clean plant to clone
+  static Map cleanPlant({
+    @required Map plantData,
+    @required String newPlantID,
+    @required String newUserID,
+  }) {
+    PlantData plant = PlantData(
+        id: newPlantID,
+        name: plantData[PlantKeys.name],
+        genus: plantData[PlantKeys.genus],
+        species: plantData[PlantKeys.species],
+        variety: plantData[PlantKeys.variety],
+        thumbnail: plantData[PlantKeys.thumbnail],
+        owner: newUserID,
+        created: timeNowMS(),
+        //not visible until new images added
+        isVisible: false);
+
+    return plant.toMap();
+  }
+
+  //get time now in MS
+  static timeNowMS() {
+    return DateTime.now().millisecondsSinceEpoch;
+  }
+
+  static List<String> orphanedPlantCheck({
+    @required List<CollectionData> collections,
+    @required List<PlantData> plants,
+  }) {
+    //LOOK TO SEE IF ANY USER PLANTS AREN'T LISTED IN THE USER COLLECTIONS
+    List<String> orphaned = [];
+    if (collections != null && plants != null) {
+      List<String> collectionPlantIDs = [];
+      for (CollectionData collection in collections) {
+        collectionPlantIDs.addAll(collection.plants.cast());
+      }
+      for (PlantData plant in plants) {
+        if (!collectionPlantIDs.contains(plant.id)) {
+          orphaned.add(plant.id);
+        }
+      }
+    }
+    return orphaned;
+  }
+
+  //pack user feedback
+  static Map userFeedback({
+    @required String date,
+    @required String title,
+    @required String text,
+    @required String type,
+    @required String platform,
+    @required String userID,
+    @required String userEmail,
+  }) {
+    return {
+      'date': date,
+      'title': title,
+      'text': text,
+      'type': type,
+      'platform': platform,
+      'userID': userID,
+      'userEmail': userEmail,
+    };
+  }
+
+  //generate list of plants for Shelf
+  static List<PlantData> getPlantsFromList(
+      {@required List<dynamic> collectionPlantIDs,
+      @required List<PlantData> plants}) {
+    List<PlantData> collectionPlants = [];
+    if (collectionPlantIDs != null && plants != null) {
+      for (String ID in collectionPlantIDs) {
+        for (PlantData plant in plants) {
+          if (plant.id == ID) {
+            collectionPlants.add(plant);
+          }
+        }
+      }
+    }
+    return collectionPlants;
   }
 
   //METHOD TO GENERATE A NEW ID
@@ -298,6 +462,11 @@ class AppData extends ChangeNotifier {
     return DateTime.now().millisecondsSinceEpoch - time <= 86400000 * 3;
   }
 
+  static bool isRecentUpdate({@required int lastUpdate}) {
+    //consider recent update if less than three days old
+    return DateTime.now().millisecondsSinceEpoch - lastUpdate <= 86400000 * 3;
+  }
+
   //get days and make list
   static int daysInMonth({@required int month}) {
     int totalDays;
@@ -310,19 +479,6 @@ class AppData extends ChangeNotifier {
       totalDays = 31;
     }
     return totalDays;
-  }
-
-  static int getDayOfYear({@required int month, @required int day}) {
-    //generate a list of months but exclude the last one
-    List<int> months = List<int>.generate((month), (i) => i + 1);
-    if (months.length > 0) months.removeAt(months.length - 1);
-    //start with day number
-    int dayOfYear = day;
-    //then add in previous month days
-    for (int entry in months) {
-      dayOfYear = dayOfYear + daysInMonth(month: entry);
-    }
-    return dayOfYear;
   }
 
   //*****************JOURNAL METHODS*****************

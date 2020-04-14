@@ -32,7 +32,7 @@ class InfoScreen extends StatelessWidget {
               color: AppTextColor.white,
               child: FutureProvider.value(
                 //change this to the right stream
-                value: Provider.of<CloudDB>(context).getDocumentL1(
+                value: CloudDB.getDocumentL1(
                     collection: DBFolder.app, document: documentName),
                 child: Consumer<DocumentSnapshot>(
                   builder: (context, DocumentSnapshot future, _) {

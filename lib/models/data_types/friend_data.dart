@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:plant_collector/models/data_types/base_type.dart';
 
 //*****************CONNECTION*****************
 
@@ -56,13 +57,18 @@ class FriendData {
 
   //FROM MAP
   static FriendData fromMap({@required Map map}) {
-    return FriendData(
-      id: map[FriendKeys.id] ?? '',
-      name: map[FriendKeys.name] ?? '',
-      avatar: map[FriendKeys.avatar] ?? '',
-      share: map[FriendKeys.share] ?? false,
-      chatAllowed: map[FriendKeys.chatAllowed] ?? true,
-      chatStarted: map[FriendKeys.chatStarted] ?? false,
-    );
+    if (map != null) {
+      return FriendData(
+        id: DV.isString(value: map[FriendKeys.id]),
+        name: DV.isString(value: map[FriendKeys.name]),
+        avatar: DV.isString(value: map[FriendKeys.avatar]),
+        share: DV.isBool(value: map[FriendKeys.share]),
+        chatAllowed:
+            DV.isBool(value: map[FriendKeys.chatAllowed], fallback: true),
+        chatStarted: DV.isBool(value: map[FriendKeys.chatStarted]),
+      );
+    } else {
+      return FriendData(id: '');
+    }
   }
 }

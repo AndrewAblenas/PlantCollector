@@ -5,7 +5,7 @@ import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 import 'package:plant_collector/models/data_types/collection_data.dart';
 import 'package:plant_collector/models/data_types/communication_data.dart';
-import 'package:plant_collector/models/data_types/plant_data.dart';
+import 'package:plant_collector/models/data_types/plant/plant_data.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/models/global.dart';
 import 'package:plant_collector/models/user.dart';
@@ -31,7 +31,7 @@ import 'package:plant_collector/formats/colors.dart';
 class LibraryScreen extends StatelessWidget {
   final String userID;
   final bool connectionLibrary;
-  LibraryScreen({@required this.userID, @required this.connectionLibrary});
+  LibraryScreen({@required this.userID, this.connectionLibrary = true});
   @override
   Widget build(BuildContext context) {
     if (connectionLibrary == false) {
@@ -123,8 +123,7 @@ class LibraryScreen extends StatelessWidget {
                           height: 15.0,
                         ),
                         FutureProvider<List<CommunicationData>>.value(
-                          value: Provider.of<CloudDB>(context)
-                              .streamAnnouncements(),
+                          value: CloudDB.streamAnnouncements(),
                           child: Announcements(
                             title: 'Announcements',
                           ),
@@ -164,16 +163,63 @@ class LibraryScreen extends StatelessWidget {
                         if (connectionLibrary == false) {
                           Provider.of<AppData>(context).currentUserCollections =
                               collections;
+                          //UPDATE SHELF COUNT
                           //initialize
                           int filterTally = 0;
+                          bool wishListFound = false;
+                          bool sellListFound = false;
                           //exclude any any auto-generated
                           for (CollectionData collection
                               in Provider.of<AppData>(context)
                                   .currentUserCollections) {
-                            if (!DBDefaultDocument.collectionExclude
+                            if (!DBDefaultDocument.collectionNoCountPlants
                                 .contains(collection.id)) {
                               filterTally++;
                             }
+                            //check for wish
+                            if (collection.id == DBDefaultDocument.wishList) {
+                              wishListFound = true;
+                            }
+                            //check for sell
+                            if (collection.id == DBDefaultDocument.sellList) {
+                              sellListFound = true;
+                            }
+                          }
+                          //create wish if not found
+                          if (wishListFound == false) {
+                            Map<String, dynamic> upload =
+                                AppData.newDefaultCollection(
+                                        collectionID:
+                                            DBDefaultDocument.wishList,
+                                        collectionName: 'Wishlist')
+                                    .toMap();
+                            CloudDB.setDocumentL2(
+                                collectionL1: DBFolder.users,
+                                documentL1: Provider.of<AppData>(context)
+                                    .currentUserInfo
+                                    .id,
+                                collectionL2: DBFolder.collections,
+                                documentL2: DBDefaultDocument.wishList,
+                                data: upload,
+                                merge: true);
+                          }
+                          //create sell if not found
+                          if (sellListFound == false) {
+                            Map<String, dynamic> upload =
+                                AppData.newDefaultCollection(
+                                        collectionID:
+                                            DBDefaultDocument.sellList,
+                                        collectionName: 'Sell or Trade')
+                                    .toMap();
+                            CloudDB.setDocumentL2(
+                                collectionL1: DBFolder.users,
+                                documentL1: Provider.of<AppData>(context)
+                                    .currentUserInfo
+                                    .id,
+                                collectionL2: DBFolder.collections,
+                                documentL2: DBDefaultDocument.sellList,
+                                data: upload,
+                                merge: true);
                           }
                           //update tally in user document
                           if (Provider.of<AppData>(context)
@@ -187,7 +233,7 @@ class LibraryScreen extends StatelessWidget {
                                   Provider.of<AppData>(context)
                                       .currentUserInfo
                                       .collections) {
-                            Map countData = CloudDB.updatePairFull(
+                            Map countData = AppData.updatePairFull(
                                 key: UserKeys.collections, value: filterTally);
                             Provider.of<CloudDB>(context).updateUserDocument(
                               data: countData,
@@ -219,20 +265,27 @@ class LibraryScreen extends StatelessWidget {
                                     int photos = plant.images.length;
                                     tally = tally + photos;
                                   }
+                                  //filter out certain plants from count
+                                  int plantCount = 0;
+                                  for (CollectionData collection
+                                      in collections) {
+                                    if (!DBDefaultDocument
+                                        .collectionNoCountPlants
+                                        .contains(collection.id)) {
+                                      plantCount =
+                                          plantCount + collection.plants.length;
+                                    }
+                                  }
 
                                   if (
                                       //don't bother updating if the values are the same
-                                      Provider.of<AppData>(context)
-                                              .currentUserPlants
-                                              .length !=
+                                      plantCount !=
                                           Provider.of<AppData>(context)
                                               .currentUserInfo
                                               .plants) {
-                                    Map countData = CloudDB.updatePairFull(
-                                        key: UserKeys.plants,
-                                        value: Provider.of<AppData>(context)
-                                            .currentUserPlants
-                                            .length);
+                                    Map<String, dynamic> countData = {
+                                      UserKeys.plants: plantCount
+                                    };
                                     Provider.of<CloudDB>(context)
                                         .updateUserDocument(
                                       data: countData,
@@ -243,7 +296,7 @@ class LibraryScreen extends StatelessWidget {
                                           Provider.of<AppData>(context)
                                               .currentUserInfo
                                               .photos) {
-                                    Map photoCountData = CloudDB.updatePairFull(
+                                    Map photoCountData = AppData.updatePairFull(
                                         key: UserKeys.photos, value: tally);
                                     Provider.of<CloudDB>(context)
                                         .updateUserDocument(
@@ -258,10 +311,8 @@ class LibraryScreen extends StatelessWidget {
                               }
                               return UIBuilders.displayCollections(
                                   //sort personal and community based on current user preference
-                                  sortAlphabetically:
-                                      Provider.of<AppData>(context)
-                                          .currentUserInfo
-                                          .sortAlphabetically,
+                                  user: Provider.of<AppData>(context)
+                                      .currentUserInfo,
                                   connectionLibrary: connectionLibrary,
                                   groupID: null,
                                   groupColor: null,

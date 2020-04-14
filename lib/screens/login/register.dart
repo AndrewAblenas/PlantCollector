@@ -73,7 +73,7 @@ class RegisterScreen extends StatelessWidget {
               //send email verification
               Provider.of<UserAuth>(context).userSendEmail();
               //set the user document
-              Provider.of<CloudDB>(context).createUserDocument(
+              CloudDB.createUserDocument(
                 userID: user.uid,
                 userEmail: user.email,
               );

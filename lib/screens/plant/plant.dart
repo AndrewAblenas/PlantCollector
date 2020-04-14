@@ -5,7 +5,10 @@ import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 import 'package:plant_collector/models/data_types/collection_data.dart';
 import 'package:plant_collector/models/data_types/communication_data.dart';
-import 'package:plant_collector/models/data_types/plant_data.dart';
+import 'package:plant_collector/models/data_types/plant/bloom_data.dart';
+import 'package:plant_collector/models/data_types/plant/growth_data.dart';
+import 'package:plant_collector/models/data_types/plant/image_data.dart';
+import 'package:plant_collector/models/data_types/plant/plant_data.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/screens/plant/widgets/add_photo.dart';
 import 'package:plant_collector/screens/plant/widgets/carousel_standard.dart';
@@ -59,7 +62,7 @@ class PlantScreen extends StatelessWidget {
     //*****SET WIDGET VISIBILITY END*****//
 
     return StreamProvider<DocumentSnapshot>.value(
-      value: Provider.of<CloudDB>(context).streamPlant(plantID: plantID),
+      value: CloudDB.streamPlant(plantID: plantID),
       child: StreamProvider<UserData>.value(
         value: Provider.of<CloudDB>(context).streamCurrentUser(),
         child: ScreenTemplate(
@@ -74,11 +77,24 @@ class PlantScreen extends StatelessWidget {
                     if (plantSnap != null) {
                       //convert snap into something useful
                       PlantData plant = PlantData.fromMap(map: plantSnap.data);
+                      //images
+                      List<ImageData> listImageData = (plant.imageSets != null)
+                          ? plant.imageSets.reversed.toList()
+                          : null;
                       //check number of images to decide whether to build carousel or grid
-                      bool carouselView = (plant.images != null &&
-                              plant.images.length >= changeToGridView)
+                      bool carouselView = (plant.imageSets != null &&
+                              plant.imageSets.length >= changeToGridView)
                           ? false
                           : true;
+//                      return FutureProvider<List<String>>.value(
+//                        value: Provider.of<CloudStore>(context).getThumbURLs(
+//                            imageURLs: listURL,
+//                            plant: plant,
+//                            imageExtension: 'jpg'),
+//                        child: Consumer<List<String>>(
+//                          builder: (context, List<String> thumbs, _) {
+//                            if (thumbs != null) {
+
                       List<Widget> imageWidgets =
                           UIBuilders.generateImageTileWidgets(
                         plantOwner: plant.owner,
@@ -87,9 +103,7 @@ class PlantScreen extends StatelessWidget {
                         thumbnail: plant != null ? plant.thumbnail : null,
                         //the below check is necessary for deleting a plant via the button on plant screen
                         //reversed the image list so most recent photos are first
-                        listURL: plant.images != null
-                            ? plant.images.reversed.toList()
-                            : null,
+                        imageSets: listImageData,
                         largeWidget: carouselView,
                       );
                       //if there are too many photos, it's annoying to scroll.
@@ -149,6 +163,12 @@ class PlantScreen extends StatelessWidget {
                     } else {
                       return SizedBox();
                     }
+//                          },
+//                        ),
+//                      );
+//                    } else {
+//                      return SizedBox();
+//                    }
                   },
                 ),
               ),
@@ -160,6 +180,12 @@ class PlantScreen extends StatelessWidget {
                     //check for data as well so that if delete plant no error calling owner later for admin
                     if (plantSnap != null && plantSnap.data != null) {
                       PlantData plant = PlantData.fromMap(map: plantSnap.data);
+                      List<Map> bloomSequence = [];
+                      plant.bloomSequence
+                          .forEach((item) => bloomSequence.add(item.toMap()));
+                      List<Map> growthSequence = [];
+                      plant.growthSequence
+                          .forEach((item) => growthSequence.add(item.toMap()));
                       return Column(
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
@@ -171,9 +197,21 @@ class PlantScreen extends StatelessWidget {
                                     ViewerUtilityButtons(plant: plant),
                                   ],
                                 ),
+                                //BLOOM SEQUENCE
                                 (plant.bloomSequence.length > 0)
-                                    ? PlantFlowering(
-                                        plant: plant,
+                                    ? PlantSequence(
+                                        plantID: plant.id,
+                                        sequenceData: bloomSequence,
+                                        dataType: BloomData,
+                                        connectionLibrary: connectionLibrary,
+                                      )
+                                    : SizedBox(),
+                                //GROWTH SEQUENCE
+                                (plant.growthSequence.length > 0)
+                                    ? PlantSequence(
+                                        plantID: plant.id,
+                                        sequenceData: growthSequence,
+                                        dataType: GrowthData,
                                         connectionLibrary: connectionLibrary,
                                       )
                                     : SizedBox(),
@@ -286,11 +324,9 @@ class PlantScreen extends StatelessWidget {
                                                         forwardingCollectionID,
                                                     action: false);
                                             //delete plant
-                                            Provider.of<CloudDB>(context)
-                                                .deleteDocumentL1(
-                                                    document: plantID,
-                                                    collection:
-                                                        DBFolder.plants);
+                                            CloudDB.deleteDocumentL1(
+                                                document: plantID,
+                                                collection: DBFolder.plants);
                                             //pop old plant profile
                                             Navigator.pop(context);
                                             //NOTE: deletion of images is handled by a DB function
@@ -318,14 +354,13 @@ class PlantScreen extends StatelessWidget {
                                           buttonText: 'Report',
                                           onPressed: () async {
                                             //report user
-                                            Provider.of<CloudDB>(context)
-                                                .reportPlant(
-                                                    offendingPlantID: plant.id,
-                                                    reportingUser:
-                                                        Provider.of<AppData>(
-                                                                context)
-                                                            .currentUserInfo
-                                                            .id);
+                                            CloudDB.reportPlant(
+                                                offendingPlantID: plant.id,
+                                                reportingUser:
+                                                    Provider.of<AppData>(
+                                                            context)
+                                                        .currentUserInfo
+                                                        .id);
                                             //pop dialog
                                             Navigator.pop(context);
                                           });
@@ -342,8 +377,7 @@ class PlantScreen extends StatelessWidget {
                           action: () {
                             Share.share(
                               UIBuilders.sharePlant(plantMap: plantSnap.data),
-                              subject:
-                                  'Check out this plant via Plant Collector!',
+                              subject: 'Check out this plant!',
                             );
                           },
                         ),
@@ -431,7 +465,8 @@ class PlantAdminFunctions extends StatelessWidget {
       children: <Widget>[
         Expanded(
           child: AdminButton(
-            label: 'Delete Plant and Report User',
+            label: 'Delete Plant and Report User\n'
+                'plantID: $plantID',
             onPress: () {
               showDialog(
                 context: context,
@@ -445,7 +480,7 @@ class PlantAdminFunctions extends StatelessWidget {
                       hideCancel: false,
                       onPressed: () async {
                         //report user
-                        Provider.of<CloudDB>(context).reportUser(
+                        CloudDB.reportUser(
                             userID: plant.owner,
                             reportingUser: Provider.of<AppData>(context)
                                 .currentUserInfo
@@ -458,8 +493,7 @@ class PlantAdminFunctions extends StatelessWidget {
                         for (CollectionData collection in collections) {
                           if (collection.plants.contains(plant.id)) {
                             //remove plant reference from collection
-                            await Provider.of<CloudDB>(context)
-                                .updateDocumentL2Array(
+                            await CloudDB.updateDocumentL2Array(
                               collectionL1: DBFolder.users,
                               documentL1: plant.owner,
                               collectionL2: DBFolder.collections,
@@ -471,7 +505,7 @@ class PlantAdminFunctions extends StatelessWidget {
                           }
                         }
                         //delete plant
-                        await Provider.of<CloudDB>(context).deleteDocumentL1(
+                        await CloudDB.deleteDocumentL1(
                             document: plantID, collection: DBFolder.plants);
                         //notify the user
                         Map<String, dynamic> data = CommunicationData(
@@ -489,7 +523,7 @@ class PlantAdminFunctions extends StatelessWidget {
                                 reference: null)
                             .toMap();
                         //upload the notification
-                        Provider.of<CloudDB>(context).setDocumentL2(
+                        CloudDB.setDocumentL2(
                             collectionL1: DBFolder.communications,
                             documentL1: DBDocument.adminToUser,
                             collectionL2: plant.owner,
@@ -532,8 +566,7 @@ class PlantAdminFunctions extends StatelessWidget {
                               };
 
                               //upload changes
-                              await Provider.of<CloudDB>(context)
-                                  .updateDocumentL1(
+                              await CloudDB.updateDocumentL1(
                                 collection: DBFolder.plants,
                                 document: plant.id,
                                 data: data,

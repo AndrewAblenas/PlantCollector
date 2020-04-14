@@ -40,14 +40,35 @@ class DBDocument {
   static const String reportersPlants = 'reporters_plants';
   static const String reportersUsers = 'reporters_users';
   static const String adminToUser = 'admin_to_user';
+  static const String conversations = 'conversations';
 }
 
 //FOLDERS FOR MOVING/IMPORTING
 class DBDefaultDocument {
   //import group name
-  static const String import = 'import';
+//  static const String import = 'import';
   //import collection names
   static const String clone = 'clone';
+  static const String import = 'import';
   static const String orphaned = 'orphaned';
-  static const List<String> collectionExclude = [clone, orphaned, import];
+  static const String wishList = 'wishList';
+  static const String sellList = 'sellList';
+  static const List<String> collectionHideEmpty = [clone, orphaned];
+  static const List<String> collectionAutoGen = [
+    clone,
+    import,
+    orphaned,
+    wishList,
+    sellList
+  ];
+  static const List<String> collectionPreventMoveInto = [
+    clone,
+    import,
+    orphaned,
+  ];
+  static const List<String> collectionNoCountPlants = [
+    clone,
+    orphaned,
+    wishList,
+  ];
 }

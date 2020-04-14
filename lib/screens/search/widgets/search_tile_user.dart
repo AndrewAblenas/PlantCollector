@@ -24,9 +24,18 @@ class SearchUserTile extends StatelessWidget {
         bool sameUser = (user.id == currentUser.id);
         bool alreadyFriends = (currentUser.friends.contains(user.id));
         bool requestSent = (currentUser.requestsSent.contains(user.id));
+        bool recentUpdate =
+            (AppData.isRecentUpdate(lastUpdate: user.lastPlantUpdate) ||
+                AppData.isRecentUpdate(lastUpdate: user.lastPlantAdd));
         //check to make sure not null
         if (currentUser == null || sameUser == true || alreadyFriends == true) {
-          return SizedBox();
+          return (recentUpdate == true)
+              ? Icon(
+                  Icons.bubble_chart,
+                  size: AppTextSize.large * MediaQuery.of(context).size.width,
+                  color: kGreenMedium,
+                )
+              : SizedBox();
         } else {
           return GestureDetector(
             onTap: () {
@@ -50,7 +59,7 @@ class SearchUserTile extends StatelessWidget {
                           acceptOnPress: () {
                             //update user document to add user name
                             Provider.of<CloudDB>(context).updateUserDocument(
-                              data: CloudDB.updatePairFull(
+                              data: AppData.updatePairFull(
                                   key: UserKeys.name,
                                   value: Provider.of<AppData>(context)
                                       .newDataInput),
@@ -100,7 +109,7 @@ class SearchUserTile extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: (requestSent == true)
                     ? kBackgroundGradientSolidGrey
-                    : kGradientDarkMidGreen,
+                    : kGradientGreenVerticalDarkMed,
                 borderRadius: BorderRadius.all(
                   Radius.circular(
                     5.0,

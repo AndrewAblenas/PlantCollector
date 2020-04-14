@@ -3,6 +3,7 @@ import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
+import 'package:plant_collector/models/global.dart';
 import 'package:plant_collector/models/user.dart';
 import 'package:plant_collector/screens/dialog/dialog_screen_input.dart';
 import 'package:plant_collector/widgets/button_add.dart';
@@ -19,9 +20,10 @@ class ButtonAddFriend extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ButtonAdd(
+      scale: 0.6,
       textColor: AppTextColor.white,
       icon: Icons.person_add,
-      buttonText: 'By Email',
+      buttonText: 'Add By Email',
       onPress: () {
         //determine if user data saved
         bool userData = (Provider.of<AppData>(context).currentUserInfo != null);
@@ -41,7 +43,7 @@ class ButtonAddFriend extends StatelessWidget {
                     acceptOnPress: () {
                       //update user document to add user name
                       Provider.of<CloudDB>(context).updateUserDocument(
-                        data: CloudDB.updatePairFull(
+                        data: AppData.updatePairFull(
                             key: UserKeys.name,
                             value: Provider.of<AppData>(context).newDataInput),
                       );
@@ -111,9 +113,8 @@ class ButtonAddFriend extends StatelessWidget {
                         buttonText = 'Invite';
                         onPressed = () {
                           Share.share(
-                              //TODO when ready link to download app
-                              'I\'m using Plant Collector to keep a record of my plants and share my collection with friends.'
-                              '\n\n Check it out here: <future download link>');
+                              'I\'m using Plant Collector to keep a record of my plants and share my collection with friends.\n\n'
+                              '${GlobalStrings.checkItOut}');
                         };
                       }
                       //show a dialog to provide feedback

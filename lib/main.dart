@@ -80,7 +80,7 @@ class PlantCollector extends StatelessWidget {
           'route': (context) => RouteScreen(),
           'library': (context) => LibraryScreen(
                 userID: null,
-                connectionLibrary: false,
+                connectionLibrary: true,
               ),
           'login': (context) => LoginScreen(),
           'register': (context) => RegisterScreen(),

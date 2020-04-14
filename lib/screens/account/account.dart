@@ -45,7 +45,7 @@ class AccountScreen extends StatelessWidget {
                               onSubmit: () {
                                 Provider.of<CloudDB>(context)
                                     .updateUserDocument(
-                                  data: CloudDB.updatePairFull(
+                                  data: AppData.updatePairFull(
                                       key: UserKeys.name,
                                       value: Provider.of<AppData>(context)
                                           .newDataInput),
@@ -61,7 +61,7 @@ class AccountScreen extends StatelessWidget {
                               onSubmit: () {
                                 Provider.of<CloudDB>(context)
                                     .updateUserDocument(
-                                  data: CloudDB.updatePairFull(
+                                  data: AppData.updatePairFull(
                                       key: UserKeys.region,
                                       value: Provider.of<AppData>(context)
                                           .newDataInput),
@@ -77,7 +77,7 @@ class AccountScreen extends StatelessWidget {
                               onSubmit: () {
                                 Provider.of<CloudDB>(context)
                                     .updateUserDocument(
-                                  data: CloudDB.updatePairFull(
+                                  data: AppData.updatePairFull(
                                       key: UserKeys.about,
                                       value: Provider.of<AppData>(context)
                                           .newDataInput),
@@ -138,7 +138,7 @@ class AccountScreen extends StatelessWidget {
                                   //add image reference to plant document
                                   Provider.of<CloudDB>(context)
                                       .updateUserDocument(
-                                    data: CloudDB.updatePairFull(
+                                    data: AppData.updatePairFull(
                                       key: UserKeys.avatar,
                                       value: url,
                                     ),
@@ -198,7 +198,7 @@ class AccountScreen extends StatelessWidget {
                                   //add image reference to user document
                                   Provider.of<CloudDB>(context)
                                       .updateUserDocument(
-                                    data: CloudDB.updatePairFull(
+                                    data: AppData.updatePairFull(
                                       key: UserKeys.background,
                                       value: url,
                                     ),
@@ -234,7 +234,7 @@ class AccountScreen extends StatelessWidget {
                                   //update settings
                                   Provider.of<CloudDB>(context)
                                       .updateUserDocument(
-                                    data: CloudDB.updatePairFull(
+                                    data: AppData.updatePairFull(
                                       key: UserKeys.sortAlphabetically,
                                       value: (user.sortAlphabetically == false),
                                     ),
@@ -255,7 +255,7 @@ class AccountScreen extends StatelessWidget {
                                   //update settings
                                   Provider.of<CloudDB>(context)
                                       .updateUserDocument(
-                                    data: CloudDB.updatePairFull(
+                                    data: AppData.updatePairFull(
                                       key: UserKeys.expandCollection,
                                       value: (user.expandCollection == false),
                                     ),
@@ -276,7 +276,45 @@ class AccountScreen extends StatelessWidget {
                                   //update settings
                                   Provider.of<CloudDB>(context)
                                       .updateUserDocument(
-                                    data: CloudDB.updatePairFull(
+                                    data: AppData.updatePairFull(
+                                      key: UserKeys.showWishList,
+                                      value: (user.showWishList == false),
+                                    ),
+                                  );
+                                  Navigator.pop(context);
+                                },
+                                onPress: null,
+                                cardLabel: 'Enable Wishlist',
+                                dialogText:
+                                    'Change default settings for app launch?',
+                                cardText:
+                                    user.showWishList == true ? 'Yes' : 'No'),
+                            SettingsCard(
+                                confirmDialog: true,
+                                onSubmit: () {
+                                  //update settings
+                                  Provider.of<CloudDB>(context)
+                                      .updateUserDocument(
+                                    data: AppData.updatePairFull(
+                                      key: UserKeys.showSellList,
+                                      value: (user.showSellList == false),
+                                    ),
+                                  );
+                                  Navigator.pop(context);
+                                },
+                                onPress: null,
+                                cardLabel: 'Enable Sell List',
+                                dialogText:
+                                    'Change default settings for app launch?',
+                                cardText:
+                                    user.showSellList == true ? 'Yes' : 'No'),
+                            SettingsCard(
+                                confirmDialog: true,
+                                onSubmit: () {
+                                  //update settings
+                                  Provider.of<CloudDB>(context)
+                                      .updateUserDocument(
+                                    data: AppData.updatePairFull(
                                       key: UserKeys.privateLibrary,
                                       value: !user.privateLibrary,
                                     ),
@@ -344,7 +382,7 @@ class AccountScreen extends StatelessWidget {
                                 //update the user document email
                                 Provider.of<CloudDB>(context)
                                     .updateUserDocument(
-                                  data: CloudDB.updatePairFull(
+                                  data: AppData.updatePairFull(
                                     key: UserKeys.email,
                                     value: Provider.of<AppData>(context)
                                         .newDataInput,

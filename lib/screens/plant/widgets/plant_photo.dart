@@ -3,7 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
-import 'package:plant_collector/models/data_types/plant_data.dart';
+import 'package:plant_collector/models/data_types/plant/image_data.dart';
+import 'package:plant_collector/models/data_types/plant/plant_data.dart';
 import 'package:plant_collector/widgets/dialogs/dialog_confirm.dart';
 import 'package:provider/provider.dart';
 import 'package:plant_collector/models/app_data.dart';
@@ -21,13 +22,13 @@ import 'package:plant_collector/formats/colors.dart';
 
 class PlantPhoto extends StatelessWidget {
   final bool connectionLibrary;
-  final String imageURL;
+  final ImageData imageSet;
   final String imageDate;
   final bool largeWidget;
   final String plantOwner;
   PlantPhoto({
     @required this.connectionLibrary,
-    @required this.imageURL,
+    @required this.imageSet,
     @required this.imageDate,
     @required this.largeWidget,
     @required this.plantOwner,
@@ -40,16 +41,6 @@ class PlantPhoto extends StatelessWidget {
     //only show set thumbnail for large widget and current user is owner
     bool showSetThumbnail = (largeWidget == true && connectionLibrary == false);
 
-    //get the thumbnail image name for delete image and gridview display
-    String thumbName = CloudStore.getThumbName(imageUrl: imageURL);
-
-    //get the thumb reference
-    StorageReference thumbRef = Provider.of<CloudStore>(context).getImageRef(
-        ownerID: plantOwner,
-        imageName: thumbName,
-        imageExtension: 'jpg',
-        plantIDFolder: Provider.of<AppData>(context).forwardingPlantID);
-
     //*****SET WIDGET VISIBILITY END*****//
 
     return Padding(
@@ -61,7 +52,7 @@ class PlantPhoto extends StatelessWidget {
               MaterialPageRoute(
                   builder: (context) => ImageScreen(
                         connectionLibrary: connectionLibrary,
-                        imageURL: imageURL,
+                        imageURL: imageSet.full,
                       )));
         },
         onLongPress: () {
@@ -75,26 +66,31 @@ class PlantPhoto extends StatelessWidget {
                   text: 'Are you sure you want to delete this image?',
                   onPressed: () async {
                     //*****REMOVE IMAGE*****//
+                    Map<String, dynamic> removeData = imageSet.toMap();
                     //remove from database array
-                    await Provider.of<CloudDB>(context).updateDocumentL1Array(
+                    await CloudDB.updateDocumentL1Array(
                         collection: DBFolder.plants,
                         document:
                             Provider.of<AppData>(context).forwardingPlantID,
-                        key: PlantKeys.images,
-                        entries: [imageURL],
+                        key: PlantKeys.imageSets,
+                        entries: [removeData],
                         action: false);
                     //get reference from the provided URL
-                    StorageReference reference =
+                    StorageReference refImage =
                         await Provider.of<CloudStore>(context)
-                            .getReferenceFromURL(imageURL: imageURL);
+                            .getReferenceFromURL(imageURL: imageSet.full);
                     //delete image
                     Provider.of<CloudStore>(context)
-                        .deleteImage(imageReference: reference);
+                        .deleteImage(imageReference: refImage);
 
                     //*****REMOVE THUMBNAIL*****//
+                    //get reference from the provided URL
+                    StorageReference refThumb =
+                        await Provider.of<CloudStore>(context)
+                            .getReferenceFromURL(imageURL: imageSet.thumb);
                     //delete thumbnail
                     Provider.of<CloudStore>(context)
-                        .deleteImage(imageReference: thumbRef);
+                        .deleteImage(imageReference: refThumb);
                     Navigator.pop(context);
                   },
                 );
@@ -114,25 +110,27 @@ class PlantPhoto extends StatelessWidget {
           child: Stack(fit: StackFit.expand, children: <Widget>[
             (largeWidget == true)
                 ? CachedNetworkImage(
-                    imageUrl: imageURL,
+                    imageUrl: imageSet.full,
                     fit: BoxFit.cover,
                   )
-                : FutureProvider<String>.value(
-                    value: Provider.of<CloudStore>(context)
-                        .getImageUrl(reference: thumbRef),
-                    child: Consumer<String>(
-                      builder: (context, String thumbURL, _) {
-                        if (thumbURL == null) {
-                          return SizedBox();
-                        } else {
-                          return CachedNetworkImage(
-                            imageUrl: thumbURL,
-                            fit: BoxFit.cover,
-                          );
-                        }
-                      },
-                    ),
+                :
+//            FutureProvider<String>.value(
+//                    value: Provider.of<CloudStore>(context)
+//                        .getImageUrl(reference: thumbRef),
+//                    child: Consumer<String>(
+//                      builder: (context, String thumbURL, _) {
+//                        if (thumbURL == null) {
+//                          return SizedBox();
+//                        } else {
+//                          return
+                CachedNetworkImage(
+                    imageUrl: imageSet.thumb,
+                    fit: BoxFit.cover,
                   ),
+//                        }
+//                      },
+//                    ),
+//                  ),
 //              CachedNetworkImage(imageUrl: imageURL),
             Column(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -186,27 +184,26 @@ class PlantPhoto extends StatelessWidget {
                                       title: 'Plant Thumbnail',
                                       text:
                                           'Would you like to use this image as the plant thumbail image?',
-                                      onPressed: () async {
+                                      onPressed: () {
                                         if (connectionLibrary == false) {
                                           //run thumbnail package to get thumb url
-                                          String thumbUrl = await Provider.of<
-                                                  CloudStore>(context)
-                                              .thumbnailPackage(
-                                                  imageURL: imageURL,
-                                                  plantID: Provider.of<AppData>(
-                                                          context)
-                                                      .forwardingPlantID);
+//                                          String thumbUrl = await Provider.of<
+//                                                  CloudStore>(context)
+//                                              .thumbnailPackage(
+//                                                  imageURL: imageSet,
+//                                                  plantID: Provider.of<AppData>(
+//                                                          context)
+//                                                      .forwardingPlantID);
                                           //package data
                                           Map<String, dynamic> data = {
-                                            PlantKeys.thumbnail: thumbUrl,
+                                            PlantKeys.thumbnail: imageSet.thumb,
                                             PlantKeys.isVisible:
                                                 !Provider.of<AppData>(context)
                                                     .currentUserInfo
                                                     .privateLibrary
                                           };
                                           //set thumb url
-                                          Provider.of<CloudDB>(context)
-                                              .updateDocumentL1(
+                                          CloudDB.updateDocumentL1(
                                             collection: DBFolder.plants,
                                             document:
                                                 Provider.of<AppData>(context)

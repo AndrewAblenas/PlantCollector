@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/cloud_db.dart';
-import 'package:plant_collector/models/data_types/plant_data.dart';
+import 'package:plant_collector/models/data_types/plant/plant_data.dart';
 import 'package:plant_collector/screens/library/widgets/plant_tile.dart';
 import 'package:plant_collector/screens/template/screen_template.dart';
+import 'package:plant_collector/widgets/button_add.dart';
 import 'package:plant_collector/widgets/container_wrapper.dart';
 import 'package:plant_collector/widgets/section_header.dart';
 import 'package:provider/provider.dart';
@@ -22,6 +23,15 @@ class AdminScreen extends StatelessWidget {
         child: ListView(
           primary: true,
           children: <Widget>[
+            SizedBox(
+              height: 10.0 * MediaQuery.of(context).size.width * kScaleFactor,
+            ),
+            ButtonAdd(
+                buttonText: 'Run Admin Function',
+                onPress: () {
+//                  CloudDB.repackImageData(
+//                      ref: Provider.of<CloudStore>(context).getStorageRef());
+                }),
             SizedBox(
               height: 10.0 * MediaQuery.of(context).size.width * kScaleFactor,
             ),

@@ -3,10 +3,11 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
+import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/cloud_store.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
-import 'package:plant_collector/models/data_types/plant_data.dart';
+import 'package:plant_collector/models/data_types/plant/plant_data.dart';
 import 'package:provider/provider.dart';
 
 class GetImageGallery extends StatelessWidget {
@@ -63,19 +64,20 @@ class GetImageGallery extends StatelessWidget {
           String url = await Provider.of<CloudStore>(context)
               .getDownloadURL(snapshot: completion);
           //add image reference to plant document
-          await Provider.of<CloudDB>(context).updateDocumentL1Array(
+          await CloudDB.updateDocumentL1Array(
               collection: DBFolder.plants,
               document: plantID,
               key: PlantKeys.images,
               entries: [url],
               action: true);
           //update document last updated time
-          Provider.of<CloudDB>(context).updateDocumentL1(
+          CloudDB.updateDocumentL1(
               collection: DBFolder.plants,
               document: plantID,
               data: {
-                PlantKeys.update:
-                    CloudDB.delayUpdateWrites(timeCreated: plantCreationDate),
+                PlantKeys.update: CloudDB.delayUpdateWrites(
+                    timeCreated: plantCreationDate,
+                    document: Provider.of<AppData>(context).currentUserInfo.id),
               });
           //pop context
           if (pop == true) {

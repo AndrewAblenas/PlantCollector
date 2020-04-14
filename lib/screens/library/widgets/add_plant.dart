@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 import 'package:plant_collector/models/data_types/collection_data.dart';
-import 'package:plant_collector/models/data_types/plant_data.dart';
+import 'package:plant_collector/models/data_types/plant/plant_data.dart';
+import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/models/global.dart';
 import 'package:plant_collector/screens/dialog/dialog_screen_input.dart';
 import 'package:plant_collector/screens/dialog/dialog_screen_select.dart';
@@ -44,9 +45,10 @@ class AddPlant extends StatelessWidget {
                     title: 'Nickname your ${GlobalStrings.plant}',
                     acceptText: 'Add',
                     acceptOnPress: () async {
-                      data = Provider.of<AppData>(context).plantNew();
+                      data = Provider.of<AppData>(context)
+                          .plantNew(collectionID: collectionID);
                       //add new plant to userPlants
-                      await Provider.of<CloudDB>(context).setDocumentL1(
+                      await CloudDB.setDocumentL1(
                         collection: DBFolder.plants,
                         document: data[PlantKeys.id],
                         data: data,
@@ -59,6 +61,16 @@ class AddPlant extends StatelessWidget {
                               folder: DBFolder.collections,
                               documentName: collectionID,
                               action: true);
+                      //add the last plant creation time to user file
+                      Map<String, dynamic> update = {
+                        UserKeys.lastPlantAdd:
+                            DateTime.now().millisecondsSinceEpoch
+                      };
+                      await CloudDB.updateDocumentL1(
+                          collection: DBFolder.users,
+                          document:
+                              Provider.of<CloudDB>(context).currentUserFolder,
+                          data: update);
                       //pop the first window
                       Navigator.pop(context);
                       //add image functionality

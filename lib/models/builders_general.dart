@@ -1,13 +1,16 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
-import 'package:plant_collector/models/data_types/bloom_data.dart';
+import 'package:plant_collector/models/data_types/plant/bloom_data.dart';
 import 'package:plant_collector/models/data_types/collection_data.dart';
 import 'package:plant_collector/models/data_types/communication_data.dart';
 import 'package:plant_collector/models/data_types/group_data.dart';
 import 'package:plant_collector/models/data_types/journal_data.dart';
-import 'package:plant_collector/models/data_types/plant_data.dart';
+import 'package:plant_collector/models/data_types/plant/growth_data.dart';
+import 'package:plant_collector/models/data_types/plant/image_data.dart';
+import 'package:plant_collector/models/data_types/plant/plant_data.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/models/global.dart';
 import 'package:plant_collector/screens/dialog/dialog_item_bloom.dart';
@@ -146,28 +149,35 @@ class UIBuilders extends ChangeNotifier {
 //  }
 
   //GENERATE COLLECTION WIDGETS
-  static Column displayCollections(
-      {@required List<CollectionData> userCollections,
-      @required String groupID,
-      @required Color groupColor,
-      @required bool connectionLibrary,
-      @required bool sortAlphabetically}) {
+  static Column displayCollections({
+    @required List<CollectionData> userCollections,
+    @required String groupID,
+    @required Color groupColor,
+    @required bool connectionLibrary,
+    @required UserData user,
+  }) {
     //check that they aren't default
     List<Widget> collectionList = [];
     Column collectionColumn;
     //make sure that there are collections in the list
     if (userCollections != null && userCollections.length > 0) {
       //sort if needed
-      if (sortAlphabetically == true) {
+      if (user.sortAlphabetically == true) {
         userCollections.sort((a, b) => (a.name).compareTo((b.name)));
       }
       for (CollectionData collection in userCollections) {
         //connection view check for defaults
         bool defaultView =
-            DBDefaultDocument.collectionExclude.contains(collection.id);
+            DBDefaultDocument.collectionHideEmpty.contains(collection.id);
         //hide default collections when empty
-        bool hide = (defaultView == true && collection.plants.length == 0);
-        if (hide == false) {
+        bool hidePublicNoPlants =
+            ((defaultView == true && collection.plants.length == 0));
+        //user can decide to hide sell and wish lists
+        bool hideUserChoice = (user.showSellList == false &&
+                collection.id == DBDefaultDocument.sellList) ||
+            (user.showWishList == false &&
+                collection.id == DBDefaultDocument.wishList);
+        if (hidePublicNoPlants == false && hideUserChoice == false) {
           //add collection card for each collection
           collectionList.add(
             CollectionCard(
@@ -219,27 +229,28 @@ class UIBuilders extends ChangeNotifier {
       {@required String plantOwner,
       @required bool connectionLibrary,
       @required String plantID,
-      @required List<dynamic> listURL,
+      @required List<ImageData> imageSets,
       @required String thumbnail,
       @required bool largeWidget}) {
     //initialize the widget list
     List<Widget> imageTileList = [];
     //check to make sure list is not null
-    if (listURL != null) {
+    if (imageSets != null) {
       //look through list
-      for (String url in listURL) {
+      for (ImageData imageSet in imageSets) {
         //get date from image name (more efficient than meta?)
-        String frontRemoved = url.split('_image_')[1];
-        String epochSeconds = frontRemoved.split('.jpg')[0];
+//        String frontRemoved = imageSet.full.split('_image_')[1];
+//        String epochSeconds = frontRemoved.split('.jpg')[0];
         String date = formatDate(
-            DateTime.fromMillisecondsSinceEpoch(int.parse(epochSeconds)),
+            DateTime.fromMillisecondsSinceEpoch(imageSet.date),
             [MM, ' ', d, ', ', yyyy]);
+
         //create image tiles
         imageTileList.add(
           PlantPhoto(
             plantOwner: plantOwner,
             connectionLibrary: connectionLibrary,
-            imageURL: url,
+            imageSet: imageSet,
             imageDate: date,
             largeWidget: largeWidget,
           ),
@@ -264,16 +275,15 @@ class UIBuilders extends ChangeNotifier {
 
   //REFORMAT PLANT INFO TO SHARE
   static String sharePlant({@required Map plantMap}) {
-    //TODO add link
     String plantShare = 'Check out this Plant!\n\n';
     if (plantMap != null) {
-      for (String key in PlantKeys.visibleKeysList)
+      for (String key in PlantKeys.listStringKeys)
         if (plantMap[key] != null && plantMap[key] != '') {
           plantShare =
               plantShare + '${PlantKeys.descriptors[key]}: ${plantMap[key]}\n';
         }
     }
-    return plantShare + '\nSee it on Plant Collector:\n<future app store link>';
+    return plantShare + '\n${GlobalStrings.checkItOut}';
   }
 
   //FORMAT INFORMATION TO DISPLAY NAME PROPERLY
@@ -365,9 +375,10 @@ class UIBuilders extends ChangeNotifier {
     bool showContainer = true;
 
     //create a list of only the keys you want visible
-    List<String> keyList = PlantKeys.visibleKeysList.toList();
+    List<String> keyList = PlantKeys.listVisibleKeys.toList();
     //remove bloom to show elsewhere
-    keyList.remove(PlantKeys.bloomSequence);
+    keyList
+        .removeWhere((item) => PlantKeys.listDateDayOfYearKeys.contains(item));
 
     //need null check to deal with issues on plant delete
     //connection library check will hide journal unless plant belongs to user
@@ -378,9 +389,9 @@ class UIBuilders extends ChangeNotifier {
       for (String key in keyList) {
         //check to see that they aren't set to default value (hidden)
         if (plantMap[key] != null &&
-            plantMap[key] != '' &&
+            plantMap[key] != DefaultTypeValue.defaultString &&
             //default date acquired
-            plantMap[key] != 1577836800000) {
+            plantMap[key] != DefaultTypeValue.defaultInt) {
           //if not default then create a widget and add to the list
           String displayLabel = PlantKeys.descriptors[key];
           //display info differently depending on what it is
@@ -649,23 +660,25 @@ class UIBuilders extends ChangeNotifier {
     return list;
   }
 
-  //Create date buttons
-  static List<Widget> buildFloweringWidget({
-    @required List<BloomData> blooms,
+  //Build sequence widget
+  static List<Widget> buildSequenceWidget({
+    @required List<Map> sequenceData,
+    @required Type dataType,
     @required String plantID,
     @required connectionLibrary,
   }) {
+    //check data type
+
     //list to return to widgets
     List<Widget> list = [];
 
     //go through each entry in the blooms list
-    for (BloomData bloom in blooms) {
+    for (Map sequence in sequenceData) {
       List<Widget> bloomList = [];
-      Map<String, dynamic> bloomMap = bloom.toMap();
       int previousValue = 0;
 
-      for (String key in bloomMap.keys.toList()) {
-        int currentValue = bloomMap[key];
+      for (String key in sequence.keys.toList()) {
+        int currentValue = sequence[key];
         if (previousValue != 0 && currentValue != 0) {
           int duration;
           if (currentValue > previousValue) {
@@ -676,7 +689,9 @@ class UIBuilders extends ChangeNotifier {
             duration = 365 + currentValue - previousValue;
           }
           Gradient gradient;
+          //STYLING
           String label;
+          //BLOOM RELATED
           if (key == BloomKeys.first) {
             gradient = kGradientGreenHorizontalDarkMedLight;
             label = 'Bud';
@@ -686,10 +701,19 @@ class UIBuilders extends ChangeNotifier {
           } else if (key == BloomKeys.seed) {
             gradient = kGradientGreenSolidDark;
             label = 'Seed';
+            //GROWTH RELATED
+          } else if (key == GrowthKeys.mature) {
+            gradient = kGradientGreenVerticalMedLight;
+            label = 'Growing';
+          } else if (key == GrowthKeys.dormant) {
+            gradient = kGradientGreenVerticalDarkMed;
+            label = 'Mature';
+            //ELSE
           } else {
             gradient = kGradientGreenSolidDark;
+            label = '';
           }
-          Widget period = BloomLine(
+          Widget period = SequenceLine(
             duration: duration,
             gradient: gradient,
             label: label,
@@ -698,20 +722,31 @@ class UIBuilders extends ChangeNotifier {
         }
         if (currentValue != 0) {
           String date = getDateFromDayOfYear(dayOfYear: currentValue);
-          Widget dateWidget = BloomDate(date: date);
+          Widget dateWidget = SequenceDate(date: date);
           bloomList.add(dateWidget);
         }
         previousValue = (currentValue != 0) ? currentValue : previousValue;
       }
-      Widget sequenceRow = Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: bloomList,
-      );
-      list.add(PlantFloweringSequence(
-          plantID: plantID,
-          connectionLibrary: connectionLibrary,
-          sequenceRow: sequenceRow,
-          sequenceMap: bloomMap));
+      Widget sequenceRow = (bloomList.length > 0)
+          ? Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: bloomList,
+            )
+          : Text(
+              'tap to add details',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontWeight: AppTextWeight.medium,
+                color: AppTextColor.light,
+              ),
+            );
+      list.add(FullSequence(
+        plantID: plantID,
+        connectionLibrary: connectionLibrary,
+        sequenceRow: sequenceRow,
+        sequenceMap: sequence,
+        dataType: dataType,
+      ));
     }
     return list;
   }
@@ -755,10 +790,32 @@ class UIBuilders extends ChangeNotifier {
   }
 
   static int getMonthDayFromDayOfYear({@required int dayOfYear}) {
+    //get the month
     int index = getMonthFromDayOfYear(dayOfYear: dayOfYear);
-    int day = (DatesCustom.monthDayCutoffs[index] - dayOfYear);
-    day = (day == 0) ? DatesCustom.monthDayCount[index] : day;
-    return day;
+    //day value is already in the month (month 12, day 0 = 365 day)
+    if (DatesCustom.monthDayCutoffs[index] == dayOfYear) {
+      return 0;
+    } else {
+      //get cutoff for previous month
+      index = (index >= 1) ? (index - 1) : 0;
+      //day of year minus previous month cutoff for day of month
+      int day = (dayOfYear - DatesCustom.monthDayCutoffs[index]);
+      day = (day == 0) ? DatesCustom.monthDayCount[index] : day;
+      return day;
+    }
+  }
+
+  static int getDayOfYear({@required int month, @required int day}) {
+    //generate a list of months but exclude the last one
+    if (day == 0) {
+      return DatesCustom.monthDayCutoffs[month];
+    } else if (month >= 1) {
+      return DatesCustom.monthDayCutoffs[month - 1] + day;
+    } else if (month == 0 && day == 0) {
+      return 0;
+    } else {
+      return 0;
+    }
   }
 
 //CREATE PLANT LIST BUTTONS
@@ -766,7 +823,7 @@ class UIBuilders extends ChangeNotifier {
     //create a blank list to populate with widgets
     List<Widget> listItems = [];
     //create list of all plant keys in the constant map
-    List list = PlantKeys.visibleKeysList;
+    List list = PlantKeys.listVisibleKeys;
 //    list.remove(PlantKeys.thumbnail);
     //create list of plant keys not displayed in plant screen
     List<String> plantKeysNotDisplayed = [];
@@ -774,23 +831,23 @@ class UIBuilders extends ChangeNotifier {
     if (plant != null) {
       Map plantMap = plant.toMap();
       for (String key in list) {
-        if (plantMap[key] == '' ||
-            plantMap[key] == 1577836800000 ||
-            (key == PlantKeys.bloomSequence && plantMap[key].length == 0)) {
+        if (plantMap[key] == DefaultTypeValue.defaultString ||
+            plantMap[key] == DefaultTypeValue.defaultInt ||
+            (PlantKeys.listDateDayOfYearKeys.contains(key) &&
+                plantMap[key].length == 0) ||
+            plantMap[key] == null) {
           plantKeysNotDisplayed.add(key);
         }
       }
     }
 //    plantKeysNotDisplayed.remove(PlantKeys.images);
     for (String key in plantKeysNotDisplayed) {
-      bool showDatePickerInstead = (PlantKeys.listDatePickerKeys.contains(key));
       Map showListInput;
       if (key == PlantKeys.bloomSequence) {
         showListInput = BloomKeys.descriptors;
       }
       listItems.add(
         DialogItemPlant(
-          showDatePickerInstead: showDatePickerInstead,
           showListInput: showListInput,
           timeCreated: plant.created,
           buttonKey: key,
@@ -807,7 +864,7 @@ class UIBuilders extends ChangeNotifier {
     List<String> keys = map.keys.toList();
     for (String key in keys) {
       int keyIndex = keys.indexOf(key);
-      Widget widget = DialogItemBloom(buttonText: map[key], index: keyIndex);
+      Widget widget = DayOfYearSelector(buttonText: map[key], index: keyIndex);
       widgets.add(widget);
     }
     return widgets;

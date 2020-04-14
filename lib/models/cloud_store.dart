@@ -7,6 +7,7 @@ import 'package:flutter_exif_rotation/flutter_exif_rotation.dart';
 import 'package:image/image.dart' as ExtendedImage;
 import 'package:date_format/date_format.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
+import 'package:plant_collector/models/data_types/plant/plant_data.dart';
 
 //*****************OVERVIEW*****************
 //Class relating to the creation, storage, deletion of images via Firebase Storage
@@ -29,6 +30,10 @@ class CloudStore extends ChangeNotifier {
   static double cameraImageSize = 800.0;
   //connection folder to view library
   String currentConnectionFolder;
+
+  StorageReference getStorageRef() {
+    return _storage.ref();
+  }
 
   void setUserFolder({@required String userID}) {
     currentUserFolder = userID;
@@ -206,15 +211,15 @@ class CloudStore extends ChangeNotifier {
   }
 
   //get image url
-  Future<String> getImageUrl({@required StorageReference reference}) async {
-    String url;
+  static Future<String> getImageUrl(
+      {@required StorageReference reference}) async {
     try {
-      String value = await reference.getDownloadURL();
-      url = value;
+      String url = await reference.getDownloadURL();
+      return url;
     } catch (e) {
-      print(e);
+      print('ERROR');
+      return 'fail';
     }
-    return url;
   }
 
   //*****************CLOUD STORAGE IMAGE RELATED*****************
@@ -225,6 +230,24 @@ class CloudStore extends ChangeNotifier {
   }) async {
     String url = await snapshot.ref.getDownloadURL();
     return url;
+  }
+
+  Future<List<String>> getThumbURLs(
+      {@required List imageURLs,
+      @required PlantData plant,
+      @required String imageExtension}) async {
+    List<String> listThumbs = [];
+    for (String url in imageURLs) {
+      //get the thumbnail image name for delete image and gridview display
+      String thumbName = CloudStore.getThumbName(imageUrl: url);
+      //get the thumb reference
+      StorageReference thumbRef = _storage.ref().child(
+          '$mainFolder/${plant.owner}/$plantsFolder/${plant.id}/$imageFolder/$thumbName.$imageExtension');
+      //get the url
+      String item = await CloudStore.getImageUrl(reference: thumbRef);
+      listThumbs.add(item);
+    }
+    return listThumbs;
   }
 
   //UPLOAD TASK

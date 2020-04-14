@@ -6,7 +6,7 @@ import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 import 'package:plant_collector/models/data_types/collection_data.dart';
-import 'package:plant_collector/models/data_types/plant_data.dart';
+import 'package:plant_collector/models/data_types/plant/plant_data.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/screens/discover/discover.dart';
 import 'package:plant_collector/screens/friends/friends.dart';
@@ -59,7 +59,7 @@ class BottomBar extends StatelessWidget {
 //                    ),
 //                  );
                   Navigator.of(context)
-                      .push(tabTransition(nextPage: DiscoverScreen()));
+                      .push(transitionNone(nextPage: DiscoverScreen()));
                 },
                 tabSelected: selectionNumber,
                 tabNumber: 1,
@@ -78,7 +78,7 @@ class BottomBar extends StatelessWidget {
                     ),
                     navigate: () {
                       Navigator.of(context)
-                          .push(tabTransition(nextPage: FriendsScreen()));
+                          .push(transitionNone(nextPage: FriendsScreen()));
                       //show dialog to prompt for user handle
                       print(Provider.of<AppData>(context)
                           .currentUserInfo
@@ -112,7 +112,7 @@ class BottomBar extends StatelessWidget {
                       return GestureDetector(
                         onTap: () {
                           Navigator.of(context)
-                              .push(tabTransition(nextPage: FriendsScreen()));
+                              .push(transitionNone(nextPage: FriendsScreen()));
 //                          Navigator.push(
 //                            context,
 //                            MaterialPageRoute(
@@ -169,7 +169,7 @@ class BottomBar extends StatelessWidget {
                   //reset map
                   Provider.of<AppData>(context).searchQueryInput = {};
                   Navigator.of(context)
-                      .push(tabTransition(nextPage: SearchScreen()));
+                      .push(transitionNone(nextPage: SearchScreen()));
 //                  Navigator.push(
 //                    context,
 //                    MaterialPageRoute(
@@ -196,7 +196,7 @@ class BottomBar extends StatelessWidget {
 //                    ),
 //                  );
                   Navigator.of(context)
-                      .push(tabTransition(nextPage: SettingsScreen()));
+                      .push(transitionNone(nextPage: SettingsScreen()));
                 },
                 tabSelected: selectionNumber,
                 tabNumber: 5,
@@ -234,8 +234,7 @@ class BottomTab extends StatelessWidget {
           } else if (tabNumber == 3) {
             //run an orphaned plant check every time this button is hidden
             //this decision to place it here is arbitrary
-            List<String> orphaned =
-                Provider.of<CloudDB>(context).orphanedPlantCheck(
+            List<String> orphaned = AppData.orphanedPlantCheck(
               collections: Provider.of<AppData>(context).currentUserCollections,
               plants: Provider.of<AppData>(context).currentUserPlants,
             );
@@ -250,11 +249,9 @@ class BottomTab extends StatelessWidget {
                 if (collection.id == collectionID) matchCollection = true;
               }
               //provide default document
-              Map defaultCollection = Provider.of<CloudDB>(context)
-                  .newDefaultCollection(
-                    collectionName: collectionID,
-                  )
-                  .toMap();
+              Map defaultCollection = AppData.newDefaultCollection(
+                collectionID: collectionID,
+              ).toMap();
               //now complete cloning
               Provider.of<CloudDB>(context).updateDefaultDocumentL2(
                 collectionL2: DBFolder.collections,

@@ -1,12 +1,11 @@
-import 'dart:io';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
+import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/cloud_store.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
-import 'package:plant_collector/models/data_types/plant_data.dart';
+import 'package:plant_collector/models/data_types/plant/plant_data.dart';
 import 'package:provider/provider.dart';
 
 class GetImage extends StatelessWidget {
@@ -57,43 +56,51 @@ class GetImage extends StatelessWidget {
       ),
       onPressed: () async {
         //get image from camera
-        File image = await Provider.of<CloudStore>(context)
-            .getImageFile(fromCamera: imageFromCamera);
-        //check to make sure the user didn't back out
-        if (image != null) {
-          //upload image
-          StorageUploadTask upload = Provider.of<CloudStore>(context)
-              .uploadTask(
-                  imageCode: null,
-                  imageFile: image,
-                  imageExtension: 'jpg',
-                  plantIDFolder: plantID,
-                  subFolder: DBDocument.images);
-          //make sure upload completes
-          StorageTaskSnapshot completion = await upload.onComplete;
-          //get the url string
-          String url = await Provider.of<CloudStore>(context)
-              .getDownloadURL(snapshot: completion);
-          //add image reference to plant document
-          await Provider.of<CloudDB>(context).updateDocumentL1Array(
-              collection: DBFolder.plants,
-              document: plantID,
-              key: PlantKeys.images,
-              entries: [url],
-              action: true);
-          //update document last updated time
-          Provider.of<CloudDB>(context).updateDocumentL1(
-              collection: DBFolder.plants,
-              document: plantID,
-              data: {
-                PlantKeys.update:
-                    CloudDB.delayUpdateWrites(timeCreated: plantCreationDate),
-              });
-          //pop context
-          if (pop == true) {
-            Navigator.pop(context);
+        Provider.of<CloudStore>(context)
+            .getImageFile(fromCamera: imageFromCamera)
+            .then((image) {
+          //check to make sure the user didn't back out
+          if (image != null) {
+            //upload image
+            //wait for completion
+            Provider.of<CloudStore>(context)
+                .uploadTask(
+                    imageCode: null,
+                    imageFile: image,
+                    imageExtension: 'jpg',
+                    plantIDFolder: plantID,
+                    subFolder: DBDocument.images)
+                .onComplete
+                .then((completion) {
+              //get the url string
+              Provider.of<CloudStore>(context)
+                  .getDownloadURL(snapshot: completion)
+                  .then(
+                    (url) =>
+                        //NOW GET DATE, THUMB URL AND UPLOAD
+                        Provider.of<CloudDB>(context).generateImageMapAndUpload(
+                            ref: Provider.of<CloudStore>(context)
+                                .getStorageRef(),
+                            url: url,
+                            plantID: plantID),
+                  );
+              //update document last updated time
+              CloudDB.updateDocumentL1(
+                  collection: DBFolder.plants,
+                  document: plantID,
+                  data: {
+                    PlantKeys.update: CloudDB.delayUpdateWrites(
+                        timeCreated: plantCreationDate,
+                        document:
+                            Provider.of<AppData>(context).currentUserInfo.id),
+                  });
+              //pop context
+              if (pop == true) {
+                Navigator.pop(context);
+              }
+            });
           }
-        }
+        });
       },
     );
   }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/builders_general.dart';
-import 'package:plant_collector/models/data_types/plant_data.dart';
+import 'package:plant_collector/models/data_types/plant/plant_data.dart';
 import 'package:plant_collector/screens/plant/plant.dart';
 import 'package:plant_collector/widgets/container_wrapper.dart';
 import 'package:provider/provider.dart';

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:plant_collector/models/data_types/bloom_data.dart';
+import 'package:plant_collector/models/data_types/base_type.dart';
+import 'package:plant_collector/models/data_types/plant/bloom_data.dart';
+import 'package:plant_collector/models/data_types/plant/growth_data.dart';
+import 'package:plant_collector/models/data_types/plant/image_data.dart';
 
 //*****************PLANT*****************
 
@@ -19,6 +22,7 @@ class PlantKeys {
   static const String notes = 'plantNotes';
   static const String thumbnail = 'plantThumbnail';
   static const String images = 'plantImageList';
+  static const String imageSets = 'imageSets';
   static const String likes = 'plantLikes';
   static const String owner = 'plantOwner';
   static const String clones = 'plantTotalClones';
@@ -35,21 +39,39 @@ class PlantKeys {
   static const String isHousePlant = 'isHousePlant';
   static const String dateAcquired = 'dateAcquired';
   static const String awards = 'awards';
+  static const String growthSequence = 'growthSequence';
 
   //VISIBLE LIST
-  static const List<String> visibleKeysList = [
+  static const List<String> listVisibleKeys = [
     name,
     genus,
     species,
     hybrid,
     variety,
     bloomSequence,
+    growthSequence,
     repot,
     division,
     water,
     fertilize,
     bloom,
     dateAcquired,
+    quantity,
+    price,
+    awards,
+    notes,
+  ];
+
+  //STRING KEYS FROM VISIBLE LIST
+  static const List<String> listStringKeys = [
+    name,
+    genus,
+    species,
+    hybrid,
+    variety,
+    water,
+    fertilize,
+    bloom,
     quantity,
     price,
     awards,
@@ -71,6 +93,12 @@ class PlantKeys {
     dateAcquired,
   ];
 
+  //SHOW DAY OF YEAR
+  static const List<String> listDateDayOfYearKeys = [
+    bloomSequence,
+    growthSequence,
+  ];
+
   //DESCRIPTORS
   static const Map<String, String> descriptors = {
     id: 'Plant Library ID',
@@ -87,6 +115,7 @@ class PlantKeys {
     notes: 'Notes',
     thumbnail: 'Thumbnail',
     images: 'Image Files',
+    imageSets: 'Image Sets',
     likes: 'Total Greenthumbs',
     owner: 'Owner',
     clones: 'Total Clones Made',
@@ -103,6 +132,7 @@ class PlantKeys {
     isHousePlant: 'Grown Indoors',
     dateAcquired: 'Adoption Date',
     awards: 'Awards',
+    growthSequence: 'Growth Cycle'
   };
 }
 
@@ -122,6 +152,7 @@ class PlantData {
   final String notes;
   final String thumbnail;
   final List images;
+  final List<ImageData> imageSets;
   final int likes;
   final String owner;
   final int clones;
@@ -138,6 +169,7 @@ class PlantData {
   final bool isHousePlant;
   final int dateAcquired;
   final String awards;
+  final List<GrowthData> growthSequence;
 
   //CONSTRUCTOR
   PlantData(
@@ -155,6 +187,7 @@ class PlantData {
       this.notes,
       this.thumbnail,
       this.images,
+      this.imageSets,
       this.likes,
       this.owner,
       this.clones,
@@ -170,7 +203,8 @@ class PlantData {
       this.isFlagged,
       this.isHousePlant,
       this.dateAcquired,
-      this.awards});
+      this.awards,
+      this.growthSequence});
 
   //TO MAP
   Map<String, dynamic> toMap() {
@@ -178,6 +212,18 @@ class PlantData {
     if (bloomSequence != null && bloomSequence.length > 0) {
       for (BloomData data in bloomSequence) {
         bloomInfo.add(data.toMap());
+      }
+    }
+    List<Map> growthInfo = [];
+    if (growthSequence != null && growthSequence.length > 0) {
+      for (GrowthData data in growthSequence) {
+        growthInfo.add(data.toMap());
+      }
+    }
+    List<Map> imageInfo = [];
+    if (imageSets != null && imageSets.length > 0) {
+      for (ImageData data in imageSets) {
+        imageInfo.add(data.toMap());
       }
     }
     return {
@@ -195,6 +241,7 @@ class PlantData {
       PlantKeys.notes: notes,
       PlantKeys.thumbnail: thumbnail,
       PlantKeys.images: images,
+      PlantKeys.imageSets: imageInfo.toList(),
       PlantKeys.likes: likes,
       PlantKeys.owner: owner,
       PlantKeys.clones: clones,
@@ -211,54 +258,73 @@ class PlantData {
       PlantKeys.isHousePlant: isHousePlant,
       PlantKeys.dateAcquired: dateAcquired,
       PlantKeys.awards: awards,
+      PlantKeys.growthSequence: growthInfo.toList()
     };
   }
 
   //FROM MAP
   static PlantData fromMap({@required map}) {
     if (map != null) {
+      //repack bloom data
       List<BloomData> bloomInfo = [];
       if (map[PlantKeys.bloomSequence] != null) {
         for (Map data in map[PlantKeys.bloomSequence]) {
           bloomInfo.add(BloomData.fromMap(map: data));
         }
       }
+      //repack growth data
+      List<GrowthData> growthInfo = [];
+      if (map[PlantKeys.growthSequence] != null) {
+        for (Map data in map[PlantKeys.growthSequence]) {
+          growthInfo.add(GrowthData.fromMap(map: data));
+        }
+      }
+//repack image data
+      List<ImageData> imageSetsInfo = [];
+      if (map[PlantKeys.imageSets] != null) {
+        for (Map data in map[PlantKeys.imageSets]) {
+          imageSetsInfo.add(ImageData.fromMap(map: data));
+        }
+      }
       return PlantData(
-          id: map[PlantKeys.id] ?? '',
-          name: map[PlantKeys.name] ?? '',
-          variety: map[PlantKeys.variety] ?? '',
-          species: map[PlantKeys.species] ?? '',
-          hybrid: map[PlantKeys.hybrid] ?? '',
-          genus: map[PlantKeys.genus] ?? '',
-          quantity: map[PlantKeys.quantity] ?? '',
-          bloom: map[PlantKeys.bloom] ?? '',
-          bloomSequence: bloomInfo.toList() ?? [],
-          repot: map[PlantKeys.repot] ?? 1577836800000,
-          division: map[PlantKeys.division] ?? 1577836800000,
-          notes: map[PlantKeys.notes] ?? '',
-          thumbnail: map[PlantKeys.thumbnail] ?? '',
-          images: map[PlantKeys.images] ?? [],
-          likes: map[PlantKeys.likes] ?? 0,
-          owner: map[PlantKeys.owner] ?? '',
-          clones: map[PlantKeys.clones] ?? 0,
-          journal: map[PlantKeys.journal] ?? [],
-          water: map[PlantKeys.water] ?? '',
-          fertilize: map[PlantKeys.fertilize] ?? '',
-          price: map[PlantKeys.price] ?? '',
-          update: map[PlantKeys.update] ?? 1577836800000,
-          created: map[PlantKeys.created] ?? 1577836800000,
-          want: map[PlantKeys.want] ?? false,
-          sell: map[PlantKeys.sell] ?? false,
-          isVisible: map[PlantKeys.isVisible] ?? false,
-          isFlagged: map[PlantKeys.isFlagged] ?? false,
-          isHousePlant: map[PlantKeys.isHousePlant] ?? false,
-          dateAcquired: map[PlantKeys.dateAcquired] ?? 1577836800000,
-          awards: map[PlantKeys.awards] ?? '');
+        id: DV.isString(value: map[PlantKeys.id]),
+        name: DV.isString(value: map[PlantKeys.name]),
+        variety: DV.isString(value: map[PlantKeys.variety]),
+        species: DV.isString(value: map[PlantKeys.species]),
+        hybrid: DV.isString(value: map[PlantKeys.hybrid]),
+        genus: DV.isString(value: map[PlantKeys.genus]),
+        quantity: DV.isString(value: map[PlantKeys.quantity]),
+        bloom: DV.isString(value: map[PlantKeys.bloom]),
+        bloomSequence: DV.isList(value: bloomInfo.toList()),
+        repot: DV.isInt(value: map[PlantKeys.repot]),
+        division: DV.isInt(value: map[PlantKeys.division]),
+        notes: DV.isString(value: map[PlantKeys.notes]),
+        thumbnail: DV.isString(value: map[PlantKeys.thumbnail]),
+        images: DV.isList(value: map[PlantKeys.images]),
+        imageSets: DV.isList(value: imageSetsInfo.toList()),
+        likes: DV.isInt(value: map[PlantKeys.likes]),
+        owner: DV.isString(value: map[PlantKeys.owner]),
+        clones: DV.isInt(value: map[PlantKeys.clones]),
+        journal: DV.isList(value: map[PlantKeys.journal]),
+        water: DV.isString(value: map[PlantKeys.water]),
+        fertilize: DV.isString(value: map[PlantKeys.fertilize]),
+        price: DV.isString(value: map[PlantKeys.price]),
+        update: DV.isInt(value: map[PlantKeys.update]),
+        created: DV.isInt(value: map[PlantKeys.created]),
+        want: DV.isBool(value: map[PlantKeys.want]),
+        sell: DV.isBool(value: map[PlantKeys.sell]),
+        isVisible: DV.isBool(value: map[PlantKeys.isVisible]),
+        isFlagged: DV.isBool(value: map[PlantKeys.isFlagged]),
+        isHousePlant: DV.isBool(value: map[PlantKeys.isHousePlant]),
+        dateAcquired: DV.isInt(value: map[PlantKeys.dateAcquired]),
+        awards: DV.isString(value: map[PlantKeys.awards]),
+        growthSequence: DV.isList(value: growthInfo.toList()),
+      );
     } else {
       return PlantData(
         id: '',
         name: '',
-        created: 1577836800000,
+        created: 0,
         isVisible: false,
       );
     }

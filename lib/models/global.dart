@@ -26,11 +26,26 @@ class GlobalStrings {
   static const String announcements = 'Announcements';
   static const String privacy = 'Privacy Policy';
   static const String guidelines = 'Community Guidelines';
+  static const String checkItOut = 'Check out the App:\n\n'
+      'iOS: ${GlobalLinks.downloadiOS}\n\n'
+      'Android: ${GlobalLinks.downloadAndroid}';
+}
+
+class DefaultTypeValue {
+  static const String defaultString = '';
+  static const int defaultDate = 1577836800000;
+  static const int defaultInt = 0;
+  static const double defaultDouble = 0.0;
+  static const List defaultList = [];
 }
 
 class GlobalLinks {
   static const String defaultImage =
       'https://firebasestorage.googleapis.com/v0/b/plant-collector-15db2.appspot.com/o/general%2Fui%2Fdefault_image.png?alt=media&token=9345ffa6-0cda-4bd7-8219-058be8850450';
+  static const String downloadiOS =
+      'https://testflight.apple.com/join/ZMDuMBZq';
+  static const String downloadAndroid =
+      'https://play.google.com/store/apps/details?id=com.ablenas.plant_collector';
 }
 
 class DatesCustom {

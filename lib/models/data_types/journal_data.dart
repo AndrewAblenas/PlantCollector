@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:plant_collector/models/data_types/base_type.dart';
 
 //*****************PLANT*****************
 
@@ -47,10 +48,10 @@ class JournalData {
   static JournalData fromMap({@required map}) {
     if (map != null) {
       return JournalData(
-        id: map[JournalKeys.id] ?? '',
-        date: map[JournalKeys.date] ?? '',
-        title: map[JournalKeys.title] ?? '',
-        entry: map[JournalKeys.entry] ?? '',
+        id: DV.isString(value: map[JournalKeys.id]),
+        date: DV.isString(value: map[JournalKeys.date]),
+        title: DV.isString(value: map[JournalKeys.title]),
+        entry: DV.isString(value: map[JournalKeys.entry]),
       );
     } else {
       return JournalData(id: '', date: '', title: '', entry: '');

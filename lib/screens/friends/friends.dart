@@ -12,10 +12,12 @@ import 'package:plant_collector/screens/search/widgets/search_bar_submit.dart';
 import 'package:plant_collector/screens/search/widgets/search_tile_user.dart';
 import 'package:plant_collector/screens/template/screen_template.dart';
 import 'package:plant_collector/widgets/bottom_bar.dart';
+import 'package:plant_collector/widgets/button_add.dart';
 import 'package:plant_collector/widgets/container_wrapper.dart';
 import 'package:plant_collector/widgets/info_tip.dart';
 import 'package:plant_collector/widgets/section_header.dart';
 import 'package:provider/provider.dart';
+import 'package:share/share.dart';
 
 class FriendsScreen extends StatelessWidget {
   @override
@@ -51,8 +53,8 @@ class FriendsScreen extends StatelessWidget {
                         if (!blocked.contains(request))
                           requestList.add(
                             FutureProvider<Map>.value(
-                              value: Provider.of<CloudDB>(context)
-                                  .getConnectionProfile(connectionID: request),
+                              value: CloudDB.getConnectionProfile(
+                                  connectionID: request),
                               child: Consumer<Map>(
                                   builder: (context, Map friend, _) {
                                 if (friend == null) {
@@ -102,10 +104,8 @@ class FriendsScreen extends StatelessWidget {
                 SearchBarSubmit(
                   onPress: () async {
                     if (Provider.of<AppData>(context).newDataInput.length > 0) {
-                      List<UserData> results =
-                          await Provider.of<CloudDB>(context).userSearchExact(
-                              input:
-                                  Provider.of<AppData>(context).newDataInput);
+                      List<UserData> results = await CloudDB.userSearchExact(
+                          input: Provider.of<AppData>(context).newDataInput);
                       if (results != null) {
                         List<Widget> resultWidgets = [];
                         for (UserData user in results) {
@@ -150,9 +150,8 @@ class FriendsScreen extends StatelessWidget {
                                 //create a list of connection cards
                                 connectionsCards.add(
                                   FutureProvider<Map>.value(
-                                    value: Provider.of<CloudDB>(context)
-                                        .getConnectionProfile(
-                                            connectionID: friend),
+                                    value: CloudDB.getConnectionProfile(
+                                        connectionID: friend),
                                     child: Consumer<Map>(
                                         builder: (context, Map friend, _) {
                                       if (friend == null) {
@@ -171,10 +170,30 @@ class FriendsScreen extends StatelessWidget {
                               }
                               return Column(
                                 children: <Widget>[
-                                  ButtonAddFriend(
-                                      friends: Provider.of<AppData>(context)
-                                          .currentUserInfo
-                                          .friends),
+                                  Row(
+                                    children: <Widget>[
+                                      Expanded(
+                                        child: ButtonAddFriend(
+                                            friends:
+                                                Provider.of<AppData>(context)
+                                                    .currentUserInfo
+                                                    .friends),
+                                      ),
+                                      Expanded(
+                                        child: ButtonAdd(
+                                          scale: 0.6,
+                                          icon: Icons.share,
+                                          buttonText: 'Share App',
+                                          onPress: () {
+                                            Share.share(
+                                                GlobalStrings.checkItOut,
+                                                subject:
+                                                    'I\'m using the Plant Collector App!');
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                   GridView.count(
                                     shrinkWrap: true,
                                     primary: false,

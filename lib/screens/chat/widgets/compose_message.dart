@@ -78,7 +78,8 @@ class _ComposeMessageState extends State<ComposeMessage> {
                 connectionId: connectionID,
               );
               //create message
-              MessageData message = Provider.of<CloudDB>(context).createMessage(
+              MessageData message = AppData.createMessage(
+                senderID: Provider.of<AppData>(context).currentUserInfo.id,
                 text: text,
                 type: (text.startsWith('http') && !text.contains(' '))
                     ? MessageKeys.typeUrl
@@ -94,19 +95,27 @@ class _ComposeMessageState extends State<ComposeMessage> {
                   .chats
                   .contains(connectionID)) {
                 //set chat as started for current user
-                Provider.of<CloudDB>(context).updateDocumentL1Array(
+                CloudDB.updateDocumentL1Array(
                     collection: DBFolder.users,
                     document: currentID,
                     key: UserKeys.chats,
                     entries: [connectionID],
                     action: true);
                 //set chat as started for other user
-                Provider.of<CloudDB>(context).updateDocumentL1Array(
+                CloudDB.updateDocumentL1Array(
                     collection: DBFolder.users,
                     document: connectionID,
                     key: UserKeys.chats,
                     entries: [currentID],
                     action: true);
+                //add both user IDs to the chat document
+                Map<String, dynamic> participants = {
+                  'participants': [currentID, connectionID]
+                };
+                CloudDB.setDocumentL1(
+                    collection: DBDocument.conversations,
+                    document: document,
+                    data: participants);
               }
               //clear data input and field text
               Provider.of<AppData>(context).newDataInput = null;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 import 'package:plant_collector/models/data_types/collection_data.dart';
@@ -20,7 +21,7 @@ class ButtonColor extends StatelessWidget {
       child: GestureDetector(
         onTap: () {
           List<int> colorUpload = [color.red, color.green, color.blue];
-          Map data = CloudDB.updatePairFull(
+          Map data = AppData.updatePairFull(
               key: CollectionKeys.color, value: colorUpload);
           Provider.of<CloudDB>(context).updateDocumentInCollection(
               data: data,

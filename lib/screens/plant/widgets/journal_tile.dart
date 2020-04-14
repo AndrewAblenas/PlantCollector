@@ -94,9 +94,7 @@ class JournalTile extends StatelessWidget {
                                                                 context)
                                                             .newDataInput;
                                                     //upload data to plant journal
-                                                    Provider.of<CloudDB>(
-                                                            context)
-                                                        .journalEntryUpdate(
+                                                    CloudDB.journalEntryUpdate(
                                                       plantID: plantID,
                                                       journals: journalList,
                                                       entry: data,

@@ -31,7 +31,7 @@ class ProfileHeader extends StatelessWidget {
     //enable dialogs only if library belongs to the current user
     bool enableDialogs = (connectionLibrary == false);
 
-    //enable dialogs only if library belongs to the current user
+    //enable unique public id only if it exists
     bool showUniquePublicID = (user != null &&
         user.uniquePublicID != '' &&
         user.uniquePublicID != 'not set');
@@ -39,6 +39,11 @@ class ProfileHeader extends StatelessWidget {
     //show about only for friend library if they have written something
     bool displayAbout =
         (user != null && user.about.length > 0 && connectionLibrary == true);
+
+    //check for recent updates to display icon
+    bool recentUpdate =
+        (AppData.isRecentUpdate(lastUpdate: user.lastPlantUpdate) ||
+            AppData.isRecentUpdate(lastUpdate: user.lastPlantAdd));
 
     //*****SET WIDGET VISIBILITY END*****//
 
@@ -57,7 +62,7 @@ class ProfileHeader extends StatelessWidget {
                           acceptOnPress: () {
                             //update user document with map
                             Provider.of<CloudDB>(context).updateUserDocument(
-                              data: CloudDB.updatePairFull(
+                              data: AppData.updatePairFull(
                                   key: UserKeys.name,
                                   value: Provider.of<AppData>(context)
                                       .newDataInput),
@@ -97,6 +102,17 @@ class ProfileHeader extends StatelessWidget {
                             fontWeight: AppTextWeight.medium,
                           ),
                         ),
+                        (recentUpdate == true)
+                            ? Padding(
+                                padding: EdgeInsets.only(left: 5.0),
+                                child: Icon(
+                                  Icons.bubble_chart,
+                                  size: AppTextSize.large *
+                                      MediaQuery.of(context).size.width,
+                                  color: kGreenMedium,
+                                ),
+                              )
+                            : SizedBox(),
                       ],
                     ),
                     (showUniquePublicID == true)
@@ -149,33 +165,34 @@ class ProfileHeader extends StatelessWidget {
           ),
           GestureDetector(
             onLongPress: () async {
-              if (enableDialogs == true)
+              if (enableDialogs == true) {
                 //set userID for use in path generation
                 Provider.of<CloudStore>(context).setUserFolder(
                     userID:
                         (await Provider.of<UserAuth>(context).getCurrentUser())
                             .uid);
-              //get image from camera
-              File image = await Provider.of<CloudStore>(context)
-                  .getImageFile(fromCamera: false);
-              //check to make sure the user didn't back out
-              if (image != null) {
-                //upload image
-                StorageUploadTask upload = Provider.of<CloudStore>(context)
-                    .uploadToUserSettingsTask(
-                        imageFile: image, imageName: UserKeys.background);
-                //make sure upload completes
-                StorageTaskSnapshot completion = await upload.onComplete;
-                //get the url string
-                String url = await Provider.of<CloudStore>(context)
-                    .getDownloadURL(snapshot: completion);
-                //add image reference to plant document
-                Provider.of<CloudDB>(context).updateUserDocument(
-                  data: CloudDB.updatePairFull(
-                    key: UserKeys.background,
-                    value: url,
-                  ),
-                );
+                //get image from camera
+                File image = await Provider.of<CloudStore>(context)
+                    .getImageFile(fromCamera: false);
+                //check to make sure the user didn't back out
+                if (image != null) {
+                  //upload image
+                  StorageUploadTask upload = Provider.of<CloudStore>(context)
+                      .uploadToUserSettingsTask(
+                          imageFile: image, imageName: UserKeys.background);
+                  //make sure upload completes
+                  StorageTaskSnapshot completion = await upload.onComplete;
+                  //get the url string
+                  String url = await Provider.of<CloudStore>(context)
+                      .getDownloadURL(snapshot: completion);
+                  //add image reference to plant document
+                  Provider.of<CloudDB>(context).updateUserDocument(
+                    data: AppData.updatePairFull(
+                      key: UserKeys.background,
+                      value: url,
+                    ),
+                  );
+                }
               }
             },
             child: Container(
@@ -236,12 +253,14 @@ class ProfileHeader extends StatelessWidget {
                             .getDownloadURL(snapshot: completion);
                         //add image reference to plant document
                         Provider.of<CloudDB>(context).updateUserDocument(
-                          data: CloudDB.updatePairFull(
+                          data: AppData.updatePairFull(
                             key: UserKeys.avatar,
                             value: url,
                           ),
                         );
                       } else {}
+                    } else {
+                      //do nothing
                     }
                   },
                   child: Row(

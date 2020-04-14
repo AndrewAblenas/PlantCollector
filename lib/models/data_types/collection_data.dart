@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:plant_collector/models/data_types/base_type.dart';
 
 //*****************COLLECTION*****************
 
@@ -50,12 +51,17 @@ class CollectionData {
 
   //FROM MAP
   static CollectionData fromMap({@required Map map}) {
-    return CollectionData(
-      id: map[CollectionKeys.id] ?? '',
-      name: map[CollectionKeys.name] ?? '',
-      plants: map[CollectionKeys.plants] ?? [],
-      creator: map[CollectionKeys.creator] ?? '',
-      color: map[CollectionKeys.color] ?? [],
-    );
+    if (map != null) {
+      return CollectionData(
+        id: DV.isString(value: map[CollectionKeys.id]),
+        name: DV.isString(value: map[CollectionKeys.name]),
+        plants: DV.isList(value: map[CollectionKeys.plants]),
+        creator: DV.isString(value: map[CollectionKeys.creator]),
+        color: DV.isList(value: map[CollectionKeys.color]),
+      );
+    } else {
+      return CollectionData(
+          id: '', name: '', plants: [], creator: '', color: []);
+    }
   }
 }

@@ -1,11 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/cloud_db.dart';
-import 'package:plant_collector/models/data_storage/firebase_folders.dart';
-import 'package:plant_collector/models/data_types/plant_data.dart';
+import 'package:plant_collector/models/data_types/plant/plant_data.dart';
 import 'package:plant_collector/models/data_types/simple_button.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/models/global.dart';
@@ -78,11 +76,11 @@ class DiscoverScreen extends StatelessWidget {
                               PlantData)
                           ?
                           //show PlantData stream
+                          //TODO issue here?  It called the field as int on startup
                           StreamProvider<List<PlantData>>.value(
-                              value: Provider.of<CloudDB>(context)
-                                  .streamCommunityPlantsTopDescending(
-                                      field: Provider.of<AppData>(context)
-                                          .customFeedQueryField),
+                              value: CloudDB.streamCommunityPlantsTopDescending(
+                                  field: Provider.of<AppData>(context)
+                                      .customFeedQueryField),
                               child: Consumer<List<PlantData>>(
                                 builder: (context, snap, _) {
                                   if (snap == null) {
@@ -139,29 +137,24 @@ class DiscoverScreen extends StatelessWidget {
                             )
                           :
                           //otherwise deliver the UserData stream
-                          StreamProvider<DocumentSnapshot>.value(
-                              value: Provider.of<CloudDB>(context)
-                                  .streamCommunityTopUsersByPlants(),
+                          StreamProvider<List<UserData>>.value(
+                              value: CloudDB.streamCommunityTopUsersByPlants(),
                               child: Container(
                                 color: kGreenMedium,
                                 child: Column(
                                   children: <Widget>[
                                     StreamDescription(
                                         tabText: 'Top Plant Collectors'),
-                                    Consumer<DocumentSnapshot>(
-                                      builder:
-                                          (context, DocumentSnapshot snap, _) {
-                                        if (snap == null) {
+                                    Consumer<List<UserData>>(
+                                      builder: (context,
+                                          List<UserData> usersSnap, _) {
+                                        if (usersSnap == null) {
                                           return SizedBox();
                                         } else {
-                                          List userList =
-                                              snap.data[DBFields.byPlants];
                                           List<Widget> topUsers = [];
-                                          for (Map user in userList) {
-                                            UserData profile =
-                                                UserData.fromMap(map: user);
+                                          for (UserData user in usersSnap) {
                                             topUsers.add(
-                                                SearchUserTile(user: profile));
+                                                SearchUserTile(user: user));
                                           }
                                           if (topUsers.length == 0)
                                             topUsers.add(SizedBox());

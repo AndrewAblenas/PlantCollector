@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/app_data.dart';
-import 'package:plant_collector/models/data_types/plant_data.dart';
+import 'package:plant_collector/models/data_types/plant/plant_data.dart';
 import 'package:plant_collector/models/data_types/simple_button.dart';
 import 'package:plant_collector/screens/query/query.dart';
 import 'package:plant_collector/screens/search/search_my_plants.dart';
@@ -73,8 +73,8 @@ class SearchScreen extends StatelessWidget {
                       Widget widget = ExpandableNotifier(
                         initialExpanded: false,
                         child: Container(
-                            decoration:
-                                BoxDecoration(gradient: kGradientDarkMidGreen),
+                            decoration: BoxDecoration(
+                                gradient: kGradientGreenVerticalDarkMed),
                             width: double.infinity,
                             margin: EdgeInsets.symmetric(
                               vertical:

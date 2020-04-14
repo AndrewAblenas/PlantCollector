@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:plant_collector/models/data_types/base_type.dart';
 
 //*****************MESSAGE*****************
 
@@ -73,14 +74,28 @@ class CommunicationData {
 
   //FROM MAP
   static CommunicationData fromMap({@required Map map}) {
-    return CommunicationData(
-        subject: map[CommunicationKeys.subject] ?? '',
-        text: map[CommunicationKeys.text] ?? '',
-        read: map[CommunicationKeys.read] ?? false,
-        type: map[CommunicationKeys.type] ?? CommunicationTypes.standard,
-        date: map[CommunicationKeys.date] ?? '2020-01-01',
-        visible: map[CommunicationKeys.visible] ?? false,
-        //locally added in stream CloudDB
-        reference: map[CommunicationKeys.reference] ?? null);
+    if (map != null) {
+      return CommunicationData(
+          subject: DV.isString(value: map[CommunicationKeys.subject]),
+          text: DV.isString(value: map[CommunicationKeys.text]),
+          read: DV.isBool(value: map[CommunicationKeys.read]),
+          type: DV.isString(
+              value: map[CommunicationKeys.type],
+              fallback: CommunicationTypes.standard),
+          date: DV.isString(
+              value: map[CommunicationKeys.date], fallback: '2020-01-01'),
+          visible: DV.isBool(value: map[CommunicationKeys.visible]),
+          //locally added in stream CloudDB
+          reference: map[CommunicationKeys.reference] ?? null);
+    } else {
+      return CommunicationData(
+          subject: '',
+          text: '',
+          read: false,
+          type: '',
+          date: '',
+          visible: false,
+          reference: null);
+    }
   }
 }

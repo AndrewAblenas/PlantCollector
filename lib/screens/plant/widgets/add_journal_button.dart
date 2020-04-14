@@ -50,9 +50,8 @@ class AddJournalButton extends StatelessWidget {
                                       Provider.of<AppData>(context)
                                           .newDataInput;
                                   //upload data to plant journal
-                                  Provider.of<CloudDB>(context)
-                                      .journalEntryCreate(
-                                          entry: data, plantID: plantID);
+                                  CloudDB.journalEntryCreate(
+                                      entry: data, plantID: plantID);
                                   Navigator.pop(context);
                                 },
                                 onChange: (input) {

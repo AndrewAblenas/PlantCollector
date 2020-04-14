@@ -18,7 +18,7 @@ class SetUsernameBundle extends StatelessWidget {
       hideCancel: false,
       onCancel: () {
         //update the value with map
-        Provider.of<CloudDB>(context).updateDocumentL1(
+        CloudDB.updateDocumentL1(
             collection: DBFolder.users,
             document: Provider.of<AppData>(context).currentUserInfo.id,
             data: {
@@ -45,8 +45,7 @@ class SetUsernameBundle extends StatelessWidget {
                         AppData.validateUsernameContents(input) == true) {
                       //search for user name and provide popup
                       List<UserData> results =
-                          await Provider.of<CloudDB>(context)
-                              .userSearchExact(input: input);
+                          await CloudDB.userSearchExact(input: input);
 
                       //check for matches
                       if (results.length > 0) {
@@ -66,7 +65,7 @@ class SetUsernameBundle extends StatelessWidget {
                             });
                       } else {
                         //update the value with map
-                        Provider.of<CloudDB>(context).updateDocumentL1(
+                        CloudDB.updateDocumentL1(
                             collection: DBFolder.users,
                             document: Provider.of<AppData>(context)
                                 .currentUserInfo

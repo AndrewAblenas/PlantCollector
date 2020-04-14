@@ -3,7 +3,7 @@ import 'package:photo_view/photo_view.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
-import 'package:plant_collector/models/data_types/plant_data.dart';
+import 'package:plant_collector/models/data_types/plant/plant_data.dart';
 import 'package:plant_collector/widgets/dialogs/dialog_confirm.dart';
 import 'package:provider/provider.dart';
 import 'package:plant_collector/models/cloud_store.dart';
@@ -61,7 +61,7 @@ class ImageScreen extends StatelessWidget {
                               .privateLibrary
                         };
                         //set thumb url
-                        Provider.of<CloudDB>(context).updateDocumentL1(
+                        CloudDB.updateDocumentL1(
                           collection: DBFolder.plants,
                           document:
                               Provider.of<AppData>(context).forwardingPlantID,

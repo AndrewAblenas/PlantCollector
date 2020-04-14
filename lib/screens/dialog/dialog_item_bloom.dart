@@ -7,11 +7,11 @@ import 'package:plant_collector/models/global.dart';
 import 'package:plant_collector/widgets/dialogs/color_picker/dialog_picker.dart';
 import 'package:provider/provider.dart';
 
-class DialogItemBloom extends StatelessWidget {
+class DayOfYearSelector extends StatelessWidget {
   final String buttonText;
   final int index;
 //  final List<DropdownMenuItem> itemList1;
-  DialogItemBloom({
+  DayOfYearSelector({
     @required this.buttonText,
     @required this.index,
 //    @required this.itemList1,
@@ -101,10 +101,17 @@ class DialogItemBloom extends StatelessWidget {
                         child: Consumer<List>(
                             builder: (context, List newInput, _) {
                           //set values
+                          int selectedMonth = newInput[index][0];
                           String selectedValue = newInput[index][1].toString();
                           bool disableButton = false;
 
-                          if (selectedValue == '0') {
+                          //this prevents Jun 30 from showing as month 6 day 0
+                          //this happens when converting from day of year
+                          if (selectedMonth != 0 && selectedValue == '0') {
+                            selectedValue = DatesCustom
+                                .monthDayCount[selectedMonth]
+                                .toString();
+                          } else if (selectedValue == '0') {
                             selectedValue = 'Select';
                           }
 
@@ -200,7 +207,7 @@ class NumberButton extends StatelessWidget {
       },
       child: Container(
         decoration: BoxDecoration(
-            shape: BoxShape.circle, gradient: kGradientDarkMidGreen),
+            shape: BoxShape.circle, gradient: kGradientGreenVerticalDarkMed),
         child: Center(
           child: Text(
             text,

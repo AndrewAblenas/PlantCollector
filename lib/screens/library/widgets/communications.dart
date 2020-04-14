@@ -75,7 +75,7 @@ class Communications extends StatelessWidget {
                           CommunicationKeys.read: true,
                           CommunicationKeys.visible: false
                         };
-                        Provider.of<CloudDB>(context).updateDocument(
+                        CloudDB.updateDocument(
                             reference: message.reference, data: data);
                       },
                       child: Container(
@@ -83,7 +83,7 @@ class Communications extends StatelessWidget {
                           top: 15.0,
                         ),
                         decoration: BoxDecoration(
-                          gradient: kGradientDarkMidGreen,
+                          gradient: kGradientGreenVerticalDarkMed,
                           borderRadius: BorderRadius.all(
                             Radius.circular(
                               5.0,

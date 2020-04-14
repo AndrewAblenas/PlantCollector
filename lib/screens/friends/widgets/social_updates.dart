@@ -53,8 +53,7 @@ class SocialUpdates extends StatelessWidget {
                       .chats
                       .contains(friend)) {
                     Widget conversationWidget = FutureProvider<Map>.value(
-                      value: Provider.of<CloudDB>(context)
-                          .getConnectionProfile(connectionID: friend),
+                      value: CloudDB.getConnectionProfile(connectionID: friend),
                       child: Consumer<Map>(builder: (context, Map friend, _) {
                         if (friend == null) {
                           return SizedBox();

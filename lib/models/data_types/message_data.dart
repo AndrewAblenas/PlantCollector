@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:plant_collector/models/data_types/base_type.dart';
 
 //*****************MESSAGE*****************
 
@@ -63,14 +64,20 @@ class MessageData {
 
   //FROM MAP
   static MessageData fromMap({@required Map map}) {
-    return MessageData(
-      sender: map[MessageKeys.sender] ?? '',
-      time: map[MessageKeys.time] ?? 0,
-      text: map[MessageKeys.text] ?? '',
-      read: map[MessageKeys.read] ?? false,
-      //if there is no media attachment, default message type to text
-      type: map[MessageKeys.type] ?? MessageKeys.typeText,
-      media: map[MessageKeys.media] ?? '',
-    );
+    if (map != null) {
+      return MessageData(
+        sender: DV.isString(value: map[MessageKeys.sender]),
+        time: DV.isInt(value: map[MessageKeys.time]),
+        text: DV.isString(value: map[MessageKeys.text]),
+        read: DV.isBool(value: map[MessageKeys.read]),
+        //if there is no media attachment, default message type to text
+        type: DV.isString(
+            value: map[MessageKeys.type], fallback: MessageKeys.typeText),
+        media: DV.isString(value: map[MessageKeys.media]),
+      );
+    } else {
+      return MessageData(
+          sender: '', time: 0, text: '', read: false, type: '', media: '');
+    }
   }
 }

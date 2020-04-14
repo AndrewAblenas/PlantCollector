@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/data_types/message_data.dart';
-import 'package:plant_collector/models/data_types/plant_data.dart';
+import 'package:plant_collector/models/data_types/plant/plant_data.dart';
 import 'package:plant_collector/screens/plant/plant.dart';
 import 'package:provider/provider.dart';
 
@@ -21,7 +21,7 @@ class MessagePlant extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamProvider<DocumentSnapshot>.value(
-      value: Provider.of<CloudDB>(context).streamPlant(plantID: message.media),
+      value: CloudDB.streamPlant(plantID: message.media),
       child: Consumer<DocumentSnapshot>(
         builder: (context, DocumentSnapshot plantSnap, _) {
           if (plantSnap == null) {

@@ -22,7 +22,7 @@ class AddPhoto extends StatelessWidget {
         width: MediaQuery.of(context).size.width * 0.94,
         decoration: largeWidget
             ? BoxDecoration(
-                gradient: kGradientDarkMidGreen,
+                gradient: kGradientGreenVerticalDarkMed,
                 boxShadow: [
                   BoxShadow(
                     color: kShadowColor,
@@ -33,7 +33,7 @@ class AddPhoto extends StatelessWidget {
                 ],
               )
             : BoxDecoration(
-                gradient: kGradientDarkMidGreen,
+                gradient: kGradientGreenVerticalDarkMed,
               ),
         child: Column(
           mainAxisSize: MainAxisSize.max,

@@ -7,11 +7,13 @@ class ButtonAdd extends StatelessWidget {
   final Function onPress;
   final IconData icon;
   final Color textColor;
+  final double scale;
   ButtonAdd(
       {@required this.buttonText,
       @required this.onPress,
       this.icon,
-      this.textColor});
+      this.textColor,
+      this.scale = 1});
 
   @override
   Widget build(BuildContext context) {
@@ -28,20 +30,23 @@ class ButtonAdd extends StatelessWidget {
                 5.0,
               ),
             ),
-            gradient: kGradientDarkMidGreen),
+            gradient: kGradientGreenVerticalDarkMed),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Icon(
               icon != null ? icon : Icons.add,
-              size: AppTextSize.huge * MediaQuery.of(context).size.width,
+              size:
+                  scale * AppTextSize.huge * MediaQuery.of(context).size.width,
               color: textColor != null ? textColor : AppTextColor.white,
             ),
             Text(
               '   $buttonText',
               style: TextStyle(
                 color: textColor != null ? textColor : AppTextColor.white,
-                fontSize: AppTextSize.huge * MediaQuery.of(context).size.width,
+                fontSize: scale *
+                    AppTextSize.huge *
+                    MediaQuery.of(context).size.width,
                 fontWeight: AppTextWeight.medium,
 //                shadows: kShadowText,
               ),

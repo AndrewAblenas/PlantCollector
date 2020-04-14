@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:plant_collector/models/data_types/base_type.dart';
 
 //*****************BLOOM*****************
 
@@ -9,6 +10,9 @@ class BloomKeys {
   static const String last = 'last';
   static const String seed = 'seed';
 
+  //LIST
+  static const List<String> list = [bud, first, last, seed];
+
   //DESCRIPTORS
   static const Map<String, String> descriptors = {
     bud: 'Initial Buds',
@@ -16,14 +20,6 @@ class BloomKeys {
     last: 'Last Bloom',
     seed: 'Seeds Mature',
   };
-
-  //INDEX
-//  static const Map<String, int> indices = {
-//    bud: 0,
-//    first: 1,
-//    last: 2,
-//    seed: 3,
-//  };
 }
 
 //CLASS
@@ -57,10 +53,10 @@ class BloomData {
   static BloomData fromMap({@required Map map}) {
     if (map != null) {
       return BloomData(
-        bud: map[BloomKeys.bud] ?? 0,
-        first: map[BloomKeys.first] ?? 0,
-        last: map[BloomKeys.last] ?? 0,
-        seed: map[BloomKeys.seed] ?? 0,
+        bud: DV.isInt(value: map[BloomKeys.bud]),
+        first: DV.isInt(value: map[BloomKeys.first]),
+        last: DV.isInt(value: map[BloomKeys.last]),
+        seed: DV.isInt(value: map[BloomKeys.seed]),
       );
     } else {
       return BloomData(
