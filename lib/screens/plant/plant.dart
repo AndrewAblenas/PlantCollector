@@ -217,7 +217,8 @@ class PlantScreen extends StatelessWidget {
                                     : SizedBox(),
                                 //make sure this is the same number as carousel
                                 (showAddImage == true &&
-                                        plant.images.length >= changeToGridView)
+                                        plant.imageSets.length >=
+                                            changeToGridView)
                                     ? GridViewAddImages(plant: plant)
                                     : SizedBox(),
                                 UIBuilders.displayInfoCards(

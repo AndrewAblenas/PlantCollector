@@ -19,6 +19,7 @@ import 'package:plant_collector/screens/library/widgets/collection_card.dart';
 import 'package:plant_collector/screens/plant/widgets/add_journal_button.dart';
 import 'package:plant_collector/screens/plant/widgets/journal_tile.dart';
 import 'package:plant_collector/screens/plant/widgets/plant_flowering.dart';
+import 'package:plant_collector/screens/plant/widgets/plant_photo_default.dart';
 import 'package:plant_collector/screens/search/widgets/search_tile_plant.dart';
 import 'package:plant_collector/widgets/dialogs/color_picker/button_color.dart';
 import 'package:plant_collector/widgets/dialogs/select/dialog_functions.dart';
@@ -27,7 +28,6 @@ import 'package:plant_collector/widgets/button_add.dart';
 import 'package:plant_collector/screens/plant/widgets/plant_info_card.dart';
 import 'package:plant_collector/screens/plant/widgets/plant_photo.dart';
 import 'package:date_format/date_format.dart';
-import 'package:plant_collector/widgets/info_tip.dart';
 import 'package:plant_collector/widgets/section_header.dart';
 import 'package:plant_collector/widgets/tile_white.dart';
 
@@ -187,6 +187,8 @@ class UIBuilders extends ChangeNotifier {
 //      collectionPlantTotal: collectionPlantTotal,
               colorTheme: groupColor,
               groupID: groupID,
+              showSellList: user.showSellList,
+              showWishList: user.showWishList,
             ),
           );
         }
@@ -195,21 +197,6 @@ class UIBuilders extends ChangeNotifier {
       collectionColumn = Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: collectionList,
-      );
-    } else if (userCollections == null ||
-        userCollections.length == 0 && connectionLibrary == false) {
-      //check if in a group and add delete button
-      collectionColumn = Column(
-        children: <Widget>[
-          InfoTip(
-              onPress: () {},
-              showAlways: true,
-              text: 'You\'re Library is currently empty.  \n\n'
-                  'Tap the "+ Build New ${GlobalStrings.collection}" button to build a ${GlobalStrings.collection}.  \n\n'
-                  'A "Houseplants" or "Orchids" ${GlobalStrings.collection} might be a good place to start!  \n\n'
-                  'Your Library and Plants are visible to other plant lovers.'),
-//          groupID == null ? null : GroupDelete(groupID: groupID),
-        ],
       );
     } else {
       //set to blank
@@ -260,15 +247,7 @@ class UIBuilders extends ChangeNotifier {
     //if nothing in the list add a blank placeholder
     //should only show on connection true with no photos
     if (imageTileList.length <= 0 && connectionLibrary == true)
-      imageTileList.add(Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            fit: BoxFit.cover,
-            image: AssetImage('assets/images/default.png'),
-          ),
-          boxShadow: kShadowBox,
-        ),
-      ));
+      imageTileList.add(PlantPhotoDefault(largeWidget: largeWidget));
     print('generateImageTileWidgets: COMPLETE');
     return imageTileList;
   }

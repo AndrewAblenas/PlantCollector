@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
-import 'package:plant_collector/models/data_types/collection_data.dart';
 import 'package:plant_collector/models/data_types/plant/plant_data.dart';
 import 'package:plant_collector/models/global.dart';
 import 'package:plant_collector/screens/dialog/dialog_screen_select.dart';
@@ -85,21 +84,13 @@ class PlantTile extends StatelessWidget {
           showDialog(
             context: context,
             builder: (BuildContext context) {
-              //remove the auto generated import collections
-              List<CollectionData> reducedParents = [];
-              for (CollectionData collection in possibleParents) {
-                if (!DBDefaultDocument.collectionPreventMoveInto
-                    .contains(collection.id)) {
-                  reducedParents.add(collection);
-                }
-              }
               return DialogScreenSelect(
                 title:
                     'Move this ${GlobalStrings.plant} to a different ${GlobalStrings.collection}',
                 items: UIBuilders.createDialogCollectionButtons(
                   selectedItemID: plant.id,
                   currentParentID: collectionID,
-                  possibleParents: reducedParents,
+                  possibleParents: possibleParents,
                 ),
               );
             },

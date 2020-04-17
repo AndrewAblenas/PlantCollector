@@ -25,6 +25,8 @@ class CollectionCard extends StatelessWidget {
   final String groupID;
   final Color colorTheme;
   final bool defaultView;
+  final bool showWishList;
+  final bool showSellList;
 
   CollectionCard({
     @required this.connectionLibrary,
@@ -32,6 +34,8 @@ class CollectionCard extends StatelessWidget {
     @required this.groupID,
     @required this.colorTheme,
     @required this.defaultView,
+    this.showWishList = false,
+    this.showSellList = false,
   });
 
   @override
@@ -75,6 +79,18 @@ class CollectionCard extends StatelessWidget {
     List<CollectionData> plantTilePossibleParents = (connectionLibrary == false)
         ? Provider.of<AppData>(context).currentUserCollections
         : Provider.of<AppData>(context).connectionCollections;
+    //remove the auto generated import collections and hidden
+    List<CollectionData> reducedParents = [];
+    for (CollectionData collection in plantTilePossibleParents) {
+      if (collection.id == DBDefaultDocument.wishList) {
+        if (showWishList == true) reducedParents.add(collection);
+      } else if (collection.id == DBDefaultDocument.sellList) {
+        if (showSellList == true) reducedParents.add(collection);
+      } else if (!DBDefaultDocument.collectionPreventMoveInto
+          .contains(collection.id)) {
+        reducedParents.add(collection);
+      }
+    }
 
     //*****SET WIDGET VISIBILITY START*****//
 
@@ -120,12 +136,13 @@ class CollectionCard extends StatelessWidget {
                                     onPress: () {},
                                     text:
                                         '${GlobalStrings.collections} hold your ${GlobalStrings.plants}.  '
-                                        'They can only be deleted when empty, via the button below.  \n\n'
+                                        'They can only be deleted when empty, via the trash button below.  \n\n'
                                         'Hold down on the ${GlobalStrings.collection} name to rename it.  \n\n'
-                                        'Tap the arrow button to the right of the name to collapse/expand, or hold down to set the colour.  \n\n'
+                                        'Tap the arrow button to the right of the name to collapse or expand.  \n\n'
+                                        'Hold down on the arrow button to set the colour.  \n\n'
                                         'You can add a ${GlobalStrings.plant} with the green "+" button below.  '
                                         'Then tap the ${GlobalStrings.plant} to visit it\'s profile.  \n\n'
-                                        'After you build another ${GlobalStrings.collection}, you can hold down on a ${GlobalStrings.plant} to move it to another location.')
+                                        'Hold down on a ${GlobalStrings.plant} to move it to another location.')
                                 : SizedBox(),
                             Container(
                               decoration: kButtonBoxDecoration,
@@ -204,7 +221,7 @@ class CollectionCard extends StatelessWidget {
                                     kScaleFactor),
                                 child: PlantTile(
                                   connectionLibrary: connectionLibrary,
-                                  possibleParents: plantTilePossibleParents,
+                                  possibleParents: reducedParents,
                                   plant: collectionPlants[index],
                                   collectionID: collection.id,
                                   communityView: false,

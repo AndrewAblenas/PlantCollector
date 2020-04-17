@@ -196,7 +196,7 @@ class PlantInfoCardContent extends StatelessWidget {
                     );
                   }
                   //otherwise show the text input
-                } else if (PlantKeys.listStringKeys.contains(key)) {
+                } else if (PlantKeys.listStringKeys.contains(cardKey)) {
                   showDialog(
                       context: context,
                       builder: (context) {

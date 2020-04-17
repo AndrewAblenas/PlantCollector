@@ -39,7 +39,7 @@ class ViewerUtilityButtons extends StatelessWidget {
                         return DialogConfirm(
                             title: 'Clone Plant',
                             text:
-                                'Are you sure you want to copy this Plant information to your personal Library?',
+                                'Copy the basic Plant information and thumbnail to the "Clone" Shelf in your Library?',
                             buttonText: 'Clone',
                             hideCancel: false,
                             onPressed: () {
@@ -93,6 +93,23 @@ class ViewerUtilityButtons extends StatelessWidget {
                                   collection: DBFolder.plants,
                                   document: plant.id,
                                   data: update);
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return DialogConfirm(
+                                        title: 'Success',
+                                        text:
+                                            'Visit your Library to move the cloned plant to one of your own Shelves.  '
+                                            'Then add information and photos to make it your own.',
+                                        buttonText: 'OK',
+                                        hideCancel: true,
+                                        onPressed: () {
+                                          //pop success
+                                          Navigator.pop(context);
+                                          //pop confirm
+                                          Navigator.pop(context);
+                                        });
+                                  });
 
                               //GROUP
                               //first check if import group exists
@@ -121,7 +138,7 @@ class ViewerUtilityButtons extends StatelessWidget {
 //                              );
 
                               //close
-                              Navigator.pop(context);
+//                              Navigator.pop(context);
                             });
                       },
                     );

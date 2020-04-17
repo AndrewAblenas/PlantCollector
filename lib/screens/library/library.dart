@@ -17,6 +17,7 @@ import 'package:plant_collector/widgets/bottom_bar.dart';
 import 'package:plant_collector/widgets/button_add.dart';
 import 'package:plant_collector/screens/library/widgets/profile_header.dart';
 import 'package:plant_collector/widgets/container_wrapper.dart';
+import 'package:plant_collector/widgets/info_tip.dart';
 import 'package:provider/provider.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/builders_general.dart';
@@ -144,228 +145,282 @@ class LibraryScreen extends StatelessWidget {
                         ? Provider.of<AppData>(context).currentUserInfo = user
                         : Provider.of<AppData>(context).connectionUserInfo =
                             user;
-                    return ProfileHeader(
-                      connectionLibrary: connectionLibrary,
-                      user: user,
+                    return Column(
+                      children: <Widget>[
+                        ProfileHeader(
+                          connectionLibrary: connectionLibrary,
+                          user: user,
+                        ),
+                        ContainerWrapper(
+                          turnOffShadow: true,
+                          child: Column(
+                            children: <Widget>[
+                              Consumer<List<CollectionData>>(
+                                builder: (context,
+                                    List<CollectionData> collections, _) {
+                                  if (collections == null) return Column();
+                                  if (connectionLibrary == false) {
+                                    Provider.of<AppData>(context)
+                                        .currentUserCollections = collections;
+                                    //UPDATE SHELF COUNT
+                                    //initialize
+                                    int filterTally = 0;
+                                    bool wishListFound = false;
+                                    bool sellListFound = false;
+                                    //exclude any any auto-generated
+                                    for (CollectionData collection
+                                        in Provider.of<AppData>(context)
+                                            .currentUserCollections) {
+                                      if (!DBDefaultDocument.collectionAutoGen
+                                          .contains(collection.id)) {
+                                        filterTally++;
+                                      }
+                                      //check for wish
+                                      if (collection.id ==
+                                          DBDefaultDocument.wishList) {
+                                        wishListFound = true;
+                                      }
+                                      //check for sell
+                                      if (collection.id ==
+                                          DBDefaultDocument.sellList) {
+                                        sellListFound = true;
+                                      }
+                                    }
+                                    //create wish if not found
+                                    if (wishListFound == false) {
+                                      Map<String, dynamic> upload =
+                                          AppData.newDefaultCollection(
+                                                  collectionID:
+                                                      DBDefaultDocument
+                                                          .wishList,
+                                                  collectionName: 'Wishlist')
+                                              .toMap();
+                                      CloudDB.setDocumentL2(
+                                          collectionL1: DBFolder.users,
+                                          documentL1:
+                                              Provider.of<AppData>(context)
+                                                  .currentUserInfo
+                                                  .id,
+                                          collectionL2: DBFolder.collections,
+                                          documentL2:
+                                              DBDefaultDocument.wishList,
+                                          data: upload,
+                                          merge: true);
+                                    }
+                                    //create sell if not found
+                                    if (sellListFound == false) {
+                                      Map<String, dynamic> upload =
+                                          AppData.newDefaultCollection(
+                                                  collectionID:
+                                                      DBDefaultDocument
+                                                          .sellList,
+                                                  collectionName:
+                                                      'Sell or Trade')
+                                              .toMap();
+                                      CloudDB.setDocumentL2(
+                                          collectionL1: DBFolder.users,
+                                          documentL1:
+                                              Provider.of<AppData>(context)
+                                                  .currentUserInfo
+                                                  .id,
+                                          collectionL2: DBFolder.collections,
+                                          documentL2:
+                                              DBDefaultDocument.sellList,
+                                          data: upload,
+                                          merge: true);
+                                    }
+                                    //update tally in user document
+                                    if (Provider.of<AppData>(context)
+                                                .currentUserCollections !=
+                                            null &&
+                                        Provider.of<AppData>(context)
+                                                .currentUserInfo !=
+                                            null
+                                        //don't bother updating if the values are the same
+                                        &&
+                                        filterTally !=
+                                            Provider.of<AppData>(context)
+                                                .currentUserInfo
+                                                .collections) {
+                                      Map countData = AppData.updatePairFull(
+                                          key: UserKeys.collections,
+                                          value: filterTally);
+                                      Provider.of<CloudDB>(context)
+                                          .updateUserDocument(
+                                        data: countData,
+                                      );
+                                    }
+                                  } else {
+                                    Provider.of<AppData>(context)
+                                        .connectionCollections = collections;
+                                  }
+                                  return Consumer<List<PlantData>>(
+                                    builder:
+                                        (context, List<PlantData> plants, _) {
+                                      if (plants != null) {
+                                        if (connectionLibrary == false) {
+                                          //save plants for use elsewhere
+                                          Provider.of<AppData>(context)
+                                              .currentUserPlants = plants;
+                                          //update tally in user document
+                                          if (plants != null &&
+                                              //there was an issue on sign out until I added
+                                              //another Navigator.pop to close both layers
+                                              Provider.of<AppData>(context)
+                                                      .currentUserInfo !=
+                                                  null) {
+                                            //update photo count
+                                            int tally = 0;
+                                            for (PlantData plant
+                                                in Provider.of<AppData>(context)
+                                                    .currentUserPlants) {
+                                              int photos = plant.images.length;
+                                              tally = tally + photos;
+                                            }
+                                            //filter out certain plants from count
+                                            int plantCount = 0;
+                                            for (CollectionData collection
+                                                in collections) {
+                                              if (!DBDefaultDocument
+                                                  .collectionNoCountPlants
+                                                  .contains(collection.id)) {
+                                                plantCount = plantCount +
+                                                    collection.plants.length;
+                                              }
+                                            }
+
+                                            if (
+                                                //don't bother updating if the values are the same
+                                                plantCount !=
+                                                    Provider.of<AppData>(
+                                                            context)
+                                                        .currentUserInfo
+                                                        .plants) {
+                                              Map<String, dynamic> countData = {
+                                                UserKeys.plants: plantCount
+                                              };
+                                              Provider.of<CloudDB>(context)
+                                                  .updateUserDocument(
+                                                data: countData,
+                                              );
+                                            } else if (
+                                                //don't bother updating if the values are the same
+                                                tally !=
+                                                    Provider.of<AppData>(
+                                                            context)
+                                                        .currentUserInfo
+                                                        .photos) {
+                                              Map photoCountData =
+                                                  AppData.updatePairFull(
+                                                      key: UserKeys.photos,
+                                                      value: tally);
+                                              Provider.of<CloudDB>(context)
+                                                  .updateUserDocument(
+                                                data: photoCountData,
+                                              );
+                                            }
+                                          }
+                                        } else {
+                                          //save plants for use elsewhere
+                                          Provider.of<AppData>(context)
+                                              .connectionPlants = plants;
+                                        }
+                                        return Column(
+                                          children: <Widget>[
+                                            UIBuilders.displayCollections(
+                                                //sort personal and hide default shelves
+                                                //based on Library owner preference
+                                                user: user,
+                                                connectionLibrary:
+                                                    connectionLibrary,
+                                                groupID: null,
+                                                groupColor: null,
+                                                userCollections: connectionLibrary ==
+                                                        false
+                                                    ? Provider.of<AppData>(
+                                                            context)
+                                                        .currentUserCollections
+                                                    : Provider.of<AppData>(
+                                                            context)
+                                                        .connectionCollections),
+                                            //Add an InfoTip
+                                            (connectionLibrary == false &&
+                                                    Provider.of<AppData>(
+                                                                context)
+                                                            .currentUserInfo
+                                                            .collections ==
+                                                        0)
+                                                ? InfoTip(
+                                                    onPress: () {},
+                                                    showAlways: true,
+                                                    text:
+                                                        'You\'re Library currently contains only default ${GlobalStrings.collections}.  \n\n'
+                                                        'Default ${GlobalStrings.collections} show a star beside the name and have special properties.  \n\n'
+                                                        'Tap the "+ Build New ${GlobalStrings.collection}" button below to build your first personal ${GlobalStrings.collection}.  \n\n'
+                                                        'A "Houseplants" or "Orchids" ${GlobalStrings.collection} might be a good place to start!  \n\n'
+//                                              'Your Library and Plants are visible to other plant lovers.'
+                                                    )
+                                                : SizedBox(),
+                                          ],
+                                        );
+                                      } else {
+                                        return SizedBox();
+                                      }
+                                    },
+                                  );
+                                },
+                              ),
+                              (showAddButton == true)
+                                  ? ButtonAdd(
+                                      buttonText:
+                                          'Build New ${GlobalStrings.collection}',
+                                      onPress: () {
+                                        showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              return DialogScreenInput(
+                                                  title:
+                                                      'Build new ${GlobalStrings.collection}',
+                                                  acceptText: 'Create',
+                                                  acceptOnPress: () {
+                                                    //create a map from the data
+                                                    CollectionData collection =
+                                                        Provider.of<AppData>(
+                                                                context)
+                                                            .newCollection();
+                                                    //upload new collection data
+                                                    Provider.of<CloudDB>(
+                                                            context)
+                                                        .insertDocumentToCollection(
+                                                            data: collection
+                                                                .toMap(),
+                                                            collection: DBFolder
+                                                                .collections,
+                                                            documentName:
+                                                                collection.id);
+                                                    //pop context
+                                                    Navigator.pop(context);
+                                                  },
+                                                  onChange: (input) {
+                                                    Provider.of<AppData>(
+                                                            context)
+                                                        .newDataInput = input;
+                                                  },
+                                                  cancelText: 'Cancel',
+                                                  hintText: null);
+                                            });
+                                      },
+                                    )
+                                  : SizedBox(),
+                            ],
+                          ),
+                        ),
+                      ],
                     );
                   } else {
                     return SizedBox();
                   }
                 }),
-              ),
-              ContainerWrapper(
-                turnOffShadow: true,
-                child: Column(
-                  children: <Widget>[
-                    Consumer<List<CollectionData>>(
-                      builder: (context, List<CollectionData> collections, _) {
-                        if (collections == null) return Column();
-                        if (connectionLibrary == false) {
-                          Provider.of<AppData>(context).currentUserCollections =
-                              collections;
-                          //UPDATE SHELF COUNT
-                          //initialize
-                          int filterTally = 0;
-                          bool wishListFound = false;
-                          bool sellListFound = false;
-                          //exclude any any auto-generated
-                          for (CollectionData collection
-                              in Provider.of<AppData>(context)
-                                  .currentUserCollections) {
-                            if (!DBDefaultDocument.collectionNoCountPlants
-                                .contains(collection.id)) {
-                              filterTally++;
-                            }
-                            //check for wish
-                            if (collection.id == DBDefaultDocument.wishList) {
-                              wishListFound = true;
-                            }
-                            //check for sell
-                            if (collection.id == DBDefaultDocument.sellList) {
-                              sellListFound = true;
-                            }
-                          }
-                          //create wish if not found
-                          if (wishListFound == false) {
-                            Map<String, dynamic> upload =
-                                AppData.newDefaultCollection(
-                                        collectionID:
-                                            DBDefaultDocument.wishList,
-                                        collectionName: 'Wishlist')
-                                    .toMap();
-                            CloudDB.setDocumentL2(
-                                collectionL1: DBFolder.users,
-                                documentL1: Provider.of<AppData>(context)
-                                    .currentUserInfo
-                                    .id,
-                                collectionL2: DBFolder.collections,
-                                documentL2: DBDefaultDocument.wishList,
-                                data: upload,
-                                merge: true);
-                          }
-                          //create sell if not found
-                          if (sellListFound == false) {
-                            Map<String, dynamic> upload =
-                                AppData.newDefaultCollection(
-                                        collectionID:
-                                            DBDefaultDocument.sellList,
-                                        collectionName: 'Sell or Trade')
-                                    .toMap();
-                            CloudDB.setDocumentL2(
-                                collectionL1: DBFolder.users,
-                                documentL1: Provider.of<AppData>(context)
-                                    .currentUserInfo
-                                    .id,
-                                collectionL2: DBFolder.collections,
-                                documentL2: DBDefaultDocument.sellList,
-                                data: upload,
-                                merge: true);
-                          }
-                          //update tally in user document
-                          if (Provider.of<AppData>(context)
-                                      .currentUserCollections !=
-                                  null &&
-                              Provider.of<AppData>(context).currentUserInfo !=
-                                  null
-                              //don't bother updating if the values are the same
-                              &&
-                              filterTally !=
-                                  Provider.of<AppData>(context)
-                                      .currentUserInfo
-                                      .collections) {
-                            Map countData = AppData.updatePairFull(
-                                key: UserKeys.collections, value: filterTally);
-                            Provider.of<CloudDB>(context).updateUserDocument(
-                              data: countData,
-                            );
-                          }
-                        } else {
-                          Provider.of<AppData>(context).connectionCollections =
-                              collections;
-                        }
-                        return Consumer<List<PlantData>>(
-                          builder: (context, List<PlantData> plants, _) {
-                            if (plants != null) {
-                              if (connectionLibrary == false) {
-                                //save plants for use elsewhere
-                                Provider.of<AppData>(context)
-                                    .currentUserPlants = plants;
-                                //update tally in user document
-                                if (plants != null &&
-                                    //there was an issue on sign out until I added
-                                    //another Navigator.pop to close both layers
-                                    Provider.of<AppData>(context)
-                                            .currentUserInfo !=
-                                        null) {
-                                  //update photo count
-                                  int tally = 0;
-                                  for (PlantData plant
-                                      in Provider.of<AppData>(context)
-                                          .currentUserPlants) {
-                                    int photos = plant.images.length;
-                                    tally = tally + photos;
-                                  }
-                                  //filter out certain plants from count
-                                  int plantCount = 0;
-                                  for (CollectionData collection
-                                      in collections) {
-                                    if (!DBDefaultDocument
-                                        .collectionNoCountPlants
-                                        .contains(collection.id)) {
-                                      plantCount =
-                                          plantCount + collection.plants.length;
-                                    }
-                                  }
-
-                                  if (
-                                      //don't bother updating if the values are the same
-                                      plantCount !=
-                                          Provider.of<AppData>(context)
-                                              .currentUserInfo
-                                              .plants) {
-                                    Map<String, dynamic> countData = {
-                                      UserKeys.plants: plantCount
-                                    };
-                                    Provider.of<CloudDB>(context)
-                                        .updateUserDocument(
-                                      data: countData,
-                                    );
-                                  } else if (
-                                      //don't bother updating if the values are the same
-                                      tally !=
-                                          Provider.of<AppData>(context)
-                                              .currentUserInfo
-                                              .photos) {
-                                    Map photoCountData = AppData.updatePairFull(
-                                        key: UserKeys.photos, value: tally);
-                                    Provider.of<CloudDB>(context)
-                                        .updateUserDocument(
-                                      data: photoCountData,
-                                    );
-                                  }
-                                }
-                              } else {
-                                //save plants for use elsewhere
-                                Provider.of<AppData>(context).connectionPlants =
-                                    plants;
-                              }
-                              return UIBuilders.displayCollections(
-                                  //sort personal and community based on current user preference
-                                  user: Provider.of<AppData>(context)
-                                      .currentUserInfo,
-                                  connectionLibrary: connectionLibrary,
-                                  groupID: null,
-                                  groupColor: null,
-                                  userCollections: connectionLibrary == false
-                                      ? Provider.of<AppData>(context)
-                                          .currentUserCollections
-                                      : Provider.of<AppData>(context)
-                                          .connectionCollections);
-                            } else {
-                              return SizedBox();
-                            }
-                          },
-                        );
-                      },
-                    ),
-                    (showAddButton == true)
-                        ? ButtonAdd(
-                            buttonText: 'Build New ${GlobalStrings.collection}',
-                            onPress: () {
-                              showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return DialogScreenInput(
-                                        title:
-                                            'Build new ${GlobalStrings.collection}',
-                                        acceptText: 'Create',
-                                        acceptOnPress: () {
-                                          //create a map from the data
-                                          CollectionData collection =
-                                              Provider.of<AppData>(context)
-                                                  .newCollection();
-                                          //upload new collection data
-                                          Provider.of<CloudDB>(context)
-                                              .insertDocumentToCollection(
-                                                  data: collection.toMap(),
-                                                  collection:
-                                                      DBFolder.collections,
-                                                  documentName: collection.id);
-                                          //pop context
-                                          Navigator.pop(context);
-                                        },
-                                        onChange: (input) {
-                                          Provider.of<AppData>(context)
-                                              .newDataInput = input;
-                                        },
-                                        cancelText: 'Cancel',
-                                        hintText: null);
-                                  });
-                            },
-                          )
-                        : SizedBox(),
-                  ],
-                ),
               ),
               SizedBox(
                 height: 15,

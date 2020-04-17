@@ -97,7 +97,8 @@ class AboutScreen extends StatelessWidget {
                         'The Profile Header displays information about you and your ${GlobalStrings.library}.  '
                         'The information displayed can be changed right on screen.  \n\n'
                         'Hold down on your name, avatar, or banner to customize them.  '
-                        'Note this information can also be updated by tapping the ${GlobalStrings.settings} tab, then ${GlobalStrings.account}.  ',
+                        'Note this information can also be updated by tapping the ${GlobalStrings.settings} tab, then ${GlobalStrings.account}.  \n\n'
+                        'Special ${GlobalStrings.collections} and certain ${GlobalStrings.plants} (such as your Wishlist and everything in it) are exluded from the Profile Header total counts.  ',
                   ),
                   ReferenceButton(
                     title: GlobalStrings.collections,
@@ -109,7 +110,9 @@ class AboutScreen extends StatelessWidget {
                         'An arrow to the right of the name allows you to expand or collapse the ${GlobalStrings.collection}.  Hold down on this arrow to change the colour.  \n\n'
                         'A ${GlobalStrings.collection} can only be deleted when it no longer holds any ${GlobalStrings.plants}.  '
                         'Tap the green add button to add a new ${GlobalStrings.plant}.  '
-                        'Holding down on a ${GlobalStrings.plant} tile will allow you to move it to another ${GlobalStrings.collection}.  ',
+                        'Holding down on a ${GlobalStrings.plant} tile will allow you to move it to another ${GlobalStrings.collection}.  \n\n'
+                        'Certain default ${GlobalStrings.collections} (denoted with a star) have special properties.  '
+                        'In some of these special ${GlobalStrings.collections} you are only allowed to remove (not add) ${GlobalStrings.plants}.',
                   ),
                   ReferenceButton(
                     title: GlobalStrings.plants,

@@ -134,7 +134,13 @@ class AppData extends ChangeNotifier {
   //decide whether or not to show tips
   void showTipsHelpers() {
     if (currentUserCollections != null) {
-      showTips = (currentUserCollections.length < 3);
+      int filteredTotal = 0;
+      for (CollectionData collection in currentUserCollections) {
+        if (DBDefaultDocument.collectionAutoGen.contains(collection.id)) {
+          filteredTotal++;
+        }
+      }
+      showTips = (filteredTotal < 3);
     }
   }
 

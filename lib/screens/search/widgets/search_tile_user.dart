@@ -18,123 +18,144 @@ class SearchUserTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return UserTile(
       user: user,
-      buttonRow:
-          Consumer<UserData>(builder: (context, UserData currentUser, _) {
-        //perform checks
-        bool sameUser = (user.id == currentUser.id);
-        bool alreadyFriends = (currentUser.friends.contains(user.id));
-        bool requestSent = (currentUser.requestsSent.contains(user.id));
-        bool recentUpdate =
-            (AppData.isRecentUpdate(lastUpdate: user.lastPlantUpdate) ||
-                AppData.isRecentUpdate(lastUpdate: user.lastPlantAdd));
-        //check to make sure not null
-        if (currentUser == null || sameUser == true || alreadyFriends == true) {
-          return (recentUpdate == true)
-              ? Icon(
-                  Icons.bubble_chart,
-                  size: AppTextSize.large * MediaQuery.of(context).size.width,
-                  color: kGreenMedium,
-                )
-              : SizedBox();
-        } else {
-          return GestureDetector(
-            onTap: () {
-              //PRE CHECKS
-              //determine if user data saved
-              bool userData =
-                  (Provider.of<AppData>(context).currentUserInfo != null);
-              //determine if user name set
-              bool userNameSet =
-                  (Provider.of<AppData>(context).currentUserInfo.name != null &&
-                      Provider.of<AppData>(context).currentUserInfo.name != '');
-              //first, direct user to create a user name
-              if (userData && !userNameSet) {
-                showDialog(
+      buttonRow: Consumer<UserData>(
+        builder: (context, UserData currentUser, _) {
+          //perform checks
+          bool sameUser = (user.id == currentUser.id);
+          bool alreadyFriends = (currentUser.friends.contains(user.id));
+          bool requestSent = (currentUser.requestsSent.contains(user.id));
+          bool recentUpdate =
+              (AppData.isRecentUpdate(lastUpdate: user.lastPlantUpdate) ||
+                  AppData.isRecentUpdate(lastUpdate: user.lastPlantAdd));
+          //check to make sure not null
+          if (currentUser == null ||
+              sameUser == true ||
+              alreadyFriends == true) {
+            return (recentUpdate == true)
+                ? Icon(
+                    Icons.bubble_chart,
+                    size: AppTextSize.large * MediaQuery.of(context).size.width,
+                    color: kGreenMedium,
+                  )
+                : SizedBox();
+          } else {
+            return GestureDetector(
+              onTap: () {
+                //PRE CHECKS
+                //determine if user data saved
+                bool userData =
+                    (Provider.of<AppData>(context).currentUserInfo != null);
+                //determine if user name set
+                bool userNameSet = (Provider.of<AppData>(context)
+                            .currentUserInfo
+                            .name !=
+                        null &&
+                    Provider.of<AppData>(context).currentUserInfo.name != '');
+                //first, direct user to create a user name
+                if (userData && !userNameSet) {
+                  showDialog(
+                      context: context,
+                      builder: (context) {
+                        return DialogScreenInput(
+                            title:
+                                'Before adding a friend, first create your user name.',
+                            acceptText: 'Add',
+                            acceptOnPress: () {
+                              //update user document to add user name
+                              Provider.of<CloudDB>(context).updateUserDocument(
+                                data: AppData.updatePairFull(
+                                    key: UserKeys.name,
+                                    value: Provider.of<AppData>(context)
+                                        .newDataInput),
+                              );
+                              //pop the context
+                              Navigator.pop(context);
+                            },
+                            onChange: (input) {
+                              Provider.of<AppData>(context).newDataInput =
+                                  input;
+                            },
+                            cancelText: 'Cancel',
+                            hintText: null);
+                      });
+                }
+                //AFTER CHECKS ADD FRIEND
+                if (userData && userNameSet) {
+                  //determine dialog text
+                  String title;
+                  String dialogText;
+                  String buttonText = 'YES';
+
+                  title = 'Send Friend Request';
+                  dialogText =
+                      'Send a friend request?  If accepted, you will be able to share Libraries and chat.';
+
+                  //show a dialog to provide feedback
+                  showDialog(
                     context: context,
-                    builder: (context) {
-                      return DialogScreenInput(
-                          title:
-                              'Before adding a friend, first create your user name.',
-                          acceptText: 'Add',
-                          acceptOnPress: () {
-                            //update user document to add user name
-                            Provider.of<CloudDB>(context).updateUserDocument(
-                              data: AppData.updatePairFull(
-                                  key: UserKeys.name,
-                                  value: Provider.of<AppData>(context)
-                                      .newDataInput),
-                            );
-                            //pop the context
-                            Navigator.pop(context);
-                          },
-                          onChange: (input) {
-                            Provider.of<AppData>(context).newDataInput = input;
-                          },
-                          cancelText: 'Cancel',
-                          hintText: null);
-                    });
-              }
-              //AFTER CHECKS ADD FRIEND
-              if (userData && userNameSet) {
-                //determine dialog text
-                String title;
-                String dialogText;
-                String buttonText = 'YES';
-
-                title = 'Send Friend Request';
-                dialogText =
-                    'Send a friend request?  If accepted, you will be able to share Libraries and chat.';
-
-                //show a dialog to provide feedback
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return DialogConfirm(
-                      hideCancel: false,
-                      title: title,
-                      text: dialogText,
-                      buttonText: buttonText,
-                      onPressed: () {
-                        //if all good send the request to friend
-                        Provider.of<CloudDB>(context)
-                            .sendConnectionRequest(connectionID: user.id);
-                        Navigator.pop(context);
-                      },
-                    );
-                  },
-                );
-              }
-            },
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: (requestSent == true)
-                    ? kBackgroundGradientSolidGrey
-                    : kGradientGreenVerticalDarkMed,
-                borderRadius: BorderRadius.all(
-                  Radius.circular(
-                    5.0,
+                    builder: (BuildContext context) {
+                      return DialogConfirm(
+                        hideCancel: false,
+                        title: title,
+                        text: dialogText,
+                        buttonText: buttonText,
+                        onPressed: () {
+                          //if all good send the request to friend
+                          Provider.of<CloudDB>(context)
+                              .sendConnectionRequest(connectionID: user.id);
+                          Navigator.pop(context);
+                        },
+                      );
+                    },
+                  );
+                }
+              },
+              child: Row(
+                children: <Widget>[
+                  (recentUpdate == true)
+                      ? Padding(
+                          padding: EdgeInsets.only(right: 2.0),
+                          child: Icon(
+                            Icons.bubble_chart,
+                            size: AppTextSize.large *
+                                MediaQuery.of(context).size.width,
+                            color: kGreenMedium,
+                          ),
+                        )
+                      : SizedBox(),
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: (requestSent == true)
+                          ? kBackgroundGradientSolidGrey
+                          : kGradientGreenVerticalDarkMed,
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(
+                          5.0,
+                        ),
+                      ),
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 5.0,
+                        horizontal: 10.0,
+                      ),
+                      child: Text(
+                        (requestSent == true) ? 'SENT' : 'ADD',
+                        style: TextStyle(
+                          color: AppTextColor.white,
+                          fontWeight: AppTextWeight.heavy,
+                          fontSize: AppTextSize.medium *
+                              MediaQuery.of(context).size.width,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  vertical: 5.0,
-                  horizontal: 10.0,
-                ),
-                child: Text(
-                  (requestSent == true) ? 'SENT' : 'ADD',
-                  style: TextStyle(
-                    color: AppTextColor.white,
-                    fontWeight: AppTextWeight.heavy,
-                    fontSize:
-                        AppTextSize.medium * MediaQuery.of(context).size.width,
-                  ),
-                ),
-              ),
-            ),
-          );
-        }
-      }),
+            );
+          }
+        },
+      ),
     );
   }
 }

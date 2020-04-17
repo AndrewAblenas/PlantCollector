@@ -896,8 +896,12 @@ class CloudDB extends ChangeNotifier {
 
   //TEMP METHOD TO REPACKAGE IMAGE DATA
   static Future<void> repackImageData({@required StorageReference ref}) async {
-    QuerySnapshot plantQuery =
-        await _db.collection(DBFolder.plants).getDocuments();
+    //set the cutoff date
+    int cutoffDate = 1587022962662;
+    QuerySnapshot plantQuery = await _db
+        .collection(DBFolder.plants)
+        .where(PlantKeys.created, isGreaterThanOrEqualTo: cutoffDate)
+        .getDocuments();
 //    QuerySnapshot plantQuery = await _db
 //        .collection(DBFolder.plants)
 //        .where(PlantKeys.id, isEqualTo: 'plant_1586480823874')
@@ -909,33 +913,39 @@ class CloudDB extends ChangeNotifier {
       if (plantSnap != null) {
         Map plant = plantSnap.data;
         List imageList = plant[PlantKeys.images];
-        if (imageList != null && imageList.length != 0) {
-          List imageMapList = [];
-          for (String url in imageList) {
-            //get date
-            String frontRemoved = url.split('_image_')[1];
-            String epochSeconds = frontRemoved.split('.jpg')[0];
-            int date = int.parse(epochSeconds);
-            //get the thumbnail image name from the full sized image url
-            String imageName = CloudStore.getThumbName(imageUrl: url);
-            //get the thumb ref
-            StorageReference thumbRef = ref.child(
-                '${DBDocument.users}/${plant[PlantKeys.owner]}/${DBDocument.plants}/${plant[PlantKeys.id]}/${DBDocument.images}/$imageName.jpg');
-            //get the thumb url
-            String thumbURL = await CloudStore.getImageUrl(reference: thumbRef);
-            Map<String, dynamic> packet =
-                ImageData(date: date, full: url, thumb: thumbURL).toMap();
-            imageMapList.add(packet);
+        //last run August 16
+        if (plant[PlantKeys.created] >= cutoffDate) {
+          if (imageList != null && imageList.length != 0) {
+            List imageMapList = [];
+            for (String url in imageList) {
+              //get date
+              String frontRemoved = url.split('_image_')[1];
+              String epochSeconds = frontRemoved.split('.jpg')[0];
+              int date = int.parse(epochSeconds);
+              //get the thumbnail image name from the full sized image url
+              String imageName = CloudStore.getThumbName(imageUrl: url);
+              //get the thumb ref
+              StorageReference thumbRef = ref.child(
+                  '${DBDocument.users}/${plant[PlantKeys.owner]}/${DBDocument.plants}/${plant[PlantKeys.id]}/${DBDocument.images}/$imageName.jpg');
+              //get the thumb url
+              String thumbURL =
+                  await CloudStore.getImageUrl(reference: thumbRef);
+              Map<String, dynamic> packet =
+                  ImageData(date: date, full: url, thumb: thumbURL).toMap();
+              imageMapList.add(packet);
+            }
+            Map<String, dynamic> finalPackage = {
+              PlantKeys.imageSets: imageMapList
+            };
+            updateDocumentL1(
+                collection: DBFolder.plants,
+                document: plant[PlantKeys.id],
+                data: finalPackage);
           }
-          Map<String, dynamic> finalPackage = {
-            PlantKeys.imageSets: imageMapList
-          };
-          updateDocumentL1(
-              collection: DBFolder.plants,
-              document: plant[PlantKeys.id],
-              data: finalPackage);
+          print('${plant[PlantKeys.id]} complete');
+        } else {
+          print('Not Run');
         }
-        print('${plant[PlantKeys.id]} complete');
       }
     }
   }
