@@ -99,8 +99,8 @@ class ViewerUtilityButtons extends StatelessWidget {
                                     return DialogConfirm(
                                         title: 'Success',
                                         text:
-                                            'Visit your Library to move the cloned plant to one of your own Shelves.  '
-                                            'Then add information and photos to make it your own.',
+                                            'This plant has been cloned to your Library.  '
+                                            'You can move it to one of your Shelves and add information/photos to make it your own.',
                                         buttonText: 'OK',
                                         hideCancel: true,
                                         onPressed: () {

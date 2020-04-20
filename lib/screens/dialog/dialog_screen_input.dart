@@ -13,6 +13,7 @@ class DialogScreenInput extends StatelessWidget {
 //  final Function cancelFunction;
   final String hintText;
   final bool smallText;
+  final bool obscure;
   DialogScreenInput(
       {@required this.title,
       @required this.acceptText,
@@ -21,14 +22,19 @@ class DialogScreenInput extends StatelessWidget {
       @required this.cancelText,
 //        @required this.cancelFunction,
       @required this.hintText,
-      this.smallText});
+      this.smallText,
+      this.obscure = false});
   @override
   Widget build(BuildContext context) {
     return DialogScreen(
       title: title,
       children: <Widget>[
         CustomInputField(
-            hintText: hintText, smallText: smallText, onChange: onChange),
+          hintText: hintText,
+          smallText: smallText,
+          onChange: onChange,
+          obscure: obscure,
+        ),
 //        TextFormField(
 //            decoration: InputDecoration(
 //              hintText: hintText,

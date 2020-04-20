@@ -25,31 +25,31 @@ class InfoTip extends StatelessWidget {
             child: FlatButton(
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 5.0),
-                child: Row(
+                child: Column(
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Icon(
-                      //if no icon provided use default
-                      icon != null ? icon : Icons.help_outline,
-                      color: kGreenDark,
-                      size:
-                          AppTextSize.huge * MediaQuery.of(context).size.width,
+                    Center(
+                      child: Icon(
+                        //if no icon provided use default
+                        icon != null ? icon : Icons.help_outline,
+                        color: kGreenDark,
+                        size: AppTextSize.gigantic *
+                            MediaQuery.of(context).size.width,
+                      ),
                     ),
                     SizedBox(
-                      width: 20.0,
+                      height: 20.0,
                     ),
-                    Container(
-                      width: 0.60 * MediaQuery.of(context).size.width,
-                      child: Text(
-                        text,
-                        style: TextStyle(
-                          color: AppTextColor.medium,
-                          fontWeight: AppTextWeight.medium,
-                          fontSize: AppTextSize.small *
-                              MediaQuery.of(context).size.width,
-                        ),
+                    Text(
+                      text,
+                      style: TextStyle(
+                        color: AppTextColor.dark,
+                        fontWeight: AppTextWeight.medium,
+                        fontSize: 1.1 *
+                            AppTextSize.small *
+                            MediaQuery.of(context).size.width,
                       ),
                     ),
                   ],

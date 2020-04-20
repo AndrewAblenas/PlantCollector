@@ -238,6 +238,7 @@ class UIBuilders extends ChangeNotifier {
             plantOwner: plantOwner,
             connectionLibrary: connectionLibrary,
             imageSet: imageSet,
+            currentThumbnail: thumbnail,
             imageDate: date,
             largeWidget: largeWidget,
           ),

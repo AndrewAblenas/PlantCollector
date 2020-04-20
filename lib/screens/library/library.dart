@@ -274,7 +274,8 @@ class LibraryScreen extends StatelessWidget {
                                             for (PlantData plant
                                                 in Provider.of<AppData>(context)
                                                     .currentUserPlants) {
-                                              int photos = plant.images.length;
+                                              int photos =
+                                                  plant.imageSets.length;
                                               tally = tally + photos;
                                             }
                                             //filter out certain plants from count
@@ -343,7 +344,7 @@ class LibraryScreen extends StatelessWidget {
                                                     : Provider.of<AppData>(
                                                             context)
                                                         .connectionCollections),
-                                            //Add an InfoTip
+                                            //Add an InfoTip for Account
                                             (connectionLibrary == false &&
                                                     Provider.of<AppData>(
                                                                 context)
@@ -354,8 +355,25 @@ class LibraryScreen extends StatelessWidget {
                                                     onPress: () {},
                                                     showAlways: true,
                                                     text:
-                                                        'You\'re Library currently contains only default ${GlobalStrings.collections}.  \n\n'
-                                                        'Default ${GlobalStrings.collections} show a star beside the name and have special properties.  \n\n'
+                                                        'Tap the bottom right icon and then the "Account" button to manage your settings.  '
+                                                        'You can set/update information as well as change certain viewing preferences.  \n\n'
+                                                        'Feel free to explore the "About" section for an overview of the app and lesser known capabilites.  \n\n'
+//                                              'Your Library and Plants are visible to other plant lovers.'
+                                                    )
+                                                : SizedBox(),
+                                            //Add an InfoTip for Shelf
+                                            (connectionLibrary == false &&
+                                                    Provider.of<AppData>(
+                                                                context)
+                                                            .currentUserInfo
+                                                            .collections ==
+                                                        0)
+                                                ? InfoTip(
+                                                    onPress: () {},
+                                                    showAlways: true,
+                                                    text:
+                                                        'You\'re Library currently contains only default ${GlobalStrings.collections}.  '
+                                                        'These show a star beside the name and have special properties.  \n\n'
                                                         'Tap the "+ Build New ${GlobalStrings.collection}" button below to build your first personal ${GlobalStrings.collection}.  \n\n'
                                                         'A "Houseplants" or "Orchids" ${GlobalStrings.collection} might be a good place to start!  \n\n'
 //                                              'Your Library and Plants are visible to other plant lovers.'

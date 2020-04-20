@@ -30,6 +30,13 @@
             {
               "client_id": "287185454925-tlrn6e35nu6obgt6665utotk0it0h0ag.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "287185454925-fbfig0pthq3e2pub457qmjpm82kp7ngj.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.ablenas.plantCollector"
+              }
             }
           ]
         }

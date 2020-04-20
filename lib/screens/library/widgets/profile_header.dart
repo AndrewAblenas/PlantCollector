@@ -31,6 +31,14 @@ class ProfileHeader extends StatelessWidget {
     //enable dialogs only if library belongs to the current user
     bool enableDialogs = (connectionLibrary == false);
 
+    //user name to display
+    String displayName = user.name;
+    if (user.name == '' && connectionLibrary == false) {
+      displayName = 'Hold to Set Name';
+    } else if (user.name == '') {
+      displayName = '';
+    }
+
     //enable unique public id only if it exists
     bool showUniquePublicID = (user != null &&
         user.uniquePublicID != '' &&
@@ -94,12 +102,15 @@ class ProfileHeader extends StatelessWidget {
                           child:
                               UIBuilders.getBadge(userTotalPlants: user.plants),
                         ),
-                        Text(
-                          (user.name != '') ? user.name : 'Hold to Set Name',
-                          style: TextStyle(
-                            fontSize: AppTextSize.huge *
-                                MediaQuery.of(context).size.width,
-                            fontWeight: AppTextWeight.medium,
+                        Flexible(
+                          child: Text(
+                            displayName,
+                            softWrap: true,
+                            style: TextStyle(
+                              fontSize: AppTextSize.huge *
+                                  MediaQuery.of(context).size.width,
+                              fontWeight: AppTextWeight.medium,
+                            ),
                           ),
                         ),
                         (recentUpdate == true)

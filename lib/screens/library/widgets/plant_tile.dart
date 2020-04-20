@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 import 'package:plant_collector/models/data_types/plant/plant_data.dart';
@@ -96,32 +95,39 @@ class PlantTile extends StatelessWidget {
             },
           );
       },
-      child: Container(
-        decoration: BoxDecoration(
+      child: Stack(
+        children: <Widget>[
+          Container(
+            decoration: BoxDecoration(
 //          color: kGreenDark,
-          shape: BoxShape.rectangle,
-        ),
-        child: Container(
-          decoration: BoxDecoration(
-            image: plant.thumbnail != ''
-                ? DecorationImage(
-                    image: CachedNetworkImageProvider(plant.thumbnail),
-                    fit: BoxFit.cover,
-                  )
-                : DecorationImage(
-                    image: AssetImage(
-                      'assets/images/default.png',
-                    ),
-                    fit: BoxFit.fill,
-                  ),
+              shape: BoxShape.rectangle,
+            ),
           ),
-          child: Column(
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            child: plant.thumbnail != ''
+                ? CachedNetworkImage(
+                    imageUrl: plant.thumbnail,
+                    fit: BoxFit.cover,
+                    errorWidget: (context, error, _) {
+                      return PlantTileDefaultImage();
+                    })
+                : PlantTileDefaultImage(),
+          ),
+          Column(
             mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
+              //sized box
+              SizedBox(
+                width: double.infinity,
+              ),
               //red new button
               (showUpdateBubble)
                   ? UpdateBubble(
-                      color: (recentAdd == true) ? Colors.red : kGreenMedium,
+                      color:
+                          (recentAdd == true) ? Colors.red : Colors.redAccent,
                       text: (recentAdd == true) ? 'NEW' : 'UPDATE')
                   : SizedBox(),
               (showUpdateBubble)
@@ -158,9 +164,31 @@ class PlantTile extends StatelessWidget {
                   : SizedBox(),
             ],
           ),
-        ),
+        ],
       ),
-//      ),
+    );
+  }
+}
+
+class PlantTileDefaultImage extends StatelessWidget {
+  const PlantTileDefaultImage();
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: <Widget>[
+        Image.asset(
+          'assets/images/default.png',
+          fit: BoxFit.fill,
+        ),
+        Center(
+          child: Icon(
+            Icons.local_florist,
+            color: Color(0x15FFFFFF),
+            size: 0.22 * MediaQuery.of(context).size.width,
+          ),
+        ),
+      ],
     );
   }
 }

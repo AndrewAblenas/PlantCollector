@@ -135,14 +135,14 @@ class CollectionCard extends StatelessWidget {
                                 ? InfoTip(
                                     onPress: () {},
                                     text:
-                                        '${GlobalStrings.collections} hold your ${GlobalStrings.plants}.  '
+                                        '${GlobalStrings.collections} display your ${GlobalStrings.plants}.  '
                                         'They can only be deleted when empty, via the trash button below.  \n\n'
-                                        'Hold down on the ${GlobalStrings.collection} name to rename it.  \n\n'
-                                        'Tap the arrow button to the right of the name to collapse or expand.  \n\n'
+                                        'Hold down on the ${GlobalStrings.collection} name above to rename it.  \n\n'
+                                        'Tap the arrow button to the right of the name to collapse or expand.  '
                                         'Hold down on the arrow button to set the colour.  \n\n'
                                         'You can add a ${GlobalStrings.plant} with the green "+" button below.  '
-                                        'Then tap the ${GlobalStrings.plant} to visit it\'s profile.  \n\n'
-                                        'Hold down on a ${GlobalStrings.plant} to move it to another location.')
+                                        'Hold down on a ${GlobalStrings.plant} tile to move it to another Shelf.  '
+                                        'Then tap the ${GlobalStrings.plant} to visit it\'s profile and add more information.  \n\n')
                                 : SizedBox(),
                             Container(
                               decoration: kButtonBoxDecoration,

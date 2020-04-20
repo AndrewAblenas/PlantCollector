@@ -23,12 +23,14 @@ import 'package:plant_collector/formats/colors.dart';
 class PlantPhoto extends StatelessWidget {
   final bool connectionLibrary;
   final ImageData imageSet;
+  final String currentThumbnail;
   final String imageDate;
   final bool largeWidget;
   final String plantOwner;
   PlantPhoto({
     @required this.connectionLibrary,
     @required this.imageSet,
+    @required this.currentThumbnail,
     @required this.imageDate,
     @required this.largeWidget,
     @required this.plantOwner,
@@ -40,6 +42,10 @@ class PlantPhoto extends StatelessWidget {
 
     //only show set thumbnail for large widget and current user is owner
     bool showSetThumbnail = (largeWidget == true && connectionLibrary == false);
+
+    //check if plant thumbnail is the same as current image
+    bool imageIsThumb =
+        (currentThumbnail.toString() == imageSet.thumb.toString());
 
     //*****SET WIDGET VISIBILITY END*****//
 
@@ -67,11 +73,12 @@ class PlantPhoto extends StatelessWidget {
                   onPressed: () async {
                     //*****REMOVE IMAGE*****//
                     Map<String, dynamic> removeData = imageSet.toMap();
+                    String plantID =
+                        Provider.of<AppData>(context).forwardingPlantID;
                     //remove from database array
                     await CloudDB.updateDocumentL1Array(
                         collection: DBFolder.plants,
-                        document:
-                            Provider.of<AppData>(context).forwardingPlantID,
+                        document: plantID,
                         key: PlantKeys.imageSets,
                         entries: [removeData],
                         action: false);
@@ -84,6 +91,19 @@ class PlantPhoto extends StatelessWidget {
                         .deleteImage(imageReference: refImage);
 
                     //*****REMOVE THUMBNAIL*****//
+
+                    //check if the image was a thumbnail
+                    if (imageIsThumb == true) {
+                      //new data map
+                      Map<String, dynamic> thumbData = {
+                        PlantKeys.thumbnail: ''
+                      };
+                      //set to default in plant
+                      CloudDB.updateDocumentL1(
+                          collection: DBFolder.plants,
+                          document: plantID,
+                          data: thumbData);
+                    }
                     //get reference from the provided URL
                     StorageReference refThumb =
                         await Provider.of<CloudStore>(context)

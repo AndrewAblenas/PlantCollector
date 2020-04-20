@@ -145,6 +145,14 @@ class UserAuth extends ChangeNotifier {
     return signedInUser;
   }
 
+  //reauthenticate
+  Future<AuthResult> reauthenticateUser({@required String password}) {
+    //get credentials
+    AuthCredential credentials = EmailAuthProvider.getCredential(
+        email: signedInUser.email, password: password);
+    return signedInUser.reauthenticateWithCredential(credentials);
+  }
+
   //GET CURRENT USER
   Future<FirebaseUser> getCurrentUser() async {
     signedInUser = await _firebaseAuth.currentUser();

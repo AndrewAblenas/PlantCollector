@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/cloud_db.dart';
-import 'package:plant_collector/models/cloud_store.dart';
 import 'package:plant_collector/models/data_types/plant/plant_data.dart';
 import 'package:plant_collector/screens/library/widgets/plant_tile.dart';
 import 'package:plant_collector/screens/template/screen_template.dart';
@@ -30,8 +29,18 @@ class AdminScreen extends StatelessWidget {
             ButtonAdd(
                 buttonText: 'Run Admin Function',
                 onPress: () {
-                  CloudDB.repackImageData(
-                      ref: Provider.of<CloudStore>(context).getStorageRef());
+//                  showDialog(
+//                    context: context,
+//                    barrierDismissible: true,
+//                    builder: (BuildContext context) {
+//                      return DialogLoading(
+//                        title: 'Uploading Photo',
+//                        text: 'Please wait...',
+//                      );
+//                    },
+//                  );
+//                  CloudDB.repackImageData(
+//                      ref: Provider.of<CloudStore>(context).getStorageRef());
                 }),
             SizedBox(
               height: 10.0 * MediaQuery.of(context).size.width * kScaleFactor,

@@ -103,7 +103,8 @@ class RegisterScreen extends StatelessWidget {
                   return DialogConfirm(
                     title: 'Registration Issue',
                     text:
-                        'We had trouble registering you. Please check the email and password you provided and try again.'
+                        'We had trouble registering you. Please check the email and password you provided and try again.  '
+                        'Don\'t forget to include a special character (!@#\\/\$&*~.) in your password.'
                         '${Provider.of<UserAuth>(context).error != null ? Provider.of<UserAuth>(context).error : ''}',
                     buttonText: 'OK',
                     onPressed: () {

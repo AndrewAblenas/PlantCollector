@@ -1,4 +1,5 @@
 import 'dart:core';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:date_format/date_format.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -542,6 +543,27 @@ class AppData extends ChangeNotifier {
   void setPlantQueryField({@required String queryField}) {
     plantQueryField = queryField;
     notifyListeners();
+  }
+
+  //METHOD TO GET PLANT TILE THUMB
+  static Widget getPlantTileThumb({@required String thumbURL}) {
+    try {
+      return CachedNetworkImage(
+          imageUrl: thumbURL,
+          fit: BoxFit.cover,
+          errorWidget: (context, error, _) {
+            return Image.asset(
+              'assets/images/default.png',
+              fit: BoxFit.fill,
+            );
+          });
+    } catch (e) {
+      print(e);
+      return Image.asset(
+        'assets/images/default.png',
+        fit: BoxFit.fill,
+      );
+    }
   }
 
   //GENERATE IMAGE TILE WIDGET LIST

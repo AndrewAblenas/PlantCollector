@@ -8,6 +8,7 @@ import 'package:plant_collector/models/cloud_store.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/models/global.dart';
 import 'package:plant_collector/screens/account/widgets/settings_card.dart';
+import 'package:plant_collector/screens/dialog/dialog_screen_input.dart';
 import 'package:plant_collector/screens/template/screen_template.dart';
 import 'package:plant_collector/widgets/container_wrapper.dart';
 import 'package:plant_collector/widgets/set_username_bundle.dart';
@@ -363,61 +364,149 @@ class AccountScreen extends StatelessWidget {
                         );
                       }
                     }),
-                    StreamBuilder<FirebaseUser>(
-                      stream: Provider.of<UserAuth>(context)
+                    StreamProvider<FirebaseUser>.value(
+                      value: Provider.of<UserAuth>(context)
                           .getCurrentUser()
                           .asStream(),
-                      builder: (BuildContext context,
-                          AsyncSnapshot<FirebaseUser> snapshot) {
-                        if (!snapshot.hasData) return new Text('...');
-                        return Column(
-                          children: <Widget>[
-                            SettingsCard(
-                              onPress: null,
-                              onSubmit: () {
-                                //update the google authentication email profile
-                                Provider.of<UserAuth>(context).userUpdateEmail(
-                                    email: Provider.of<AppData>(context)
-                                        .newDataInput);
-                                //update the user document email
-                                Provider.of<CloudDB>(context)
-                                    .updateUserDocument(
-                                  data: AppData.updatePairFull(
-                                    key: UserKeys.email,
-                                    value: Provider.of<AppData>(context)
-                                        .newDataInput,
-                                  ),
-                                );
-                              },
-                              cardLabel: 'Email',
-                              cardText: snapshot.data.email,
-                              dialogText:
-                                  'Please provide an updated email address.',
-                            ),
-                            SettingsCard(
-                              onPress: null,
-                              onSubmit: () {
-                                bool result = Provider.of<UserAuth>(context)
-                                    .validatePassword(
-                                        Provider.of<AppData>(context)
-                                            .newDataInput);
-                                if (result == true) {
+                      child: Consumer<FirebaseUser>(
+                        builder:
+                            (BuildContext context, FirebaseUser snapshot, _) {
+                          if (FirebaseUser == null) return new Text('...');
+                          return Column(
+                            children: <Widget>[
+                              SettingsCard(
+                                onPress: null,
+                                acceptButtonText: 'CONFIRM',
+                                authPromptText:
+                                    '${snapshot.email}\n\nConfirm Password',
+                                obscureInput: true,
+                                onSubmit: () {
+                                  //need to re authenticate
+                                  String password =
+                                      Provider.of<AppData>(context)
+                                          .newDataInput;
                                   Provider.of<UserAuth>(context)
-                                      .userUpdatePassword(
-                                          password:
+                                      .reauthenticateUser(password: password)
+                                      .then((value) {
+                                    showDialog(
+                                      context: context,
+                                      barrierDismissible: false,
+                                      builder: (BuildContext context) {
+                                        return DialogScreenInput(
+                                            title: 'New Email',
+                                            acceptText: 'Update',
+                                            acceptOnPress: () {
+                                              //update the google authentication email profile
+                                              String data =
+                                                  Provider.of<AppData>(context)
+                                                      .newDataInput;
+                                              print(data);
+                                              Provider.of<UserAuth>(context)
+                                                  .userUpdateEmail(email: data);
+                                              //update the user document email
+                                              Provider.of<CloudDB>(context)
+                                                  .updateUserDocument(
+                                                data: AppData.updatePairFull(
+                                                  key: UserKeys.email,
+                                                  value: data,
+                                                ),
+                                              );
+                                              Navigator.pop(context);
+                                              Navigator.pop(context);
+                                            },
+                                            onChange: (input) {
                                               Provider.of<AppData>(context)
-                                                  .newDataInput);
-                                  Navigator.pop(context);
-                                } else {}
-                              },
-                              cardLabel: 'Password',
-                              cardText: 'Update Password',
-                              dialogText:
-                                  'Your password must have a capital letter, small letter, number, and special character. You will not be able to update otherwise.',
-                            ),
-                          ],
-                        );
-                      },
+                                                  .newDataInput = input;
+                                            },
+                                            cancelText: 'Cancel',
+                                            hintText: null);
+                                      },
+                                    );
+                                  });
+                                },
+                                cardLabel: 'Email',
+                                cardText: 'Update',
+                                dialogText: 'Input your password',
+                              ),
+                              SettingsCard(
+                                onPress: null,
+                                acceptButtonText: 'CONFIRM',
+                                authPromptText:
+                                    '${snapshot.email}\n\nConfirm Password',
+                                obscureInput: true,
+                                onSubmit: () {
+                                  //need to re authenticate
+                                  String password =
+                                      Provider.of<AppData>(context)
+                                          .newDataInput;
+                                  Provider.of<UserAuth>(context)
+                                      .reauthenticateUser(password: password)
+                                      .then((value) {
+                                    showDialog(
+                                      context: context,
+                                      barrierDismissible: false,
+                                      builder: (BuildContext context) {
+                                        return DialogScreenInput(
+                                            title:
+                                                'Your password must have a capital letter, small letter, and special character. You will not be able to update otherwise.',
+                                            acceptText: 'Update',
+                                            acceptOnPress: () {
+                                              bool result =
+                                                  Provider.of<UserAuth>(context)
+                                                      .validatePassword(
+                                                          Provider.of<AppData>(
+                                                                  context)
+                                                              .newDataInput);
+                                              if (result == true) {
+                                                Provider.of<UserAuth>(context)
+                                                    .userUpdatePassword(
+                                                        password: Provider.of<
+                                                                    AppData>(
+                                                                context)
+                                                            .newDataInput);
+                                                Navigator.pop(context);
+                                                Navigator.pop(context);
+                                              } else {}
+                                            },
+                                            onChange: (input) {
+                                              Provider.of<AppData>(context)
+                                                  .newDataInput = input;
+                                            },
+                                            cancelText: 'Cancel',
+                                            hintText: null);
+                                      },
+                                    );
+                                  });
+                                },
+                                cardLabel: 'Password',
+                                cardText: 'Update',
+                                dialogText: 'Input your password',
+                              ),
+//                            SettingsCard(
+//                              onPress: null,
+//                              onSubmit: () {
+//                                bool result = Provider.of<UserAuth>(context)
+//                                    .validatePassword(
+//                                        Provider.of<AppData>(context)
+//                                            .newDataInput);
+//                                if (result == true) {
+//                                  Provider.of<UserAuth>(context)
+//                                      .userUpdatePassword(
+//                                          password:
+//                                              Provider.of<AppData>(context)
+//                                                  .newDataInput);
+//                                  Navigator.pop(context);
+//                                } else {}
+//                              },
+//                              cardLabel: 'Password',
+//                              cardText: 'Update Password',
+//                              dialogText:
+//                                  'Your new password must have a capital letter, small letter, special character, and be at least eight characters long.',
+//                            ),
+                            ],
+                          );
+                        },
+                      ),
                     ),
                   ],
                 ),

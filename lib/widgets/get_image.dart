@@ -6,6 +6,7 @@ import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/cloud_store.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 import 'package:plant_collector/models/data_types/plant/plant_data.dart';
+import 'package:plant_collector/widgets/dialogs/dialog_loading.dart';
 import 'package:provider/provider.dart';
 
 class GetImage extends StatelessWidget {
@@ -61,6 +62,17 @@ class GetImage extends StatelessWidget {
             .then((image) {
           //check to make sure the user didn't back out
           if (image != null) {
+            //show a status dialog
+            showDialog(
+              context: context,
+              barrierDismissible: true,
+              builder: (BuildContext context) {
+                return DialogLoading(
+                  title: 'Uploading Photo',
+                  text: 'Please wait...',
+                );
+              },
+            );
             //upload image
             //wait for completion
             Provider.of<CloudStore>(context)
@@ -94,10 +106,14 @@ class GetImage extends StatelessWidget {
                         document:
                             Provider.of<AppData>(context).currentUserInfo.id),
                   });
-              //pop context
+              //pop
               if (pop == true) {
                 Navigator.pop(context);
               }
+              //now pop the upload dialog
+              Future.delayed(Duration(seconds: 1)).then((value) {
+                Navigator.pop(context);
+              });
             });
           }
         });

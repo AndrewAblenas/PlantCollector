@@ -100,6 +100,9 @@ class DiscoverScreen extends StatelessWidget {
                                     } else if (value == 5) {
                                       tabText = 'Top Plant Collectors';
                                     } else {}
+                                    //remove any with no thumbnail
+                                    snap.removeWhere(
+                                        (item) => item.thumbnail == '');
                                     return Column(
                                       mainAxisSize: MainAxisSize.min,
                                       children: <Widget>[

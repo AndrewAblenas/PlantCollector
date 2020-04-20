@@ -100,7 +100,7 @@ class PlantScreen extends StatelessWidget {
                         plantOwner: plant.owner,
                         connectionLibrary: connectionLibrary,
                         plantID: plantID,
-                        thumbnail: plant != null ? plant.thumbnail : null,
+                        thumbnail: plant != null ? plant.thumbnail : '',
                         //the below check is necessary for deleting a plant via the button on plant screen
                         //reversed the image list so most recent photos are first
                         imageSets: listImageData,

@@ -16,6 +16,9 @@ class SettingsCard extends StatelessWidget {
   final bool confirmDialog;
   final String dialogText;
   final bool disableEdit;
+  final String acceptButtonText;
+  final String authPromptText;
+  final bool obscureInput;
   SettingsCard(
       {@required this.onSubmit,
       @required this.onPress,
@@ -24,7 +27,10 @@ class SettingsCard extends StatelessWidget {
       this.allowDialog,
       this.confirmDialog,
       this.dialogText,
-      this.disableEdit = false});
+      this.disableEdit = false,
+      this.acceptButtonText = 'UPDATE',
+      this.authPromptText,
+      this.obscureInput = false});
   @override
   Widget build(BuildContext context) {
     Color avatarBackground =
@@ -99,8 +105,9 @@ class SettingsCard extends StatelessWidget {
               barrierDismissible: false,
               builder: (BuildContext context) {
                 return DialogScreenInput(
-                    title: cardLabel,
-                    acceptText: 'Update',
+                    title: authPromptText != null ? authPromptText : cardLabel,
+                    acceptText: acceptButtonText,
+                    obscure: obscureInput,
                     acceptOnPress: onSubmit,
                     onChange: (input) {
                       Provider.of<AppData>(context).newDataInput = input;
