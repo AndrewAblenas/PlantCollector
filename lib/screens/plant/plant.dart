@@ -86,15 +86,6 @@ class PlantScreen extends StatelessWidget {
                               plant.imageSets.length >= changeToGridView)
                           ? false
                           : true;
-//                      return FutureProvider<List<String>>.value(
-//                        value: Provider.of<CloudStore>(context).getThumbURLs(
-//                            imageURLs: listURL,
-//                            plant: plant,
-//                            imageExtension: 'jpg'),
-//                        child: Consumer<List<String>>(
-//                          builder: (context, List<String> thumbs, _) {
-//                            if (thumbs != null) {
-
                       List<Widget> imageWidgets =
                           UIBuilders.generateImageTileWidgets(
                         plantOwner: plant.owner,
@@ -180,9 +171,17 @@ class PlantScreen extends StatelessWidget {
                     //check for data as well so that if delete plant no error calling owner later for admin
                     if (plantSnap != null && plantSnap.data != null) {
                       PlantData plant = PlantData.fromMap(map: plantSnap.data);
+
+                      //show plant status for other users only
+                      bool showPlantStatus = (connectionLibrary == true &&
+                          (plant.sell == true || plant.want == true));
+
+                      //unpack bloom to display each widget
                       List<Map> bloomSequence = [];
                       plant.bloomSequence
                           .forEach((item) => bloomSequence.add(item.toMap()));
+
+                      //unpack growth to display widget
                       List<Map> growthSequence = [];
                       plant.growthSequence
                           .forEach((item) => growthSequence.add(item.toMap()));
@@ -194,9 +193,18 @@ class PlantScreen extends StatelessWidget {
                               children: <Widget>[
                                 Row(
                                   children: <Widget>[
-                                    ViewerUtilityButtons(plant: plant),
+                                    ViewerUtilityButtons(
+                                      plant: plant,
+                                      showPlantStatus: showPlantStatus,
+                                    ),
                                   ],
                                 ),
+                                //make sure this is the same number as carousel
+                                (showAddImage == true &&
+                                        plant.imageSets.length >=
+                                            changeToGridView)
+                                    ? GridViewAddImages(plant: plant)
+                                    : SizedBox(),
                                 //BLOOM SEQUENCE
                                 (plant.bloomSequence.length > 0)
                                     ? PlantSequence(
@@ -215,12 +223,6 @@ class PlantScreen extends StatelessWidget {
                                         connectionLibrary: connectionLibrary,
                                       )
                                     : SizedBox(),
-                                //make sure this is the same number as carousel
-                                (showAddImage == true &&
-                                        plant.imageSets.length >=
-                                            changeToGridView)
-                                    ? GridViewAddImages(plant: plant)
-                                    : SizedBox(),
                                 UIBuilders.displayInfoCards(
                                   connectionLibrary: connectionLibrary,
                                   plant: plant,
@@ -232,14 +234,24 @@ class PlantScreen extends StatelessWidget {
                                           userID: plant.owner,
                                         ),
                                         child: Consumer<UserData>(
-                                          builder: (context, user, _) {
-                                            if (user == null) {
+                                          builder: (context, plantOwner, _) {
+                                            if (plantOwner == null) {
                                               return SizedBox();
                                             } else {
                                               return Padding(
                                                 padding: EdgeInsets.all(5.0),
-                                                child:
-                                                    SearchUserTile(user: user),
+                                                child: StreamProvider<
+                                                        UserData>.value(
+                                                    value:
+                                                        CloudDB.streamUserData(
+                                                      userID:
+                                                          Provider.of<AppData>(
+                                                                  context)
+                                                              .currentUserInfo
+                                                              .id,
+                                                    ),
+                                                    child: SearchUserTile(
+                                                        user: plantOwner)),
                                               );
                                             }
                                           },

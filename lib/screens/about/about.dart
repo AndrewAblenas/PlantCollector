@@ -108,6 +108,8 @@ class AboutScreen extends StatelessWidget {
                         '${GlobalStrings.collections} contain your ${GlobalStrings.plants} and allow you to add new ones.  '
                         'You can rename a ${GlobalStrings.collection} by holding down on the ${GlobalStrings.collection} name.  \n\n'
                         'An arrow to the right of the name allows you to expand or collapse the ${GlobalStrings.collection}.  Hold down on this arrow to change the colour.  \n\n'
+                        'The "Plants on Shelf" count is displayed below the Shelf name.  '
+                        'Tap this text to get a sorted list of the Shelf Plants.  \n\n'
                         'A ${GlobalStrings.collection} can only be deleted when it no longer holds any ${GlobalStrings.plants}.  '
                         'Tap the green add button to add a new ${GlobalStrings.plant}.  '
                         'Holding down on a ${GlobalStrings.plant} tile will allow you to move it to another ${GlobalStrings.collection}.  \n\n'

@@ -263,7 +263,77 @@ class UIBuilders extends ChangeNotifier {
               plantShare + '${PlantKeys.descriptors[key]}: ${plantMap[key]}\n';
         }
     }
-    return plantShare + '\n${GlobalStrings.checkItOut}';
+//    String thumb = (plantMap[PlantKeys.thumbnail] != '')
+//        ? plantMap[PlantKeys.thumbnail]
+//        : '';
+    return plantShare
+//        + thumb
+        +
+        '\n${GlobalStrings.checkItOut}';
+  }
+
+  //REFORMAT PLANT INFO TO SHARE
+  static String shareList({@required List<PlantData> shelfPlants}) {
+    //final text
+    String finalList = '';
+
+    //if there are plants
+    if (shelfPlants != null && shelfPlants.length > 0) {
+      //list to hold combined name strings
+      List<String> plantNames = [];
+
+      for (PlantData plant in shelfPlants) {
+        String plantName = '';
+        if (plant.genus != '') {
+          String genusName =
+              plant.genus[0].toUpperCase() + plant.genus.substring(1);
+          plantName = plantName + '$genusName ';
+        }
+        if (plant.species != '') {
+          plantName = plantName + '${plant.species.toLowerCase()} ';
+        }
+        if (plant.hybrid != '') {
+          List<String> splitList = plant.hybrid.split(' ');
+          List<String> newList = [];
+          for (String word in splitList) {
+            word = word[0].toUpperCase() + word.substring(1);
+            newList.add(word);
+          }
+          String hybrid = newList.join(' ');
+          plantName = plantName + '$hybrid ';
+        }
+        if (plant.variety != '') {
+          List<String> splitList = plant.variety.split(' ');
+          List<String> newList = [];
+          for (String word in splitList) {
+            word = word[0].toUpperCase() + word.substring(1);
+            newList.add(word);
+          }
+          String variety = newList.join(' ');
+          plantName = plantName + "'$variety' ";
+        }
+        if (plant.name != '') {
+          plantName = (plantName.length > 0)
+              ? plantName + '(${plant.name})'
+              : plant.name;
+        }
+        //now add the formatting name to the list
+        plantNames.add(plantName);
+      }
+
+      //sort the list alphabetically
+      plantNames.sort((a, b) => a.compareTo(b));
+
+      //add to final list
+      int count = 0;
+      for (String name in plantNames) {
+        count++;
+        finalList = finalList + '\n${count.toString()}) ' + name;
+      }
+    } else {
+      finalList = 'There aren\'t any Plants yet.';
+    }
+    return finalList + '\n\n${GlobalStrings.getTheApp}';
   }
 
   //FORMAT INFORMATION TO DISPLAY NAME PROPERLY

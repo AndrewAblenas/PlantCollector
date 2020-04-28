@@ -53,9 +53,9 @@ class AccountScreen extends StatelessWidget {
                                 );
                                 Navigator.pop(context);
                               },
-                              cardLabel: 'Name',
+                              cardLabel: 'User Handle',
                               cardText: user.name,
-                              dialogText: 'Please update your user name.',
+                              dialogText: 'Please update your user handle.',
                             ),
                             SettingsCard(
                               onPress: null,
@@ -89,6 +89,24 @@ class AccountScreen extends StatelessWidget {
                               cardText: user.about,
                               dialogText:
                                   'Tell others a bit about your plant collection.',
+                            ),
+                            SettingsCard(
+                              onPress: null,
+                              onSubmit: () {
+                                Provider.of<CloudDB>(context)
+                                    .updateUserDocument(
+                                  data: AppData.updatePairFull(
+                                      key: UserKeys.link,
+                                      value: Provider.of<AppData>(context)
+                                          .newDataInput),
+                                );
+                                Navigator.pop(context);
+                              },
+                              cardLabel: 'Link',
+                              cardText:
+                                  (user.link != '') ? user.link : 'Tap to Add',
+                              dialogText:
+                                  'Add a link or website.  Double check to make sure the address is correct.',
                             ),
                             ContainerWrapper(
                               marginVertical: 5.0,
@@ -371,117 +389,121 @@ class AccountScreen extends StatelessWidget {
                       child: Consumer<FirebaseUser>(
                         builder:
                             (BuildContext context, FirebaseUser snapshot, _) {
-                          if (FirebaseUser == null) return new Text('...');
-                          return Column(
-                            children: <Widget>[
-                              SettingsCard(
-                                onPress: null,
-                                acceptButtonText: 'CONFIRM',
-                                authPromptText:
-                                    '${snapshot.email}\n\nConfirm Password',
-                                obscureInput: true,
-                                onSubmit: () {
-                                  //need to re authenticate
-                                  String password =
-                                      Provider.of<AppData>(context)
-                                          .newDataInput;
-                                  Provider.of<UserAuth>(context)
-                                      .reauthenticateUser(password: password)
-                                      .then((value) {
-                                    showDialog(
-                                      context: context,
-                                      barrierDismissible: false,
-                                      builder: (BuildContext context) {
-                                        return DialogScreenInput(
-                                            title: 'New Email',
-                                            acceptText: 'Update',
-                                            acceptOnPress: () {
-                                              //update the google authentication email profile
-                                              String data =
-                                                  Provider.of<AppData>(context)
-                                                      .newDataInput;
-                                              print(data);
-                                              Provider.of<UserAuth>(context)
-                                                  .userUpdateEmail(email: data);
-                                              //update the user document email
-                                              Provider.of<CloudDB>(context)
-                                                  .updateUserDocument(
-                                                data: AppData.updatePairFull(
-                                                  key: UserKeys.email,
-                                                  value: data,
-                                                ),
-                                              );
-                                              Navigator.pop(context);
-                                              Navigator.pop(context);
-                                            },
-                                            onChange: (input) {
-                                              Provider.of<AppData>(context)
-                                                  .newDataInput = input;
-                                            },
-                                            cancelText: 'Cancel',
-                                            hintText: null);
-                                      },
-                                    );
-                                  });
-                                },
-                                cardLabel: 'Email',
-                                cardText: 'Update',
-                                dialogText: 'Input your password',
-                              ),
-                              SettingsCard(
-                                onPress: null,
-                                acceptButtonText: 'CONFIRM',
-                                authPromptText:
-                                    '${snapshot.email}\n\nConfirm Password',
-                                obscureInput: true,
-                                onSubmit: () {
-                                  //need to re authenticate
-                                  String password =
-                                      Provider.of<AppData>(context)
-                                          .newDataInput;
-                                  Provider.of<UserAuth>(context)
-                                      .reauthenticateUser(password: password)
-                                      .then((value) {
-                                    showDialog(
-                                      context: context,
-                                      barrierDismissible: false,
-                                      builder: (BuildContext context) {
-                                        return DialogScreenInput(
-                                            title:
-                                                'Your password must have a capital letter, small letter, and special character. You will not be able to update otherwise.',
-                                            acceptText: 'Update',
-                                            acceptOnPress: () {
-                                              bool result =
-                                                  Provider.of<UserAuth>(context)
-                                                      .validatePassword(
-                                                          Provider.of<AppData>(
-                                                                  context)
-                                                              .newDataInput);
-                                              if (result == true) {
+                          if (snapshot == null) {
+                            return SizedBox();
+                          } else {
+                            return Column(
+                              children: <Widget>[
+                                SettingsCard(
+                                  onPress: null,
+                                  acceptButtonText: 'CONFIRM',
+                                  authPromptText:
+                                      '${snapshot.email}\n\nConfirm Password',
+                                  obscureInput: true,
+                                  onSubmit: () {
+                                    //need to re authenticate
+                                    String password =
+                                        Provider.of<AppData>(context)
+                                            .newDataInput;
+                                    Provider.of<UserAuth>(context)
+                                        .reauthenticateUser(password: password)
+                                        .then((value) {
+                                      showDialog(
+                                        context: context,
+                                        barrierDismissible: false,
+                                        builder: (BuildContext context) {
+                                          return DialogScreenInput(
+                                              title: 'New Email',
+                                              acceptText: 'Update',
+                                              acceptOnPress: () {
+                                                //update the google authentication email profile
+                                                String data =
+                                                    Provider.of<AppData>(
+                                                            context)
+                                                        .newDataInput;
+                                                print(data);
                                                 Provider.of<UserAuth>(context)
-                                                    .userUpdatePassword(
-                                                        password: Provider.of<
-                                                                    AppData>(
+                                                    .userUpdateEmail(
+                                                        email: data);
+                                                //update the user document email
+                                                Provider.of<CloudDB>(context)
+                                                    .updateUserDocument(
+                                                  data: AppData.updatePairFull(
+                                                    key: UserKeys.email,
+                                                    value: data,
+                                                  ),
+                                                );
+                                                Navigator.pop(context);
+                                                Navigator.pop(context);
+                                              },
+                                              onChange: (input) {
+                                                Provider.of<AppData>(context)
+                                                    .newDataInput = input;
+                                              },
+                                              cancelText: 'Cancel',
+                                              hintText: null);
+                                        },
+                                      );
+                                    });
+                                  },
+                                  cardLabel: 'Email',
+                                  cardText: 'Update',
+                                  dialogText: 'Input your password',
+                                ),
+                                SettingsCard(
+                                  onPress: null,
+                                  acceptButtonText: 'CONFIRM',
+                                  authPromptText:
+                                      '${snapshot.email}\n\nConfirm Password',
+                                  obscureInput: true,
+                                  onSubmit: () {
+                                    //need to re authenticate
+                                    String password =
+                                        Provider.of<AppData>(context)
+                                            .newDataInput;
+                                    Provider.of<UserAuth>(context)
+                                        .reauthenticateUser(password: password)
+                                        .then((value) {
+                                      showDialog(
+                                        context: context,
+                                        barrierDismissible: false,
+                                        builder: (BuildContext context) {
+                                          return DialogScreenInput(
+                                              title:
+                                                  'Your password must have a capital letter, small letter, and special character. You will not be able to update otherwise.',
+                                              acceptText: 'Update',
+                                              acceptOnPress: () {
+                                                bool result = Provider.of<
+                                                        UserAuth>(context)
+                                                    .validatePassword(
+                                                        Provider.of<AppData>(
                                                                 context)
                                                             .newDataInput);
-                                                Navigator.pop(context);
-                                                Navigator.pop(context);
-                                              } else {}
-                                            },
-                                            onChange: (input) {
-                                              Provider.of<AppData>(context)
-                                                  .newDataInput = input;
-                                            },
-                                            cancelText: 'Cancel',
-                                            hintText: null);
-                                      },
-                                    );
-                                  });
-                                },
-                                cardLabel: 'Password',
-                                cardText: 'Update',
-                                dialogText: 'Input your password',
-                              ),
+                                                if (result == true) {
+                                                  Provider.of<UserAuth>(context)
+                                                      .userUpdatePassword(
+                                                          password: Provider.of<
+                                                                      AppData>(
+                                                                  context)
+                                                              .newDataInput);
+                                                  Navigator.pop(context);
+                                                  Navigator.pop(context);
+                                                } else {}
+                                              },
+                                              onChange: (input) {
+                                                Provider.of<AppData>(context)
+                                                    .newDataInput = input;
+                                              },
+                                              cancelText: 'Cancel',
+                                              hintText: null);
+                                        },
+                                      );
+                                    });
+                                  },
+                                  cardLabel: 'Password',
+                                  cardText: 'Update',
+                                  dialogText: 'Input your password',
+                                ),
 //                            SettingsCard(
 //                              onPress: null,
 //                              onSubmit: () {
@@ -503,8 +525,9 @@ class AccountScreen extends StatelessWidget {
 //                              dialogText:
 //                                  'Your new password must have a capital letter, small letter, special character, and be at least eight characters long.',
 //                            ),
-                            ],
-                          );
+                              ],
+                            );
+                          }
                         },
                       ),
                     ),

@@ -3,7 +3,7 @@ description: Create a digital collection of all your plants
 # Always remember to update the version number
 # 2020-04-20
 # TODO version number, and version code
-version: 1.3.2+6
+version: 1.3.3+7
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
@@ -31,7 +31,7 @@ dependencies:
 # ***iOS - WORKAROUND - remove ^ in line of code below, add back for Android
   # 0.15.4 works for iOS
   firebase_auth: ^0.16.0
-  cloud_firestore: ^0.13.0+1
+  cloud_firestore: ^0.13.1+1
 #  SIGN IN
 #  google_sign_in: ^4.1.4
   splashscreen: ^1.2.0

@@ -14,6 +14,7 @@ class PlantKeys {
   static const String genus = 'plantGenus';
   static const String species = 'plantSpecies';
   static const String hybrid = 'plantHybrid';
+  static const String parentage = 'parentage';
   static const String quantity = 'plantQuantity';
   static const String bloom = 'plantBloom';
   static const String bloomSequence = 'bloomSequence';
@@ -48,6 +49,7 @@ class PlantKeys {
     species,
     hybrid,
     variety,
+    parentage,
     bloomSequence,
     growthSequence,
     repot,
@@ -69,6 +71,7 @@ class PlantKeys {
     species,
     hybrid,
     variety,
+    parentage,
     water,
     fertilize,
     bloom,
@@ -107,6 +110,7 @@ class PlantKeys {
     species: 'Species',
     hybrid: 'Hybrid',
     genus: 'Genus',
+    parentage: 'Parent Plants',
     quantity: 'Quantity',
     bloom: 'Flowering',
     bloomSequence: 'Bloom Sequence',
@@ -144,6 +148,7 @@ class PlantData {
   final String species;
   final String hybrid;
   final String genus;
+  final String parentage;
   final String quantity;
   final String bloom;
   final List<BloomData> bloomSequence;
@@ -179,6 +184,7 @@ class PlantData {
       this.species,
       this.hybrid,
       this.genus,
+      this.parentage,
       this.quantity,
       this.bloom,
       this.bloomSequence,
@@ -233,6 +239,7 @@ class PlantData {
       PlantKeys.species: species,
       PlantKeys.hybrid: hybrid,
       PlantKeys.genus: genus,
+      PlantKeys.parentage: parentage,
       PlantKeys.quantity: quantity,
       PlantKeys.bloom: bloom,
       PlantKeys.bloomSequence: bloomInfo.toList(),
@@ -293,6 +300,7 @@ class PlantData {
         species: DV.isString(value: map[PlantKeys.species]),
         hybrid: DV.isString(value: map[PlantKeys.hybrid]),
         genus: DV.isString(value: map[PlantKeys.genus]),
+        parentage: DV.isString(value: map[PlantKeys.parentage]),
         quantity: DV.isString(value: map[PlantKeys.quantity]),
         bloom: DV.isString(value: map[PlantKeys.bloom]),
         bloomSequence: DV.isList(value: bloomInfo.toList()),

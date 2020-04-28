@@ -18,6 +18,7 @@ import 'package:plant_collector/models/cloud_db.dart';
 import 'package:expandable/expandable.dart';
 import 'package:plant_collector/widgets/tile_white.dart';
 import 'package:plant_collector/formats/colors.dart';
+import 'package:share/share.dart';
 
 class CollectionCard extends StatelessWidget {
   final bool connectionLibrary;
@@ -48,6 +49,9 @@ class CollectionCard extends StatelessWidget {
     //get plants for the collection from the full list
     List<PlantData> collectionPlants = AppData.getPlantsFromList(
         collectionPlantIDs: collection.plants, plants: fullList);
+
+    //get plants for the collection from the full list
+    String numberedList = UIBuilders.shareList(shelfPlants: collectionPlants);
 
     //note collection plant total is calculated from this list instead of collection.plants
     //to prevent range errors if an entry is in collection.plants but the plant is deleted
@@ -126,6 +130,7 @@ class CollectionCard extends StatelessWidget {
                     collection: collection,
                     colorTheme: colorTheme,
                     expandedIcon: Icons.keyboard_arrow_up,
+                    numberedList: numberedList,
                   ),
                   //provide a delete button if the collection is empty
                   (showDeleteButton == true)
@@ -246,11 +251,13 @@ class CollectionCard extends StatelessWidget {
                 ],
               ),
               collapsed: CollectionHeader(
-                  defaultView: defaultView,
-                  connectionLibrary: connectionLibrary,
-                  collection: collection,
-                  colorTheme: colorTheme,
-                  expandedIcon: Icons.keyboard_arrow_down),
+                defaultView: defaultView,
+                connectionLibrary: connectionLibrary,
+                collection: collection,
+                colorTheme: colorTheme,
+                expandedIcon: Icons.keyboard_arrow_down,
+                numberedList: numberedList,
+              ),
             ),
           );
         }
@@ -265,13 +272,15 @@ class CollectionHeader extends StatelessWidget {
   final CollectionData collection;
   final Color colorTheme;
   final IconData expandedIcon;
+  final String numberedList;
 
   CollectionHeader(
       {@required this.defaultView,
       @required this.connectionLibrary,
       @required this.collection,
       @required this.colorTheme,
-      @required this.expandedIcon});
+      @required this.expandedIcon,
+      @required this.numberedList});
 
   @override
   Widget build(BuildContext context) {
@@ -418,14 +427,35 @@ class CollectionHeader extends StatelessWidget {
             color: colorTheme,
           ),
           SizedBox(height: 5.0),
-          Text(
-            collectionPlantTotal == '1'
-                ? '$collectionPlantTotal ${GlobalStrings.plant} on ${GlobalStrings.collection}'
-                : '$collectionPlantTotal ${GlobalStrings.plants} on ${GlobalStrings.collection}',
-            style: TextStyle(
-                color: AppTextColor.light,
-                fontSize:
-                    AppTextSize.small * MediaQuery.of(context).size.width),
+          GestureDetector(
+            onTap: () {
+              Share.share(
+                numberedList,
+                subject: 'Check out my ${collection.name.toUpperCase()} Shelf!',
+              );
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Icon(
+                  Icons.view_list,
+                  size: AppTextSize.small * MediaQuery.of(context).size.width,
+                  color: AppTextColor.light,
+                ),
+                SizedBox(
+                  width: 3.0,
+                ),
+                Text(
+                  collectionPlantTotal == '1'
+                      ? '$collectionPlantTotal ${GlobalStrings.plant} on ${GlobalStrings.collection}'
+                      : '$collectionPlantTotal ${GlobalStrings.plants} on ${GlobalStrings.collection}',
+                  style: TextStyle(
+                      color: AppTextColor.light,
+                      fontSize: AppTextSize.small *
+                          MediaQuery.of(context).size.width),
+                ),
+              ],
+            ),
           ),
         ],
       ),

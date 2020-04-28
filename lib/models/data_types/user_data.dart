@@ -51,6 +51,7 @@ class UserKeys {
   static const String lastPlantUpdate = 'lastPlantUpdate';
   static const String showWishList = 'showWishList';
   static const String showSellList = 'showSellList';
+  static const String link = 'link';
   //local only
   static const String chatStarted = 'chatStarted';
 
@@ -85,6 +86,7 @@ class UserKeys {
     lastPlantUpdate: 'Date of Last Plant Update',
     showWishList: 'Show Wishlist',
     showSellList: 'Show Sell List',
+    link: 'Link or Website',
     //local only
     chatStarted: 'Chat Started',
   };
@@ -122,44 +124,46 @@ class UserData {
   final int lastPlantUpdate;
   final bool showWishList;
   final bool showSellList;
+  final String link;
 
   //local only
 //  final bool chatStarted;
 
   //CONSTRUCTOR
-  UserData(
-      {@required this.id,
-      @required this.email,
-      this.name,
-      this.type,
-      this.join,
-      this.about,
-      this.region,
-      this.avatar,
-      this.background,
-      this.plants,
-      this.collections,
-      this.groups,
-      this.photos,
-      this.likedPlants,
-      this.blocked,
-      this.expandGroup,
-      this.expandCollection,
-      this.tags,
-      this.friends,
-      this.requestsSent,
-      this.requestsReceived,
-      this.chats,
-      this.privateLibrary,
-      this.sortAlphabetically,
-      this.uniquePublicID,
-      this.lastPlantAdd,
-      this.lastPlantUpdate,
-      this.showWishList,
-      this.showSellList
-      //local only
+  UserData({
+    @required this.id,
+    @required this.email,
+    this.name,
+    this.type,
+    this.join,
+    this.about,
+    this.region,
+    this.avatar,
+    this.background,
+    this.plants,
+    this.collections,
+    this.groups,
+    this.photos,
+    this.likedPlants,
+    this.blocked,
+    this.expandGroup,
+    this.expandCollection,
+    this.tags,
+    this.friends,
+    this.requestsSent,
+    this.requestsReceived,
+    this.chats,
+    this.privateLibrary,
+    this.sortAlphabetically,
+    this.uniquePublicID,
+    this.lastPlantAdd,
+    this.lastPlantUpdate,
+    this.showWishList,
+    this.showSellList,
+    this.link,
+    //local only
 //    this.chatStarted,
-      });
+  });
 
   //TO MAP
   Map<String, dynamic> toMap() {
@@ -193,6 +197,7 @@ class UserData {
       UserKeys.lastPlantUpdate: lastPlantUpdate,
       UserKeys.showWishList: showWishList,
       UserKeys.showSellList: showSellList,
+      UserKeys.link: link,
       //local only
 //      UserKeys.chatStarted: chatStarted,
     };
@@ -233,6 +238,7 @@ class UserData {
       showWishList:
           DV.isBool(value: map[UserKeys.showWishList], fallback: true),
       showSellList: DV.isBool(value: map[UserKeys.showSellList]),
+      link: DV.isString(value: map[UserKeys.link]),
       //local only
 //      chatStarted: map[UserKeys.chatStarted] ?? false,
     );

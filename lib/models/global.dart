@@ -27,8 +27,15 @@ class GlobalStrings {
   static const String privacy = 'Privacy Policy';
   static const String guidelines = 'Community Guidelines';
   static const String checkItOut = 'Check out the App:\n\n'
-      'iOS: ${GlobalLinks.downloadiOS}\n\n'
-      'Android: ${GlobalLinks.downloadAndroid}';
+      '${GlobalLinks.linkTree}'
+//      'iOS: ${GlobalLinks.downloadiOS}\n\n'
+//      'Android: ${GlobalLinks.downloadAndroid}'
+      ;
+  static const String getTheApp = 'Get the App:\n\n'
+      '${GlobalLinks.linkTree}'
+//      'iOS: ${GlobalLinks.downloadiOS}\n\n'
+//      'Android: ${GlobalLinks.downloadAndroid}'
+      ;
 }
 
 class DefaultTypeValue {
@@ -46,6 +53,7 @@ class GlobalLinks {
       'https://testflight.apple.com/join/ZMDuMBZq';
   static const String downloadAndroid =
       'https://play.google.com/store/apps/details?id=com.ablenas.plant_collector';
+  static const String linkTree = 'https://linktr.ee/plantcollectorapp';
 }
 
 class DatesCustom {

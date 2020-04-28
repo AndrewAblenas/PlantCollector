@@ -12,6 +12,7 @@ import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/cloud_store.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/models/global.dart';
+import 'package:plant_collector/models/message.dart';
 import 'package:plant_collector/models/user.dart';
 import 'package:plant_collector/screens/dialog/dialog_screen_input.dart';
 import 'package:plant_collector/screens/library/widgets/stat_card.dart';
@@ -45,8 +46,14 @@ class ProfileHeader extends StatelessWidget {
         user.uniquePublicID != 'not set');
 
     //show about only for friend library if they have written something
-    bool displayAbout =
-        (user != null && user.about.length > 0 && connectionLibrary == true);
+    bool displayAbout = (user != null && user.about.length > 0
+//            && connectionLibrary == true
+        );
+
+    //show about only for friend library if they have written something
+    bool displayLink = (user != null && user.link.length > 0
+//            && connectionLibrary == true
+        );
 
     //check for recent updates to display icon
     bool recentUpdate =
@@ -299,26 +306,47 @@ class ProfileHeader extends StatelessWidget {
             ),
           ),
           //Display an about section but not for your own profile
-          (displayAbout == true)
+          (displayAbout == true || displayLink == true)
               ? ContainerCard(
                   color: AppTextColor.white,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Expanded(
-                        child: Text(
-                          user.about,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: AppTextSize.small *
-                                MediaQuery.of(context).size.width,
-                            fontWeight: AppTextWeight.medium,
-                            color: AppTextColor.black,
-                          ),
-                        ),
-                      ),
-                    ],
+                  child: Container(
+                    width: double.infinity,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        (displayAbout == true)
+                            ? Text(
+                                user.about,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: AppTextSize.small *
+                                      MediaQuery.of(context).size.width,
+                                  fontWeight: AppTextWeight.medium,
+                                  color: AppTextColor.black,
+                                ),
+                              )
+                            : SizedBox(),
+                        (displayLink == true)
+                            ? GestureDetector(
+                                onTap: () {
+                                  Message.launchURL(url: user.link);
+                                },
+                                child: Text(
+                                  user.link,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: AppTextSize.small *
+                                        MediaQuery.of(context).size.width,
+                                    fontWeight: AppTextWeight.medium,
+                                    color: kGreenDark,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              )
+                            : SizedBox(),
+                      ],
+                    ),
                   ),
                 )
               : SizedBox(),

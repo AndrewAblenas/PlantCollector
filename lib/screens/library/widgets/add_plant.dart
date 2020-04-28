@@ -47,60 +47,65 @@ class AddPlant extends StatelessWidget {
                     acceptOnPress: () async {
                       data = Provider.of<AppData>(context)
                           .plantNew(collectionID: collectionID);
-                      //add new plant to userPlants
-                      await CloudDB.setDocumentL1(
-                        collection: DBFolder.plants,
-                        document: data[PlantKeys.id],
-                        data: data,
-                      );
-                      //add plant reference to collection
-                      await Provider.of<CloudDB>(context)
-                          .updateArrayInDocumentInCollection(
-                              arrayKey: CollectionKeys.plants,
-                              entries: [data[PlantKeys.id]],
-                              folder: DBFolder.collections,
-                              documentName: collectionID,
-                              action: true);
-                      //add the last plant creation time to user file
-                      Map<String, dynamic> update = {
-                        UserKeys.lastPlantAdd:
-                            DateTime.now().millisecondsSinceEpoch
-                      };
-                      await CloudDB.updateDocumentL1(
-                          collection: DBFolder.users,
-                          document:
-                              Provider.of<CloudDB>(context).currentUserFolder,
-                          data: update);
-                      //pop the first window
-                      Navigator.pop(context);
-                      //add image functionality
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return DialogScreenSelect(
-                            title: 'Add a Photo',
-                            items: [
-                              GetImage(
-                                  imageFromCamera: true,
-                                  plantCreationDate: data[PlantKeys.created],
-                                  largeWidget: false,
-                                  widgetScale: 1.0,
-                                  pop: true,
-                                  plantID: data[PlantKeys.id]),
-                              SizedBox(
-                                height: 20.0,
-                              ),
-                              GetImage(
-                                  imageFromCamera: false,
-                                  plantCreationDate: data[PlantKeys.created],
-                                  largeWidget: false,
-                                  widgetScale: 1.0,
-                                  pop: true,
-                                  plantID: data[PlantKeys.id]),
-                            ],
-                          );
-                        },
-                      );
+                      try {
+                        //add new plant to userPlants
+                        await CloudDB.setDocumentL1(
+                          collection: DBFolder.plants,
+                          document: data[PlantKeys.id],
+                          data: data,
+                        );
+                        //add plant reference to collection
+                        await Provider.of<CloudDB>(context)
+                            .updateArrayInDocumentInCollection(
+                                arrayKey: CollectionKeys.plants,
+                                entries: [data[PlantKeys.id]],
+                                folder: DBFolder.collections,
+                                documentName: collectionID,
+                                action: true);
+                        //add the last plant creation time to user file
+                        Map<String, dynamic> update = {
+                          UserKeys.lastPlantAdd:
+                              DateTime.now().millisecondsSinceEpoch
+                        };
+                        await CloudDB.updateDocumentL1(
+                            collection: DBFolder.users,
+                            document:
+                                Provider.of<CloudDB>(context).currentUserFolder,
+                            data: update);
+                        //pop the first window
+                        Navigator.pop(context);
+                        //add image functionality
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return DialogScreenSelect(
+                              title: 'Add a Photo',
+                              items: [
+                                GetImage(
+                                    imageFromCamera: true,
+                                    plantCreationDate: data[PlantKeys.created],
+                                    largeWidget: false,
+                                    widgetScale: 1.0,
+                                    pop: true,
+                                    plantID: data[PlantKeys.id]),
+                                SizedBox(
+                                  height: 20.0,
+                                ),
+                                GetImage(
+                                    imageFromCamera: false,
+                                    plantCreationDate: data[PlantKeys.created],
+                                    largeWidget: false,
+                                    widgetScale: 1.0,
+                                    pop: true,
+                                    plantID: data[PlantKeys.id]),
+                              ],
+                            );
+                          },
+                        );
+                      } catch (e) {
+                        //if something fails (likely plant add or collection reference add)
+                        Navigator.pop(context);
+                      }
                     },
                     onChange: (input) {
                       Provider.of<AppData>(context).newDataInput = input;
