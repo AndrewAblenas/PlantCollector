@@ -1,8 +1,10 @@
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/screens/dialog/custom_input_field.dart';
 import 'package:plant_collector/screens/dialog/dialog_screen.dart';
+import 'package:plant_collector/widgets/dialogs/dialog_confirm.dart';
 
 class DialogScreenInput extends StatelessWidget {
   final String title;
@@ -84,8 +86,28 @@ class DialogScreenInput extends StatelessWidget {
             ),
             Expanded(
               child: FlatButton(
-                onPressed: () {
-                  acceptOnPress();
+                onPressed: () async {
+                  ConnectivityResult connectivityResult =
+                      await Connectivity().checkConnectivity();
+                  if (connectivityResult != ConnectivityResult.none) {
+                    acceptOnPress();
+                  } else {
+                    //show a dialog notifying the user
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return DialogConfirm(
+                            title: 'Updates Failed',
+                            text:
+                                'Make sure you are online and your current network isn\'t blocking google firebase.  '
+                                'Otherwise, try connecting to another network.',
+                            hideCancel: true,
+                            onPressed: () {
+                              Navigator.pop(context);
+                            });
+                      },
+                    );
+                  }
                 },
                 child: Text(
                   acceptText.toUpperCase(),

@@ -7,6 +7,7 @@ import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/models/global.dart';
 import 'package:plant_collector/screens/dialog/dialog_screen_input.dart';
 import 'package:plant_collector/screens/dialog/dialog_screen_select.dart';
+import 'package:plant_collector/widgets/dialogs/dialog_confirm.dart';
 import 'package:plant_collector/widgets/get_image.dart';
 import 'package:provider/provider.dart';
 import 'package:plant_collector/models/app_data.dart';
@@ -47,6 +48,7 @@ class AddPlant extends StatelessWidget {
                     acceptOnPress: () async {
                       data = Provider.of<AppData>(context)
                           .plantNew(collectionID: collectionID);
+                      //try
                       try {
                         //add new plant to userPlants
                         await CloudDB.setDocumentL1(
@@ -103,8 +105,21 @@ class AddPlant extends StatelessWidget {
                           },
                         );
                       } catch (e) {
-                        //if something fails (likely plant add or collection reference add)
-                        Navigator.pop(context);
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return DialogConfirm(
+                                title: 'Update Failed',
+                                text:
+                                    'There was a problem adding this information.  '
+                                    'Make sure you are online and your current network isn\'t blocking google cloud storage.  '
+                                    'Otherwise, try connecting to another network.',
+                                hideCancel: true,
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                });
+                          },
+                        );
                       }
                     },
                     onChange: (input) {

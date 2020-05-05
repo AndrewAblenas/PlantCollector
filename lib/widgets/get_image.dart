@@ -1,3 +1,4 @@
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
@@ -6,6 +7,7 @@ import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/cloud_store.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 import 'package:plant_collector/models/data_types/plant/plant_data.dart';
+import 'package:plant_collector/widgets/dialogs/dialog_confirm.dart';
 import 'package:plant_collector/widgets/dialogs/dialog_loading.dart';
 import 'package:provider/provider.dart';
 
@@ -59,9 +61,11 @@ class GetImage extends StatelessWidget {
         //get image from camera
         Provider.of<CloudStore>(context)
             .getImageFile(fromCamera: imageFromCamera)
-            .then((image) {
-          //check to make sure the user didn't back out
-          if (image != null) {
+            .then((image) async {
+          //check to make sure the user didn't back out and is online
+          ConnectivityResult connectivityResult =
+              await Connectivity().checkConnectivity();
+          if (image != null && connectivityResult != ConnectivityResult.none) {
             //show a status dialog
             showDialog(
               context: context,
@@ -73,6 +77,7 @@ class GetImage extends StatelessWidget {
                 );
               },
             );
+            //check connectivity in dialog input screen
             //upload image
             //wait for completion
             Provider.of<CloudStore>(context)
@@ -84,6 +89,13 @@ class GetImage extends StatelessWidget {
                     subFolder: DBDocument.images)
                 .onComplete
                 .then((completion) {
+              //delete the temporary image
+              try {
+                image.delete().then(
+                    (value) => print('Image Removed: ${!value.existsSync()}'));
+              } catch (e) {
+                print(e);
+              }
               //get the url string
               Provider.of<CloudStore>(context)
                   .getDownloadURL(snapshot: completion)
@@ -106,7 +118,7 @@ class GetImage extends StatelessWidget {
                         document:
                             Provider.of<AppData>(context).currentUserInfo.id),
                   });
-              //pop
+              //pop the
               if (pop == true) {
                 Navigator.pop(context);
               }
@@ -115,6 +127,22 @@ class GetImage extends StatelessWidget {
                 Navigator.pop(context);
               });
             });
+          } else {
+            //show a dialog notifying the user
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return DialogConfirm(
+                    title: 'Upload Failed',
+                    text:
+                        'Make sure you are online and your current network isn\'t blocking cloud storage.  '
+                        'Otherwise, try connecting to another network.',
+                    hideCancel: true,
+                    onPressed: () {
+                      Navigator.pop(context);
+                    });
+              },
+            );
           }
         });
       },

@@ -511,6 +511,12 @@ class AppData extends ChangeNotifier {
     notifyListeners();
   }
 
+  //METHOD TO SET LIST INPUT
+  void setInputNewList({@required int index, @required value}) {
+    newListInput[index] = value;
+    notifyListeners();
+  }
+
   //METHOD TO SET NEW DATA INPUT SEARCH BAR LIVE
   void setInputSearchBarLive(value) {
     searchBarLiveInput = value;

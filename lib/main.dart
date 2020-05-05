@@ -62,8 +62,11 @@ class PlantCollector extends StatelessWidget {
         title: 'Plant Collector',
         initialRoute: 'loading',
         theme: Theme.of(context).copyWith(
+          primaryColor: kGreenDark,
+          cardColor: kGreenMedium,
           accentColor: kGreenDark,
           cursorColor: kGreenDark,
+          buttonTheme: ButtonThemeData(textTheme: ButtonTextTheme.accent),
           inputDecorationTheme: InputDecorationTheme(
             focusedBorder: UnderlineInputBorder(
               borderSide: BorderSide(

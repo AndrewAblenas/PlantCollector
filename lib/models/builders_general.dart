@@ -328,7 +328,7 @@ class UIBuilders extends ChangeNotifier {
       int count = 0;
       for (String name in plantNames) {
         count++;
-        finalList = finalList + '\n${count.toString()}) ' + name;
+        finalList = finalList + '\n${count.toString()} ) ' + name;
       }
     } else {
       finalList = 'There aren\'t any Plants yet.';
@@ -427,8 +427,8 @@ class UIBuilders extends ChangeNotifier {
     //create a list of only the keys you want visible
     List<String> keyList = PlantKeys.listVisibleKeys.toList();
     //remove bloom to show elsewhere
-    keyList
-        .removeWhere((item) => PlantKeys.listDateDayOfYearKeys.contains(item));
+    keyList.removeWhere(
+        (item) => PlantKeys.listDatePickerMultipleKeys.contains(item));
 
     //need null check to deal with issues on plant delete
     //connection library check will hide journal unless plant belongs to user
@@ -725,19 +725,23 @@ class UIBuilders extends ChangeNotifier {
     //go through each entry in the blooms list
     for (Map sequence in sequenceData) {
       List<Widget> bloomList = [];
+      List<int> yearList = [];
       int previousValue = 0;
 
       for (String key in sequence.keys.toList()) {
         int currentValue = sequence[key];
-        if (previousValue != 0 && currentValue != 0) {
-          int duration;
-          if (currentValue > previousValue) {
-            duration = currentValue - previousValue;
-          } else if (currentValue == previousValue) {
-            duration = 1;
-          } else {
-            duration = 365 + currentValue - previousValue;
-          }
+        if (previousValue != 0 &&
+            currentValue != 0 &&
+            currentValue > previousValue) {
+          int duration = currentValue - previousValue;
+//          int duration;
+//          if (currentValue > previousValue) {
+//            duration = currentValue - previousValue;
+//          } else if (currentValue == previousValue) {
+//            duration = 1;
+//          } else {
+//            duration = 365 + currentValue - previousValue;
+//          }
           Gradient gradient;
           //STYLING
           String label;
@@ -771,7 +775,13 @@ class UIBuilders extends ChangeNotifier {
           bloomList.add(period);
         }
         if (currentValue != 0) {
-          String date = getDateFromDayOfYear(dayOfYear: currentValue);
+//          String date = getDateFromDayOfYear(dayOfYear: currentValue);
+          DateTime recordDate =
+              DateTime.fromMillisecondsSinceEpoch(currentValue);
+          String month = DatesCustom.monthAbbreviations[recordDate.month];
+          String day = recordDate.day.toString();
+          yearList.add(recordDate.year);
+          String date = month + '\n' + day;
           Widget dateWidget = SequenceDate(date: date);
           bloomList.add(dateWidget);
         }
@@ -790,12 +800,22 @@ class UIBuilders extends ChangeNotifier {
                 color: AppTextColor.light,
               ),
             );
+      String dateText = '';
+      if (yearList.length > 0) {
+        yearList.sort((a, b) => a.compareTo(b));
+        int dateStart = yearList[0];
+        int dateEnd = yearList[yearList.length - 1];
+        dateText = (dateStart == dateEnd)
+            ? dateStart.toString()
+            : dateStart.toString() + ' - ' + dateEnd.toString();
+      }
       list.add(FullSequence(
         plantID: plantID,
         connectionLibrary: connectionLibrary,
         sequenceRow: sequenceRow,
         sequenceMap: sequence,
         dataType: dataType,
+        dateText: dateText,
       ));
     }
     return list;
@@ -883,7 +903,7 @@ class UIBuilders extends ChangeNotifier {
       for (String key in list) {
         if (plantMap[key] == DefaultTypeValue.defaultString ||
             plantMap[key] == DefaultTypeValue.defaultInt ||
-            (PlantKeys.listDateDayOfYearKeys.contains(key) &&
+            (PlantKeys.listDatePickerMultipleKeys.contains(key) &&
                 plantMap[key].length == 0) ||
             plantMap[key] == null) {
           plantKeysNotDisplayed.add(key);
@@ -893,7 +913,7 @@ class UIBuilders extends ChangeNotifier {
 //    plantKeysNotDisplayed.remove(PlantKeys.images);
     for (String key in plantKeysNotDisplayed) {
       Map showListInput;
-      if (key == PlantKeys.bloomSequence) {
+      if (key == PlantKeys.sequenceBloom) {
         showListInput = BloomKeys.descriptors;
       }
       listItems.add(
@@ -912,12 +932,23 @@ class UIBuilders extends ChangeNotifier {
   static List<Widget> generateDateButtons({@required Map map}) {
     List<Widget> widgets = [SizedBox()];
     List<String> keys = map.keys.toList();
+    DateTime timeNow = DateTime.now();
     for (String key in keys) {
       int keyIndex = keys.indexOf(key);
-      Widget widget = DayOfYearSelector(buttonText: map[key], index: keyIndex);
+      Widget widget = DayOfYearSelector(
+        buttonText: map[key],
+        index: keyIndex,
+        timeNow: timeNow,
+      );
       widgets.add(widget);
     }
     return widgets;
+  }
+
+  static String standardDateFormat({@required int msSinceEpoch}) {
+    String date = formatDate(DateTime.fromMillisecondsSinceEpoch(msSinceEpoch),
+        [MM, ' ', d, ', ', yyyy]);
+    return date;
   }
   //END OF SECTION
 }

@@ -178,12 +178,12 @@ class PlantScreen extends StatelessWidget {
 
                       //unpack bloom to display each widget
                       List<Map> bloomSequence = [];
-                      plant.bloomSequence
+                      plant.sequenceBloom
                           .forEach((item) => bloomSequence.add(item.toMap()));
 
                       //unpack growth to display widget
                       List<Map> growthSequence = [];
-                      plant.growthSequence
+                      plant.sequenceGrowth
                           .forEach((item) => growthSequence.add(item.toMap()));
                       return Column(
                         mainAxisSize: MainAxisSize.min,
@@ -206,7 +206,7 @@ class PlantScreen extends StatelessWidget {
                                     ? GridViewAddImages(plant: plant)
                                     : SizedBox(),
                                 //BLOOM SEQUENCE
-                                (plant.bloomSequence.length > 0)
+                                (plant.sequenceBloom.length > 0)
                                     ? PlantSequence(
                                         plantID: plant.id,
                                         sequenceData: bloomSequence,
@@ -215,7 +215,7 @@ class PlantScreen extends StatelessWidget {
                                       )
                                     : SizedBox(),
                                 //GROWTH SEQUENCE
-                                (plant.growthSequence.length > 0)
+                                (plant.sequenceGrowth.length > 0)
                                     ? PlantSequence(
                                         plantID: plant.id,
                                         sequenceData: growthSequence,

@@ -140,20 +140,24 @@ class DialogItemPlant extends StatelessWidget {
       buttonText: buttonText,
       onPress: () {
         //this has to be at the top otherwise a focusScope issue arises
-        if (PlantKeys.listDateDayOfYearKeys.contains(buttonKey)) {
+        if (PlantKeys.listDatePickerMultipleKeys.contains(buttonKey)) {
           Navigator.pop(context);
           Type dataType;
-          if (buttonKey == PlantKeys.bloomSequence) {
+          if (buttonKey == PlantKeys.sequenceBloom) {
             dataType = BloomData;
-          } else if (buttonKey == PlantKeys.growthSequence) {
+          } else if (buttonKey == PlantKeys.sequenceGrowth) {
             dataType = GrowthData;
           }
           //set to default to store future data
           Provider.of<AppData>(context).newListInput = [
-            [0, 0],
-            [0, 0],
-            [0, 0],
-            [0, 0]
+//            [0, 0],
+//            [0, 0],
+//            [0, 0],
+//            [0, 0]
+            0,
+            0,
+            0,
+            0,
           ];
           showDialog(
               context: context,

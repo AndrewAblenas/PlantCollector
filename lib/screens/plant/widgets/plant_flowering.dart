@@ -69,10 +69,14 @@ class PlantSequence extends StatelessWidget {
                   onTap: () {
                     //set to default to store future data
                     Provider.of<AppData>(context).newListInput = [
-                      [0, 0],
-                      [0, 0],
-                      [0, 0],
-                      [0, 0]
+//                      [0, 0],
+//                      [0, 0],
+//                      [0, 0],
+//                      [0, 0]
+                      0,
+                      0,
+                      0,
+                      0,
                     ];
                     showDialog(
                         context: context,
@@ -164,12 +168,14 @@ class FullSequence extends StatelessWidget {
   final Widget sequenceRow;
   final Map<String, dynamic> sequenceMap;
   final Type dataType;
+  final String dateText;
   FullSequence({
     @required this.plantID,
     @required this.connectionLibrary,
     @required this.sequenceRow,
     @required this.sequenceMap,
     @required this.dataType,
+    @required this.dateText,
   });
   @override
   Widget build(BuildContext context) {
@@ -217,20 +223,24 @@ class FullSequence extends StatelessWidget {
                     keyList = GrowthKeys.list;
                   }
                   for (String item in keyList) {
-                    Provider.of<AppData>(context).newListInput.add([
-                      UIBuilders.getMonthFromDayOfYear(
-                          dayOfYear: sequenceMap[item]),
-                      UIBuilders.getMonthDayFromDayOfYear(
-                          dayOfYear: sequenceMap[item])
-                    ]);
+                    Provider.of<AppData>(context)
+                        .newListInput
+                        .add(sequenceMap[item]
+//                        [
+//                      UIBuilders.getMonthFromDayOfYear(
+//                          dayOfYear: sequenceMap[item]),
+//                      UIBuilders.getMonthDayFromDayOfYear(
+//                          dayOfYear: sequenceMap[item])
+//                    ]
+                            );
                   }
                 } else {
                   //set to default to store future data
                   Provider.of<AppData>(context).newListInput = [
-                    [0, 0],
-                    [0, 0],
-                    [0, 0],
-                    [0, 0]
+                    0,
+                    0,
+                    0,
+                    0,
                   ];
                 }
                 return SequenceScreen(
@@ -252,11 +262,10 @@ class FullSequence extends StatelessWidget {
                 onPressed: () {
                   String plantKey;
                   if (dataType == BloomData) {
-                    plantKey = PlantKeys.bloomSequence;
+                    plantKey = PlantKeys.sequenceBloom;
                   } else if (dataType == GrowthData) {
-                    plantKey = PlantKeys.growthSequence;
+                    plantKey = PlantKeys.sequenceGrowth;
                   }
-                  print(plantKey);
                   CloudDB.updateDocumentL1Array(
                     collection: DBFolder.plants,
                     document: plantID,
@@ -275,25 +284,38 @@ class FullSequence extends StatelessWidget {
       child: Padding(
         padding:
             EdgeInsets.only(bottom: 0.02 * MediaQuery.of(context).size.width),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.max,
+        child: Column(
           children: <Widget>[
-            Expanded(child: sequenceRow),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.max,
+              children: <Widget>[
+                Expanded(child: sequenceRow),
 //            SizedBox(
 //              height: 0.05 * MediaQuery.of(context).size.width,
 //            ),
-            (connectionLibrary == false)
-                ? Padding(
-                    padding: EdgeInsets.only(left: 8.0),
-                    child: Icon(
-                      Icons.edit,
-                      color: AppTextColor.light,
-                      size:
-                          AppTextSize.small * MediaQuery.of(context).size.width,
-                    ),
-                  )
-                : SizedBox(),
+                (connectionLibrary == false)
+                    ? Padding(
+                        padding: EdgeInsets.only(left: 8.0),
+                        child: Icon(
+                          Icons.edit,
+                          color: AppTextColor.light,
+                          size: AppTextSize.small *
+                              MediaQuery.of(context).size.width,
+                        ),
+                      )
+                    : SizedBox(),
+              ],
+            ),
+            Text(
+              dateText,
+              style: TextStyle(
+                  fontSize:
+                      AppTextSize.tiny * MediaQuery.of(context).size.width,
+                  fontWeight: AppTextWeight.heavy,
+                  color: AppTextColor.medium,
+                  shadows: kShadowText),
+            )
           ],
         ),
       ),
@@ -321,31 +343,30 @@ class SequenceScreen extends StatelessWidget {
     if (dataType == BloomData) {
       keyList = BloomKeys.list;
       dateDescriptors = BloomKeys.descriptors;
-      plantKey = PlantKeys.bloomSequence;
+      plantKey = PlantKeys.sequenceBloom;
     } else if (dataType == GrowthData) {
       keyList = GrowthKeys.list;
       dateDescriptors = GrowthKeys.descriptors;
-      plantKey = PlantKeys.growthSequence;
+      plantKey = PlantKeys.sequenceGrowth;
     }
-    print(sequenceMap);
     return DialogScreenSelect(
       title: 'Sequence',
       items: UIBuilders.generateDateButtons(map: dateDescriptors),
       onAccept: () {
         //get the day of year, add to list
-        List entries = [];
-        for (List entry in Provider.of<AppData>(context).newListInput) {
-          int day = UIBuilders.getDayOfYear(month: entry[0], day: entry[1]);
-          entries.add(day);
-        }
+//        List entries = [];
+//        for (List entry in Provider.of<AppData>(context).newListInput) {
+//          int day = UIBuilders.getDayOfYear(month: entry[0], day: entry[1]);
+//          entries.add(day);
+//        }
+        List data = Provider.of<AppData>(context).newListInput;
 
         //pull the days and add to a map to upload the data
         Map<String, dynamic> valueMap = {};
         for (String item in keyList) {
-          valueMap[item] = entries[keyList.indexOf(item)];
+          valueMap[item] = data[keyList.indexOf(item)];
         }
 
-        print(valueMap);
         //upload new data
         CloudDB.updateDocumentL1Array(
           collection: DBFolder.plants,
@@ -356,19 +377,26 @@ class SequenceScreen extends StatelessWidget {
         );
 
         //TO CHECK EQUALITY OF MAPS
-        int tally = 0;
+        bool changed = false;
         if (sequenceMap != null) {
           List mapValues1 = sequenceMap.values.toList();
           List mapValues2 = valueMap.values.toList();
-          for (int item1 in mapValues1) {
-            //add to tally if they don't match
-            if (mapValues2[mapValues1.indexOf(item1)] != item1) {
-              tally++;
+          //if the length is different, there was clearly a change
+          if (mapValues1.length != mapValues2.length) {
+            changed = true;
+          } else {
+            //if the length is the same, check to see if the values changed
+            for (int item2 in mapValues2) {
+              //add to tally if they don't match
+              if (mapValues1[mapValues2.indexOf(item2)] != item2) {
+                changed = true;
+                break;
+              }
             }
           }
         }
 
-        if (sequenceMap != null && (tally != 0)) {
+        if (sequenceMap != null && (changed == true)) {
           //remove old data
           CloudDB.updateDocumentL1Array(
             collection: DBFolder.plants,
@@ -396,6 +424,7 @@ class SequenceLine extends StatelessWidget {
       {@required this.duration, @required this.gradient, @required this.label});
   @override
   Widget build(BuildContext context) {
+//    int flex = (duration ~/ 86400000);
     return Expanded(
       flex: duration,
       child: Container(

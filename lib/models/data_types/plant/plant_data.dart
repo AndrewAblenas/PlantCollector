@@ -17,7 +17,7 @@ class PlantKeys {
   static const String parentage = 'parentage';
   static const String quantity = 'plantQuantity';
   static const String bloom = 'plantBloom';
-  static const String bloomSequence = 'bloomSequence';
+//  static const String bloomSequence = 'bloomSequence';
   static const String repot = 'plantRepot';
   static const String division = 'plantDivision';
   static const String notes = 'plantNotes';
@@ -40,7 +40,9 @@ class PlantKeys {
   static const String isHousePlant = 'isHousePlant';
   static const String dateAcquired = 'dateAcquired';
   static const String awards = 'awards';
-  static const String growthSequence = 'growthSequence';
+//  static const String growthSequence = 'growthSequence';
+  static const String sequenceBloom = 'sequenceBloom';
+  static const String sequenceGrowth = 'sequenceGrowth';
 
   //VISIBLE LIST
   static const List<String> listVisibleKeys = [
@@ -50,8 +52,10 @@ class PlantKeys {
     hybrid,
     variety,
     parentage,
-    bloomSequence,
-    growthSequence,
+//    bloomSequence,
+//    growthSequence,
+    sequenceBloom,
+    sequenceGrowth,
     repot,
     division,
     water,
@@ -97,9 +101,11 @@ class PlantKeys {
   ];
 
   //SHOW DAY OF YEAR
-  static const List<String> listDateDayOfYearKeys = [
-    bloomSequence,
-    growthSequence,
+  static const List<String> listDatePickerMultipleKeys = [
+//    bloomSequence,
+//    growthSequence,
+    sequenceBloom,
+    sequenceGrowth,
   ];
 
   //DESCRIPTORS
@@ -113,7 +119,7 @@ class PlantKeys {
     parentage: 'Parent Plants',
     quantity: 'Quantity',
     bloom: 'Flowering',
-    bloomSequence: 'Bloom Sequence',
+//    bloomSequence: 'Bloom Sequence',
     repot: 'Last Repot',
     division: 'Last Division',
     notes: 'Notes',
@@ -136,7 +142,9 @@ class PlantKeys {
     isHousePlant: 'Grown Indoors',
     dateAcquired: 'Adoption Date',
     awards: 'Awards',
-    growthSequence: 'Growth Cycle'
+//    growthSequence: 'Growth Cycle'
+    sequenceBloom: 'Bloom Sequence',
+    sequenceGrowth: 'Growth Sequence',
   };
 }
 
@@ -151,7 +159,7 @@ class PlantData {
   final String parentage;
   final String quantity;
   final String bloom;
-  final List<BloomData> bloomSequence;
+//  final List<BloomData> bloomSequence;
   final int repot;
   final int division;
   final String notes;
@@ -174,55 +182,60 @@ class PlantData {
   final bool isHousePlant;
   final int dateAcquired;
   final String awards;
-  final List<GrowthData> growthSequence;
+//  final List<GrowthData> growthSequence;
+  final List<BloomData> sequenceBloom;
+  final List<GrowthData> sequenceGrowth;
 
   //CONSTRUCTOR
-  PlantData(
-      {@required this.id,
-      @required this.name,
-      this.variety,
-      this.species,
-      this.hybrid,
-      this.genus,
-      this.parentage,
-      this.quantity,
-      this.bloom,
-      this.bloomSequence,
-      this.repot,
-      this.division,
-      this.notes,
-      this.thumbnail,
-      this.images,
-      this.imageSets,
-      this.likes,
-      this.owner,
-      this.clones,
-      this.journal,
-      this.water,
-      this.fertilize,
-      this.price,
-      this.update,
-      @required this.created,
-      this.want,
-      this.sell,
-      @required this.isVisible,
-      this.isFlagged,
-      this.isHousePlant,
-      this.dateAcquired,
-      this.awards,
-      this.growthSequence});
+  PlantData({
+    @required this.id,
+    @required this.name,
+    this.variety,
+    this.species,
+    this.hybrid,
+    this.genus,
+    this.parentage,
+    this.quantity,
+    this.bloom,
+//      this.bloomSequence,
+    this.repot,
+    this.division,
+    this.notes,
+    this.thumbnail,
+    this.images,
+    this.imageSets,
+    this.likes,
+    this.owner,
+    this.clones,
+    this.journal,
+    this.water,
+    this.fertilize,
+    this.price,
+    this.update,
+    @required this.created,
+    this.want,
+    this.sell,
+    @required this.isVisible,
+    this.isFlagged,
+    this.isHousePlant,
+    this.dateAcquired,
+    this.awards,
+//      this.growthSequence
+    this.sequenceBloom,
+    this.sequenceGrowth,
+  });
 
   //TO MAP
   Map<String, dynamic> toMap() {
     List<Map> bloomInfo = [];
-    if (bloomSequence != null && bloomSequence.length > 0) {
-      for (BloomData data in bloomSequence) {
+    if (sequenceBloom != null && sequenceBloom.length > 0) {
+      for (BloomData data in sequenceBloom) {
         bloomInfo.add(data.toMap());
       }
     }
     List<Map> growthInfo = [];
-    if (growthSequence != null && growthSequence.length > 0) {
-      for (GrowthData data in growthSequence) {
+    if (sequenceGrowth != null && sequenceGrowth.length > 0) {
+      for (GrowthData data in sequenceGrowth) {
         growthInfo.add(data.toMap());
       }
     }
@@ -242,7 +255,6 @@ class PlantData {
       PlantKeys.parentage: parentage,
       PlantKeys.quantity: quantity,
       PlantKeys.bloom: bloom,
-      PlantKeys.bloomSequence: bloomInfo.toList(),
       PlantKeys.repot: repot,
       PlantKeys.division: division,
       PlantKeys.notes: notes,
@@ -265,7 +277,8 @@ class PlantData {
       PlantKeys.isHousePlant: isHousePlant,
       PlantKeys.dateAcquired: dateAcquired,
       PlantKeys.awards: awards,
-      PlantKeys.growthSequence: growthInfo.toList()
+      PlantKeys.sequenceBloom: bloomInfo.toList(),
+      PlantKeys.sequenceGrowth: growthInfo.toList()
     };
   }
 
@@ -274,15 +287,15 @@ class PlantData {
     if (map != null) {
       //repack bloom data
       List<BloomData> bloomInfo = [];
-      if (map[PlantKeys.bloomSequence] != null) {
-        for (Map data in map[PlantKeys.bloomSequence]) {
+      if (map[PlantKeys.sequenceBloom] != null) {
+        for (Map data in map[PlantKeys.sequenceBloom]) {
           bloomInfo.add(BloomData.fromMap(map: data));
         }
       }
       //repack growth data
       List<GrowthData> growthInfo = [];
-      if (map[PlantKeys.growthSequence] != null) {
-        for (Map data in map[PlantKeys.growthSequence]) {
+      if (map[PlantKeys.sequenceGrowth] != null) {
+        for (Map data in map[PlantKeys.sequenceGrowth]) {
           growthInfo.add(GrowthData.fromMap(map: data));
         }
       }
@@ -303,7 +316,6 @@ class PlantData {
         parentage: DV.isString(value: map[PlantKeys.parentage]),
         quantity: DV.isString(value: map[PlantKeys.quantity]),
         bloom: DV.isString(value: map[PlantKeys.bloom]),
-        bloomSequence: DV.isList(value: bloomInfo.toList()),
         repot: DV.isInt(value: map[PlantKeys.repot]),
         division: DV.isInt(value: map[PlantKeys.division]),
         notes: DV.isString(value: map[PlantKeys.notes]),
@@ -326,7 +338,8 @@ class PlantData {
         isHousePlant: DV.isBool(value: map[PlantKeys.isHousePlant]),
         dateAcquired: DV.isInt(value: map[PlantKeys.dateAcquired]),
         awards: DV.isString(value: map[PlantKeys.awards]),
-        growthSequence: DV.isList(value: growthInfo.toList()),
+        sequenceBloom: DV.isList(value: bloomInfo.toList()),
+        sequenceGrowth: DV.isList(value: growthInfo.toList()),
       );
     } else {
       return PlantData(
