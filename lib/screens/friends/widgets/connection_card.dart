@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
-import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/screens/chat/chat.dart';
@@ -17,10 +16,6 @@ class ConnectionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     //*****SET WIDGET VISIBILITY START*****//
-
-    bool recentUpdate =
-        (AppData.isRecentUpdate(lastUpdate: user.lastPlantUpdate) ||
-            AppData.isRecentUpdate(lastUpdate: user.lastPlantAdd));
 
     //*****SET WIDGET VISIBILITY END*****//
 
@@ -41,13 +36,13 @@ class ConnectionCard extends StatelessWidget {
         buttonRow: <Widget>[
           SizedBox(
               width: AppTextSize.medium * MediaQuery.of(context).size.width),
-          (recentUpdate == true)
-              ? Icon(
-                  Icons.bubble_chart,
-                  size: AppTextSize.large * MediaQuery.of(context).size.width,
-                  color: kGreenMedium,
-                )
-              : SizedBox(),
+//          (recentUpdate == true)
+//              ? Icon(
+//                  Icons.bubble_chart,
+//                  size: AppTextSize.large * MediaQuery.of(context).size.width,
+//                  color: kGreenMedium,
+//                )
+//              : SizedBox(),
           Container(
 //          width: 40 * MediaQuery.of(context).size.width * kScaleFactor,
             child: GestureDetector(

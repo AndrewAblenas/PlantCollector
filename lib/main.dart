@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:plant_collector/models/cloud_db.dart';
+import 'package:plant_collector/models/push_notifications_service.dart';
 import 'package:plant_collector/models/user.dart';
 import 'package:plant_collector/screens/about/reference.dart';
 import 'package:plant_collector/screens/admin/admin.dart';
@@ -25,6 +26,7 @@ import 'package:plant_collector/screens/login/route.dart';
 import 'package:plant_collector/screens/about/about.dart';
 import 'package:plant_collector/screens/login/loading.dart';
 import 'package:plant_collector/formats/colors.dart';
+import 'package:plant_collector/screens/journal/journal.dart';
 
 //main function call to launch app
 void main() {
@@ -43,6 +45,8 @@ void main() {
         ChangeNotifierProvider<CloudDB>(create: (context) => CloudDB()),
 //        ChangeNotifierProvider<UIBuilders>(builder: (context) => UIBuilders()),
         ChangeNotifierProvider<CloudStore>(create: (context) => CloudStore()),
+        ChangeNotifierProvider<PushNotificationService>(
+            create: (context) => PushNotificationService()),
       ],
       child: PlantCollector(),
     ),
@@ -53,6 +57,9 @@ void main() {
 class PlantCollector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    //initialize notifications
+    Provider.of<PushNotificationService>(context).initialize(context: context);
+
     return LocalNotificationWrapper(
       userId: Provider.of<AppData>(context).currentUserInfo != null
           ? Provider.of<AppData>(context).currentUserInfo.id
@@ -103,6 +110,9 @@ class PlantCollector extends StatelessWidget {
           'feedback': (context) => FeedbackScreen(),
           'search': (context) => SearchScreen(),
           'admin': (context) => AdminScreen(),
+          'journal': (context) => JournalScreen(
+                userID: null,
+              ),
         },
       ),
     );

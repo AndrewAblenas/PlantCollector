@@ -310,11 +310,10 @@ class FullSequence extends StatelessWidget {
             Text(
               dateText,
               style: TextStyle(
-                  fontSize:
-                      AppTextSize.tiny * MediaQuery.of(context).size.width,
-                  fontWeight: AppTextWeight.heavy,
-                  color: AppTextColor.medium,
-                  shadows: kShadowText),
+                fontSize: AppTextSize.tiny * MediaQuery.of(context).size.width,
+                fontWeight: AppTextWeight.heavy,
+                color: AppTextColor.medium,
+              ),
             )
           ],
         ),

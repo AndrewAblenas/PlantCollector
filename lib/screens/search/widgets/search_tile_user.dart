@@ -29,22 +29,22 @@ class SearchUserTile extends StatelessWidget {
             bool sameUser = (user.id == currentUser.id);
             bool alreadyFriends = (currentUser.friends.contains(user.id));
             bool requestSent = (currentUser.requestsSent.contains(user.id));
-            bool recentUpdate =
-                (AppData.isRecentUpdate(lastUpdate: user.lastPlantUpdate) ||
-                    AppData.isRecentUpdate(lastUpdate: user.lastPlantAdd));
+//            bool recentUpdate =
+//                (AppData.isRecentUpdate(lastUpdate: user.lastPlantUpdate) ||
+//                    AppData.isRecentUpdate(lastUpdate: user.lastPlantAdd));
             return Row(
               children: <Widget>[
-                (recentUpdate == true)
-                    ? Padding(
-                        padding: EdgeInsets.only(right: 2.0),
-                        child: Icon(
-                          Icons.bubble_chart,
-                          size: AppTextSize.large *
-                              MediaQuery.of(context).size.width,
-                          color: kGreenMedium,
-                        ),
-                      )
-                    : SizedBox(),
+//                (recentUpdate == true)
+//                    ? Padding(
+//                        padding: EdgeInsets.only(right: 2.0),
+//                        child: Icon(
+//                          Icons.bubble_chart,
+//                          size: AppTextSize.large *
+//                              MediaQuery.of(context).size.width,
+//                          color: kGreenMedium,
+//                        ),
+//                      )
+//                    : SizedBox(),
                 (sameUser == false && alreadyFriends == false)
                     ? GestureDetector(
                         onTap: () {
@@ -120,7 +120,9 @@ class SearchUserTile extends StatelessWidget {
                                     //if all good send the request to friend
                                     Provider.of<CloudDB>(context)
                                         .sendConnectionRequest(
-                                            connectionID: user.id);
+                                            connectionID: user.id,
+                                            connectionTokens:
+                                                user.devicePushTokens);
                                     Navigator.pop(context);
                                   },
                                 );

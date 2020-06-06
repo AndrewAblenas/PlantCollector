@@ -19,6 +19,7 @@ import 'package:plant_collector/screens/library/widgets/stat_card.dart';
 import 'package:plant_collector/widgets/container_card.dart';
 import 'package:plant_collector/widgets/container_wrapper.dart';
 import 'package:plant_collector/widgets/tile_white.dart';
+import 'package:plant_collector/widgets/updates_row.dart';
 import 'package:provider/provider.dart';
 
 class ProfileHeader extends StatelessWidget {
@@ -56,9 +57,16 @@ class ProfileHeader extends StatelessWidget {
         );
 
     //check for recent updates to display icon
-    bool recentUpdate =
-        (AppData.isRecentUpdate(lastUpdate: user.lastPlantUpdate) ||
-            AppData.isRecentUpdate(lastUpdate: user.lastPlantAdd));
+//    bool recentUpdate =
+//        (AppData.isRecentUpdate(lastUpdate: user.lastPlantUpdate) ||
+//            AppData.isRecentUpdate(lastUpdate: user.lastPlantAdd));
+    String recentPlantAddText =
+        AppData.lastPlantAdd(lastAdd: user.lastPlantAdd);
+    bool recentPlantAdd = (recentPlantAddText.length != 0);
+
+//    String recentPlantUpdateText =
+//        AppData.lastPlantUpdate(lastUpdate: user.lastPlantUpdate);
+//    bool recentPlantUpdate = (recentPlantUpdateText.length != 0);
 
     //*****SET WIDGET VISIBILITY END*****//
 
@@ -101,36 +109,30 @@ class ProfileHeader extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        Container(
-                          margin: EdgeInsets.only(
-                            right: 5.0,
-                          ),
-                          width: 0.07 * MediaQuery.of(context).size.width,
-                          child:
-                              UIBuilders.getBadge(userTotalPlants: user.plants),
-                        ),
                         Flexible(
                           child: Text(
                             displayName,
+                            textAlign: TextAlign.center,
                             softWrap: true,
                             style: TextStyle(
-                              fontSize: AppTextSize.huge *
+                              fontSize: 1.3 *
+                                  AppTextSize.huge *
                                   MediaQuery.of(context).size.width,
                               fontWeight: AppTextWeight.medium,
                             ),
                           ),
                         ),
-                        (recentUpdate == true)
-                            ? Padding(
-                                padding: EdgeInsets.only(left: 5.0),
-                                child: Icon(
-                                  Icons.bubble_chart,
-                                  size: AppTextSize.large *
-                                      MediaQuery.of(context).size.width,
-                                  color: kGreenMedium,
-                                ),
-                              )
-                            : SizedBox(),
+//                        (recentUpdate == true)
+//                            ? Padding(
+//                                padding: EdgeInsets.only(left: 5.0),
+//                                child: Icon(
+//                                  Icons.bubble_chart,
+//                                  size: AppTextSize.large *
+//                                      MediaQuery.of(context).size.width,
+//                                  color: kGreenMedium,
+//                                ),
+//                              )
+//                            : SizedBox(),
                       ],
                     ),
                     (showUniquePublicID == true)
@@ -173,6 +175,35 @@ class ProfileHeader extends StatelessWidget {
                             ],
                           )
                         : SizedBox(),
+                    Container(
+                      margin: EdgeInsets.only(
+                        right: 5.0,
+                      ),
+                      width: 0.08 * MediaQuery.of(context).size.width,
+                      child: UIBuilders.getBadge(userTotalPlants: user.plants),
+                    ),
+                    //spacer
+                    SizedBox(
+                      height: 5.0,
+                    ),
+                    //show recent new plants
+                    (recentPlantAdd == true)
+                        ? UpdatesRow(
+                            text: recentPlantAddText,
+                            textSize: AppTextSize.medium,
+                            icon: Icons.add_circle_outline,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                          )
+                        : SizedBox(),
+                    //show recent plant updates
+//                    (recentPlantUpdate == true || recentPlantAdd == true)
+//                        ? UpdatesRow(
+//                            text: recentPlantUpdateText,
+//                            textSize: AppTextSize.medium,
+//                            icon: Icons.bubble_chart,
+//                            mainAxisAlignment: MainAxisAlignment.center,
+//                          )
+//                        : SizedBox(),
                   ],
                 ),
               ),

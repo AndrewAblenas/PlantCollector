@@ -4,6 +4,7 @@ import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/cloud_db.dart';
+import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 import 'package:plant_collector/models/data_types/message_data.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/models/message.dart';
@@ -117,7 +118,7 @@ class ChatScreen extends StatelessWidget {
                     width: MediaQuery.of(context).size.width,
                     child: Consumer<QuerySnapshot>(
                       builder: (context, QuerySnapshot messages, _) {
-                        List<Widget> messageList = [];
+                        List<MessageTemplate> messageList = [];
                         List<String> unreadList = [];
                         if (messages != null && messages.documents != null) {
                           for (DocumentSnapshot snap in messages.documents) {
@@ -161,8 +162,29 @@ class ChatScreen extends StatelessWidget {
                               );
                             }
                           }
+                          //then set the document as read if different user
+                          String lastSender =
+                              messages.documents.first.data[MessageKeys.sender];
+                          if (lastSender !=
+                              Provider.of<AppData>(context)
+                                  .currentUserInfo
+                                  .id) {
+                            String document = Provider.of<CloudDB>(context)
+                                .conversationDocumentName(
+                              connectionId: friend.id,
+                            );
+                            CloudDB.setDocumentL1(
+                              collection: DBFolder.conversations,
+                              document: document,
+                              data: {MessageParentKeys.unreadBy: ''},
+                              merge: true,
+                            );
+                            print('Updated Messages to Read');
+                          }
                         }
+                        //if there are unread messages
                         if (unreadList.length >= 1) {
+                          //go through the list and mark each as read
                           for (String reference in unreadList) {
                             CloudDB.readMessage(reference: reference);
                           }
@@ -197,7 +219,7 @@ class ChatScreen extends StatelessWidget {
                 width: MediaQuery.of(context).size.width,
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 5.0),
-                  child: ComposeMessage(),
+                  child: ComposeMessage(friendProfile: friend),
                 ),
               ),
             ],

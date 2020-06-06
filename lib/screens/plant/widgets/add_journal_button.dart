@@ -7,15 +7,18 @@ import 'package:plant_collector/widgets/button_add.dart';
 import 'package:provider/provider.dart';
 
 class AddJournalButton extends StatelessWidget {
-  final String plantID;
-  AddJournalButton({
-    @required this.plantID,
-  });
+  final String documentID;
+  final String collection;
+  final String documentKey;
+  AddJournalButton(
+      {@required this.documentID,
+      @required this.collection,
+      @required this.documentKey});
 
   @override
   Widget build(BuildContext context) {
     return ButtonAdd(
-        buttonText: 'New Entry',
+        buttonText: 'Add New Entry',
         icon: Icons.edit,
         onPress: () {
           //open an input screen
@@ -50,8 +53,12 @@ class AddJournalButton extends StatelessWidget {
                                       Provider.of<AppData>(context)
                                           .newDataInput;
                                   //upload data to plant journal
-                                  CloudDB.journalEntryCreate(
-                                      entry: data, plantID: plantID);
+                                  CloudDB.updateDocumentL1Array(
+                                      collection: collection,
+                                      document: documentID,
+                                      key: documentKey,
+                                      entries: [data],
+                                      action: true);
                                   Navigator.pop(context);
                                 },
                                 onChange: (input) {

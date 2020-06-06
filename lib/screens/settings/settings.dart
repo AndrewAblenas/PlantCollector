@@ -125,8 +125,14 @@ class SettingsScreen extends StatelessWidget {
                       Provider.of<UserAuth>(context).signOutUser();
                       Provider.of<UserAuth>(context).signedInUser = null;
                       Provider.of<AppData>(context).clearAppData();
+                      //exit the app
+                      Navigator.pop(context);
                       Navigator.pop(context);
                       Navigator.pushNamed(context, 'login');
+                      //pop screen settings
+//                      Navigator.pop(context);
+                      //pop library screen
+//                      Navigator.pushNamed(context, 'login');
                     }),
               ],
             ),

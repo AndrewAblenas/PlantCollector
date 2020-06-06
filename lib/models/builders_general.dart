@@ -1,5 +1,7 @@
+import 'package:expandable/expandable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:plant_collector/screens/journal/journal.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
@@ -21,6 +23,7 @@ import 'package:plant_collector/screens/plant/widgets/journal_tile.dart';
 import 'package:plant_collector/screens/plant/widgets/plant_flowering.dart';
 import 'package:plant_collector/screens/plant/widgets/plant_photo_default.dart';
 import 'package:plant_collector/screens/search/widgets/search_tile_plant.dart';
+import 'package:plant_collector/widgets/container_wrapper.dart';
 import 'package:plant_collector/widgets/dialogs/color_picker/button_color.dart';
 import 'package:plant_collector/widgets/dialogs/select/dialog_functions.dart';
 import 'package:plant_collector/screens/account/widgets/settings_card.dart';
@@ -28,6 +31,7 @@ import 'package:plant_collector/widgets/button_add.dart';
 import 'package:plant_collector/screens/plant/widgets/plant_info_card.dart';
 import 'package:plant_collector/screens/plant/widgets/plant_photo.dart';
 import 'package:date_format/date_format.dart';
+import 'package:plant_collector/widgets/info_tip.dart';
 import 'package:plant_collector/widgets/section_header.dart';
 import 'package:plant_collector/widgets/tile_white.dart';
 
@@ -182,6 +186,7 @@ class UIBuilders extends ChangeNotifier {
           collectionList.add(
             CollectionCard(
               connectionLibrary: connectionLibrary,
+              sortPlants: user.sortPlantsAlphabetically,
               defaultView: defaultView,
               collection: collection,
 //      collectionPlantTotal: collectionPlantTotal,
@@ -552,7 +557,7 @@ class UIBuilders extends ChangeNotifier {
 
   static Column displayJournalTiles(
       {@required List journals,
-      @required String plantID,
+      @required String documentID,
       @required bool connectionLibrary}) {
     //initialize blank list of widgets
     List<Widget> journalEntries = [];
@@ -575,9 +580,12 @@ class UIBuilders extends ChangeNotifier {
       journalEntries.add(
         JournalTile(
           journal: entryBuild,
+          connectionLibrary: connectionLibrary,
           showDate: true,
           showEdit: showEdit,
-          plantID: plantID,
+          documentID: documentID,
+          collection: DBFolder.plants,
+          journalKey: PlantKeys.journal,
           //to prevent a copy of journal data from being passed to each widget if no edit
           journalList: showEdit == true ? journals : null,
         ),
@@ -585,7 +593,10 @@ class UIBuilders extends ChangeNotifier {
     }
     //now include the add button only for user library
     journalEntries.add((connectionLibrary == false)
-        ? AddJournalButton(plantID: plantID)
+        ? AddJournalButton(
+            documentID: documentID,
+            collection: DBFolder.plants,
+            documentKey: PlantKeys.journal)
         : SizedBox());
     //add the header for all
     journalEntries.add(SectionHeader(
@@ -596,6 +607,277 @@ class UIBuilders extends ChangeNotifier {
     return Column(
       //reverse the entries so most recent is first
       children: journalEntries.reversed.toList(),
+    );
+  }
+
+  static Column displayActivityJournalTiles(
+      {@required List journals,
+      @required String documentID,
+      @required bool connectionLibrary,
+      int limit,
+      @required BuildContext context}) {
+    //reverse journals
+    List journalsReversed = journals.reversed.toList();
+
+    //initialize blank list of widgets
+    List<Widget> journalWidgets = [SizedBox()];
+
+    //provide the add button
+    if (connectionLibrary == false) {
+      journalWidgets.add(
+        AddJournalButton(
+            documentID: documentID,
+            collection: DBFolder.users,
+            documentKey: UserKeys.journal),
+      );
+    }
+
+    if (limit != null) {
+      //get min journal length if less than limit
+      int journalCount = journalsReversed.length;
+      int displayLimit = (limit > journalCount) ? journalCount : limit;
+
+      if (journalCount == 0) {
+        if (connectionLibrary == false) {
+          journalWidgets.add(InfoTip(
+            text:
+                'The Activity Journal is where you can summarize your general plant care.  '
+                '\n\nMaybe you checked all your plants for pests today, or divided all your orchids?  '
+                'This is where you can keep track.  '
+                '\n\nAdd a new entry or just update the text in your existing entries with notes/reminders.  ',
+            onPress: null,
+            showAlways: true,
+          ));
+        } else {
+          journalWidgets.add(
+            TileWhite(
+              child: Text(
+                'No Entries Yet',
+                style: TextStyle(
+                  fontSize:
+                      AppTextSize.medium * MediaQuery.of(context).size.width,
+                  color: AppTextColor.black,
+                  fontWeight: AppTextWeight.medium,
+                ),
+              ),
+            ),
+          );
+        }
+      } else {
+        //now generate entry for each journal up to display limit
+        for (int i = 1; i <= displayLimit; i++) {
+          //create entry
+          JournalData entryBuild =
+              JournalData.fromMap(map: journalsReversed[i - 1]);
+
+          //add the journal entry
+          journalWidgets.add(
+            JournalTile(
+              journal: entryBuild,
+              connectionLibrary: connectionLibrary,
+              showDate: true,
+              showEdit: true,
+              documentID: documentID,
+              collection: DBFolder.users,
+              journalKey: UserKeys.journal,
+              //to prevent a copy of journal data from being passed to each widget if no edit
+              journalList: journals,
+            ),
+          );
+        }
+
+        //now if the display limit is less than total journal count add button
+        //this will navigate to full view page
+        if (displayLimit < journalCount) {
+          Widget seeMore = GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => JournalScreen(
+                    connectionLibrary: connectionLibrary,
+                    userID: documentID,
+                  ),
+                ),
+              );
+            },
+            child: TileWhite(
+              bottomPadding: 0.02 * MediaQuery.of(context).size.width,
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 20.0,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text(
+                      'See all Entries',
+                      style: TextStyle(
+                        fontSize: AppTextSize.medium *
+                            MediaQuery.of(context).size.width,
+                        color: AppTextColor.black,
+                        fontWeight: AppTextWeight.medium,
+                      ),
+                    ),
+                    SizedBox(
+                      width: 10.0,
+                    ),
+                    Icon(
+                      Icons.arrow_forward,
+                      size: AppTextSize.medium *
+                          MediaQuery.of(context).size.width,
+                      color: AppTextColor.dark,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+          journalWidgets.add(seeMore);
+        }
+      }
+    } else {
+      //initialize
+      List<List> entriesByMonth = [
+//        [
+//          JournalTile(
+//              journal: JournalData(
+//                  id: 'testing',
+//                  date: '1583971200',
+//                  title: 'Test',
+//                  entry: 'null'),
+//              showDate: true,
+//              showEdit: true,
+//              connectionLibrary: connectionLibrary,
+//              documentID: documentID,
+//              collection: DBFolder.users,
+//              journalList: journals,
+//              journalKey: UserKeys.journal)
+//        ]
+      ];
+      List<JournalTile> widgetsInMonth = [];
+
+      //current label
+      String monthYear = '';
+
+      for (Map entry in journalsReversed) {
+        //build the entry object
+        JournalData entryBuild = JournalData.fromMap(map: entry);
+        //get the month
+        int month =
+            DateTime.fromMillisecondsSinceEpoch(int.parse(entryBuild.date))
+                .month;
+        //get year
+        int year =
+            DateTime.fromMillisecondsSinceEpoch(int.parse(entryBuild.date))
+                .year;
+        //combine
+        String combined =
+            DatesCustom.monthAbbreviations[month] + ' ' + year.toString();
+
+        //for first run set the month if blank
+        if (monthYear == '') monthYear = combined;
+
+        //check for change
+        if (combined != monthYear) {
+          //if it's a new month add the previous month list
+          entriesByMonth.add(widgetsInMonth);
+        }
+
+        //now go on and add journal to current month
+        widgetsInMonth.add(
+          JournalTile(
+            journal: entryBuild,
+            connectionLibrary: connectionLibrary,
+            showDate: true,
+            showEdit: !connectionLibrary,
+            documentID: documentID,
+            collection: DBFolder.users,
+            journalKey: UserKeys.journal,
+            //to prevent a copy of journal data from being passed to each widget if no edit
+            journalList: journals,
+          ),
+        );
+
+        //then update the month
+        monthYear = combined;
+      }
+
+      //this is to trigger the push (as there will be no change in month)
+      entriesByMonth.add(widgetsInMonth);
+
+      for (List<JournalTile> item in entriesByMonth) {
+        //get the date
+        String dateMS = item[0].journal.date;
+        String dateText = formatDate(
+            DateTime.fromMillisecondsSinceEpoch(int.parse(dateMS)),
+            [MM, ' ', yyyy]);
+
+        //create widget to previous entries
+        Widget monthWidget = ContainerWrapper(
+          marginVertical: 2.0,
+          child: ExpandableNotifier(
+            initialExpanded: false,
+            child: Column(
+              children: <Widget>[
+                Expandable(
+                  collapsed: Column(
+                    children: <Widget>[
+                      ExpandableButton(
+                        child: SectionHeader(
+                          title: dateText,
+                          leading: Padding(
+                            padding: EdgeInsets.only(right: 10.0),
+                            child: Icon(
+                              Icons.keyboard_arrow_down,
+                              size: AppTextSize.large *
+                                  MediaQuery.of(context).size.width,
+                              color: AppTextColor.dark,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 4.0,
+                      ),
+                    ],
+                  ),
+                  expanded: Column(
+                    children: <Widget>[
+                      ExpandableButton(
+                        child: SectionHeader(
+                          title: dateText,
+                          leading: Padding(
+                            padding: EdgeInsets.only(right: 10.0),
+                            child: Icon(
+                              Icons.keyboard_arrow_up,
+                              size: AppTextSize.large *
+                                  MediaQuery.of(context).size.width,
+                              color: AppTextColor.dark,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Column(
+                        children: item,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+
+        //now add to the list
+        journalWidgets.add(monthWidget);
+      }
+    }
+
+    //return the entries in a column
+    return Column(
+      children: journalWidgets,
     );
   }
 

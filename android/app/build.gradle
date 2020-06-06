@@ -74,6 +74,11 @@ flutter {
 }
 
 dependencies {
+    //added for push messaging integration
+//    classpath 'com.google.gms:google-services:4.3.2'
+    //the above is in the android level gradle
+    implementation 'com.google.firebase:firebase-messaging:20.2.0'
+
     testImplementation 'junit:junit:4.12'
     //this was 1.0.2
     androidTestImplementation 'com.android.support.test:runner:1.2.0'

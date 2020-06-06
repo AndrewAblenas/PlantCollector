@@ -4,10 +4,19 @@ import 'package:plant_collector/formats/text.dart';
 //COLOURS
 
 //Greens
-const Color kGreenDark = Color(0xFF207561);
+const Color kGreenDark = Color(0xFF1b614b);
+const Color test = Color(0xFF207561);
+//0xFF207561 original
+//0xFF20755a less blue
+//0xFF1b614b less blue and darker
+//0xFF207553 much less blue
+//0xFF1b6145 much less blue and darker
 const Color kGreenMedium = Color(0xFF589167);
 const Color kGreenMediumOpacity = Color(0x99589167);
-const Color kGreenLight = Color(0xFFA0cc78);
+const Color kGreenLight = Color(0xFF92cc78);
+//0xFFA0cc78 original
+//0xFF99cc78 less muddy
+//0xFF92cc78 much less muddy
 const Color kGreyDark = Color(0xFF222222);
 const Color kGrey = Color(0xFF555555);
 const Color kLight = Color(0xFFDDDDDD);

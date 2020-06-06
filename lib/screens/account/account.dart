@@ -254,6 +254,28 @@ class AccountScreen extends StatelessWidget {
                                   Provider.of<CloudDB>(context)
                                       .updateUserDocument(
                                     data: AppData.updatePairFull(
+                                      key: UserKeys.sortPlantsAlphabetically,
+                                      value: (user.sortPlantsAlphabetically ==
+                                          false),
+                                    ),
+                                  );
+                                  Navigator.pop(context);
+                                },
+                                onPress: null,
+                                cardLabel:
+                                    'Display ${GlobalStrings.plants} Alphabetically',
+                                dialogText:
+                                    'Change this setting based on Plant nickname?',
+                                cardText: user.sortPlantsAlphabetically == true
+                                    ? 'Yes'
+                                    : 'No'),
+                            SettingsCard(
+                                confirmDialog: true,
+                                onSubmit: () {
+                                  //update settings
+                                  Provider.of<CloudDB>(context)
+                                      .updateUserDocument(
+                                    data: AppData.updatePairFull(
                                       key: UserKeys.sortAlphabetically,
                                       value: (user.sortAlphabetically == false),
                                     ),

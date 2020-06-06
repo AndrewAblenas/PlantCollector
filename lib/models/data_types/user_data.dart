@@ -46,12 +46,16 @@ class UserKeys {
   static const String chats = 'userChats';
   static const String privateLibrary = 'privateLibrary';
   static const String sortAlphabetically = 'sortCollectionsAlphabetically';
+  static const String sortPlantsAlphabetically = 'sortPlantsAlphabetically';
   static const String uniquePublicID = 'uniquePublicID';
   static const String lastPlantAdd = 'lastPlantAdd';
   static const String lastPlantUpdate = 'lastPlantUpdate';
+  static const String lastActive = 'lastActive';
   static const String showWishList = 'showWishList';
   static const String showSellList = 'showSellList';
   static const String link = 'link';
+  static const String devicePushTokens = 'devicePushTokens';
+  static const String journal = 'journal';
   //local only
   static const String chatStarted = 'chatStarted';
 
@@ -81,14 +85,18 @@ class UserKeys {
     chats: 'Friend Chats',
     privateLibrary: 'Only Allow Friends to View Library',
     sortAlphabetically: 'Display Shelves Alphabetically',
+    sortPlantsAlphabetically: 'Display Plants Alphabetically',
     uniquePublicID: 'Unique Public User Handle',
     lastPlantAdd: 'Date of Last Plant Added',
     lastPlantUpdate: 'Date of Last Plant Update',
+    lastActive: 'Date of User Last Activity',
     showWishList: 'Show Wishlist',
     showSellList: 'Show Sell List',
     link: 'Link or Website',
+    devicePushTokens: 'Unique Device IDs to Push Notifications',
     //local only
     chatStarted: 'Chat Started',
+    journal: 'Plant Journal'
   };
 }
 
@@ -119,51 +127,59 @@ class UserData {
   final List chats;
   final bool privateLibrary;
   final bool sortAlphabetically;
+  final bool sortPlantsAlphabetically;
   final String uniquePublicID;
   final int lastPlantAdd;
   final int lastPlantUpdate;
+  final int lastActive;
   final bool showWishList;
   final bool showSellList;
   final String link;
+  final List devicePushTokens;
+  final List journal;
 
   //local only
 //  final bool chatStarted;
 
   //CONSTRUCTOR
-  UserData({
-    @required this.id,
-    @required this.email,
-    this.name,
-    this.type,
-    this.join,
-    this.about,
-    this.region,
-    this.avatar,
-    this.background,
-    this.plants,
-    this.collections,
-    this.groups,
-    this.photos,
-    this.likedPlants,
-    this.blocked,
-    this.expandGroup,
-    this.expandCollection,
-    this.tags,
-    this.friends,
-    this.requestsSent,
-    this.requestsReceived,
-    this.chats,
-    this.privateLibrary,
-    this.sortAlphabetically,
-    this.uniquePublicID,
-    this.lastPlantAdd,
-    this.lastPlantUpdate,
-    this.showWishList,
-    this.showSellList,
-    this.link,
-    //local only
+  UserData(
+      {@required this.id,
+      @required this.email,
+      this.name,
+      this.type,
+      this.join,
+      this.about,
+      this.region,
+      this.avatar,
+      this.background,
+      this.plants,
+      this.collections,
+      this.groups,
+      this.photos,
+      this.likedPlants,
+      this.blocked,
+      this.expandGroup,
+      this.expandCollection,
+      this.tags,
+      this.friends,
+      this.requestsSent,
+      this.requestsReceived,
+      this.chats,
+      this.privateLibrary,
+      this.sortAlphabetically,
+      this.sortPlantsAlphabetically,
+      this.uniquePublicID,
+      this.lastPlantAdd,
+      this.lastPlantUpdate,
+      this.lastActive,
+      this.showWishList,
+      this.showSellList,
+      this.link,
+      this.devicePushTokens,
+      this.journal
+      //local only
 //    this.chatStarted,
-  });
+      });
 
   //TO MAP
   Map<String, dynamic> toMap() {
@@ -192,12 +208,16 @@ class UserData {
       UserKeys.chats: chats,
       UserKeys.privateLibrary: privateLibrary,
       UserKeys.sortAlphabetically: sortAlphabetically,
+      UserKeys.sortPlantsAlphabetically: sortPlantsAlphabetically,
       UserKeys.uniquePublicID: uniquePublicID,
       UserKeys.lastPlantAdd: lastPlantAdd,
       UserKeys.lastPlantUpdate: lastPlantUpdate,
+      UserKeys.lastActive: lastActive,
       UserKeys.showWishList: showWishList,
       UserKeys.showSellList: showSellList,
       UserKeys.link: link,
+      UserKeys.devicePushTokens: devicePushTokens,
+      UserKeys.journal: journal
       //local only
 //      UserKeys.chatStarted: chatStarted,
     };
@@ -205,42 +225,52 @@ class UserData {
 
   //FROM MAP
   static UserData fromMap({@required Map map}) {
-    return UserData(
-      id: DV.isString(value: map[UserKeys.id]),
-      email: DV.isString(value: map[UserKeys.email]),
-      name: DV.isString(value: map[UserKeys.name]),
-      type:
-          DV.isString(value: map[UserKeys.type], fallback: UserTypes.standard),
-      join: DV.isInt(value: map[UserKeys.join]),
-      about: DV.isString(value: map[UserKeys.about]),
-      region: DV.isString(value: map[UserKeys.region], fallback: 'Earth'),
-      avatar: DV.isString(value: map[UserKeys.avatar]),
-      background: DV.isString(value: map[UserKeys.background]),
-      plants: DV.isInt(value: map[UserKeys.plants]),
-      collections: DV.isInt(value: map[UserKeys.collections]),
-      groups: DV.isInt(value: map[UserKeys.groups]),
-      photos: DV.isInt(value: map[UserKeys.photos]),
-      likedPlants: DV.isList(value: map[UserKeys.likedPlants]),
-      blocked: DV.isList(value: map[UserKeys.blocked]),
-      expandGroup: DV.isBool(value: map[UserKeys.expandGroup], fallback: true),
-      expandCollection:
-          DV.isBool(value: map[UserKeys.expandCollection], fallback: true),
-      tags: DV.isList(value: map[UserKeys.tags]),
-      friends: DV.isList(value: map[UserKeys.friends]),
-      requestsSent: DV.isList(value: map[UserKeys.requestsSent]),
-      requestsReceived: DV.isList(value: map[UserKeys.requestsReceived]),
-      chats: DV.isList(value: map[UserKeys.chats]),
-      privateLibrary: DV.isBool(value: map[UserKeys.privateLibrary]),
-      sortAlphabetically: DV.isBool(value: map[UserKeys.sortAlphabetically]),
-      uniquePublicID: DV.isString(value: map[UserKeys.uniquePublicID]),
-      lastPlantAdd: DV.isInt(value: map[UserKeys.lastPlantAdd]),
-      lastPlantUpdate: DV.isInt(value: map[UserKeys.lastPlantUpdate]),
-      showWishList:
-          DV.isBool(value: map[UserKeys.showWishList], fallback: true),
-      showSellList: DV.isBool(value: map[UserKeys.showSellList]),
-      link: DV.isString(value: map[UserKeys.link]),
-      //local only
+    if (map != null) {
+      return UserData(
+        id: DV.isString(value: map[UserKeys.id]),
+        email: DV.isString(value: map[UserKeys.email]),
+        name: DV.isString(value: map[UserKeys.name]),
+        type: DV.isString(
+            value: map[UserKeys.type], fallback: UserTypes.standard),
+        join: DV.isInt(value: map[UserKeys.join]),
+        about: DV.isString(value: map[UserKeys.about]),
+        region: DV.isString(value: map[UserKeys.region], fallback: 'Earth'),
+        avatar: DV.isString(value: map[UserKeys.avatar]),
+        background: DV.isString(value: map[UserKeys.background]),
+        plants: DV.isInt(value: map[UserKeys.plants]),
+        collections: DV.isInt(value: map[UserKeys.collections]),
+        groups: DV.isInt(value: map[UserKeys.groups]),
+        photos: DV.isInt(value: map[UserKeys.photos]),
+        likedPlants: DV.isList(value: map[UserKeys.likedPlants]),
+        blocked: DV.isList(value: map[UserKeys.blocked]),
+        expandGroup:
+            DV.isBool(value: map[UserKeys.expandGroup], fallback: true),
+        expandCollection:
+            DV.isBool(value: map[UserKeys.expandCollection], fallback: true),
+        tags: DV.isList(value: map[UserKeys.tags]),
+        friends: DV.isList(value: map[UserKeys.friends]),
+        requestsSent: DV.isList(value: map[UserKeys.requestsSent]),
+        requestsReceived: DV.isList(value: map[UserKeys.requestsReceived]),
+        chats: DV.isList(value: map[UserKeys.chats]),
+        privateLibrary: DV.isBool(value: map[UserKeys.privateLibrary]),
+        sortAlphabetically: DV.isBool(value: map[UserKeys.sortAlphabetically]),
+        sortPlantsAlphabetically:
+            DV.isBool(value: map[UserKeys.sortPlantsAlphabetically]),
+        uniquePublicID: DV.isString(value: map[UserKeys.uniquePublicID]),
+        lastPlantAdd: DV.isInt(value: map[UserKeys.lastPlantAdd]),
+        lastPlantUpdate: DV.isInt(value: map[UserKeys.lastPlantUpdate]),
+        lastActive: DV.isInt(value: map[UserKeys.lastActive]),
+        showWishList:
+            DV.isBool(value: map[UserKeys.showWishList], fallback: true),
+        showSellList: DV.isBool(value: map[UserKeys.showSellList]),
+        link: DV.isString(value: map[UserKeys.link]),
+        devicePushTokens: DV.isList(value: map[UserKeys.devicePushTokens]),
+        journal: DV.isList(value: map[UserKeys.journal]),
+        //local only
 //      chatStarted: map[UserKeys.chatStarted] ?? false,
-    );
+      );
+    } else {
+      return UserData(id: null, email: null);
+    }
   }
 }

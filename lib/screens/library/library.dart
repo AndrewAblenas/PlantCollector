@@ -8,6 +8,7 @@ import 'package:plant_collector/models/data_types/communication_data.dart';
 import 'package:plant_collector/models/data_types/plant/plant_data.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/models/global.dart';
+import 'package:plant_collector/models/push_notifications_service.dart';
 import 'package:plant_collector/models/user.dart';
 import 'package:plant_collector/screens/dialog/dialog_screen_input.dart';
 import 'package:plant_collector/screens/library/widgets/announcements.dart';
@@ -18,6 +19,7 @@ import 'package:plant_collector/widgets/button_add.dart';
 import 'package:plant_collector/screens/library/widgets/profile_header.dart';
 import 'package:plant_collector/widgets/container_wrapper.dart';
 import 'package:plant_collector/widgets/info_tip.dart';
+import 'package:plant_collector/widgets/section_header.dart';
 import 'package:provider/provider.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/builders_general.dart';
@@ -40,6 +42,13 @@ class LibraryScreen extends StatelessWidget {
       Provider.of<CloudDB>(context).setUserFolder(userID: userID);
       Provider.of<CloudStore>(context).setUserFolder(userID: userID);
       Provider.of<AppData>(context).showTipsHelpers();
+      //user this time to set last user activity
+      Map<String, dynamic> timestamp = {
+        UserKeys.lastActive: DateTime.now().millisecondsSinceEpoch
+      };
+      CloudDB.updateDocumentL1(
+          collection: DBFolder.users, document: userID, data: timestamp);
+      //initialize firebase messaging push functions
     } else {
       //make friend ID available to CloudDB and CloudStore instances to display friend library
 //      Provider.of<CloudDB>(context).setConnectionFolder(connectionID: userID);
@@ -141,16 +150,54 @@ class LibraryScreen extends StatelessWidget {
                   if (user != null) {
                     //there was an issue where only currentUserInfo existed
                     //this meant it the file was saved over when visiting a connection library!
-                    connectionLibrary == false
-                        ? Provider.of<AppData>(context).currentUserInfo = user
-                        : Provider.of<AppData>(context).connectionUserInfo =
-                            user;
+                    if (connectionLibrary == false) {
+                      //save the logged in user data
+                      Provider.of<AppData>(context).currentUserInfo = user;
+
+                      //take this time to make sure the device is registered
+                      //get the token
+                      Provider.of<PushNotificationService>(context)
+                          .getDevicePushToken()
+                          .then((token) {
+                        //check to see if the device token is missing from the list
+                        if (!user.devicePushTokens.contains(token)) {
+                          //if missing add it to the user profile
+                          Provider.of<CloudDB>(context).updateUserArray(
+                              action: true,
+                              entries: [token],
+                              arrayKey: UserKeys.devicePushTokens);
+                        }
+                      });
+                    } else {
+                      //save the friend data
+                      Provider.of<AppData>(context).connectionUserInfo = user;
+                    }
                     return Column(
                       children: <Widget>[
                         ProfileHeader(
                           connectionLibrary: connectionLibrary,
                           user: user,
                         ),
+                        (connectionLibrary != false)
+                            ? SizedBox()
+                            : ContainerWrapper(
+                                child: Column(
+                                  children: <Widget>[
+                                    SectionHeader(title: 'Activity Journal'),
+                                    Column(
+                                      children: <Widget>[
+                                        UIBuilders.displayActivityJournalTiles(
+                                            connectionLibrary:
+                                                connectionLibrary,
+                                            journals: user.journal,
+                                            documentID: user.id,
+                                            limit: 3,
+                                            context: context)
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
                         ContainerWrapper(
                           turnOffShadow: true,
                           child: Column(

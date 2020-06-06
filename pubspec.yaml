@@ -3,7 +3,7 @@ description: Create a digital collection of all your plants
 # Always remember to update the version number
 # 2020-05-04
 # TODO version number, and version code
-version: 1.4.0+8
+version: 1.5.0+9
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
@@ -42,6 +42,7 @@ dependencies:
 #  flutter_material_color_picker: ^1.0.5
 #  reorderables: ^0.2.12
   share: ^0.6.3+1
+  firebase_messaging: ^6.0.16
   flutter_local_notifications: ^0.8.4+3
   url_launcher: ^5.2.7
 

@@ -274,15 +274,22 @@ class AppData extends ChangeNotifier {
   //*****************PLANT METHODS*****************
 
   //METHOD TO CREATE NEW PLANT
-  Map plantNew({@required String collectionID}) {
-    String newPlantID = generateID(prefix: 'plant_');
+  Map plantNew({@required String collectionID, @required String newPlantID}) {
     Map<String, dynamic> plant = PlantData(
+      //assign an id (essential)
       id: newPlantID,
+      //name is not essential but a good starting point
       name: newDataInput,
+      //assign owner (essential)
       owner: currentUserInfo.id,
+      //assign creation date
       created: DateTime.now().millisecondsSinceEpoch,
+      //set visibility to false, this is set to true depending on user settings
+      //and if a thumbnail has been generated and assigned
       isVisible: false,
+      //is the plant in a wish list?
       want: (collectionID == DBDefaultDocument.wishList) ? true : false,
+      //is the plant in a sell list?
       sell: (collectionID == DBDefaultDocument.sellList) ? true : false,
     ).toMap();
     return plant;
@@ -306,9 +313,15 @@ class AppData extends ChangeNotifier {
       {@required String text,
       @required String type,
       @required String media,
-      @required senderID}) {
+      @required senderID,
+      @required senderName,
+      @required targetDevices,
+      @required recipient}) {
     return MessageData(
         sender: senderID,
+        senderName: senderName,
+        targetDevices: targetDevices,
+        recipient: recipient,
         time: DateTime.now().millisecondsSinceEpoch,
         text: text,
         read: false,
@@ -462,6 +475,12 @@ class AppData extends ChangeNotifier {
         [yyyy, '-', mm, '-', dd]);
   }
 
+  //update times
+  static bool isRecent({@required int dateMS}) {
+    //consider recent update if less than three days old
+    return DateTime.now().millisecondsSinceEpoch - dateMS <= 86400000 * 7;
+  }
+
   static bool isNew({@required String idWithTime}) {
     List split = idWithTime.split('_');
     int time = int.parse(split[1]);
@@ -469,9 +488,70 @@ class AppData extends ChangeNotifier {
     return DateTime.now().millisecondsSinceEpoch - time <= 86400000 * 3;
   }
 
+  //update times
   static bool isRecentUpdate({@required int lastUpdate}) {
     //consider recent update if less than three days old
     return DateTime.now().millisecondsSinceEpoch - lastUpdate <= 86400000 * 3;
+  }
+
+  //get text for last plant add
+  static String lastPlantAdd({@required int lastAdd}) {
+    String text = 'New Plants Added ';
+    if (DateTime.now().millisecondsSinceEpoch - lastAdd <= 86400000 * 1) {
+      text = text + 'Today';
+    } else if (DateTime.now().millisecondsSinceEpoch - lastAdd <=
+        86400000 * 2) {
+      text = text + 'Yesterday';
+    } else if (DateTime.now().millisecondsSinceEpoch - lastAdd <=
+        86400000 * 7) {
+      text = text + 'This Week';
+    } else if (DateTime.now().millisecondsSinceEpoch - lastAdd <=
+        86400000 * 14) {
+      text = text + 'Last Week';
+    } else {
+      text = '';
+    }
+    //return
+    return text;
+  }
+
+  //get text for plant tile bubble
+  static String plantTileText({@required int creationDate}) {
+    String text = '';
+    if (DateTime.now().millisecondsSinceEpoch - creationDate <= 86400000 * 1) {
+      text = text + 'Today';
+    } else if (DateTime.now().millisecondsSinceEpoch - creationDate <=
+        86400000 * 2) {
+      text = text + 'Yesterday';
+    } else if (DateTime.now().millisecondsSinceEpoch - creationDate <=
+        86400000 * 7) {
+      text = text + 'This Week';
+    } else {
+      text = '';
+    }
+    //return
+    return text;
+  }
+
+  //get text for last plant update
+  static String lastPlantUpdate({@required int lastUpdate}) {
+    String text = 'Updates ';
+    if (DateTime.now().millisecondsSinceEpoch - lastUpdate <= 86400000 * 1) {
+      text = text + 'Today';
+    } else if (DateTime.now().millisecondsSinceEpoch - lastUpdate <=
+        86400000 * 2) {
+      text = text + 'Yesterday';
+    } else if (DateTime.now().millisecondsSinceEpoch - lastUpdate <=
+        86400000 * 7) {
+      text = text + 'This Week';
+    } else if (DateTime.now().millisecondsSinceEpoch - lastUpdate <=
+        86400000 * 14) {
+      text = text + 'Last Week';
+    } else {
+      text = '';
+    }
+    //return
+    return text;
   }
 
   //get days and make list

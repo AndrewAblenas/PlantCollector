@@ -15,6 +15,8 @@ class DBFolder {
   static const String users = 'users';
   static const String announcements = 'announcements';
   static const String communications = 'communications';
+  static const String conversations = 'conversations';
+  static const String messages = 'messages';
 }
 
 //STORAGE PATHS

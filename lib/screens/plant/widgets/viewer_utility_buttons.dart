@@ -176,18 +176,25 @@ class ViewerUtilityButtons extends StatelessWidget {
                                                                 connectionId:
                                                                     friend);
                                                         //create message
-                                                        MessageData message =
-                                                            AppData.createMessage(
-                                                                senderID: Provider.of<
-                                                                            AppData>(
+                                                        MessageData message = AppData.createMessage(
+                                                            senderID: Provider.of<
+                                                                        AppData>(
+                                                                    context)
+                                                                .currentUserInfo
+                                                                .id,
+                                                            senderName: Provider
+                                                                    .of<AppData>(
                                                                         context)
-                                                                    .currentUserInfo
-                                                                    .id,
-                                                                text: '',
-                                                                type: MessageKeys
-                                                                    .typePlant,
-                                                                media:
-                                                                    plant.id);
+                                                                .currentUserInfo
+                                                                .name,
+                                                            targetDevices: profile
+                                                                .devicePushTokens,
+                                                            recipient:
+                                                                profile.id,
+                                                            text: '',
+                                                            type: MessageKeys
+                                                                .typePlant,
+                                                            media: plant.id);
                                                         CloudDB.sendMessage(
                                                             message: message,
                                                             document: document);

@@ -8,6 +8,7 @@ import 'package:plant_collector/models/builders_general.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/screens/library/library.dart';
 import 'package:plant_collector/widgets/container_wrapper.dart';
+import 'package:plant_collector/widgets/updates_row.dart';
 import 'package:provider/provider.dart';
 
 //SEARCH TILE
@@ -23,6 +24,14 @@ class UserTile extends StatelessWidget {
     bool showUniquePublicID = (user != null &&
         user.uniquePublicID != '' &&
         user.uniquePublicID != 'not set');
+
+    String recentPlantAddText =
+        AppData.lastPlantAdd(lastAdd: user.lastPlantAdd);
+    bool recentPlantAdd = (recentPlantAddText.length != 0);
+
+//    String recentPlantUpdateText =
+//        AppData.lastPlantUpdate(lastUpdate: user.lastPlantUpdate);
+//    bool recentPlantUpdate = (recentPlantUpdateText.length != 0);
 
     //*****SET WIDGET VISIBILITY END*****//
 
@@ -99,6 +108,14 @@ class UserTile extends StatelessWidget {
                             ),
                           ],
                         ),
+                        //show recent new plants
+                        (recentPlantAdd == true)
+                            ? UpdatesRow(
+                                text: recentPlantAddText,
+                                textSize: AppTextSize.small,
+                                icon: Icons.add_circle_outline,
+                              )
+                            : SizedBox(),
                         Text(
                           user != null ? user.region : '',
                           softWrap: false,

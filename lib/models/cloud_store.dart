@@ -394,7 +394,8 @@ class CloudStore extends ChangeNotifier {
     //make sure the image took
     if (image != null && image.path != null && Platform.isAndroid) {
       //// ***Android - WORKAROUND - this must be enabled for proper image rotation, disable for iOS
-      image = await FlutterExifRotation.rotateAndSaveImage(path: image.path);
+//      image = await FlutterExifRotation.rotateAndSaveImage(path: image.path);
+      image = await FlutterExifRotation.rotateImage(path: image.path);
     }
     return image;
   }

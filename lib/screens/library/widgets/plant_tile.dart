@@ -57,8 +57,8 @@ class PlantTile extends StatelessWidget {
     bool enableDialogs = (connectionLibrary == false);
 
     //show update bubble
-    bool recentAdd = AppData.isNew(idWithTime: plant.id);
-    bool recentUpdate = AppData.isRecentUpdate(lastUpdate: plant.update);
+    bool recentAdd = AppData.isRecent(dateMS: plant.created);
+    bool recentUpdate = AppData.isRecent(dateMS: plant.update);
     bool showUpdateBubble = ((recentAdd || recentUpdate) && hideNew == false);
 
     //*****SET WIDGET VISIBILITY END*****//
@@ -128,7 +128,9 @@ class PlantTile extends StatelessWidget {
                   ? UpdateBubble(
                       color:
                           (recentAdd == true) ? Colors.red : Colors.redAccent,
-                      text: (recentAdd == true) ? 'NEW' : 'UPDATE')
+                      text: (recentAdd == true)
+                          ? 'New ${AppData.plantTileText(creationDate: plant.created)}'
+                          : 'Updated ${AppData.plantTileText(creationDate: plant.update)}')
                   : SizedBox(),
               (showUpdateBubble)
                   ? Expanded(
@@ -202,7 +204,10 @@ class UpdateBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: color,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(3.0),
+      ),
       margin: EdgeInsets.all(
           3.0 * MediaQuery.of(context).size.width * kScaleFactor),
       padding: EdgeInsets.all(
@@ -211,7 +216,7 @@ class UpdateBubble extends StatelessWidget {
         maxHeight: 50.0 * MediaQuery.of(context).size.width * kScaleFactor,
       ),
       child: Text(
-        text.toUpperCase(),
+        text,
         textAlign: TextAlign.center,
         overflow: TextOverflow.fade,
         style: TextStyle(

@@ -204,13 +204,15 @@ class CloudDB extends ChangeNotifier {
     int cutoffDate = now - (86400000 * 2);
     //initialize
     int lastUpdate;
+    //check to make sure the creation time was before the cutoff date
+    //this makes sure plant updates won't be recorder for the above set period after creation
     if (timeCreated < cutoffDate) {
       lastUpdate = now;
+      //This will be called at most updates so use this time to set last plant update
+      Map<String, dynamic> upload = {UserKeys.lastPlantUpdate: now};
+      updateDocumentL1(
+          collection: DBDocument.users, document: document, data: upload);
     }
-    //This will be called at most updates so use this time to set last plant update
-    Map<String, dynamic> upload = {UserKeys.lastPlantUpdate: now};
-    updateDocumentL1(
-        collection: DBDocument.users, document: document, data: upload);
     return lastUpdate;
   }
 
@@ -332,16 +334,39 @@ class CloudDB extends ChangeNotifier {
     }
   }
 
+  //check for new messages
+  Stream<bool> checkForUnreadMessages() {
+    try {
+      return _db
+          .collection(DBFolder.conversations)
+          .where(MessageParentKeys.unreadBy, isEqualTo: currentUserFolder)
+          .limit(1)
+          .snapshots()
+          .map((querySnap) {
+        if (querySnap != null &&
+            querySnap.documents != null &&
+            querySnap.documents.length > 0) {
+          return true;
+        } else {
+          return false;
+        }
+      });
+    } catch (e) {
+      return Stream.error(e);
+    }
+  }
+
   //provide a stream of messages for a specific conversation
-  Stream<QuerySnapshot> streamConvoMessages({@required String connectionID}) {
+  Stream<QuerySnapshot> streamConvoMessages(
+      {@required String connectionID, int limit = 20}) {
     try {
       String document = conversationDocumentName(connectionId: connectionID);
       return _db
-          .collection(conversationsPath)
+          .collection(DBFolder.conversations)
           .document(document)
-          .collection(messagesPath)
+          .collection(DBFolder.messages)
           .orderBy(MessageKeys.time, descending: true)
-          .limit(20)
+          .limit(limit)
           .snapshots();
     } catch (e) {
       return Stream.error(e);
@@ -407,16 +432,22 @@ class CloudDB extends ChangeNotifier {
   static Future<DocumentReference> sendMessage(
       {@required MessageData message, @required String document}) {
     //DB reference for message
-    CollectionReference messagesRef = _db
-        .collection(conversationsPath)
-        .document(document)
-        .collection(messagesPath);
+    DocumentReference docRef =
+        _db.collection(conversationsPath).document(document);
     //make sure message sender and text exist
     if (message.sender != null && message.text != null) {
-      //upload message to DB
-      return messagesRef.add(
-        message.toMap(),
-      );
+      try {
+        //upload message to DB
+        docRef.collection(messagesPath).add(
+              message.toMap(),
+            );
+        //add unread ID to document for use in check for messages query
+        return docRef.setData({
+          MessageParentKeys.unreadBy: message.recipient,
+        }, merge: true);
+      } catch (e) {
+        return null;
+      }
     } else {
       return null;
     }
@@ -447,8 +478,8 @@ class CloudDB extends ChangeNotifier {
   //*****************CONNECTION METHODS*****************//
 
   //search for user via email
-  static Future<String> getUserFromEmail({@required String userEmail}) async {
-    String match;
+  static Future<UserData> getUserFromEmail({@required String userEmail}) async {
+    UserData match;
     if (userEmail != null) {
       //search through users to find matching email
       QuerySnapshot result = await _db
@@ -457,7 +488,7 @@ class CloudDB extends ChangeNotifier {
           .getDocuments();
       if (result.documents != null && result.documents.length > 0) {
         //there should only be one match, get and return ID
-        match = result.documents[0].data[UserKeys.id];
+        match = UserData.fromMap(map: result.documents[0].data);
       } else {
         match = null;
       }
@@ -466,7 +497,8 @@ class CloudDB extends ChangeNotifier {
   }
 
   //send connection request
-  Future<bool> sendConnectionRequest({@required String connectionID}) async {
+  Future<bool> sendConnectionRequest(
+      {@required String connectionID, @required List connectionTokens}) async {
     bool success;
     if (connectionID != null) {
       try {
@@ -485,6 +517,20 @@ class CloudDB extends ChangeNotifier {
             key: UserKeys.requestsSent,
             entries: [connectionID],
             action: true);
+
+        //this will also be used to push notifications of request
+        //add both user IDs to the chat document
+        String document = conversationDocumentName(
+          connectionId: connectionID,
+        );
+        Map<String, dynamic> data = {
+          MessageParentKeys.participants: [currentUserFolder, connectionID],
+          MessageParentKeys.initialRequestPushTokens: connectionTokens
+        };
+        setDocumentL1(
+            collection: DBDocument.conversations,
+            document: document,
+            data: data);
         success = true;
       } catch (e) {
         success = false;
@@ -532,6 +578,7 @@ class CloudDB extends ChangeNotifier {
         key: UserKeys.requestsReceived,
         entries: [connectionID],
         action: false);
+
     //remove from friend sent requests
     await updateDocumentL1Array(
         collection: DBFolder.users,
@@ -575,6 +622,41 @@ class CloudDB extends ChangeNotifier {
     return (await _db.collection(usersPath).document(connectionID).get()).data;
   }
 
+  //get a futures list of the connection data
+  static Future<List<UserData>> getProfiles(
+      {@required List connectionsList}) async {
+    //initialize an empty list
+    List<UserData> list = [];
+
+    //get the data for each connection
+    for (String connection in connectionsList) {
+      //wrap with try block
+      try {
+        //get the future
+        DocumentSnapshot doc =
+            await _db.collection(DBFolder.users).document(connection).get();
+
+        if (doc != null && doc.data != null) {
+          UserData user = UserData.fromMap(map: doc.data);
+          list.add(user);
+        }
+      } catch (e) {
+        print(e);
+      }
+    }
+    //sort by recent updates
+    list.sort((a, b) {
+      int maxA = (a.lastPlantAdd >= a.lastPlantUpdate)
+          ? a.lastPlantAdd
+          : a.lastPlantUpdate;
+      int maxB = (b.lastPlantAdd >= b.lastPlantUpdate)
+          ? b.lastPlantAdd
+          : b.lastPlantUpdate;
+      return maxA.compareTo(maxB);
+    });
+    return list.reversed.toList();
+  }
+
   //remove connection
   void removeConnection({@required String connectionID}) {
     //remove from current user and chat
@@ -590,6 +672,7 @@ class CloudDB extends ChangeNotifier {
         key: UserKeys.chats,
         entries: [connectionID],
         action: false);
+
     //remove from friend and chat
     updateDocumentL1Array(
         collection: DBFolder.users,
@@ -603,6 +686,11 @@ class CloudDB extends ChangeNotifier {
         key: UserKeys.chats,
         entries: [currentUserFolder],
         action: false);
+
+    //maybe delete the document as well?
+    deleteDocumentL1(
+        collection: DBDocument.conversations,
+        document: conversationDocumentName(connectionId: connectionID));
   }
 
   //*****************USER DOCUMENT SPECIFIC*****************//
@@ -1031,8 +1119,12 @@ class CloudDB extends ChangeNotifier {
   static Future<void> setDocumentL1(
       {@required String collection,
       @required String document,
-      @required Map data}) {
-    return _db.collection(collection).document(document).setData(data);
+      @required Map<String, dynamic> data,
+      bool merge = false}) {
+    return _db
+        .collection(collection)
+        .document(document)
+        .setData(data, merge: merge);
   }
 
   //SET DOCUMENT LEVEL 2
@@ -1302,11 +1394,11 @@ class CloudDB extends ChangeNotifier {
 
   //update or remove entry in plant journal
   static Future<void> journalEntryUpdate(
-      {@required String plantID,
+      {@required String documentID,
+      @required String collection,
+      @required String journalKey,
       @required List journals,
       @required Map entry}) {
-    print(journals);
-    print(entry);
     //updated journal list
     List updatedJournal = [];
 
@@ -1319,25 +1411,35 @@ class CloudDB extends ChangeNotifier {
       }
     }
 
-    Map<String, dynamic> data = {PlantKeys.journal: updatedJournal};
+    Map<String, dynamic> data = {journalKey: updatedJournal};
     //upload the updated list
     return updateDocumentL1(
-      collection: DBFolder.plants,
-      document: plantID,
+      collection: collection,
+      document: documentID,
       data: data,
     );
   }
 
-  //CREATE A JOURNAL ENTRY
-  static Future<void> journalEntryCreate(
-      {@required Map entry, @required String plantID}) {
-    //update the document
-    return updateDocumentL1Array(
-        collection: DBFolder.plants,
-        document: plantID,
-        key: PlantKeys.journal,
-        entries: [entry],
-        action: true);
+  //update or remove entry in plant journal
+  static Future<void> journalEntryRemove(
+      {@required String documentID,
+      @required String collection,
+      @required String journalKey,
+      @required List journals,
+      @required Map entry}) {
+    //remove journal if the IDs match
+    journals.removeWhere(
+        (element) => (element[JournalKeys.id] == entry[JournalKeys.id]));
+
+    //package changes
+    Map<String, dynamic> data = {journalKey: journals};
+
+    //upload the updated list
+    return updateDocumentL1(
+      collection: collection,
+      document: documentID,
+      data: data,
+    );
   }
 
   //CREATE A DOCUMENT

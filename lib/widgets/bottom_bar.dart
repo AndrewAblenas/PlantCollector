@@ -23,34 +23,36 @@ class BottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return StreamProvider<UserData>.value(
       value: Provider.of<CloudDB>(context).streamCurrentUser(),
-      child: Container(
-        height: 60.0 * MediaQuery.of(context).size.width * kScaleFactor,
-        color: kGreenDark,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            //if you change the order and tab numbers, make sure to update screens tab numbers too
-            Expanded(
-              child: BottomTab(
-                symbol: Icon(
-                  Icons.blur_circular,
-                  color: AppTextColor.white,
-                  size: AppTextSize.huge * MediaQuery.of(context).size.width,
-                ),
-                navigate: () {
-                  //set default custom tab number to 2 on page load
-                  if (Provider.of<AppData>(context).customTabSelected == null)
-                    //set the number directly to prevent call of the notify listeners
-                    Provider.of<AppData>(context).customTabSelected = 2;
+      child: StreamProvider<bool>.value(
+        value: Provider.of<CloudDB>(context).checkForUnreadMessages(),
+        child: Container(
+          height: 60.0 * MediaQuery.of(context).size.width * kScaleFactor,
+          color: kGreenDark,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              //if you change the order and tab numbers, make sure to update screens tab numbers too
+              Expanded(
+                child: BottomTab(
+                  symbol: Icon(
+                    Icons.blur_circular,
+                    color: AppTextColor.white,
+                    size: AppTextSize.huge * MediaQuery.of(context).size.width,
+                  ),
+                  navigate: () {
+                    //set default custom tab number to 2 on page load
+                    if (Provider.of<AppData>(context).customTabSelected == null)
+                      //set the number directly to prevent call of the notify listeners
+                      Provider.of<AppData>(context).customTabSelected = 2;
 
-                  //if the tab selected is null then assign a value
-                  if (Provider.of<AppData>(context).customFeedSelected ==
-                      null) {
-                    Provider.of<AppData>(context).customFeedSelected = 3;
-                    Provider.of<AppData>(context).customFeedType = PlantData;
-                    Provider.of<AppData>(context).customFeedQueryField =
-                        PlantKeys.created;
-                  }
+                    //if the tab selected is null then assign a value
+                    if (Provider.of<AppData>(context).customFeedSelected ==
+                        null) {
+                      Provider.of<AppData>(context).customFeedSelected = 3;
+                      Provider.of<AppData>(context).customFeedType = PlantData;
+                      Provider.of<AppData>(context).customFeedQueryField =
+                          PlantKeys.created;
+                    }
 
 //                  Navigator.push(
 //                    context,
@@ -58,151 +60,173 @@ class BottomBar extends StatelessWidget {
 //                      builder: (context) => DiscoverScreen(),
 //                    ),
 //                  );
-                  Navigator.of(context)
-                      .push(transitionNone(nextPage: DiscoverScreen()));
-                },
-                tabSelected: selectionNumber,
-                tabNumber: 1,
+                    Navigator.of(context)
+                        .push(transitionNone(nextPage: DiscoverScreen()));
+                  },
+                  tabSelected: selectionNumber,
+                  tabNumber: 1,
+                ),
               ),
-            ),
-            Expanded(
-              child: Stack(
-                fit: StackFit.passthrough,
-                children: <Widget>[
-                  BottomTab(
-                    symbol: Icon(
-                      Icons.people,
-                      color: AppTextColor.white,
-                      size:
-                          AppTextSize.huge * MediaQuery.of(context).size.width,
-                    ),
-                    navigate: () {
-                      Navigator.of(context)
-                          .push(transitionNone(nextPage: FriendsScreen()));
-                      //show dialog to prompt for user handle
-                      print(Provider.of<AppData>(context)
-                          .currentUserInfo
-                          .uniquePublicID);
-                      if (Provider.of<AppData>(context)
-                              .currentUserInfo
-                              .uniquePublicID ==
-                          '') {
-                        showDialog(
-                            context: context,
-                            builder: (context) {
-                              return SetUsernameBundle();
-                            });
-                      }
+              Expanded(
+                child: Stack(
+                  fit: StackFit.passthrough,
+                  children: <Widget>[
+                    BottomTab(
+                      symbol: Icon(
+                        Icons.people,
+                        color: AppTextColor.white,
+                        size: AppTextSize.huge *
+                            MediaQuery.of(context).size.width,
+                      ),
+                      navigate: () {
+                        Navigator.of(context)
+                            .push(transitionNone(nextPage: FriendsScreen()));
+                        //show dialog to prompt for user handle
+                        if (Provider.of<AppData>(context)
+                                .currentUserInfo
+                                .uniquePublicID ==
+                            '') {
+                          showDialog(
+                              context: context,
+                              builder: (context) {
+                                return SetUsernameBundle();
+                              });
+                        }
 //                      Navigator.push(
 //                        context,
 //                        MaterialPageRoute(
 //                          builder: (context) => FriendsScreen(),
 //                        ),
 //                      );
-                    },
-                    tabSelected: selectionNumber,
-                    tabNumber: 2,
-                  ),
-                  Consumer<UserData>(builder: (context, UserData user, _) {
-                    //don't show anything if no data or no requests
-                    if (user == null || user.requestsReceived.length < 1) {
-                      return SizedBox();
-                    } else {
-                      String requests = user.requestsReceived.length.toString();
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.of(context)
-                              .push(transitionNone(nextPage: FriendsScreen()));
+                      },
+                      tabSelected: selectionNumber,
+                      tabNumber: 2,
+                    ),
+                    Consumer<bool>(builder: (context, bool unreadMessages, _) {
+                      return Consumer<UserData>(
+                          builder: (context, UserData user, _) {
+                        //don't show anything if no data or no requests and no messages
+                        if ((user == null && unreadMessages == null) ||
+                            (user.requestsReceived.length < 1 &&
+                                unreadMessages == false)) {
+                          return SizedBox();
+                        } else {
+//                          String requests =
+//                              user.requestsReceived.length.toString();
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).push(
+                                  transitionNone(nextPage: FriendsScreen()));
 //                          Navigator.push(
 //                            context,
 //                            MaterialPageRoute(
 //                              builder: (context) => FriendsScreen(),
 //                            ),
 //                          );
-                        },
-                        child: Padding(
-                          padding: EdgeInsets.all(18.0),
-                          child: Text(
-                            requests,
-//                          textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: AppTextSize.small *
-                                  MediaQuery.of(context).size.width,
-                              color: AppTextColor.white,
+                            },
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: <Widget>[
+                                Padding(
+                                  padding: EdgeInsets.all(2.0),
+                                  child: Icon(
+                                    Icons.message,
+                                    size: AppTextSize.large *
+                                        MediaQuery.of(context).size.width,
+                                    color: kGreenLight,
+                                  ),
+//                              Text(
+//                                requests,
+////                          textAlign: TextAlign.center,
+//                                style: TextStyle(
+//                                  fontSize: AppTextSize.small *
+//                                      MediaQuery.of(context).size.width,
+//                                  color: AppTextColor.white,
+//                                ),
+//                              ),
+                                ),
+                                SizedBox(
+                                  height: 10 *
+                                      kScaleFactor *
+                                      MediaQuery.of(context).size.width,
+                                ),
+                              ],
                             ),
-                          ),
-                        ),
-                      );
-                    }
-                  }),
-                ],
+                          );
+                        }
+                      });
+                    }),
+                  ],
+                ),
               ),
-            ),
-            Expanded(
-              child: BottomTab(
-                symbol: Padding(
-                  padding: EdgeInsets.all(
-                      5.0 * MediaQuery.of(context).size.width * kScaleFactor),
-                  child: Image(
-                    image: AssetImage('assets/images/app_icon_white_128.png'),
-                    height:
-                        AppTextSize.medium * MediaQuery.of(context).size.width,
+              Expanded(
+                child: BottomTab(
+                  symbol: Padding(
+                    padding: EdgeInsets.all(
+                        5.0 * MediaQuery.of(context).size.width * kScaleFactor),
+                    child: Image(
+                      image: AssetImage('assets/images/app_icon_white_128.png'),
+                      height: AppTextSize.medium *
+                          MediaQuery.of(context).size.width,
+                    ),
                   ),
+                  navigate: null,
+                  tabSelected: selectionNumber,
+                  tabNumber: 3,
                 ),
-                navigate: null,
-                tabSelected: selectionNumber,
-                tabNumber: 3,
               ),
-            ),
-            Expanded(
-              child: BottomTab(
-                symbol: Icon(
-                  Icons.search,
-                  color: AppTextColor.white,
-                  size: AppTextSize.huge * MediaQuery.of(context).size.width,
-                ),
-                navigate: () {
-                  Provider.of<AppData>(context).setInputSearchBarLive('');
-                  if (Provider.of<AppData>(context).tabBarTopSelected == null) {
-                    Provider.of<AppData>(context).tabBarTopSelected = 1;
-                  }
-                  //reset map
-                  Provider.of<AppData>(context).searchQueryInput = {};
-                  Navigator.of(context)
-                      .push(transitionNone(nextPage: SearchScreen()));
+              Expanded(
+                child: BottomTab(
+                  symbol: Icon(
+                    Icons.search,
+                    color: AppTextColor.white,
+                    size: AppTextSize.huge * MediaQuery.of(context).size.width,
+                  ),
+                  navigate: () {
+                    Provider.of<AppData>(context).setInputSearchBarLive('');
+                    if (Provider.of<AppData>(context).tabBarTopSelected ==
+                        null) {
+                      Provider.of<AppData>(context).tabBarTopSelected = 1;
+                    }
+                    //reset map
+                    Provider.of<AppData>(context).searchQueryInput = {};
+                    Navigator.of(context)
+                        .push(transitionNone(nextPage: SearchScreen()));
 //                  Navigator.push(
 //                    context,
 //                    MaterialPageRoute(
 //                      builder: (context) => SearchScreen(),
 //                    ),
 //                  );
-                },
-                tabSelected: selectionNumber,
-                tabNumber: 4,
-              ),
-            ),
-            Expanded(
-              child: BottomTab(
-                symbol: Icon(
-                  Icons.settings,
-                  color: AppTextColor.white,
-                  size: AppTextSize.huge * MediaQuery.of(context).size.width,
+                  },
+                  tabSelected: selectionNumber,
+                  tabNumber: 4,
                 ),
-                navigate: () {
+              ),
+              Expanded(
+                child: BottomTab(
+                  symbol: Icon(
+                    Icons.settings,
+                    color: AppTextColor.white,
+                    size: AppTextSize.huge * MediaQuery.of(context).size.width,
+                  ),
+                  navigate: () {
 //                  Navigator.push(
 //                    context,
 //                    MaterialPageRoute(
 //                      builder: (context) => SettingsScreen(),
 //                    ),
 //                  );
-                  Navigator.of(context)
-                      .push(transitionNone(nextPage: SettingsScreen()));
-                },
-                tabSelected: selectionNumber,
-                tabNumber: 5,
+                    Navigator.of(context)
+                        .push(transitionNone(nextPage: SettingsScreen()));
+                  },
+                  tabSelected: selectionNumber,
+                  tabNumber: 5,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

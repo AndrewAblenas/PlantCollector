@@ -22,6 +22,7 @@ import 'package:share/share.dart';
 
 class CollectionCard extends StatelessWidget {
   final bool connectionLibrary;
+  final bool sortPlants;
   final CollectionData collection;
   final String groupID;
   final Color colorTheme;
@@ -31,6 +32,7 @@ class CollectionCard extends StatelessWidget {
 
   CollectionCard({
     @required this.connectionLibrary,
+    this.sortPlants = false,
     @required this.collection,
     @required this.groupID,
     @required this.colorTheme,
@@ -49,6 +51,11 @@ class CollectionCard extends StatelessWidget {
     //get plants for the collection from the full list
     List<PlantData> collectionPlants = AppData.getPlantsFromList(
         collectionPlantIDs: collection.plants, plants: fullList);
+
+    //now sort these alphabetically if the user has chosen that option
+    if (sortPlants == true) {
+      collectionPlants.sort((a, b) => a.name.compareTo(b.name));
+    }
 
     //get plants for the collection from the full list
     String numberedList = UIBuilders.shareList(shelfPlants: collectionPlants);

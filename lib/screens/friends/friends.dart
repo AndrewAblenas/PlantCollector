@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
@@ -16,6 +17,7 @@ import 'package:plant_collector/widgets/button_add.dart';
 import 'package:plant_collector/widgets/container_wrapper.dart';
 import 'package:plant_collector/widgets/info_tip.dart';
 import 'package:plant_collector/widgets/section_header.dart';
+import 'package:plant_collector/widgets/tile_white.dart';
 import 'package:provider/provider.dart';
 import 'package:share/share.dart';
 
@@ -145,29 +147,29 @@ class FriendsScreen extends StatelessWidget {
                                     'Otherwise, head on over to the ${GlobalStrings.discover} screen (bottom left button) to find Top Collectors or new ${GlobalStrings.friends} via their ${GlobalStrings.plants}.  ',
                               );
                             } else {
-                              List<Widget> connectionsCards = [];
-                              for (String friend in user.friends) {
-                                //create a list of connection cards
-                                connectionsCards.add(
-                                  FutureProvider<Map>.value(
-                                    value: CloudDB.getConnectionProfile(
-                                        connectionID: friend),
-                                    child: Consumer<Map>(
-                                        builder: (context, Map friend, _) {
-                                      if (friend == null) {
-                                        return SizedBox();
-                                      } else {
-                                        UserData profile =
-                                            UserData.fromMap(map: friend);
-                                        return ConnectionCard(
-                                          user: profile,
-                                          isRequest: false,
-                                        );
-                                      }
-                                    }),
-                                  ),
-                                );
-                              }
+//                              for (String friend in user.friends) {
+//                                //
+//                                //create a list of connection cards
+//                                connectionsCards.add(
+//                                  FutureProvider<Map>.value(
+//                                    value: CloudDB.getConnectionProfile(
+//                                        connectionID: friend),
+//                                    child: Consumer<Map>(
+//                                        builder: (context, Map friend, _) {
+//                                      if (friend == null) {
+//                                        return SizedBox();
+//                                      } else {
+//                                        UserData profile =
+//                                            UserData.fromMap(map: friend);
+//                                        return ConnectionCard(
+//                                          user: profile,
+//                                          isRequest: false,
+//                                        );
+//                                      }
+//                                    }),
+//                                  ),
+//                                );
+//                              }
                               return Column(
                                 children: <Widget>[
                                   Row(
@@ -194,13 +196,76 @@ class FriendsScreen extends StatelessWidget {
                                       ),
                                     ],
                                   ),
-                                  GridView.count(
-                                    shrinkWrap: true,
-                                    primary: false,
-                                    crossAxisCount: 1,
-                                    children: connectionsCards,
-                                    childAspectRatio: 5,
-                                  ),
+                                  FutureProvider<List<UserData>>.value(
+                                      value: CloudDB.getProfiles(
+                                          connectionsList: user.friends),
+                                      child: Consumer<List<UserData>>(
+                                          builder: (context, profiles, _) {
+                                        if (profiles != null) {
+                                          //create a blank list for the cards
+                                          List<Widget> connectionsCards = [];
+                                          //generate cards
+                                          for (UserData profile in profiles) {
+                                            //
+                                            //create a list of connection cards
+                                            connectionsCards.add(
+                                              ConnectionCard(
+                                                user: profile,
+                                                isRequest: false,
+                                              ),
+                                            );
+                                          }
+                                          return ListView(
+                                            shrinkWrap: true,
+                                            primary: false,
+//                                            crossAxisCount: 1,
+                                            children: connectionsCards,
+//                                            childAspectRatio: 5,
+                                          );
+                                        } else {
+                                          return Container(
+                                            width: double.infinity,
+                                            child: TileWhite(
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: <Widget>[
+                                                  Container(
+                                                    margin: EdgeInsets.all(6.0),
+                                                    padding:
+                                                        EdgeInsets.all(3.0),
+                                                    height: 0.06 *
+                                                        MediaQuery.of(context)
+                                                            .size
+                                                            .width,
+                                                    width: 0.06 *
+                                                        MediaQuery.of(context)
+                                                            .size
+                                                            .width,
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                      strokeWidth: 4.0,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    'Checking Friends for Updates',
+                                                    style: TextStyle(
+                                                      fontSize: AppTextSize
+                                                              .medium *
+                                                          MediaQuery.of(context)
+                                                              .size
+                                                              .width,
+                                                      color: AppTextColor.black,
+                                                      fontWeight:
+                                                          AppTextWeight.medium,
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                      })),
                                   SizedBox(
                                     height: 5.0,
                                   ),

@@ -67,13 +67,13 @@ class ButtonAddFriend extends StatelessWidget {
                     acceptText: 'Add',
                     acceptOnPress: () async {
                       //try to find if user is registered from email
-                      String friendID = await CloudDB.getUserFromEmail(
+                      UserData friendFromEmail = await CloudDB.getUserFromEmail(
                           userEmail:
                               Provider.of<AppData>(context).newDataInput);
                       //look for ID in friend list
                       bool check = false;
                       for (String friend in friends) {
-                        if (friend == friendID) {
+                        if (friend == friendFromEmail.id) {
                           check = true;
                         }
                       }
@@ -98,10 +98,11 @@ class ButtonAddFriend extends StatelessWidget {
                         title = 'Cannot Send';
                         dialogText = 'That must be one great friend!'
                             '\n\nYou\'re already connected so we won\'t send another request.';
-                      } else if (friendID != null) {
+                      } else if (friendFromEmail != null) {
                         //if all good send the request to friend
-                        Provider.of<CloudDB>(context)
-                            .sendConnectionRequest(connectionID: friendID);
+                        Provider.of<CloudDB>(context).sendConnectionRequest(
+                            connectionID: friendFromEmail.id,
+                            connectionTokens: friendFromEmail.devicePushTokens);
                         title = 'Request Sent';
                         dialogText =
                             'A request has been sent.  When it is accepted, your friend will show in the Connections list.';

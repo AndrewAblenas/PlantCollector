@@ -279,7 +279,7 @@ class PlantScreen extends StatelessWidget {
                                       UIBuilders.displayJournalTiles(
                                           connectionLibrary: connectionLibrary,
                                           journals: plant.journal,
-                                          plantID: plant.id)
+                                          documentID: plant.id)
                                     ],
                                   ),
                                 ),
@@ -298,104 +298,121 @@ class PlantScreen extends StatelessWidget {
                 builder: (context, DocumentSnapshot plantSnap, _) {
                   if (plantSnap != null) {
                     PlantData plant = PlantData.fromMap(map: plantSnap.data);
-                    //if it is your personal library return delete/share
-                    return Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        //if you own the library then show delete
-                        (showDeleteInsteadOfReport == true)
-                            ? ActionButton(
-                                icon: Icons.delete_forever,
-                                action: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return DialogConfirm(
-                                        title: 'Remove Plant',
-                                        text:
-                                            'Are you sure you would like to remove this plant?  All photos and all related information will be permanently deleted.  '
-                                            'This cannot be undone!',
-                                        buttonText: 'DELETE',
-                                        hideCancel: false,
-                                        onPressed: () {
-                                          //pop dialog
-                                          Navigator.pop(context);
-                                          if (plant.owner ==
-                                              Provider.of<AppData>(context)
-                                                  .currentUserInfo
-                                                  .id) {
-                                            //remove plant reference from collection
-                                            Provider.of<CloudDB>(context)
-                                                .updateArrayInDocumentInCollection(
-                                                    arrayKey:
-                                                        CollectionKeys.plants,
-                                                    entries: [plantID],
-                                                    folder:
-                                                        DBFolder.collections,
-                                                    documentName:
-                                                        forwardingCollectionID,
-                                                    action: false);
-                                            //delete plant
-                                            CloudDB.deleteDocumentL1(
-                                                document: plantID,
-                                                collection: DBFolder.plants);
-                                            //pop old plant profile
-                                            Navigator.pop(context);
-                                            //NOTE: deletion of images is handled by a DB function
-                                          }
-                                        },
-                                      );
-                                    },
-                                  );
-                                },
-                              )
-                            //otherwise provide an option to report
-                            : ActionButton(
-                                icon: Icons.report_problem,
-                                action: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return DialogConfirm(
-                                          title: 'Report Plant',
-                                          hideCancel: false,
+
+                    //now check to make sure the ID exists
+                    //this is for case where plant was deleted while you are viewing
+                    if (plant.id != '') {
+                      //if it is your personal library return delete/share
+                      return Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          //if you own the library then show delete
+                          (showDeleteInsteadOfReport == true)
+                              ? ActionButton(
+                                  icon: Icons.delete_forever,
+                                  action: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return DialogConfirm(
+                                          title: 'Remove Plant',
                                           text:
-                                              'Does this content not meet the Community Guidelines?  \n\n'
-                                              'Please report only non-plant, offensive, or spam related profiles.  '
-                                              'Note, misuse of this button may lead to your account being disabled.  ',
-                                          buttonText: 'Report',
-                                          onPressed: () async {
-                                            //report user
-                                            CloudDB.reportPlant(
-                                                offendingPlantID: plant.id,
-                                                reportingUser:
-                                                    Provider.of<AppData>(
-                                                            context)
-                                                        .currentUserInfo
-                                                        .id);
+                                              'Are you sure you would like to remove this plant?  All photos and information will be permanently deleted.  '
+                                              'This cannot be undone!',
+                                          buttonText: 'DELETE',
+                                          hideCancel: false,
+                                          onPressed: () {
                                             //pop dialog
                                             Navigator.pop(context);
-                                          });
-                                    },
-                                  );
-                                },
-                              ),
-                        //share plant to in app chat recipient
-                        SizedBox(
-                          width: 0.12 * MediaQuery.of(context).size.width,
+                                            if (plant.owner ==
+                                                Provider.of<AppData>(context)
+                                                    .currentUserInfo
+                                                    .id) {
+                                              //remove plant reference from collection
+                                              Provider.of<CloudDB>(context)
+                                                  .updateArrayInDocumentInCollection(
+                                                      arrayKey:
+                                                          CollectionKeys.plants,
+                                                      entries: [plantID],
+                                                      folder:
+                                                          DBFolder.collections,
+                                                      documentName:
+                                                          forwardingCollectionID,
+                                                      action: false);
+                                              //delete plant
+                                              CloudDB.deleteDocumentL1(
+                                                  document: plantID,
+                                                  collection: DBFolder.plants);
+                                              //pop old plant profile
+                                              Navigator.pop(context);
+                                              //NOTE: deletion of images is handled by a DB function
+                                            }
+                                          },
+                                        );
+                                      },
+                                    );
+                                  },
+                                )
+                              //otherwise provide an option to report
+                              : ActionButton(
+                                  icon: Icons.report_problem,
+                                  action: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return DialogConfirm(
+                                            title: 'Report Plant',
+                                            hideCancel: false,
+                                            text:
+                                                'Does this content not meet the Community Guidelines?  \n\n'
+                                                'Please report only non-plant, offensive, or spam related profiles.  '
+                                                'Note, misuse of this button may lead to your account being disabled.  ',
+                                            buttonText: 'Report',
+                                            onPressed: () async {
+                                              //report user
+                                              CloudDB.reportPlant(
+                                                  offendingPlantID: plant.id,
+                                                  reportingUser:
+                                                      Provider.of<AppData>(
+                                                              context)
+                                                          .currentUserInfo
+                                                          .id);
+                                              //pop dialog
+                                              Navigator.pop(context);
+                                            });
+                                      },
+                                    );
+                                  },
+                                ),
+                          //share plant to in app chat recipient
+                          SizedBox(
+                            width: 0.12 * MediaQuery.of(context).size.width,
+                          ),
+                          ActionButton(
+                            icon: Icons.share,
+                            action: () {
+                              Share.share(
+                                UIBuilders.sharePlant(plantMap: plantSnap.data),
+                                subject: 'Check out this plant!',
+                              );
+                            },
+                          ),
+                        ],
+                      );
+                    } else {
+                      return Center(
+                        child: Text(
+                          'This Plant is Missing or Deleted.',
+//                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: AppTextSize.medium *
+                                MediaQuery.of(context).size.width,
+                            color: kGreenDark,
+                          ),
                         ),
-                        ActionButton(
-                          icon: Icons.share,
-                          action: () {
-                            Share.share(
-                              UIBuilders.sharePlant(plantMap: plantSnap.data),
-                              subject: 'Check out this plant!',
-                            );
-                          },
-                        ),
-                      ],
-                    );
+                      );
+                    }
                   } else {
                     return SizedBox();
                   }

@@ -65,6 +65,8 @@ class GetImage extends StatelessWidget {
           //check to make sure the user didn't back out and is online
           ConnectivityResult connectivityResult =
               await Connectivity().checkConnectivity();
+
+          //if there is an image and active connection
           if (image != null && connectivityResult != ConnectivityResult.none) {
             //show a status dialog
             showDialog(
@@ -77,6 +79,7 @@ class GetImage extends StatelessWidget {
                 );
               },
             );
+
             //check connectivity in dialog input screen
             //upload image
             //wait for completion
@@ -96,6 +99,7 @@ class GetImage extends StatelessWidget {
               } catch (e) {
                 print(e);
               }
+
               //get the url string
               Provider.of<CloudStore>(context)
                   .getDownloadURL(snapshot: completion)
@@ -127,6 +131,21 @@ class GetImage extends StatelessWidget {
                 Navigator.pop(context);
               });
             });
+          } else if (image == null) {
+            //let the user know they cancelled the upload
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return DialogConfirm(
+                    title: 'No Selection',
+                    text: 'No image was selected for upload.',
+                    buttonText: 'OK',
+                    hideCancel: true,
+                    onPressed: () {
+                      Navigator.pop(context);
+                    });
+              },
+            );
           } else {
             //show a dialog notifying the user
             showDialog(
