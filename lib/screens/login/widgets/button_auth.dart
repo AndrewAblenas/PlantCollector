@@ -2,17 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
 
+//authentication button
 class ButtonAuth extends StatelessWidget {
-  final String text;
-  final double textSize;
-  final Function onPress;
-  final bool showImage;
+  //constructor
   ButtonAuth({
     @required this.text,
     @required this.onPress,
     this.showImage,
     this.textSize = AppTextSize.huge,
   });
+  final String text;
+  final double textSize;
+  final Function onPress;
+  final bool showImage;
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +24,8 @@ class ButtonAuth extends StatelessWidget {
         SizedBox(
           width: 50.0,
         ),
+
+        //gesture detector
         GestureDetector(
           child: Container(
             decoration: BoxDecoration(
@@ -39,6 +43,7 @@ class ButtonAuth extends StatelessWidget {
               ),
               child: Row(
                 children: <Widget>[
+                  //leading image if desired
                   (showImage == false)
                       ? SizedBox()
                       : Image(
@@ -47,6 +52,8 @@ class ButtonAuth extends StatelessWidget {
                           height: AppTextSize.huge *
                               MediaQuery.of(context).size.width,
                         ),
+
+                  //button text
                   Text(
                     ' $text',
                     textAlign: TextAlign.center,

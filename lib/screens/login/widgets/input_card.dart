@@ -2,18 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
 
+//input card primarily for login/register screens
 class InputCard extends StatelessWidget {
-  final String cardPrompt;
-  final Function onChanged;
-  final Function validator;
-  final bool obscureText;
-  final TextInputType keyboardType;
+  //constructor
   InputCard(
       {this.cardPrompt,
       this.onChanged,
       this.validator,
       this.obscureText,
       @required this.keyboardType});
+  final String cardPrompt;
+  final Function onChanged;
+  final Function validator;
+  final bool obscureText;
+  final TextInputType keyboardType;
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +26,7 @@ class InputCard extends StatelessWidget {
       ),
       child: Column(
         children: <Widget>[
+          //input field formatting
           TextFormField(
             keyboardType: keyboardType,
             textAlign: TextAlign.center,
@@ -49,9 +52,12 @@ class InputCard extends StatelessWidget {
               fontSize: AppTextSize.medium * MediaQuery.of(context).size.width,
             ),
           ),
+
           SizedBox(
             height: 5.0,
           ),
+
+          //input field prompt
           Text(
             cardPrompt,
             textAlign: TextAlign.center,

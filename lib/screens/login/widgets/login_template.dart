@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
 
+//template to use for login and registration screens
 class LoginTemplate extends StatelessWidget {
+  //constructor
+  LoginTemplate({@required this.leadingGraphic, @required this.children});
   final Widget leadingGraphic;
   final List<Widget> children;
-  LoginTemplate({@required this.leadingGraphic, @required this.children});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kGreenLight,
       body: Container(
-//        decoration: BoxDecoration(
-//          gradient: kBackgroundGradient,
-//        ),
         child: ListView(
           children: <Widget>[
             SizedBox(height: 20.0),

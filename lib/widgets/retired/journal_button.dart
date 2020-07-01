@@ -2,7 +2,7 @@
 //import 'package:plant_collector/formats/text.dart';
 //import 'package:plant_collector/models/data_types/plant/plant_data.dart';
 //import 'package:plant_collector/widgets/container_card.dart';
-//import 'file:///C:/Users/aable/AndroidStudioProjects/plant_collector/lib/screens/journal/journal.dart';
+//import 'package:plant_collector/screens/journal/journal.dart';
 //
 //class JournalButton extends StatelessWidget {
 //  final PlantData plant;

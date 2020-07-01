@@ -3,6 +3,7 @@ import 'package:plant_collector/formats/colors.dart';
 import 'package:splashscreen/splashscreen.dart';
 import 'package:plant_collector/screens/login/route.dart';
 
+//loading screen
 class LoadingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
