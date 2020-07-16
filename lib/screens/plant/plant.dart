@@ -329,6 +329,10 @@ class PlantScreen extends StatelessWidget {
                                                 Provider.of<AppData>(context)
                                                     .currentUserInfo
                                                     .id) {
+                                              //delete plant
+                                              CloudDB.deleteDocumentL1(
+                                                  document: plantID,
+                                                  collection: DBFolder.plants);
                                               //remove plant reference from collection
                                               Provider.of<CloudDB>(context)
                                                   .updateArrayInDocumentInCollection(
@@ -340,10 +344,6 @@ class PlantScreen extends StatelessWidget {
                                                       documentName:
                                                           forwardingCollectionID,
                                                       action: false);
-                                              //delete plant
-                                              CloudDB.deleteDocumentL1(
-                                                  document: plantID,
-                                                  collection: DBFolder.plants);
                                               //pop old plant profile
                                               Navigator.pop(context);
                                               //NOTE: deletion of images is handled by a DB function
@@ -418,17 +418,6 @@ class PlantScreen extends StatelessWidget {
                   }
                 },
               ),
-              //ADMIN AND CREATOR ONLY VISIBLE
-//            admin
-//                ? Text(
-//                    plantID,
-//                    textAlign: TextAlign.center,
-//                    style: TextStyle(
-//                      color: AppTextColor.black,
-//                      fontWeight: AppTextWeight.medium,
-//                    ),
-//                  )
-//                : SizedBox(),
               SizedBox(height: 10),
             ],
           ),

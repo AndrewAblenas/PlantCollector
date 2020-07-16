@@ -30,6 +30,7 @@ class PlantKeys {
   static const String journal = 'plantJournal';
   static const String water = 'plantWatering';
   static const String fertilize = 'plantFertilizing';
+  static const String sitter = 'sitter';
   static const String price = 'plantPrice';
   static const String update = 'plantLastUpdate';
   static const String created = 'PlantCreationDate';
@@ -51,9 +52,8 @@ class PlantKeys {
     species,
     hybrid,
     variety,
+    sitter,
     parentage,
-//    bloomSequence,
-//    growthSequence,
     sequenceBloom,
     sequenceGrowth,
     repot,
@@ -75,6 +75,7 @@ class PlantKeys {
     species,
     hybrid,
     variety,
+    sitter,
     parentage,
     water,
     fertilize,
@@ -102,8 +103,6 @@ class PlantKeys {
 
   //SHOW DAY OF YEAR
   static const List<String> listDatePickerMultipleKeys = [
-//    bloomSequence,
-//    growthSequence,
     sequenceBloom,
     sequenceGrowth,
   ];
@@ -116,10 +115,10 @@ class PlantKeys {
     species: 'Species',
     hybrid: 'Hybrid',
     genus: 'Genus',
+    sitter: 'Plant-Sitter Instructions',
     parentage: 'Parent Plants',
     quantity: 'Quantity',
     bloom: 'Flowering',
-//    bloomSequence: 'Bloom Sequence',
     repot: 'Last Repot',
     division: 'Last Division',
     notes: 'Notes',
@@ -142,7 +141,6 @@ class PlantKeys {
     isHousePlant: 'Grown Indoors',
     dateAcquired: 'Adoption Date',
     awards: 'Awards',
-//    growthSequence: 'Growth Cycle'
     sequenceBloom: 'Bloom Sequence',
     sequenceGrowth: 'Growth Sequence',
   };
@@ -156,10 +154,10 @@ class PlantData {
   final String species;
   final String hybrid;
   final String genus;
+  final String sitter;
   final String parentage;
   final String quantity;
   final String bloom;
-//  final List<BloomData> bloomSequence;
   final int repot;
   final int division;
   final String notes;
@@ -182,7 +180,6 @@ class PlantData {
   final bool isHousePlant;
   final int dateAcquired;
   final String awards;
-//  final List<GrowthData> growthSequence;
   final List<BloomData> sequenceBloom;
   final List<GrowthData> sequenceGrowth;
 
@@ -194,10 +191,10 @@ class PlantData {
     this.species,
     this.hybrid,
     this.genus,
+    this.sitter,
     this.parentage,
     this.quantity,
     this.bloom,
-//      this.bloomSequence,
     this.repot,
     this.division,
     this.notes,
@@ -220,7 +217,6 @@ class PlantData {
     this.isHousePlant,
     this.dateAcquired,
     this.awards,
-//      this.growthSequence
     this.sequenceBloom,
     this.sequenceGrowth,
   });
@@ -252,6 +248,7 @@ class PlantData {
       PlantKeys.species: species,
       PlantKeys.hybrid: hybrid,
       PlantKeys.genus: genus,
+      PlantKeys.sitter: sitter,
       PlantKeys.parentage: parentage,
       PlantKeys.quantity: quantity,
       PlantKeys.bloom: bloom,
@@ -313,6 +310,7 @@ class PlantData {
         species: DV.isString(value: map[PlantKeys.species]),
         hybrid: DV.isString(value: map[PlantKeys.hybrid]),
         genus: DV.isString(value: map[PlantKeys.genus]),
+        sitter: DV.isString(value: map[PlantKeys.sitter]),
         parentage: DV.isString(value: map[PlantKeys.parentage]),
         quantity: DV.isString(value: map[PlantKeys.quantity]),
         bloom: DV.isString(value: map[PlantKeys.bloom]),

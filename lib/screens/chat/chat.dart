@@ -163,23 +163,26 @@ class ChatScreen extends StatelessWidget {
                             }
                           }
                           //then set the document as read if different user
-                          String lastSender =
-                              messages.documents.first.data[MessageKeys.sender];
-                          if (lastSender !=
-                              Provider.of<AppData>(context)
-                                  .currentUserInfo
-                                  .id) {
-                            String document = Provider.of<CloudDB>(context)
-                                .conversationDocumentName(
-                              connectionId: friend.id,
-                            );
-                            CloudDB.setDocumentL1(
-                              collection: DBFolder.conversations,
-                              document: document,
-                              data: {MessageParentKeys.unreadBy: ''},
-                              merge: true,
-                            );
-                            print('Updated Messages to Read');
+                          //make sure there are messages
+                          if (messages.documents.length >= 1) {
+                            String lastSender = messages
+                                .documents.first.data[MessageKeys.sender];
+                            if (lastSender !=
+                                Provider.of<AppData>(context)
+                                    .currentUserInfo
+                                    .id) {
+                              String document = Provider.of<CloudDB>(context)
+                                  .conversationDocumentName(
+                                connectionId: friend.id,
+                              );
+                              CloudDB.setDocumentL1(
+                                collection: DBFolder.conversations,
+                                document: document,
+                                data: {MessageParentKeys.unreadBy: ''},
+                                merge: true,
+                              );
+                              print('Updated Messages to Read');
+                            }
                           }
                         }
                         //if there are unread messages

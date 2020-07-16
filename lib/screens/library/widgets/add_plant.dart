@@ -127,6 +127,41 @@ class AddPlant extends StatelessWidget {
                               );
                             },
                           );
+                          //*****CHECK FOR ORPHANED PLANTS*****//
+
+                          //generate a list of plants not in a shelf
+                          List<String> orphaned = AppData.orphanedPlantCheck(
+                            collections: Provider.of<AppData>(context)
+                                .currentUserCollections,
+                            plants:
+                                Provider.of<AppData>(context).currentUserPlants,
+                          );
+
+                          //if there are orphaned plants
+                          if (orphaned.length > 0) {
+                            //first check if orphaned collection exists
+                            String id = DBDefaultDocument.orphaned;
+                            bool matchCollection = Provider.of<AppData>(context)
+                                .currentUserCollections
+                                .any((element) => element.id == id);
+
+                            //provide default document
+                            Map defaultCollection =
+                                AppData.newDefaultCollection(
+                              collectionID: id,
+                            ).toMap();
+
+                            //now complete cloning
+                            Provider.of<CloudDB>(context)
+                                .updateDefaultDocumentL2(
+                              collectionL2: DBFolder.collections,
+                              documentL2: id,
+                              key: CollectionKeys.plants,
+                              entries: orphaned,
+                              match: matchCollection,
+                              defaultDocument: defaultCollection,
+                            );
+                          }
                         } catch (e) {
                           //if there are any issues adding information or images
                           showDialog(

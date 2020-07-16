@@ -619,7 +619,13 @@ class CloudDB extends ChangeNotifier {
   //get connection profile data
   static Future<Map> getConnectionProfile(
       {@required String connectionID}) async {
-    return (await _db.collection(usersPath).document(connectionID).get()).data;
+    try {
+      return (await _db.collection(usersPath).document(connectionID).get())
+          .data;
+    } catch (e) {
+      print(e);
+      return {};
+    }
   }
 
   //get a futures list of the connection data

@@ -30,6 +30,9 @@ class JournalTile extends StatelessWidget {
       @required this.journalKey});
   @override
   Widget build(BuildContext context) {
+    //set width as a variable so no need to reuse
+    double width = MediaQuery.of(context).size.width;
+
     return Padding(
       padding: EdgeInsets.all(5.0),
       child: Column(
@@ -67,7 +70,7 @@ class JournalTile extends StatelessWidget {
             child: ContainerWrapper(
               marginVertical: 1.0,
               color: AppTextColor.white,
-              child: Padding(
+              child: Container(
                 padding: EdgeInsets.all(8.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,13 +78,17 @@ class JournalTile extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Text(
-                          journal.title.toUpperCase(),
-                          style: TextStyle(
-                            fontSize: AppTextSize.medium *
-                                MediaQuery.of(context).size.width,
-                            color: AppTextColor.black,
-                            fontWeight: AppTextWeight.medium,
+                        Container(
+                          width: width * 0.8,
+                          child: Text(
+                            journal.title.toUpperCase(),
+                            softWrap: true,
+                            style: TextStyle(
+                              fontSize: AppTextSize.medium *
+                                  MediaQuery.of(context).size.width,
+                              color: AppTextColor.black,
+                              fontWeight: AppTextWeight.medium,
+                            ),
                           ),
                         ),
                         SizedBox(),

@@ -739,23 +739,7 @@ class UIBuilders extends ChangeNotifier {
       }
     } else {
       //initialize
-      List<List> entriesByMonth = [
-//        [
-//          JournalTile(
-//              journal: JournalData(
-//                  id: 'testing',
-//                  date: '1583971200',
-//                  title: 'Test',
-//                  entry: 'null'),
-//              showDate: true,
-//              showEdit: true,
-//              connectionLibrary: connectionLibrary,
-//              documentID: documentID,
-//              collection: DBFolder.users,
-//              journalList: journals,
-//              journalKey: UserKeys.journal)
-//        ]
-      ];
+      List<List> entriesByMonth = [];
       List<JournalTile> widgetsInMonth = [];
 
       //current label
@@ -1016,26 +1000,21 @@ class UIBuilders extends ChangeNotifier {
             currentValue != 0 &&
             currentValue > previousValue) {
           int duration = currentValue - previousValue;
-//          int duration;
-//          if (currentValue > previousValue) {
-//            duration = currentValue - previousValue;
-//          } else if (currentValue == previousValue) {
-//            duration = 1;
-//          } else {
-//            duration = 365 + currentValue - previousValue;
-//          }
           Gradient gradient;
           //STYLING
           String label;
           //BLOOM RELATED
           if (key == BloomKeys.first) {
-            gradient = kGradientGreenHorizontalDarkMedLight;
+            gradient = kGradientGreenVerticalDarkMed;
             label = 'Bud';
           } else if (key == BloomKeys.last) {
-            gradient = kGradientGreenHorizontalLightMedDark;
+            gradient = kGradientGreenVerticalMedLight;
+            label = 'Bloom';
+          } else if (key == BloomKeys.pollinate) {
+            gradient = kGradientGreenVerticalMedLight;
             label = 'Bloom';
           } else if (key == BloomKeys.seed) {
-            gradient = kGradientGreenSolidDark;
+            gradient = kGradientGreenVerticalDarkMed;
             label = 'Seed';
             //GROWTH RELATED
           } else if (key == GrowthKeys.mature) {

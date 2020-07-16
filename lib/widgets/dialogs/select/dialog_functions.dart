@@ -143,22 +143,16 @@ class DialogItemPlant extends StatelessWidget {
         if (PlantKeys.listDatePickerMultipleKeys.contains(buttonKey)) {
           Navigator.pop(context);
           Type dataType;
+          List defaultList;
           if (buttonKey == PlantKeys.sequenceBloom) {
             dataType = BloomData;
+            defaultList = [0, 0, 0, 0, 0];
           } else if (buttonKey == PlantKeys.sequenceGrowth) {
             dataType = GrowthData;
+            defaultList = [0, 0, 0];
           }
           //set to default to store future data
-          Provider.of<AppData>(context).newListInput = [
-//            [0, 0],
-//            [0, 0],
-//            [0, 0],
-//            [0, 0]
-            0,
-            0,
-            0,
-            0,
-          ];
+          Provider.of<AppData>(context).newListInput = defaultList;
           showDialog(
               context: context,
               builder: (BuildContext context) {

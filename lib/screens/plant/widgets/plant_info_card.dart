@@ -220,11 +220,6 @@ class PlantInfoCardContent extends StatelessWidget {
                                 if (toFormat.contains(cardKey)) {
                                   value = value.toLowerCase();
                                 }
-                                //parse integers just in case
-//                                    int integer;
-//                                    if (cardKey == PlantKeys.dateAcquired) {
-//                                      integer = int.parse(value);
-//                                    }
                                 //update
                                 CloudDB.updateDocumentL1(
                                   collection: DBFolder.plants,

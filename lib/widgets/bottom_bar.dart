@@ -4,8 +4,6 @@ import 'package:plant_collector/formats/tab_transitions.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/cloud_db.dart';
-import 'package:plant_collector/models/data_storage/firebase_folders.dart';
-import 'package:plant_collector/models/data_types/collection_data.dart';
 import 'package:plant_collector/models/data_types/plant/plant_data.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/screens/discover/discover.dart';
@@ -92,12 +90,6 @@ class BottomBar extends StatelessWidget {
                                 return SetUsernameBundle();
                               });
                         }
-//                      Navigator.push(
-//                        context,
-//                        MaterialPageRoute(
-//                          builder: (context) => FriendsScreen(),
-//                        ),
-//                      );
                       },
                       tabSelected: selectionNumber,
                       tabNumber: 2,
@@ -106,23 +98,14 @@ class BottomBar extends StatelessWidget {
                       return Consumer<UserData>(
                           builder: (context, UserData user, _) {
                         //don't show anything if no data or no requests and no messages
-                        if ((user == null && unreadMessages == null) ||
-                            (user.requestsReceived.length < 1 &&
-                                unreadMessages == false)) {
-                          return SizedBox();
-                        } else {
-//                          String requests =
-//                              user.requestsReceived.length.toString();
+                        if (user != null &&
+                            user.id != null &&
+                            (user.requestsReceived.length >= 1 ||
+                                unreadMessages == true)) {
                           return GestureDetector(
                             onTap: () {
                               Navigator.of(context).push(
                                   transitionNone(nextPage: FriendsScreen()));
-//                          Navigator.push(
-//                            context,
-//                            MaterialPageRoute(
-//                              builder: (context) => FriendsScreen(),
-//                            ),
-//                          );
                             },
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.start,
@@ -136,15 +119,6 @@ class BottomBar extends StatelessWidget {
                                         MediaQuery.of(context).size.width,
                                     color: kGreenLight,
                                   ),
-//                              Text(
-//                                requests,
-////                          textAlign: TextAlign.center,
-//                                style: TextStyle(
-//                                  fontSize: AppTextSize.small *
-//                                      MediaQuery.of(context).size.width,
-//                                  color: AppTextColor.white,
-//                                ),
-//                              ),
                                 ),
                                 SizedBox(
                                   height: 10 *
@@ -154,6 +128,8 @@ class BottomBar extends StatelessWidget {
                               ],
                             ),
                           );
+                        } else {
+                          return SizedBox();
                         }
                       });
                     }),
@@ -256,36 +232,6 @@ class BottomTab extends StatelessWidget {
             navigate();
             //when navigating to Library from any page, pop to get back
           } else if (tabNumber == 3) {
-            //run an orphaned plant check every time this button is hidden
-            //this decision to place it here is arbitrary
-            List<String> orphaned = AppData.orphanedPlantCheck(
-              collections: Provider.of<AppData>(context).currentUserCollections,
-              plants: Provider.of<AppData>(context).currentUserPlants,
-            );
-            print('Orphaned Plant List: $orphaned');
-            if (orphaned.length > 0) {
-              //CHECK COLLECTION FIRST
-              //first check if orphaned collection exists
-              bool matchCollection = false;
-              String collectionID = DBDefaultDocument.orphaned;
-              for (CollectionData collection
-                  in Provider.of<AppData>(context).currentUserCollections) {
-                if (collection.id == collectionID) matchCollection = true;
-              }
-              //provide default document
-              Map defaultCollection = AppData.newDefaultCollection(
-                collectionID: collectionID,
-              ).toMap();
-              //now complete cloning
-              Provider.of<CloudDB>(context).updateDefaultDocumentL2(
-                collectionL2: DBFolder.collections,
-                documentL2: collectionID,
-                key: CollectionKeys.plants,
-                entries: orphaned,
-                match: matchCollection,
-                defaultDocument: defaultCollection,
-              );
-            }
             Navigator.pop(context);
           } else {
             //otherwise pop the window and open the next

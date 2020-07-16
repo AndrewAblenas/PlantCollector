@@ -81,18 +81,9 @@ class LibraryScreen extends StatelessWidget {
 
     return MultiProvider(
       providers: [
-//        StreamProvider<List<RequestData>>.value(
-//          value: Provider.of<CloudDB>(context).streamRequestsData(),
-//        ),
-//        StreamProvider<List<FriendData>>.value(
-//          value: Provider.of<CloudDB>(context).streamFriendsData(),
-//        ),
         StreamProvider<UserData>.value(
           value: CloudDB.streamUserData(userID: userID),
         ),
-//        StreamProvider<List<GroupData>>.value(
-//          value: CloudDB.streamGroupsData(userID: userID),
-//        ),
         StreamProvider<List<CollectionData>>.value(
           value: CloudDB.streamCollectionsData(userID: userID),
         ),
@@ -105,9 +96,6 @@ class LibraryScreen extends StatelessWidget {
         implyLeading: showTitleBackButton,
         backgroundColor: kGreenLight,
         body: Container(
-//          decoration: BoxDecoration(
-//            gradient: kBackgroundGradientBlues,
-//          ),
           padding: EdgeInsets.only(
             top: 0.0,
             left: 0.01 * MediaQuery.of(context).size.width,
@@ -209,6 +197,7 @@ class LibraryScreen extends StatelessWidget {
                                   if (connectionLibrary == false) {
                                     Provider.of<AppData>(context)
                                         .currentUserCollections = collections;
+
                                     //UPDATE SHELF COUNT
                                     //initialize
                                     int filterTally = 0;
@@ -233,7 +222,8 @@ class LibraryScreen extends StatelessWidget {
                                         sellListFound = true;
                                       }
                                     }
-                                    //create wish if not found
+
+                                    //create wishlist if not found
                                     if (wishListFound == false) {
                                       Map<String, dynamic> upload =
                                           AppData.newDefaultCollection(
@@ -254,6 +244,7 @@ class LibraryScreen extends StatelessWidget {
                                           data: upload,
                                           merge: true);
                                     }
+
                                     //create sell if not found
                                     if (sellListFound == false) {
                                       Map<String, dynamic> upload =
@@ -276,6 +267,7 @@ class LibraryScreen extends StatelessWidget {
                                           data: upload,
                                           merge: true);
                                     }
+
                                     //update tally in user document
                                     if (Provider.of<AppData>(context)
                                                 .currentUserCollections !=
@@ -316,6 +308,8 @@ class LibraryScreen extends StatelessWidget {
                                               Provider.of<AppData>(context)
                                                       .currentUserInfo !=
                                                   null) {
+                                            //*****UPDATE COUNTS*****//
+
                                             //update photo count
                                             int tally = 0;
                                             for (PlantData plant
@@ -419,7 +413,7 @@ class LibraryScreen extends StatelessWidget {
                                                     onPress: () {},
                                                     showAlways: true,
                                                     text:
-                                                        'You\'re Library currently contains only default ${GlobalStrings.collections}.  '
+                                                        'Your Library currently contains only default ${GlobalStrings.collections}.  '
                                                         'These show a star beside the name and have special properties.  \n\n'
                                                         'Tap the "+ Build New ${GlobalStrings.collection}" button below to build your first personal ${GlobalStrings.collection}.  \n\n'
                                                         'A "Houseplants" or "Orchids" ${GlobalStrings.collection} might be a good place to start!  \n\n'

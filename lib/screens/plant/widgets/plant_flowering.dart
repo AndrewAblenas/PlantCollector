@@ -68,16 +68,10 @@ class PlantSequence extends StatelessWidget {
               ? GestureDetector(
                   onTap: () {
                     //set to default to store future data
-                    Provider.of<AppData>(context).newListInput = [
-//                      [0, 0],
-//                      [0, 0],
-//                      [0, 0],
-//                      [0, 0]
-                      0,
-                      0,
-                      0,
-                      0,
-                    ];
+                    print(dataType);
+                    //maybe these should be set elsewhere?
+                    Provider.of<AppData>(context).newListInput =
+                        (dataType == BloomData) ? [0, 0, 0, 0, 0] : [0, 0, 0];
                     showDialog(
                         context: context,
                         builder: (BuildContext context) {
@@ -85,46 +79,6 @@ class PlantSequence extends StatelessWidget {
                               dataType: dataType,
                               plantID: plantID,
                               sequenceMap: null);
-//                            DialogScreenSelect(
-//                            title: 'New Information',
-//                            items: UIBuilders.generateDateButtons(
-//                                map: BloomKeys.descriptors),
-//                            onAccept: () {
-//                              //get the list of inputted data
-//                              List data =
-//                                  Provider.of<AppData>(context).newListInput;
-//
-//                              //get the day of year, add to list
-//                              List bloomEntry = [];
-//                              for (List entry in data) {
-//                                int day = AppData.getDayOfYear(
-//                                    month: entry[0], day: entry[1]);
-//                                bloomEntry.add(day);
-//                              }
-//
-//                              //pull the days and add to a map to upload the data
-//                              Map<String, dynamic> bloomMap = {
-//                                BloomKeys.bud: bloomEntry[0],
-//                                BloomKeys.first: bloomEntry[1],
-//                                BloomKeys.last: bloomEntry[2],
-//                                BloomKeys.seed: bloomEntry[3]
-//                              };
-//
-//                              //upload the data
-//                              Provider.of<CloudDB>(context)
-//                                  .updateDocumentL1Array(
-//                                collection: DBFolder.plants,
-//                                document: plantID,
-//                                key: PlantKeys.bloomSequence,
-//                                entries: [bloomMap],
-//                                action: true,
-//                              );
-//
-//                              //clear and pop
-//                              Provider.of<AppData>(context).newListInput = [];
-//                              Navigator.pop(context);
-//                            },
-//                          );
                         });
                   },
                   onLongPress: () {

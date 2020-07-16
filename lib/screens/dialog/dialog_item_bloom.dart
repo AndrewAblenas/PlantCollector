@@ -9,12 +9,10 @@ class DayOfYearSelector extends StatelessWidget {
   final String buttonText;
   final int index;
   final DateTime timeNow;
-//  final List<DropdownMenuItem> itemList1;
   DayOfYearSelector({
     @required this.buttonText,
     @required this.index,
     @required this.timeNow,
-//    @required this.itemList1,
   });
 
   @override
@@ -50,43 +48,63 @@ class DayOfYearSelector extends StatelessWidget {
                           MediaQuery.of(context).size.width),
                   Consumer<List>(
                     builder: (context, List newInput, _) {
-                      //get the current value
+                      //get the existing date value
                       int dateMS = newInput[index];
+
                       //determine what string to show
+                      //if date is set to zero (empty) the show select
                       String selectedValueDisplay = (dateMS == 0)
                           ? 'Select'
                           : UIBuilders.standardDateFormat(msSinceEpoch: dateMS);
 
-                      //set the lowest possible date
-                      int largest = -2177452799000;
-                      //generate a list of indices
+                      //generate a list of previous indices to iterate through
                       List<int> previousList =
                           List<int>.generate(index, (i) => i);
+
+                      //set the lowest possible date as a default starting point
+                      int largest = -2177452799000;
+
                       //check value at each
                       for (int item in previousList) {
+                        //if input is not default (0) and is largest so far
                         if (newInput[item] != 0 && newInput[item] > largest)
                           largest = newInput[item];
                       }
+
+                      //no convert the largest value into a date to use
                       DateTime firstDate =
                           DateTime.fromMillisecondsSinceEpoch(largest);
 
                       //set last date
+                      //start with the current date as the last date selectable
                       int lowest = timeNow.millisecondsSinceEpoch;
+
+                      //create a list of indices after to iterate through
                       int length = newInput.length - (index + 1);
                       List<int> afterList =
                           List<int>.generate(length, (i) => i + index + 1);
-                      for (int item in afterList) {
-                        if (newInput[item] != 0 && newInput[item] < lowest)
-                          lowest = newInput[item];
+
+                      //now check future values to see if one is less than present time
+                      for (int dateIndex in afterList) {
+                        //if date is not default and is less than lowest
+                        if (newInput[dateIndex] != 0 &&
+                            newInput[dateIndex] < lowest)
+                          lowest = newInput[dateIndex];
                       }
+
+                      //now get the date object from the int
                       DateTime lastDate =
                           DateTime.fromMillisecondsSinceEpoch(lowest);
 
-                      //set initial date
+                      //if the date has a value set this as the initial value
+                      //otherwise default to current time (-10 to be safe)
                       DateTime initialDate = (dateMS == 0)
                           ? DateTime.fromMillisecondsSinceEpoch(
                               timeNow.millisecondsSinceEpoch - 10)
                           : DateTime.fromMillisecondsSinceEpoch(dateMS);
+
+                      //this first check ensures changes haven't resulted in a date outside
+                      //the past/present range
                       if (initialDate.millisecondsSinceEpoch >
                               firstDate.millisecondsSinceEpoch &&
                           initialDate.millisecondsSinceEpoch <
@@ -121,16 +139,6 @@ class DayOfYearSelector extends StatelessWidget {
 //                          Navigator.pop(context);
                             }
                           });
-//                                  return DialogPicker(
-//                                    title: 'Pick a Date',
-//                                    columns: 4,
-//                                    listViewHeight: 0.55 *
-//                                        MediaQuery.of(context).size.width,
-//                                    widgets: UIBuilders.dateButtonsList(
-//                                        index1: index,
-//                                        index2: 0,
-//                                        numbers: DatesCustom.monthNumbers),
-//                                  );
                         },
                         child: Center(
                           child: Container(
