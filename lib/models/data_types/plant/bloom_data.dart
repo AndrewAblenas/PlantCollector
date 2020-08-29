@@ -20,7 +20,7 @@ class BloomKeys {
     first: 'First Bloom',
     pollinate: 'Pollination',
     last: 'Bloom Complete',
-    seed: 'Seeds Mature',
+    seed: 'Seed/Fruit Mature',
   };
 }
 

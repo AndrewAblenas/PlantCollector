@@ -298,23 +298,11 @@ class UIBuilders extends ChangeNotifier {
           plantName = plantName + '${plant.species.toLowerCase()} ';
         }
         if (plant.hybrid != '') {
-          List<String> splitList = plant.hybrid.split(' ');
-          List<String> newList = [];
-          for (String word in splitList) {
-            word = word[0].toUpperCase() + word.substring(1);
-            newList.add(word);
-          }
-          String hybrid = newList.join(' ');
+          String hybrid = capitalizeFirst(displayText: plant.hybrid);
           plantName = plantName + '$hybrid ';
         }
         if (plant.variety != '') {
-          List<String> splitList = plant.variety.split(' ');
-          List<String> newList = [];
-          for (String word in splitList) {
-            word = word[0].toUpperCase() + word.substring(1);
-            newList.add(word);
-          }
-          String variety = newList.join(' ');
+          String variety = capitalizeFirst(displayText: plant.variety);
           plantName = plantName + "'$variety' ";
         }
         if (plant.name != '') {
@@ -341,30 +329,39 @@ class UIBuilders extends ChangeNotifier {
     return finalList + '\n\n${GlobalStrings.getTheApp}';
   }
 
+  //RETURN STRING WITH CAPITALIZED FIRST LETTERS
+  static String capitalizeFirst({@required displayText}) {
+    List<String> splitList = displayText.split(' ');
+    List<String> newList = [];
+    for (String word in splitList) {
+      //There was an issue here
+      //If the string had a space at the beginning or end an empty character would add to the list
+      if (word.length > 1) {
+        String formatted = word[0].toUpperCase();
+        formatted = formatted + word.substring(1);
+        newList.add(formatted);
+      }
+    }
+    return newList.join(' ');
+  }
+
   //FORMAT INFORMATION TO DISPLAY NAME PROPERLY
   static String formatPlantInfoCardText(
       {@required String type, @required String displayText}) {
     if (displayText != null && displayText != '') {
       if (type == PlantKeys.genus) {
-        displayText = displayText[0].toUpperCase() + displayText.substring(1);
+        //should only be one word with first letter capitalized
+        displayText = capitalizeFirst(displayText: displayText);
       } else if (type == PlantKeys.species) {
+        //should only be one word all lowercase
         displayText = displayText.toLowerCase();
       } else if (type == PlantKeys.hybrid) {
-        List<String> splitList = displayText.split(' ');
-        List<String> newList = [];
-        for (String word in splitList) {
-          word = word[0].toUpperCase() + word.substring(1);
-          newList.add(word);
-        }
-        displayText = newList.join(' ');
+        //multiple words, first letter capitalized for each word
+        displayText = capitalizeFirst(displayText: displayText);
       } else if (type == PlantKeys.variety) {
-        List<String> splitList = displayText.split(' ');
-        List<String> newList = [];
-        for (String word in splitList) {
-          word = word[0].toUpperCase() + word.substring(1);
-          newList.add(word);
-        }
-        displayText = "'" + newList.join(' ') + "'";
+        //multiple words, first letter capitalized for each word
+        String formattedText = capitalizeFirst(displayText: displayText);
+        displayText = "'" + formattedText + "'";
       } else if (PlantKeys.listDatePickerKeys.contains(type)) {
         int integer = int.parse(displayText);
         DateTime date = DateTime.fromMillisecondsSinceEpoch(integer);
@@ -1015,7 +1012,7 @@ class UIBuilders extends ChangeNotifier {
             label = 'Bloom';
           } else if (key == BloomKeys.seed) {
             gradient = kGradientGreenVerticalDarkMed;
-            label = 'Seed';
+            label = 'Ripening';
             //GROWTH RELATED
           } else if (key == GrowthKeys.mature) {
             gradient = kGradientGreenVerticalMedLight;

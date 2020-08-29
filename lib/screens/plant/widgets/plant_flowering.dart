@@ -137,34 +137,9 @@ class FullSequence extends StatelessWidget {
       onTap: () {
         //only allow for your library
         if (connectionLibrary == false) {
-          //CLEAR ANY OLD DATA
+          //clear any old data
           Provider.of<AppData>(context).newListInput = [];
-//          Provider.of<AppData>(context).newListInput = [
-//            [
-//              UIBuilders.getMonthFromDayOfYear(
-//                  dayOfYear: sequenceMap[BloomKeys.bud]),
-//              UIBuilders.getMonthDayFromDayOfYear(
-//                  dayOfYear: sequenceMap[BloomKeys.bud])
-//            ],
-//            [
-//              UIBuilders.getMonthFromDayOfYear(
-//                  dayOfYear: sequenceMap[BloomKeys.first]),
-//              UIBuilders.getMonthDayFromDayOfYear(
-//                  dayOfYear: sequenceMap[BloomKeys.first])
-//            ],
-//            [
-//              UIBuilders.getMonthFromDayOfYear(
-//                  dayOfYear: sequenceMap[BloomKeys.last]),
-//              UIBuilders.getMonthDayFromDayOfYear(
-//                  dayOfYear: sequenceMap[BloomKeys.last])
-//            ],
-//            [
-//              UIBuilders.getMonthFromDayOfYear(
-//                  dayOfYear: sequenceMap[BloomKeys.seed]),
-//              UIBuilders.getMonthDayFromDayOfYear(
-//                  dayOfYear: sequenceMap[BloomKeys.seed])
-//            ],
-//          ];
+          //then open a dialog
           showDialog(
               context: context,
               builder: (BuildContext context) {
@@ -179,23 +154,25 @@ class FullSequence extends StatelessWidget {
                   for (String item in keyList) {
                     Provider.of<AppData>(context)
                         .newListInput
-                        .add(sequenceMap[item]
-//                        [
-//                      UIBuilders.getMonthFromDayOfYear(
-//                          dayOfYear: sequenceMap[item]),
-//                      UIBuilders.getMonthDayFromDayOfYear(
-//                          dayOfYear: sequenceMap[item])
-//                    ]
-                            );
+                        .add(sequenceMap[item]);
                   }
                 } else {
                   //set to default to store future data
-                  Provider.of<AppData>(context).newListInput = [
-                    0,
-                    0,
-                    0,
-                    0,
-                  ];
+                  if (dataType == BloomData) {
+                    Provider.of<AppData>(context).newListInput = [
+                      0,
+                      0,
+                      0,
+                      0,
+                      0,
+                    ];
+                  } else if (dataType == GrowthData) {
+                    Provider.of<AppData>(context).newListInput = [
+                      0,
+                      0,
+                      0,
+                    ];
+                  }
                 }
                 return SequenceScreen(
                     dataType: dataType,
