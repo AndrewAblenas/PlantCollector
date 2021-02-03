@@ -25,13 +25,13 @@ class BottomBar extends StatelessWidget {
         value: Provider.of<CloudDB>(context).checkForUnreadMessages(),
         child: Container(
           height: 60.0 * MediaQuery.of(context).size.width * kScaleFactor,
-          color: kGreenDark,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               //if you change the order and tab numbers, make sure to update screens tab numbers too
               Expanded(
                 child: BottomTab(
+                  offset: 2,
                   symbol: Icon(
                     Icons.blur_circular,
                     color: AppTextColor.white,
@@ -39,17 +39,23 @@ class BottomBar extends StatelessWidget {
                   ),
                   navigate: () {
                     //set default custom tab number to 2 on page load
-                    if (Provider.of<AppData>(context).customTabSelected == null)
+                    if (Provider.of<AppData>(context, listen: false)
+                            .customTabSelected ==
+                        null)
                       //set the number directly to prevent call of the notify listeners
-                      Provider.of<AppData>(context).customTabSelected = 2;
+                      Provider.of<AppData>(context, listen: false)
+                          .customTabSelected = 2;
 
                     //if the tab selected is null then assign a value
-                    if (Provider.of<AppData>(context).customFeedSelected ==
+                    if (Provider.of<AppData>(context, listen: false)
+                            .customFeedSelected ==
                         null) {
-                      Provider.of<AppData>(context).customFeedSelected = 3;
-                      Provider.of<AppData>(context).customFeedType = PlantData;
-                      Provider.of<AppData>(context).customFeedQueryField =
-                          PlantKeys.created;
+                      Provider.of<AppData>(context, listen: false)
+                          .customFeedSelected = 3;
+                      Provider.of<AppData>(context, listen: false)
+                          .customFeedType = PlantData;
+                      Provider.of<AppData>(context, listen: false)
+                          .customFeedQueryField = PlantKeys.created;
                     }
 
 //                  Navigator.push(
@@ -70,6 +76,7 @@ class BottomBar extends StatelessWidget {
                   fit: StackFit.passthrough,
                   children: <Widget>[
                     BottomTab(
+                      offset: 1,
                       symbol: Icon(
                         Icons.people,
                         color: AppTextColor.white,
@@ -80,7 +87,7 @@ class BottomBar extends StatelessWidget {
                         Navigator.of(context)
                             .push(transitionNone(nextPage: FriendsScreen()));
                         //show dialog to prompt for user handle
-                        if (Provider.of<AppData>(context)
+                        if (Provider.of<AppData>(context, listen: false)
                                 .currentUserInfo
                                 .uniquePublicID ==
                             '') {
@@ -154,19 +161,24 @@ class BottomBar extends StatelessWidget {
               ),
               Expanded(
                 child: BottomTab(
+                  offset: 1,
                   symbol: Icon(
                     Icons.search,
                     color: AppTextColor.white,
                     size: AppTextSize.huge * MediaQuery.of(context).size.width,
                   ),
                   navigate: () {
-                    Provider.of<AppData>(context).setInputSearchBarLive('');
-                    if (Provider.of<AppData>(context).tabBarTopSelected ==
+                    Provider.of<AppData>(context, listen: false)
+                        .setInputSearchBarLive('');
+                    if (Provider.of<AppData>(context, listen: false)
+                            .tabBarTopSelected ==
                         null) {
-                      Provider.of<AppData>(context).tabBarTopSelected = 1;
+                      Provider.of<AppData>(context, listen: false)
+                          .tabBarTopSelected = 1;
                     }
                     //reset map
-                    Provider.of<AppData>(context).searchQueryInput = {};
+                    Provider.of<AppData>(context, listen: false)
+                        .searchQueryInput = {};
                     Navigator.of(context)
                         .push(transitionNone(nextPage: SearchScreen()));
 //                  Navigator.push(
@@ -182,6 +194,7 @@ class BottomBar extends StatelessWidget {
               ),
               Expanded(
                 child: BottomTab(
+                  offset: 2,
                   symbol: Icon(
                     Icons.settings,
                     color: AppTextColor.white,
@@ -215,12 +228,13 @@ class BottomTab extends StatelessWidget {
   final Widget symbol;
   final int tabSelected;
   final int tabNumber;
-  BottomTab({
-    @required this.symbol,
-    @required this.navigate,
-    this.tabSelected,
-    @required this.tabNumber,
-  });
+  final int offset;
+  BottomTab(
+      {@required this.symbol,
+      @required this.navigate,
+      this.tabSelected,
+      @required this.tabNumber,
+      this.offset = 0});
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -240,20 +254,29 @@ class BottomTab extends StatelessWidget {
           }
         }
       },
-      child: Container(
-        height: double.infinity,
-        decoration: BoxDecoration(
-          gradient: tabSelected == tabNumber
-              ? kBackgroundGradient
-              : kGradientGreenSolidDark,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(
-                5.0 * MediaQuery.of(context).size.width * kScaleFactor),
-            topRight: Radius.circular(
-                5.0 * MediaQuery.of(context).size.width * kScaleFactor),
+      child: Column(
+        children: <Widget>[
+          Expanded(flex: offset, child: SizedBox()),
+          Expanded(
+            flex: 10,
+            child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: BoxDecoration(
+                gradient: tabSelected == tabNumber
+                    ? kBackgroundGradient
+                    : kGradientGreenSolidDark90,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(
+                      5.0 * MediaQuery.of(context).size.width * kScaleFactor),
+                  topRight: Radius.circular(
+                      5.0 * MediaQuery.of(context).size.width * kScaleFactor),
+                ),
+              ),
+              child: symbol,
+            ),
           ),
-        ),
-        child: symbol,
+        ],
       ),
     );
   }

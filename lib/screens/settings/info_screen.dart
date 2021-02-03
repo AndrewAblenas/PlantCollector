@@ -39,7 +39,7 @@ class InfoScreen extends StatelessWidget {
                     //make sure future is not null
                     if (future != null && future.data != null) {
                       //extract the data
-                      Map communication = future.data;
+                      Map communication = future.data();
                       List keys = communication.keys.toList();
                       List<Widget> widgets = [];
 

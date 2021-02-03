@@ -14,16 +14,18 @@ import 'package:plant_collector/widgets/dialogs/dialog_confirm.dart';
 class RegisterScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    //easy provider
+    UserAuth provUserAuthFalse = Provider.of<UserAuth>(context, listen: false);
     //email input field
     InputCard emailInput = InputCard(
       keyboardType: TextInputType.emailAddress,
       cardPrompt: 'Enter your email address',
       onChanged: (input) {
-        Provider.of<UserAuth>(context).email = input;
+        provUserAuthFalse.email = input;
       },
       validator: (input) {
         String response;
-        if (Provider.of<UserAuth>(context).email.contains('@')) {
+        if (provUserAuthFalse.email.contains('@')) {
           response = 'Please double check your email';
         }
         return response;
@@ -34,11 +36,11 @@ class RegisterScreen extends StatelessWidget {
     ButtonAuth createAccountButton = ButtonAuth(
       text: 'Register',
       onPress: () async {
-        FirebaseUser user = await Provider.of<UserAuth>(context).userRegister();
+        User user = await provUserAuthFalse.userRegister();
         //create DB entry for user
         if (user != null) {
           //send email verification
-          Provider.of<UserAuth>(context).userSendEmail();
+          provUserAuthFalse.userSendEmail();
           //set the user document
           CloudDB.createUserDocument(
             userID: user.uid,
@@ -74,7 +76,7 @@ class RegisterScreen extends StatelessWidget {
                 text:
                     'We had trouble registering you. Please check the email and password you provided and try again.  '
                     'Don\'t forget to include a special character (!@#\\/\$&*~.) in your password.'
-                    '${Provider.of<UserAuth>(context).error != null ? Provider.of<UserAuth>(context).error : ''}',
+                    '${provUserAuthFalse.error != null ? provUserAuthFalse.error : ''}',
                 buttonText: 'OK',
                 onPressed: () {
                   Navigator.pop(context);

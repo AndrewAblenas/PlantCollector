@@ -36,7 +36,6 @@ class PlantSequence extends StatelessWidget {
     }
 
     return TileWhite(
-      bottomPadding: 0.0,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
@@ -70,7 +69,7 @@ class PlantSequence extends StatelessWidget {
                     //set to default to store future data
                     print(dataType);
                     //maybe these should be set elsewhere?
-                    Provider.of<AppData>(context).newListInput =
+                    Provider.of<AppData>(context, listen: false).newListInput =
                         (dataType == BloomData) ? [0, 0, 0, 0, 0] : [0, 0, 0];
                     showDialog(
                         context: context,
@@ -133,12 +132,13 @@ class FullSequence extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
+    AppData provAppDataFalse = Provider.of<AppData>(context, listen: false);
     return GestureDetector(
       onTap: () {
         //only allow for your library
         if (connectionLibrary == false) {
           //clear any old data
-          Provider.of<AppData>(context).newListInput = [];
+          provAppDataFalse.newListInput = [];
           //then open a dialog
           showDialog(
               context: context,
@@ -152,14 +152,12 @@ class FullSequence extends StatelessWidget {
                     keyList = GrowthKeys.list;
                   }
                   for (String item in keyList) {
-                    Provider.of<AppData>(context)
-                        .newListInput
-                        .add(sequenceMap[item]);
+                    provAppDataFalse.newListInput.add(sequenceMap[item]);
                   }
                 } else {
                   //set to default to store future data
                   if (dataType == BloomData) {
-                    Provider.of<AppData>(context).newListInput = [
+                    provAppDataFalse.newListInput = [
                       0,
                       0,
                       0,
@@ -167,7 +165,7 @@ class FullSequence extends StatelessWidget {
                       0,
                     ];
                   } else if (dataType == GrowthData) {
-                    Provider.of<AppData>(context).newListInput = [
+                    provAppDataFalse.newListInput = [
                       0,
                       0,
                       0,
@@ -289,7 +287,7 @@ class SequenceScreen extends StatelessWidget {
 //          int day = UIBuilders.getDayOfYear(month: entry[0], day: entry[1]);
 //          entries.add(day);
 //        }
-        List data = Provider.of<AppData>(context).newListInput;
+        List data = Provider.of<AppData>(context, listen: false).newListInput;
 
         //pull the days and add to a map to upload the data
         Map<String, dynamic> valueMap = {};
@@ -338,7 +336,7 @@ class SequenceScreen extends StatelessWidget {
         }
 
         //clear and pop
-        Provider.of<AppData>(context).newListInput = [];
+        Provider.of<AppData>(context, listen: false).newListInput = [];
         Navigator.pop(context);
       },
     );

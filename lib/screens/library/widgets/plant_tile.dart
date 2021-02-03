@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 import 'package:plant_collector/models/data_types/plant/plant_data.dart';
@@ -40,8 +41,9 @@ class PlantTile extends StatelessWidget {
       Map<String, dynamic> data = {
         PlantKeys.thumbnail: thumbUrl,
         //if a user has chosen to hide their library except from friends don't make globally visible
-        PlantKeys.isVisible:
-            !Provider.of<AppData>(context).currentUserInfo.privateLibrary,
+        PlantKeys.isVisible: !Provider.of<AppData>(context, listen: false)
+            .currentUserInfo
+            .privateLibrary,
       };
       //and finally upload the new thumbnail URL
       CloudDB.updateDocumentL1(
@@ -65,7 +67,8 @@ class PlantTile extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        Provider.of<AppData>(context).forwardingPlantID = plant.id;
+        Provider.of<AppData>(context, listen: false).forwardingPlantID =
+            plant.id;
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -84,8 +87,7 @@ class PlantTile extends StatelessWidget {
             context: context,
             builder: (BuildContext context) {
               return DialogScreenSelect(
-                title:
-                    'Move this ${GlobalStrings.plant} to a different ${GlobalStrings.collection}',
+                title: 'Move to a different ${GlobalStrings.collection}',
                 items: UIBuilders.createDialogCollectionButtons(
                   selectedItemID: plant.id,
                   currentParentID: collectionID,
@@ -109,7 +111,20 @@ class PlantTile extends StatelessWidget {
             child: plant.thumbnail != ''
                 ? CachedNetworkImage(
                     imageUrl: plant.thumbnail,
-                    fit: BoxFit.cover,
+                    // fit: BoxFit.cover,
+                    imageBuilder: (context, imageProvider) {
+                      return Container(
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                              image: imageProvider, fit: BoxFit.cover),
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(
+                              5.0,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                     errorWidget: (context, error, _) {
                       return PlantTileDefaultImage();
                     })
@@ -127,7 +142,7 @@ class PlantTile extends StatelessWidget {
               (showUpdateBubble)
                   ? UpdateBubble(
                       color:
-                          (recentAdd == true) ? Colors.red : Colors.redAccent,
+                          (recentAdd == true) ? kBubbleUrgent : kBubbleLesser,
                       text: (recentAdd == true)
                           ? 'New ${AppData.plantTileText(creationDate: plant.created)}'
                           : 'Updated ${AppData.plantTileText(creationDate: plant.update)}')
@@ -139,10 +154,14 @@ class PlantTile extends StatelessWidget {
                   : SizedBox(),
               plant.name != ''
                   ? Container(
-                      color: const Color(0x55000000),
-                      margin: EdgeInsets.all(3.0 *
-                          MediaQuery.of(context).size.width *
-                          kScaleFactor),
+                      decoration: BoxDecoration(
+                          color: kBubbleGreen,
+                          borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(5.0),
+                              bottomRight: Radius.circular(5.0))),
+                      // margin: EdgeInsets.all(2.0 *
+                      //     MediaQuery.of(context).size.width *
+                      //     kScaleFactor),
                       padding: EdgeInsets.all(3.0 *
                           MediaQuery.of(context).size.width *
                           kScaleFactor),
@@ -173,21 +192,32 @@ class PlantTile extends StatelessWidget {
 }
 
 class PlantTileDefaultImage extends StatelessWidget {
-  const PlantTileDefaultImage();
+  final double iconScale;
+  PlantTileDefaultImage({this.iconScale = 1.0});
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
-        Image.asset(
-          'assets/images/default.png',
-          fit: BoxFit.fill,
+        Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+                image: AssetImage(
+                  'assets/images/default.png',
+                ),
+                fit: BoxFit.cover),
+            borderRadius: BorderRadius.all(
+              Radius.circular(
+                5.0,
+              ),
+            ),
+          ),
         ),
         Center(
           child: Icon(
             Icons.local_florist,
             color: Color(0x15FFFFFF),
-            size: 0.22 * MediaQuery.of(context).size.width,
+            size: 0.22 * MediaQuery.of(context).size.width * iconScale,
           ),
         ),
       ],

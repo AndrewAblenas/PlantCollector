@@ -73,7 +73,8 @@ class TabBarTab extends StatelessWidget {
         onTap: () {
           onPress();
           //this sets number and type
-          Provider.of<AppData>(context).setTabBarTopSelected(tabNumber: index);
+          Provider.of<AppData>(context, listen: false)
+              .setTabBarTopSelected(tabNumber: index);
         },
         child: Container(
           alignment: Alignment.center,

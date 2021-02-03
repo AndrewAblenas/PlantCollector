@@ -16,7 +16,6 @@ class PlantPhotoDefault extends StatelessWidget {
     return Stack(
       children: <Widget>[
         Container(
-          margin: EdgeInsets.only(bottom: (largeWidget == true) ? 10.0 : 0.0),
           decoration: BoxDecoration(
             image: DecorationImage(
               fit: BoxFit.cover,
@@ -25,14 +24,11 @@ class PlantPhotoDefault extends StatelessWidget {
             boxShadow: kShadowBox,
           ),
         ),
-        Padding(
-          padding: EdgeInsets.only(bottom: (largeWidget == true) ? 10.0 : 0.0),
-          child: Center(
-            child: Icon(
-              Icons.image,
-              color: Color(0x77FFFFFF),
-              size: iconSize * MediaQuery.of(context).size.width,
-            ),
+        Center(
+          child: Icon(
+            Icons.image,
+            color: Color(0x77FFFFFF),
+            size: iconSize * MediaQuery.of(context).size.width,
           ),
         ),
       ],

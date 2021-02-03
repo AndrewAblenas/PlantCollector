@@ -55,7 +55,7 @@ class _ComposeMessageState extends State<ComposeMessage> {
             minLines: 1,
             maxLines: 50,
             onChanged: (value) {
-              Provider.of<AppData>(context).newDataInput = value;
+              Provider.of<AppData>(context, listen: false).newDataInput = value;
             },
           ),
         ),
@@ -68,36 +68,42 @@ class _ComposeMessageState extends State<ComposeMessage> {
               size: 30.0 * MediaQuery.of(context).size.width * kScaleFactor,
             ),
             onPressed: () {
-              String text = Provider.of<AppData>(context).newDataInput;
-//              String connectionID =
-//                  Provider.of<AppData>(context).getCurrentChatId();
-              String currentID =
-                  Provider.of<CloudDB>(context).currentUserFolder;
+              String text =
+                  Provider.of<AppData>(context, listen: false).newDataInput;
+
+              String currentID = Provider.of<CloudDB>(context, listen: false)
+                  .currentUserFolder;
 
               //get document name
-              String document =
-                  Provider.of<CloudDB>(context).conversationDocumentName(
+              String document = Provider.of<CloudDB>(context, listen: false)
+                  .conversationDocumentName(
                 connectionId: widget.friendProfile.id,
               );
 
               //create message
               MessageData message = AppData.createMessage(
                 senderID: currentID,
-                senderName: Provider.of<AppData>(context).currentUserInfo.name,
+                senderName: Provider.of<AppData>(context, listen: false)
+                    .currentUserInfo
+                    .name,
                 targetDevices: widget.friendProfile.devicePushTokens,
                 recipient: widget.friendProfile.id,
                 text: text,
-                type: (text.startsWith('http') && !text.contains(' '))
+                type: (text != null &&
+                        text.startsWith('http') &&
+                        !text.contains(' '))
                     ? MessageKeys.typeUrl
                     : MessageKeys.typeText,
-                media: (text.startsWith('http') && !text.contains(' '))
+                media: (text != null &&
+                        text.startsWith('http') &&
+                        !text.contains(' '))
                     ? text
                     : '',
               );
               CloudDB.sendMessage(message: message, document: document);
 
               //check if chat started
-              if (!Provider.of<AppData>(context)
+              if (!Provider.of<AppData>(context, listen: false)
                   .currentUserInfo
                   .chats
                   .contains(widget.friendProfile.id)) {
@@ -125,7 +131,7 @@ class _ComposeMessageState extends State<ComposeMessage> {
 //                    data: participants);
               }
               //clear data input and field text
-              Provider.of<AppData>(context).newDataInput = null;
+              Provider.of<AppData>(context, listen: false).newDataInput = null;
               _controller.clear();
             },
           ),

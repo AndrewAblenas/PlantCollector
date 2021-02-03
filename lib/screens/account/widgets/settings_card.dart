@@ -33,6 +33,10 @@ class SettingsCard extends StatelessWidget {
       this.obscureInput = false});
   @override
   Widget build(BuildContext context) {
+    //easy provider
+    AppData provAppDataFalse = Provider.of<AppData>(context, listen: false);
+    //easy format
+    double relativeWidth = MediaQuery.of(context).size.width;
     Color avatarBackground =
         (disableEdit == true) ? kGreenMedium : kGreenMedium;
 
@@ -42,7 +46,7 @@ class SettingsCard extends StatelessWidget {
     return ContainerCard(
       child: FlatButton(
         child: Container(
-          width: 0.95 * MediaQuery.of(context).size.width,
+          width: 0.95 * relativeWidth,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             mainAxisSize: MainAxisSize.max,
@@ -50,21 +54,20 @@ class SettingsCard extends StatelessWidget {
               CircleAvatar(
                 backgroundColor: avatarBackground,
                 foregroundColor: avatarForeground,
-                radius: AppTextSize.tiny * MediaQuery.of(context).size.width,
+                radius: AppTextSize.tiny * relativeWidth,
                 child: Icon(
                   Icons.edit,
-                  size: AppTextSize.tiny * MediaQuery.of(context).size.width,
+                  size: AppTextSize.tiny * relativeWidth,
                 ),
               ),
               SizedBox(
-                width: 5.0 * MediaQuery.of(context).size.width * kScaleFactor,
+                width: 5.0 * relativeWidth * kScaleFactor,
               ),
               Text(
                 '$cardLabel:  ',
                 textAlign: TextAlign.start,
                 style: TextStyle(
-                  fontSize:
-                      AppTextSize.small * MediaQuery.of(context).size.width,
+                  fontSize: AppTextSize.small * relativeWidth,
                   color: kGreenMedium,
                 ),
               ),
@@ -73,8 +76,7 @@ class SettingsCard extends StatelessWidget {
                   '$cardText',
                   textAlign: TextAlign.left,
                   style: TextStyle(
-                    fontSize:
-                        AppTextSize.small * MediaQuery.of(context).size.width,
+                    fontSize: AppTextSize.small * relativeWidth,
                     color: Colors.white,
                     shadows: kShadowText,
                   ),
@@ -104,16 +106,19 @@ class SettingsCard extends StatelessWidget {
               context: context,
               barrierDismissible: false,
               builder: (BuildContext context) {
+                //set default text to current value
+                provAppDataFalse.newDataInput = cardText;
                 return DialogScreenInput(
-                    title: authPromptText != null ? authPromptText : cardLabel,
-                    acceptText: acceptButtonText,
-                    obscure: obscureInput,
-                    acceptOnPress: onSubmit,
-                    onChange: (input) {
-                      Provider.of<AppData>(context).newDataInput = input;
-                    },
-                    cancelText: 'Cancel',
-                    hintText: null);
+                  title: authPromptText != null ? authPromptText : cardLabel,
+                  acceptText: acceptButtonText,
+                  obscure: obscureInput,
+                  acceptOnPress: onSubmit,
+                  onChange: (input) {
+                    provAppDataFalse.newDataInput = input;
+                  },
+                  cancelText: 'Cancel',
+                  hintText: cardText,
+                );
               },
             );
           }

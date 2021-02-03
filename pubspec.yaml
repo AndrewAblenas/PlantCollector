@@ -1,9 +1,9 @@
 name: plant_collector
 description: Create a digital collection of all your plants
 # Always remember to update the version number
-# 2020-05-04
+# 2021-01-22
 # TODO version number, and version code
-version: 1.5.2+11
+version: 1.6.0+12
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
@@ -12,39 +12,44 @@ dependencies:
   flutter:
     sdk: flutter
 
-  connectivity: ^0.4.8+2
-  cupertino_icons: ^0.1.2
+  connectivity: ^2.0.2
+  cupertino_icons: ^1.0.0
+#  downloads path for export
+  downloads_path_provider: ^0.1.0
+#  support for import/export of collection to csv
+  csv: ^4.1.0
 #  this package is needed to check version for android sdk 29 +
 #  device_info: ^0.4.2+1
-  provider: ^3.1.0
+  provider: ^4.3.3
   modal_progress_hud: ^0.1.3
-  path_provider: ^1.3.0
-  path: ^1.6.4
-  image_picker: ^0.6.3
-  carousel_slider: ^1.3.0
-  photo_view: ^0.6.0
+  path_provider: ^1.6.27
+  path: ^1.7.0
+  image_picker: ^0.6.7
+  carousel_slider: ^2.3.1
+  photo_view: ^0.10.3
 # ***iOS - must comment out the below line, uncomment for Android
-  flutter_exif_rotation: ^0.2.7
-  image: ^2.1.4
-  date_format: ^1.0.8
+  flutter_exif_rotation: 0.3.1
+  image: ^2.1.19
+  date_format: ^1.0.9
 #  FIREBASE
-  firebase_storage: ^3.1.1
+  firebase_storage: ^7.0.0
 # ***iOS - WORKAROUND - remove ^ in line of code below, add back for Android
   # 0.15.4 works for iOS
-  firebase_auth: ^0.16.0
-  cloud_firestore: ^0.13.1+1
+  firebase_auth: ^0.20.0
+  cloud_firestore: ^0.16.0
+#  this may have to be lower to 6.0.0 or so
+  firebase_messaging: ^6.0.16
 #  SIGN IN
 #  google_sign_in: ^4.1.4
-  splashscreen: ^1.2.0
+  splashscreen: ^1.3.5
   cached_network_image: ^2.1.0
-  flare_flutter: ^1.7.1
-  expandable: ^3.0.1
+  flare_flutter: ^2.0.6
+  expandable: ^4.1.4
 #  flutter_material_color_picker: ^1.0.5
 #  reorderables: ^0.2.12
-  share: ^0.6.3+1
-  firebase_messaging: ^6.0.16
-  flutter_local_notifications: ^0.8.4+3
-  url_launcher: ^5.2.7
+  share: ^0.6.5
+  flutter_local_notifications: ^3.0.3
+  url_launcher: ^5.7.10
 
 # ***iOS - WORKAROUND - comment out for Android
 #dependency_overrides:

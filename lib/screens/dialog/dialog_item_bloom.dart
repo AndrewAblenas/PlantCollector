@@ -17,22 +17,23 @@ class DayOfYearSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    //easy reference
+    //this must be true to ensure dialog screen updates
+    AppData provAppDataFalse = Provider.of<AppData>(context, listen: true);
+    //easy scale
+    double width = MediaQuery.of(context).size.width;
     return Provider<List>.value(
-      value: Provider.of<AppData>(context).newListInput,
+      value: provAppDataFalse.newListInput,
       child: Container(
         width: double.infinity,
         child: Column(
           children: <Widget>[
             Padding(
               padding: EdgeInsets.symmetric(
-                  vertical:
-                      AppTextSize.small * MediaQuery.of(context).size.width,
-                  horizontal: 0.0),
+                  vertical: AppTextSize.small * width, horizontal: 0.0),
               child: Column(
                 children: <Widget>[
-                  SizedBox(
-                      height:
-                          AppTextSize.tiny * MediaQuery.of(context).size.width),
+                  SizedBox(height: AppTextSize.tiny * width),
                   Text(
                     buttonText.toUpperCase(),
                     style: TextStyle(
@@ -131,8 +132,8 @@ class DayOfYearSelector extends StatelessWidget {
                               //format date
                               int value = date.millisecondsSinceEpoch;
                               //save to input array
-                              Provider.of<AppData>(context)
-                                  .setInputNewList(index: index, value: value);
+                              provAppDataFalse.setInputNewList(
+                                  index: index, value: value);
                               //this must be here to prevent unstable widget tree
 //                          Navigator.pop(context);
                             } else {
@@ -184,7 +185,7 @@ class DayOfYearSelector extends StatelessWidget {
 //
 //                          //on first screen load and if user selects 0 month
 //                          if (newInput[index][0].toString() == '0') {
-//                            Provider.of<AppData>(context).newListInput[index]
+//                            provAppDataFalse.newListInput[index]
 //                                [1] = 0;
 //                            disableButton = true;
 //                          }
@@ -264,12 +265,14 @@ class NumberButton extends StatelessWidget {
       {@required this.index1, @required this.index2, @required this.value});
   @override
   Widget build(BuildContext context) {
+    //easy scale
+    AppData provAppDataFalse = Provider.of<AppData>(context, listen: false);
     String text = (value == 0) ? 'X' : value.toString();
 
     return GestureDetector(
       onTap: () {
-        Provider.of<AppData>(context).newListInput[index1][index2] = value;
-        Provider.of<AppData>(context).notify();
+        provAppDataFalse.newListInput[index1][index2] = value;
+        provAppDataFalse.notify();
         Navigator.pop(context);
       },
       child: Container(

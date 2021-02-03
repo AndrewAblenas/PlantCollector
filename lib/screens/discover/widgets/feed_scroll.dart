@@ -84,7 +84,7 @@ class FeedTile extends StatelessWidget {
         onTap: () {
           onPress();
           //this sets number and type
-          Provider.of<AppData>(context).setCustomFeedSelected(
+          Provider.of<AppData>(context, listen: false).setCustomFeedSelected(
             selectedNumber: index,
             selectedType: type,
             selectedQueryField: queryField,

@@ -52,8 +52,9 @@ class GroupDelete extends StatelessWidget {
                     'Are you sure you want to delete this ${GlobalStrings.group}?',
                 buttonText: 'Delete ${GlobalStrings.group}',
                 onPressed: () {
-                  Provider.of<CloudDB>(context).deleteDocumentFromCollection(
-                      documentID: groupID, collection: DBFolder.groups);
+                  Provider.of<CloudDB>(context, listen: false)
+                      .deleteDocumentFromCollection(
+                          documentID: groupID, collection: DBFolder.groups);
                   Navigator.pop(context);
                 },
               );

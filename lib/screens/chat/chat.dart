@@ -19,7 +19,10 @@ class ChatScreen extends StatelessWidget {
   ChatScreen({@required this.friend});
   @override
   Widget build(BuildContext context) {
-    Provider.of<AppData>(context).setCurrentChatId(connectionID: friend.id);
+    //easy reference
+    AppData provAppDataFalse = Provider.of<AppData>(context, listen: false);
+    CloudDB provCloudDBFalse = Provider.of<CloudDB>(context, listen: false);
+    provAppDataFalse.setCurrentChatId(connectionID: friend.id);
     return SafeArea(
       child: Scaffold(
         body: Container(
@@ -107,7 +110,8 @@ class ChatScreen extends StatelessWidget {
                 color: kGreenDark,
               ),
               StreamProvider<QuerySnapshot>.value(
-                value: Provider.of<CloudDB>(context).streamConvoMessages(
+                value: Provider.of<CloudDB>(context, listen: true)
+                    .streamConvoMessages(
                   connectionID: friend.id,
                 ),
                 child: Expanded(
@@ -120,14 +124,13 @@ class ChatScreen extends StatelessWidget {
                       builder: (context, QuerySnapshot messages, _) {
                         List<MessageTemplate> messageList = [];
                         List<String> unreadList = [];
-                        if (messages != null && messages.documents != null) {
-                          for (DocumentSnapshot snap in messages.documents) {
+                        if (messages != null && messages.docs != null) {
+                          for (DocumentSnapshot snap in messages.docs) {
                             MessageData message =
-                                MessageData.fromMap(map: snap.data);
+                                MessageData.fromMap(map: snap.data());
                             //message from other user
                             if (message.sender ==
-                                Provider.of<AppData>(context)
-                                    .getCurrentChatId()) {
+                                provAppDataFalse.getCurrentChatId()) {
                               messageList.add(
                                 MessageTemplate(
                                   alignment: MainAxisAlignment.start,
@@ -164,15 +167,13 @@ class ChatScreen extends StatelessWidget {
                           }
                           //then set the document as read if different user
                           //make sure there are messages
-                          if (messages.documents.length >= 1) {
-                            String lastSender = messages
-                                .documents.first.data[MessageKeys.sender];
+                          if (messages.docs.length >= 1) {
+                            String lastSender =
+                                messages.docs.first.data()[MessageKeys.sender];
                             if (lastSender !=
-                                Provider.of<AppData>(context)
-                                    .currentUserInfo
-                                    .id) {
-                              String document = Provider.of<CloudDB>(context)
-                                  .conversationDocumentName(
+                                provAppDataFalse.currentUserInfo.id) {
+                              String document =
+                                  provCloudDBFalse.conversationDocumentName(
                                 connectionId: friend.id,
                               );
                               CloudDB.setDocumentL1(

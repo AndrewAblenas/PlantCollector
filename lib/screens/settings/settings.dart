@@ -1,4 +1,8 @@
+import 'dart:io';
+
+import 'package:downloads_path_provider/downloads_path_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
@@ -9,37 +13,41 @@ import 'package:plant_collector/screens/settings/info_screen.dart';
 import 'package:plant_collector/screens/template/screen_template.dart';
 import 'package:plant_collector/widgets/bottom_bar.dart';
 import 'package:plant_collector/widgets/container_wrapper_gradient.dart';
+import 'package:plant_collector/widgets/dialogs/dialog_confirm.dart';
 import 'package:provider/provider.dart';
+import 'package:csv/csv.dart';
 
 class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    bool admin = (Provider.of<AppData>(context).currentUserInfo.type ==
-            UserTypes.creator ||
-        Provider.of<AppData>(context).currentUserInfo.type == UserTypes.admin);
+    //easy reference
+    AppData provAppDataFalse = Provider.of<AppData>(context, listen: false);
+    //easy scale
+    double relativeWidth = MediaQuery.of(context).size.width * kScaleFactor;
+    //check for admin
+    bool admin = (provAppDataFalse.currentUserInfo.type == UserTypes.creator ||
+        provAppDataFalse.currentUserInfo.type == UserTypes.admin);
     return ScreenTemplate(
+      backgroundColor: kGreenLight,
       implyLeading: false,
       screenTitle: 'Settings',
       bottomBar: BottomBar(
         selectionNumber: 5,
       ),
-      body: Padding(
+      body: Container(
         padding: EdgeInsets.symmetric(
-          horizontal: 10.0 * MediaQuery.of(context).size.width * kScaleFactor,
+          horizontal: 10.0 * relativeWidth,
           vertical: 0.0,
         ),
         child: ListView(
           primary: true,
           children: <Widget>[
             SizedBox(
-              height: 10.0 * MediaQuery.of(context).size.width * kScaleFactor,
+              height: 10.0 * relativeWidth,
             ),
             admin
                 ? Padding(
-                    padding: EdgeInsets.only(
-                        bottom: 10.0 *
-                            MediaQuery.of(context).size.width *
-                            kScaleFactor),
+                    padding: EdgeInsets.only(bottom: 10.0 * relativeWidth),
                     child: SettingsButton(
                         icon: Icons.work,
                         label: 'Admin Tools',
@@ -54,10 +62,8 @@ class SettingsScreen extends StatelessWidget {
               shrinkWrap: true,
               padding: EdgeInsets.only(bottom: 5.0),
               childAspectRatio: 1,
-              crossAxisSpacing:
-                  10.0 * MediaQuery.of(context).size.width * kScaleFactor,
-              mainAxisSpacing:
-                  10.0 * MediaQuery.of(context).size.width * kScaleFactor,
+              crossAxisSpacing: 10.0 * relativeWidth,
+              mainAxisSpacing: 10.0 * relativeWidth,
               crossAxisCount: 2,
               primary: false,
               children: <Widget>[
@@ -107,11 +113,38 @@ class SettingsScreen extends StatelessWidget {
 //                    label: 'Upload',
 //                    onPress: () {
 //                    }),
-//                SettingsButton(
-//                    icon: Icons.cloud_download,
-//                    label: 'Download',
-//                    onPress: () {
-//                    }),
+                SettingsButton(
+                    icon: Icons.cloud_download,
+                    label: 'Get CSV',
+                    onPress: () {
+                      //reformat plants to an appropriate intake list
+                      List<List<dynamic>> plantList =
+                          provAppDataFalse.getExportPlants();
+                      //convert to an csv file
+                      String csvExport =
+                          ListToCsvConverter().convert(plantList);
+                      //save the file
+                      DownloadsPathProvider.downloadsDirectory
+                          .then((directory) {
+                        File saveFile = new File(
+                            directory.absolute.path + '/PlantCollector.csv');
+                        saveFile.writeAsString(csvExport);
+                      });
+                      //show dialog
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return DialogConfirm(
+                                title: 'Export Complete',
+                                text:
+                                    'Your plant information has been saved as a csv file in your downloads.',
+                                buttonText: 'OK',
+                                hideCancel: true,
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                });
+                          });
+                    }),
                 SettingsButton(
                     icon: Icons.feedback,
                     label: 'Feedback',
@@ -122,9 +155,11 @@ class SettingsScreen extends StatelessWidget {
                     icon: Icons.exit_to_app,
                     label: 'Sign Out',
                     onPress: () {
-                      Provider.of<UserAuth>(context).signOutUser();
-                      Provider.of<UserAuth>(context).signedInUser = null;
-                      Provider.of<AppData>(context).clearAppData();
+                      Provider.of<UserAuth>(context, listen: false)
+                          .signOutUser();
+                      Provider.of<UserAuth>(context, listen: false)
+                          .signedInUser = null;
+                      provAppDataFalse.clearAppData();
                       //exit the app
                       Navigator.pop(context);
                       Navigator.pop(context);
@@ -137,7 +172,7 @@ class SettingsScreen extends StatelessWidget {
               ],
             ),
             SizedBox(
-              height: 10.0 * MediaQuery.of(context).size.width * kScaleFactor,
+              height: 10.0 * relativeWidth,
             ),
           ],
         ),

@@ -27,9 +27,10 @@ import 'package:plant_collector/screens/about/about.dart';
 import 'package:plant_collector/screens/login/loading.dart';
 import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/screens/journal/journal.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 //main function call to launch app
-void main() {
+void main() async {
   //change the navigation bar to match
   SystemChrome.setSystemUIOverlayStyle(
     SystemUiOverlayStyle(
@@ -37,6 +38,8 @@ void main() {
       systemNavigationBarIconBrightness: Brightness.light,
     ),
   );
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(
     MultiProvider(
       providers: [
@@ -58,12 +61,14 @@ class PlantCollector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     //initialize notifications
-    Provider.of<PushNotificationService>(context).initialize(context: context);
+    Provider.of<PushNotificationService>(context, listen: false)
+        .initialize(context: context);
 
     return LocalNotificationWrapper(
-      userId: Provider.of<AppData>(context).currentUserInfo != null
-          ? Provider.of<AppData>(context).currentUserInfo.id
-          : 'Not logged in',
+      userId:
+          Provider.of<AppData>(context, listen: false).currentUserInfo != null
+              ? Provider.of<AppData>(context, listen: false).currentUserInfo.id
+              : 'Not logged in',
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Plant Collector',

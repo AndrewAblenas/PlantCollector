@@ -21,18 +21,26 @@ import 'package:plant_collector/formats/text.dart';
 class AccountScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    //easy provider
+    CloudDB provCloudDBFalse = Provider.of<CloudDB>(context, listen: false);
+    CloudStore provCloudStoreFalse =
+        Provider.of<CloudStore>(context, listen: false);
+    UserAuth provUserAuthFalse = Provider.of<UserAuth>(context, listen: false);
+    AppData provAppDataFalse = Provider.of<AppData>(context, listen: false);
+    //easy format
+    double relativeWidth = MediaQuery.of(context).size.width;
     return ScreenTemplate(
       backgroundColor: kGreenLight,
       screenTitle: 'Account',
       body: StreamProvider<UserData>.value(
-        value: CloudDB.streamUserData(
-            userID: Provider.of<CloudDB>(context).currentUserFolder),
+        value:
+            CloudDB.streamUserData(userID: provCloudDBFalse.currentUserFolder),
         child: ListView(
           children: <Widget>[
-            SizedBox(height: 3.0),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 5.0),
               child: ContainerWrapper(
+                marginVertical: 5.0,
                 child: Column(
                   children: <Widget>[
                     Consumer<UserData>(builder: (context, UserData user, _) {
@@ -44,12 +52,10 @@ class AccountScreen extends StatelessWidget {
                             SettingsCard(
                               onPress: null,
                               onSubmit: () {
-                                Provider.of<CloudDB>(context)
-                                    .updateUserDocument(
+                                provCloudDBFalse.updateUserDocument(
                                   data: AppData.updatePairFull(
                                       key: UserKeys.name,
-                                      value: Provider.of<AppData>(context)
-                                          .newDataInput),
+                                      value: provAppDataFalse.newDataInput),
                                 );
                                 Navigator.pop(context);
                               },
@@ -60,12 +66,10 @@ class AccountScreen extends StatelessWidget {
                             SettingsCard(
                               onPress: null,
                               onSubmit: () {
-                                Provider.of<CloudDB>(context)
-                                    .updateUserDocument(
+                                provCloudDBFalse.updateUserDocument(
                                   data: AppData.updatePairFull(
                                       key: UserKeys.region,
-                                      value: Provider.of<AppData>(context)
-                                          .newDataInput),
+                                      value: provAppDataFalse.newDataInput),
                                 );
                                 Navigator.pop(context);
                               },
@@ -76,12 +80,10 @@ class AccountScreen extends StatelessWidget {
                             SettingsCard(
                               onPress: null,
                               onSubmit: () {
-                                Provider.of<CloudDB>(context)
-                                    .updateUserDocument(
+                                provCloudDBFalse.updateUserDocument(
                                   data: AppData.updatePairFull(
                                       key: UserKeys.about,
-                                      value: Provider.of<AppData>(context)
-                                          .newDataInput),
+                                      value: provAppDataFalse.newDataInput),
                                 );
                                 Navigator.pop(context);
                               },
@@ -93,12 +95,10 @@ class AccountScreen extends StatelessWidget {
                             SettingsCard(
                               onPress: null,
                               onSubmit: () {
-                                Provider.of<CloudDB>(context)
-                                    .updateUserDocument(
+                                provCloudDBFalse.updateUserDocument(
                                   data: AppData.updatePairFull(
                                       key: UserKeys.link,
-                                      value: Provider.of<AppData>(context)
-                                          .newDataInput),
+                                      value: provAppDataFalse.newDataInput),
                                 );
                                 Navigator.pop(context);
                               },
@@ -112,8 +112,8 @@ class AccountScreen extends StatelessWidget {
                               marginVertical: 5.0,
                               color: AppTextColor.white,
                               child: Container(
-                                height: 0.4 * MediaQuery.of(context).size.width,
-                                width: 0.4 * MediaQuery.of(context).size.width,
+                                height: 0.4 * relativeWidth,
+                                width: 0.4 * relativeWidth,
                                 padding: EdgeInsets.all(
                                   5.0,
                                 ),
@@ -130,33 +130,27 @@ class AccountScreen extends StatelessWidget {
                               allowDialog: false,
                               onPress: () async {
                                 //set userID for use in path generation
-                                Provider.of<CloudStore>(context).setUserFolder(
-                                    userID:
-                                        (await Provider.of<UserAuth>(context)
-                                                .getCurrentUser())
-                                            .uid);
+                                provCloudStoreFalse.setUserFolder(
+                                    userID: (await provUserAuthFalse
+                                            .getCurrentUser())
+                                        .uid);
                                 //get image from camera
-                                File image =
-                                    await Provider.of<CloudStore>(context)
-                                        .getImageFile(fromCamera: false);
+                                File image = await provCloudStoreFalse
+                                    .getImageFile(fromCamera: false);
                                 //check to make sure the user didn't back out
                                 if (image != null) {
                                   //upload image
-                                  StorageUploadTask upload =
-                                      Provider.of<CloudStore>(context)
-                                          .uploadToUserSettingsTask(
-                                              imageFile: image,
-                                              imageName: UserKeys.avatar);
+                                  UploadTask upload = provCloudStoreFalse
+                                      .uploadToUserSettingsTask(
+                                          imageFile: image,
+                                          imageName: UserKeys.avatar);
                                   //make sure upload completes
-                                  StorageTaskSnapshot completion =
-                                      await upload.onComplete;
+                                  TaskSnapshot completion = await upload;
                                   //get the url string
-                                  String url =
-                                      await Provider.of<CloudStore>(context)
-                                          .getDownloadURL(snapshot: completion);
+                                  String url = await provCloudStoreFalse
+                                      .getDownloadURL(snapshot: completion);
                                   //add image reference to plant document
-                                  Provider.of<CloudDB>(context)
-                                      .updateUserDocument(
+                                  provCloudDBFalse.updateUserDocument(
                                     data: AppData.updatePairFull(
                                       key: UserKeys.avatar,
                                       value: url,
@@ -172,8 +166,8 @@ class AccountScreen extends StatelessWidget {
                               marginVertical: 5.0,
                               color: AppTextColor.white,
                               child: Container(
-                                height: 0.4 * MediaQuery.of(context).size.width,
-//                              width: 0.4 * MediaQuery.of(context).size.width,
+                                height: 0.4 * relativeWidth,
+//                              width: 0.4 * relativeWidth,
                                 padding: EdgeInsets.all(
                                   5.0,
                                 ),
@@ -190,33 +184,27 @@ class AccountScreen extends StatelessWidget {
                               allowDialog: false,
                               onPress: () async {
                                 //set userID for use in path generation
-                                Provider.of<CloudStore>(context).setUserFolder(
-                                    userID:
-                                        (await Provider.of<UserAuth>(context)
-                                                .getCurrentUser())
-                                            .uid);
+                                provCloudStoreFalse.setUserFolder(
+                                    userID: (await provUserAuthFalse
+                                            .getCurrentUser())
+                                        .uid);
                                 //get image from camera
-                                File image =
-                                    await Provider.of<CloudStore>(context)
-                                        .getImageFile(fromCamera: false);
+                                File image = await provCloudStoreFalse
+                                    .getImageFile(fromCamera: false);
                                 //check to make sure the user didn't back out
                                 if (image != null) {
                                   //upload image
-                                  StorageUploadTask upload =
-                                      Provider.of<CloudStore>(context)
-                                          .uploadToUserSettingsTask(
-                                              imageFile: image,
-                                              imageName: UserKeys.background);
+                                  UploadTask upload = provCloudStoreFalse
+                                      .uploadToUserSettingsTask(
+                                          imageFile: image,
+                                          imageName: UserKeys.background);
                                   //make sure upload completes
-                                  StorageTaskSnapshot completion =
-                                      await upload.onComplete;
+                                  TaskSnapshot completion = await upload;
                                   //get the url string
-                                  String url =
-                                      await Provider.of<CloudStore>(context)
-                                          .getDownloadURL(snapshot: completion);
+                                  String url = await provCloudStoreFalse
+                                      .getDownloadURL(snapshot: completion);
                                   //add image reference to user document
-                                  Provider.of<CloudDB>(context)
-                                      .updateUserDocument(
+                                  provCloudDBFalse.updateUserDocument(
                                     data: AppData.updatePairFull(
                                       key: UserKeys.background,
                                       value: url,
@@ -232,7 +220,7 @@ class AccountScreen extends StatelessWidget {
 //                                confirmDialog: true,
 //                                onSubmit: () {
 //                                  //update settings
-//                                  Provider.of<CloudDB>(context)
+//                                  provCloudDBFalse
 //                                      .updateUserDocument(
 //                                    data: CloudDB.updatePairFull(
 //                                      key: UserKeys.expandGroup,
@@ -251,8 +239,7 @@ class AccountScreen extends StatelessWidget {
                                 confirmDialog: true,
                                 onSubmit: () {
                                   //update settings
-                                  Provider.of<CloudDB>(context)
-                                      .updateUserDocument(
+                                  provCloudDBFalse.updateUserDocument(
                                     data: AppData.updatePairFull(
                                       key: UserKeys.sortPlantsAlphabetically,
                                       value: (user.sortPlantsAlphabetically ==
@@ -273,8 +260,7 @@ class AccountScreen extends StatelessWidget {
                                 confirmDialog: true,
                                 onSubmit: () {
                                   //update settings
-                                  Provider.of<CloudDB>(context)
-                                      .updateUserDocument(
+                                  provCloudDBFalse.updateUserDocument(
                                     data: AppData.updatePairFull(
                                       key: UserKeys.sortAlphabetically,
                                       value: (user.sortAlphabetically == false),
@@ -294,8 +280,7 @@ class AccountScreen extends StatelessWidget {
                                 confirmDialog: true,
                                 onSubmit: () {
                                   //update settings
-                                  Provider.of<CloudDB>(context)
-                                      .updateUserDocument(
+                                  provCloudDBFalse.updateUserDocument(
                                     data: AppData.updatePairFull(
                                       key: UserKeys.expandCollection,
                                       value: (user.expandCollection == false),
@@ -315,8 +300,7 @@ class AccountScreen extends StatelessWidget {
                                 confirmDialog: true,
                                 onSubmit: () {
                                   //update settings
-                                  Provider.of<CloudDB>(context)
-                                      .updateUserDocument(
+                                  provCloudDBFalse.updateUserDocument(
                                     data: AppData.updatePairFull(
                                       key: UserKeys.showWishList,
                                       value: (user.showWishList == false),
@@ -325,7 +309,7 @@ class AccountScreen extends StatelessWidget {
                                   Navigator.pop(context);
                                 },
                                 onPress: null,
-                                cardLabel: 'Enable Wishlist',
+                                cardLabel: 'Enable Wishlist Shelf',
                                 dialogText:
                                     'Change default settings for app launch?',
                                 cardText:
@@ -334,8 +318,7 @@ class AccountScreen extends StatelessWidget {
                                 confirmDialog: true,
                                 onSubmit: () {
                                   //update settings
-                                  Provider.of<CloudDB>(context)
-                                      .updateUserDocument(
+                                  provCloudDBFalse.updateUserDocument(
                                     data: AppData.updatePairFull(
                                       key: UserKeys.showSellList,
                                       value: (user.showSellList == false),
@@ -344,7 +327,7 @@ class AccountScreen extends StatelessWidget {
                                   Navigator.pop(context);
                                 },
                                 onPress: null,
-                                cardLabel: 'Enable Sell List',
+                                cardLabel: 'Enable Sell Shelf',
                                 dialogText:
                                     'Change default settings for app launch?',
                                 cardText:
@@ -353,8 +336,26 @@ class AccountScreen extends StatelessWidget {
                                 confirmDialog: true,
                                 onSubmit: () {
                                   //update settings
-                                  Provider.of<CloudDB>(context)
-                                      .updateUserDocument(
+                                  provCloudDBFalse.updateUserDocument(
+                                    data: AppData.updatePairFull(
+                                      key: UserKeys.showCompostList,
+                                      value: (user.showCompostList == false),
+                                    ),
+                                  );
+                                  Navigator.pop(context);
+                                },
+                                onPress: null,
+                                cardLabel: 'Enable Compost Shelf',
+                                dialogText:
+                                    'Change default settings for app launch?',
+                                cardText: user.showCompostList == true
+                                    ? 'Yes'
+                                    : 'No'),
+                            SettingsCard(
+                                confirmDialog: true,
+                                onSubmit: () {
+                                  //update settings
+                                  provCloudDBFalse.updateUserDocument(
                                     data: AppData.updatePairFull(
                                       key: UserKeys.privateLibrary,
                                       value: !user.privateLibrary,
@@ -369,9 +370,8 @@ class AccountScreen extends StatelessWidget {
                                 cardText:
                                     user.privateLibrary == true ? 'Yes' : 'No'),
                             SettingsCard(
-                              disableEdit: (Provider.of<AppData>(context)
-                                      .currentUserInfo
-                                      .uniquePublicID !=
+                              disableEdit: (provAppDataFalse
+                                      .currentUserInfo.uniquePublicID !=
                                   ''),
                               onSubmit: () {},
                               confirmDialog: false,
@@ -379,13 +379,11 @@ class AccountScreen extends StatelessWidget {
                               onPress: () {
                                 //if '' the value is null in the db
                                 //if 'not set' the user responded on to the friend popup with no
-                                if (Provider.of<AppData>(context)
-                                            .currentUserInfo
-                                            .uniquePublicID ==
+                                if (provAppDataFalse
+                                            .currentUserInfo.uniquePublicID ==
                                         '' ||
-                                    Provider.of<AppData>(context)
-                                            .currentUserInfo
-                                            .uniquePublicID ==
+                                    provAppDataFalse
+                                            .currentUserInfo.uniquePublicID ==
                                         'not set') {
                                   showDialog(
                                       context: context,
@@ -399,145 +397,144 @@ class AccountScreen extends StatelessWidget {
                               cardText: (user.uniquePublicID == '')
                                   ? 'not set'
                                   : user.uniquePublicID,
-                            )
-                          ],
-                        );
-                      }
-                    }),
-                    StreamProvider<FirebaseUser>.value(
-                      value: Provider.of<UserAuth>(context)
-                          .getCurrentUser()
-                          .asStream(),
-                      child: Consumer<FirebaseUser>(
-                        builder:
-                            (BuildContext context, FirebaseUser snapshot, _) {
-                          if (snapshot == null) {
-                            return SizedBox();
-                          } else {
-                            return Column(
-                              children: <Widget>[
-                                SettingsCard(
-                                  onPress: null,
-                                  acceptButtonText: 'CONFIRM',
-                                  authPromptText:
-                                      '${snapshot.email}\n\nConfirm Password',
-                                  obscureInput: true,
-                                  onSubmit: () {
-                                    //need to re authenticate
-                                    String password =
-                                        Provider.of<AppData>(context)
-                                            .newDataInput;
-                                    Provider.of<UserAuth>(context)
-                                        .reauthenticateUser(password: password)
-                                        .then((value) {
-                                      showDialog(
-                                        context: context,
-                                        barrierDismissible: false,
-                                        builder: (BuildContext context) {
-                                          return DialogScreenInput(
-                                              title: 'New Email',
-                                              acceptText: 'Update',
-                                              acceptOnPress: () {
-                                                //update the google authentication email profile
-                                                String data =
-                                                    Provider.of<AppData>(
-                                                            context)
-                                                        .newDataInput;
-                                                print(data);
-                                                Provider.of<UserAuth>(context)
-                                                    .userUpdateEmail(
-                                                        email: data);
-                                                //update the user document email
-                                                Provider.of<CloudDB>(context)
-                                                    .updateUserDocument(
-                                                  data: AppData.updatePairFull(
-                                                    key: UserKeys.email,
-                                                    value: data,
-                                                  ),
-                                                );
-                                                Navigator.pop(context);
-                                                Navigator.pop(context);
-                                              },
-                                              onChange: (input) {
-                                                Provider.of<AppData>(context)
-                                                    .newDataInput = input;
-                                              },
-                                              cancelText: 'Cancel',
-                                              hintText: null);
-                                        },
-                                      );
-                                    });
-                                  },
-                                  cardLabel: 'Email',
-                                  cardText: 'Update',
-                                  dialogText: 'Input your password',
-                                ),
-                                SettingsCard(
-                                  onPress: null,
-                                  acceptButtonText: 'CONFIRM',
-                                  authPromptText:
-                                      '${snapshot.email}\n\nConfirm Password',
-                                  obscureInput: true,
-                                  onSubmit: () {
-                                    //need to re authenticate
-                                    String password =
-                                        Provider.of<AppData>(context)
-                                            .newDataInput;
-                                    Provider.of<UserAuth>(context)
-                                        .reauthenticateUser(password: password)
-                                        .then((value) {
-                                      showDialog(
-                                        context: context,
-                                        barrierDismissible: false,
-                                        builder: (BuildContext context) {
-                                          return DialogScreenInput(
-                                              title:
-                                                  'Your password must have a capital letter, small letter, and special character. You will not be able to update otherwise.',
-                                              acceptText: 'Update',
-                                              acceptOnPress: () {
-                                                bool result = Provider.of<
-                                                        UserAuth>(context)
-                                                    .validatePassword(
-                                                        Provider.of<AppData>(
-                                                                context)
-                                                            .newDataInput);
-                                                if (result == true) {
-                                                  Provider.of<UserAuth>(context)
-                                                      .userUpdatePassword(
-                                                          password: Provider.of<
-                                                                      AppData>(
-                                                                  context)
-                                                              .newDataInput);
-                                                  Navigator.pop(context);
-                                                  Navigator.pop(context);
-                                                } else {}
-                                              },
-                                              onChange: (input) {
-                                                Provider.of<AppData>(context)
-                                                    .newDataInput = input;
-                                              },
-                                              cancelText: 'Cancel',
-                                              hintText: null);
-                                        },
-                                      );
-                                    });
-                                  },
-                                  cardLabel: 'Password',
-                                  cardText: 'Update',
-                                  dialogText: 'Input your password',
-                                ),
+                            ),
+                            StreamProvider<User>.value(
+                              value:
+                                  provUserAuthFalse.getCurrentUser().asStream(),
+                              child: Consumer<User>(
+                                builder:
+                                    (BuildContext context, User snapshot, _) {
+                                  if (snapshot == null) {
+                                    return SizedBox();
+                                  } else {
+                                    return Column(
+                                      children: <Widget>[
+                                        SettingsCard(
+                                          onPress: null,
+                                          acceptButtonText: 'CONFIRM',
+                                          authPromptText:
+                                              '${snapshot.email}\n\nConfirm Password',
+                                          obscureInput: true,
+                                          cardLabel: 'Email',
+                                          //this should be snap.email but it won't update
+                                          cardText: user.email,
+                                          dialogText: 'Input your password',
+                                          onSubmit: () {
+                                            //need to re authenticate
+                                            String password =
+                                                provAppDataFalse.newDataInput;
+                                            provUserAuthFalse
+                                                .reauthenticateUser(
+                                                    password: password)
+                                                .then((value) {
+                                              showDialog(
+                                                context: context,
+                                                barrierDismissible: false,
+                                                builder:
+                                                    (BuildContext context) {
+                                                  return DialogScreenInput(
+                                                      title: 'New Email',
+                                                      acceptText: 'Update',
+                                                      acceptOnPress: () {
+                                                        //update the google authentication email profile
+                                                        String data =
+                                                            provAppDataFalse
+                                                                .newDataInput;
+                                                        print(data);
+                                                        provUserAuthFalse
+                                                            .userUpdateEmail(
+                                                                email: data);
+                                                        //update the user document email
+                                                        provCloudDBFalse
+                                                            .updateUserDocument(
+                                                          data: AppData
+                                                              .updatePairFull(
+                                                            key: UserKeys.email,
+                                                            value: data,
+                                                          ),
+                                                        );
+                                                        Navigator.pop(context);
+                                                        Navigator.pop(context);
+                                                      },
+                                                      onChange: (input) {
+                                                        provAppDataFalse
+                                                                .newDataInput =
+                                                            input;
+                                                      },
+                                                      cancelText: 'Cancel',
+                                                      hintText: '');
+                                                },
+                                              );
+                                            });
+                                          },
+                                        ),
+                                        SettingsCard(
+                                          onPress: null,
+                                          acceptButtonText: 'CONFIRM',
+                                          authPromptText:
+                                              '${snapshot.email}\n\nConfirm Password',
+                                          obscureInput: true,
+                                          onSubmit: () {
+                                            //need to re authenticate
+                                            String password =
+                                                provAppDataFalse.newDataInput;
+                                            provUserAuthFalse
+                                                .reauthenticateUser(
+                                                    password: password)
+                                                .then((value) {
+                                              showDialog(
+                                                context: context,
+                                                barrierDismissible: false,
+                                                builder:
+                                                    (BuildContext context) {
+                                                  return DialogScreenInput(
+                                                      title:
+                                                          'Your password must have a capital letter, small letter, and special character. You will not be able to update otherwise.',
+                                                      acceptText: 'Update',
+                                                      acceptOnPress: () {
+                                                        bool result = provUserAuthFalse
+                                                            .validatePassword(
+                                                                provAppDataFalse
+                                                                    .newDataInput);
+                                                        if (result == true) {
+                                                          provUserAuthFalse
+                                                              .userUpdatePassword(
+                                                                  password:
+                                                                      provAppDataFalse
+                                                                          .newDataInput);
+                                                          Navigator.pop(
+                                                              context);
+                                                          Navigator.pop(
+                                                              context);
+                                                        } else {}
+                                                      },
+                                                      onChange: (input) {
+                                                        provAppDataFalse
+                                                                .newDataInput =
+                                                            input;
+                                                      },
+                                                      cancelText: 'Cancel',
+                                                      hintText: null);
+                                                },
+                                              );
+                                            });
+                                          },
+                                          cardLabel: 'Password',
+                                          cardText: 'Update',
+                                          dialogText: 'Input your password',
+                                        ),
 //                            SettingsCard(
 //                              onPress: null,
 //                              onSubmit: () {
-//                                bool result = Provider.of<UserAuth>(context)
+//                                bool result = provUserAuthFalse
 //                                    .validatePassword(
-//                                        Provider.of<AppData>(context)
+//                                        provAppDataFalse
 //                                            .newDataInput);
 //                                if (result == true) {
-//                                  Provider.of<UserAuth>(context)
+//                                  provUserAuthFalse
 //                                      .userUpdatePassword(
 //                                          password:
-//                                              Provider.of<AppData>(context)
+//                                              provAppDataFalse
 //                                                  .newDataInput);
 //                                  Navigator.pop(context);
 //                                } else {}
@@ -547,12 +544,16 @@ class AccountScreen extends StatelessWidget {
 //                              dialogText:
 //                                  'Your new password must have a capital letter, small letter, special character, and be at least eight characters long.',
 //                            ),
-                              ],
-                            );
-                          }
-                        },
-                      ),
-                    ),
+                                      ],
+                                    );
+                                  }
+                                },
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+                    }),
                   ],
                 ),
               ),

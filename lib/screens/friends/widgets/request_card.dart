@@ -13,6 +13,10 @@ class RequestCard extends StatelessWidget {
   RequestCard({@required this.user});
   @override
   Widget build(BuildContext context) {
+    //easy provider
+    CloudDB provCloudDBFalse = Provider.of<CloudDB>(context, listen: false);
+    //easy format
+    double relativeWidth = MediaQuery.of(context).size.width;
     return UserTile(
       user: user,
       buttonRow: Row(
@@ -27,13 +31,13 @@ class RequestCard extends StatelessWidget {
                     text: 'Are you sure you would like to remove this request?',
                     buttonText: 'Remove',
                     onPressed: () {
-                      Provider.of<CloudDB>(context)
-                          .removeConnectionRequest(connectionID: user.id);
+                      provCloudDBFalse.removeConnectionRequest(
+                          connectionID: user.id);
                       //delete the document generated when the initial request was sent
                       CloudDB.deleteDocumentL1(
                           collection: DBDocument.conversations,
-                          document: Provider.of<CloudDB>(context)
-                              .conversationDocumentName(connectionId: user.id));
+                          document: provCloudDBFalse.conversationDocumentName(
+                              connectionId: user.id));
                       Navigator.pop(context);
                     },
                   );
@@ -42,11 +46,11 @@ class RequestCard extends StatelessWidget {
             },
             child: Icon(
               Icons.delete,
-              size: AppTextSize.large * MediaQuery.of(context).size.width,
+              size: AppTextSize.large * relativeWidth,
               color: kGreenMedium,
             ),
           ),
-          SizedBox(width: AppTextSize.huge * MediaQuery.of(context).size.width),
+          SizedBox(width: AppTextSize.huge * relativeWidth),
           GestureDetector(
             onTap: () {
               showDialog(
@@ -59,8 +63,8 @@ class RequestCard extends StatelessWidget {
                         'After accepting, you will be able to view each other\'s plant libraries and chat.',
                     buttonText: 'ADD',
                     onPressed: () {
-                      Provider.of<CloudDB>(context)
-                          .acceptConnectionRequest(connectionID: user.id);
+                      provCloudDBFalse.acceptConnectionRequest(
+                          connectionID: user.id);
                       Navigator.pop(context);
                     },
                   );
@@ -69,7 +73,7 @@ class RequestCard extends StatelessWidget {
             },
             child: Icon(
               Icons.check_box,
-              size: AppTextSize.large * MediaQuery.of(context).size.width,
+              size: AppTextSize.large * relativeWidth,
               color: kGreenDark,
             ),
           ),

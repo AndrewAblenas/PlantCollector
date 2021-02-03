@@ -5,6 +5,8 @@ import 'package:plant_collector/formats/text.dart';
 
 //Greens
 const Color kGreenDark = Color(0xFF1b614b);
+const Color kGreenDark90 = Color(0xEE1b614b);
+const Color kGreenDark50 = Color(0x551b614b);
 const Color test = Color(0xFF207561);
 //0xFF207561 original
 //0xFF20755a less blue
@@ -34,6 +36,14 @@ const Color kButtonCancel = Color(0xFFffcccc);
 //Accents
 const Color kBackgroundLight = Colors.white;
 //Group Colors
+
+//update bubbles
+const Color kBubbleUrgent = Color(0x88ff0000);
+const Color kBubbleLesser = Color(0x88ff8c00);
+const Color kBubbleBlack = Color(0x77000000);
+const Color kBubbleGreen = Color(0x99163832);
+
+//group colors
 const List<Color> kGroupColors = [
   Colors.red,
   Colors.deepOrangeAccent,
@@ -82,11 +92,15 @@ const List<BoxShadow> kShadowBox = [
 //Standard Box Decoration
 const BoxDecoration kButtonBoxDecoration = BoxDecoration(
 //  boxShadow: kShadowBox,
-  image: DecorationImage(
-    image: AssetImage('assets/images/default.png'),
-    fit: BoxFit.cover,
-  ),
-);
+    image: DecorationImage(
+      image: AssetImage('assets/images/default.png'),
+      fit: BoxFit.cover,
+    ),
+    borderRadius: BorderRadius.all(
+      Radius.circular(
+        5.0,
+      ),
+    ));
 
 //Background gradient decoration
 const Gradient kBackgroundGradient = LinearGradient(
@@ -103,6 +117,12 @@ const Gradient kBackgroundGradientReversed = LinearGradient(
 
 const Gradient kGradientGreenVerticalDarkMed = LinearGradient(
   colors: [kGreenDark, kGreenMedium],
+  begin: Alignment.bottomCenter,
+  end: Alignment.topCenter,
+);
+
+const Gradient kGradientGreenVerticalMedDark = LinearGradient(
+  colors: [kGreenMedium, kGreenDark],
   begin: Alignment.bottomCenter,
   end: Alignment.topCenter,
 );
@@ -133,6 +153,12 @@ const Gradient kBackgroundGradientMidReversed = LinearGradient(
 
 const Gradient kGradientGreenSolidDark = LinearGradient(
   colors: [kGreenDark, kGreenDark],
+  begin: Alignment.bottomCenter,
+  end: Alignment.topCenter,
+);
+
+const Gradient kGradientGreenSolidDark90 = LinearGradient(
+  colors: [kGreenDark90, kGreenDark90],
   begin: Alignment.bottomCenter,
   end: Alignment.topCenter,
 );

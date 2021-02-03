@@ -51,17 +51,19 @@ class SearchUserTile extends StatelessWidget {
                           //PRE CHECKS
                           //determine if user data saved
                           bool userData =
-                              (Provider.of<AppData>(context).currentUserInfo !=
+                              (Provider.of<AppData>(context, listen: false)
+                                      .currentUserInfo !=
                                   null);
                           //determine if user name set
-                          bool userNameSet = (Provider.of<AppData>(context)
-                                      .currentUserInfo
-                                      .name !=
-                                  null &&
-                              Provider.of<AppData>(context)
-                                      .currentUserInfo
-                                      .name !=
-                                  '');
+                          bool userNameSet =
+                              (Provider.of<AppData>(context, listen: false)
+                                          .currentUserInfo
+                                          .name !=
+                                      null &&
+                                  Provider.of<AppData>(context, listen: false)
+                                          .currentUserInfo
+                                          .name !=
+                                      '');
                           //first, direct user to create a user name
                           if (userData && !userNameSet) {
                             showDialog(
@@ -73,19 +75,22 @@ class SearchUserTile extends StatelessWidget {
                                       acceptText: 'Add',
                                       acceptOnPress: () {
                                         //update user document to add user name
-                                        Provider.of<CloudDB>(context)
+                                        Provider.of<CloudDB>(context,
+                                                listen: false)
                                             .updateUserDocument(
                                           data: AppData.updatePairFull(
                                               key: UserKeys.name,
-                                              value:
-                                                  Provider.of<AppData>(context)
-                                                      .newDataInput),
+                                              value: Provider.of<AppData>(
+                                                      context,
+                                                      listen: false)
+                                                  .newDataInput),
                                         );
                                         //pop the context
                                         Navigator.pop(context);
                                       },
                                       onChange: (input) {
-                                        Provider.of<AppData>(context)
+                                        Provider.of<AppData>(context,
+                                                listen: false)
                                             .newDataInput = input;
                                       },
                                       cancelText: 'Cancel',
@@ -118,7 +123,7 @@ class SearchUserTile extends StatelessWidget {
                                   buttonText: buttonText,
                                   onPressed: () {
                                     //if all good send the request to friend
-                                    Provider.of<CloudDB>(context)
+                                    Provider.of<CloudDB>(context, listen: false)
                                         .sendConnectionRequest(
                                             connectionID: user.id,
                                             connectionTokens:

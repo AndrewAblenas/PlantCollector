@@ -18,11 +18,11 @@ class AdminButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    //easy reference
+    AppData provAppDataFalse = Provider.of<AppData>(context, listen: false);
     //do another check to make sure
-    return (Provider.of<AppData>(context).currentUserInfo.type ==
-                UserTypes.creator ||
-            Provider.of<AppData>(context).currentUserInfo.type ==
-                UserTypes.admin)
+    return (provAppDataFalse.currentUserInfo.type == UserTypes.creator ||
+            provAppDataFalse.currentUserInfo.type == UserTypes.admin)
         ? GestureDetector(
             onTap: () {
               onPress();

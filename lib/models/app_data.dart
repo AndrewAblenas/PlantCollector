@@ -18,6 +18,8 @@ class AppData extends ChangeNotifier {
 //  String currentPlantID;
   //Collection Library variablesFav
   String newDataInput;
+  //add plant select shelf
+  String selectOption;
   List newListInput;
   int newListInputIndex;
 //  String selectedDialogButtonItem;
@@ -113,6 +115,62 @@ class AppData extends ChangeNotifier {
     connectionPlants = null;
     //tips
     showTips = null;
+  }
+
+  //*****************IMPORT AND EXPORT*****************//
+
+  List<List<dynamic>> getExportPlants() {
+    //initialize list
+    List<List<dynamic>> plantsList = [PlantKeys.listVisibleKeys];
+    for (PlantData currentPlant in currentUserPlants) {
+      //convert plant object to map
+      Map currentMap = currentPlant.toMap();
+      //initialize default list for each plant
+      List plant = [];
+      //iterate through to save visible keys to list
+      for (String key in PlantKeys.listVisibleKeys) {
+        //set the default value
+        String value = '';
+        //change formatting if needed
+        if (PlantKeys.listDatePickerKeys.contains(key)) {
+          //format date text
+          value = (currentMap[key] == 0)
+              ? ''
+              : formatDate(DateTime.fromMillisecondsSinceEpoch(currentMap[key]),
+                  [yyyy, '-', mm, '-', dd]);
+        } else if (PlantKeys.listDatePickerMultipleKeys.contains(key)) {
+          //format sequence text, incoming is list of maps
+          List<Map> sequenceList = currentMap[key];
+          //now iterate though each sequence
+          for (Map sequence in sequenceList) {
+            //initialize holder string
+            String holder = '{';
+            //go through the keys
+            for (String key in sequence.keys.toList()) {
+              //don't add if no date
+              if (sequence[key] != 0) {
+                holder += key.toString() +
+                    ':' +
+                    formatDate(
+                        DateTime.fromMillisecondsSinceEpoch(
+                            sequence[key.toString()]),
+                        [yyyy, '-', mm, '-', dd]) +
+                    ' ';
+              }
+            }
+            holder += '} ';
+            value += holder;
+          }
+        } else {
+          value = currentMap[key];
+        }
+        //add the value to the plant specific list
+        plant.add(value);
+      }
+      plantsList.add(plant);
+    }
+    //return
+    return plantsList;
   }
 
   //*****************NOTIFICATIONS*****************//
@@ -261,6 +319,7 @@ class AppData extends ChangeNotifier {
   CollectionData newCollection() {
     String generateCollectionID = generateID(prefix: 'collection_');
     String newCollectionName = newDataInput;
+    print(newDataInput);
     final collection = CollectionData(
       id: generateCollectionID,
       name: newCollectionName,
@@ -291,6 +350,8 @@ class AppData extends ChangeNotifier {
       want: (collectionID == DBDefaultDocument.wishList) ? true : false,
       //is the plant in a sell list?
       sell: (collectionID == DBDefaultDocument.sellList) ? true : false,
+      //is the plant in a compost list?
+      compost: (collectionID == DBDefaultDocument.compostList) ? true : false,
     ).toMap();
     return plant;
   }

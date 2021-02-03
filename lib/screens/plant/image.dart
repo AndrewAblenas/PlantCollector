@@ -48,23 +48,26 @@ class ImageScreen extends StatelessWidget {
                     onPressed: () async {
                       if (connectionLibrary == false) {
                         //run thumbnail package to get thumb url
-                        String thumbUrl = await Provider.of<CloudStore>(context)
+                        String thumbUrl = await Provider.of<CloudStore>(context,
+                                listen: false)
                             .thumbnailPackage(
                                 imageURL: imageURL,
-                                plantID: Provider.of<AppData>(context)
-                                    .forwardingPlantID);
+                                plantID:
+                                    Provider.of<AppData>(context, listen: false)
+                                        .forwardingPlantID);
                         //package data
                         Map<String, dynamic> data = {
                           PlantKeys.thumbnail: thumbUrl,
-                          PlantKeys.isVisible: !Provider.of<AppData>(context)
-                              .currentUserInfo
-                              .privateLibrary
+                          PlantKeys.isVisible:
+                              !Provider.of<AppData>(context, listen: false)
+                                  .currentUserInfo
+                                  .privateLibrary
                         };
                         //set thumb url
                         CloudDB.updateDocumentL1(
                           collection: DBFolder.plants,
-                          document:
-                              Provider.of<AppData>(context).forwardingPlantID,
+                          document: Provider.of<AppData>(context, listen: false)
+                              .forwardingPlantID,
                           data: data,
                         );
 

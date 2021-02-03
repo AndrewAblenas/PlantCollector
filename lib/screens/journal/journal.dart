@@ -31,6 +31,7 @@ class JournalScreen extends StatelessWidget {
                   //return the entries builder
                   return UIBuilders.displayActivityJournalTiles(
                       journals: user.journal,
+                      userPlantCount: user.plants,
                       documentID: user.id,
                       connectionLibrary: connectionLibrary,
                       context: context);

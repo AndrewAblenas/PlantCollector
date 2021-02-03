@@ -37,30 +37,6 @@ class DialogScreenInput extends StatelessWidget {
           onChange: onChange,
           obscure: obscure,
         ),
-//        TextFormField(
-//            decoration: InputDecoration(
-//              hintText: hintText,
-//            ),
-//            initialValue: hintText,
-//            cursorColor: AppTextColor.white,
-//            autofocus: true,
-//            textAlign: smallText == true ? TextAlign.start : TextAlign.center,
-//            minLines: 1,
-//            maxLines: 10,
-//            onChanged: onChange,
-//            style: smallText == true
-//                ? TextStyle(
-//                    fontSize:
-//                        AppTextSize.medium * MediaQuery.of(context).size.width,
-//                    fontWeight: AppTextWeight.heavy,
-//                    color: AppTextColor.white,
-//                  )
-//                : TextStyle(
-//                    fontSize:
-//                        AppTextSize.huge * MediaQuery.of(context).size.width,
-//                    fontWeight: AppTextWeight.heavy,
-//                    color: AppTextColor.white,
-//                  )),
         SizedBox(
           height: AppTextSize.large * MediaQuery.of(context).size.width,
         ),
@@ -70,7 +46,6 @@ class DialogScreenInput extends StatelessWidget {
             Expanded(
               child: FlatButton(
                 onPressed: () {
-//                  Provider.of<AppData>(context).newDataInput = null;
                   Navigator.pop(context);
                 },
                 child: Text(

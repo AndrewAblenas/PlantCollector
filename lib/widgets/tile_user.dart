@@ -7,7 +7,7 @@ import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/builders_general.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/screens/library/library.dart';
-import 'package:plant_collector/widgets/container_wrapper.dart';
+import 'package:plant_collector/widgets/tile_white.dart';
 import 'package:plant_collector/widgets/updates_row.dart';
 import 'package:provider/provider.dart';
 
@@ -42,7 +42,9 @@ class UserTile extends StatelessWidget {
             //or if it's true but the other user friend list contains the current user
             (user.privateLibrary == true &&
                 user.friends.contains(
-                    Provider.of<AppData>(context).currentUserInfo.id)))
+                    Provider.of<AppData>(context, listen: false)
+                        .currentUserInfo
+                        .id)))
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -53,9 +55,9 @@ class UserTile extends StatelessWidget {
             ),
           );
       },
-      child: ContainerWrapper(
-        marginVertical: 1.0,
-        color: AppTextColor.white,
+      child: TileWhite(
+        bottomPadding: 1.0,
+        topPadding: 1.0,
         child: Padding(
           padding: EdgeInsets.all(0.03 * MediaQuery.of(context).size.width),
           child: Column(
@@ -177,7 +179,7 @@ class UserTile extends StatelessWidget {
                 ],
               ),
               //ADMIN AND CREATOR VISIBLE ONLY
-//            (Provider.of<AppData>(context).currentUserInfo.type ==
+//            (Provider.of<AppDataprovCloudStoreFalse.currentUserInfo.type ==
 //                        UserTypes.admin ||
 //                    Provider.of<AppData>(context).currentUserInfo.type ==
 //                        UserTypes.creator)

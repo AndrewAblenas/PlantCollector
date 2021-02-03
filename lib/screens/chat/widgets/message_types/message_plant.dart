@@ -43,7 +43,6 @@ class MessagePlant extends StatelessWidget {
           } else {
             return FlatButton(
               onPressed: () {
-//        Provider.of<CloudDB>(context).connectionUserFolder = message.sender;
                 if (message.media != null || message.media != '') {
                   Navigator.push(
                     context,

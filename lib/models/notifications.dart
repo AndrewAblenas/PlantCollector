@@ -43,8 +43,8 @@ class Notifications extends ChangeNotifierProvider {
       'your channel id',
       'your channel name',
       'your channel description',
-      importance: Importance.Max,
-      priority: Priority.High,
+      importance: Importance.max,
+      priority: Priority.high,
       ongoing: false,
       autoCancel: true,
       playSound: false,
@@ -54,7 +54,8 @@ class Notifications extends ChangeNotifierProvider {
     var iOSPlatformChannelSpecifics =
         new IOSNotificationDetails(presentSound: false);
     return NotificationDetails(
-        androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
+        android: androidPlatformChannelSpecifics,
+        iOS: iOSPlatformChannelSpecifics);
   }
 
   //SECTION END

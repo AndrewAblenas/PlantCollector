@@ -23,10 +23,11 @@ class ButtonColor extends StatelessWidget {
           List<int> colorUpload = [color.red, color.green, color.blue];
           Map data = AppData.updatePairFull(
               key: CollectionKeys.color, value: colorUpload);
-          Provider.of<CloudDB>(context).updateDocumentInCollection(
-              data: data,
-              collection: DBFolder.collections,
-              documentName: collectionID);
+          Provider.of<CloudDB>(context, listen: false)
+              .updateDocumentInCollection(
+                  data: data,
+                  collection: DBFolder.collections,
+                  documentName: collectionID);
           onPress();
         },
         child: Container(

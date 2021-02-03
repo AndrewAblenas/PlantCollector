@@ -75,7 +75,7 @@ class ConnectionCard extends StatelessWidget {
                 buttonText: 'Remove',
                 hideCancel: false,
                 onPressed: () {
-                  Provider.of<CloudDB>(context)
+                  Provider.of<CloudDB>(context, listen: false)
                       .removeConnection(connectionID: user.id);
                   Navigator.pop(context);
                 },

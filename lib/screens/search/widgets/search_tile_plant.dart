@@ -1,10 +1,12 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/app_data.dart';
 import 'package:plant_collector/models/builders_general.dart';
 import 'package:plant_collector/models/data_types/plant/plant_data.dart';
+import 'package:plant_collector/screens/library/widgets/plant_tile.dart';
 import 'package:plant_collector/screens/plant/plant.dart';
-import 'package:plant_collector/widgets/container_wrapper.dart';
+import 'package:plant_collector/widgets/tile_white.dart';
 import 'package:provider/provider.dart';
 
 //SEARCH TILE
@@ -16,7 +18,8 @@ class SearchPlantTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Provider.of<AppData>(context).forwardingPlantID = plant.id;
+        Provider.of<AppData>(context, listen: false).forwardingPlantID =
+            plant.id;
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -29,14 +32,26 @@ class SearchPlantTile extends StatelessWidget {
           ),
         );
       },
-      child: ContainerWrapper(
-        marginVertical: 3.0,
-        color: AppTextColor.white,
+      child: TileWhite(
         child: Padding(
-          padding: EdgeInsets.all(0.03 * MediaQuery.of(context).size.width),
+          padding: EdgeInsets.all(0.02 * MediaQuery.of(context).size.width),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
+              SizedBox(
+                width: 0.15 * MediaQuery.of(context).size.width,
+                height: 0.15 * MediaQuery.of(context).size.width,
+                child: plant.thumbnail != ''
+                    ? CachedNetworkImage(
+                        imageUrl: plant.thumbnail,
+                        fit: BoxFit.cover,
+                        // fit: BoxFit.cover,
+                        errorWidget: (context, error, _) {
+                          return PlantTileDefaultImage(iconScale: 0.5);
+                        })
+                    : PlantTileDefaultImage(iconScale: 0.5),
+              ),
+              SizedBox(width: 5.0),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,9 +76,6 @@ class SearchPlantTile extends StatelessWidget {
                       height: 0.01 * MediaQuery.of(context).size.width,
                     ),
                     //Genus, Species, Variety
-//                    SizedBox(
-////                      width: 0.8 * MediaQuery.of(context).size.width,
-//                      child:
                     Wrap(
                       children: UIBuilders.buildPlantName(substrings: [
                         [PlantKeys.genus, plant.genus],

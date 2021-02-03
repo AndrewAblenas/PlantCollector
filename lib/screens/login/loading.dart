@@ -8,7 +8,7 @@ class LoadingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SplashScreen(
-      seconds: 2,
+      seconds: 1,
       navigateAfterSeconds: RouteScreen(),
       backgroundColor: kGreenLight,
       loaderColor: kGreenDark,

@@ -17,7 +17,6 @@ class ReferenceScreen extends StatelessWidget {
         children: <Widget>[
           Column(
             children: <Widget>[
-              SizedBox(height: 20.0),
               TextSection(
                 title: title,
                 text: text,

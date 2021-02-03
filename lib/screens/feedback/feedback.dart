@@ -125,9 +125,13 @@ class FeedbackButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    //easy provider
+    AppData provAppDataFalse = Provider.of<AppData>(context, listen: false);
     String date = AppData.feedbackDate();
-    String userID = Provider.of<UserAuth>(context).signedInUser.uid;
-    String userEmail = Provider.of<UserAuth>(context).signedInUser.email;
+    String userID =
+        Provider.of<UserAuth>(context, listen: false).signedInUser.uid;
+    String userEmail =
+        Provider.of<UserAuth>(context, listen: false).signedInUser.email;
     return ButtonAdd(
       buttonText: buttonText,
       onPress: () {
@@ -141,9 +145,9 @@ class FeedbackButton extends StatelessWidget {
                 acceptText: 'OK',
                 acceptOnPress: () {
                   //save the title data
-                  title = Provider.of<AppData>(context).newDataInput;
+                  title = provAppDataFalse.newDataInput;
                   //clear text for next entry
-                  Provider.of<AppData>(context).newDataInput = '';
+                  provAppDataFalse.newDataInput = '';
                   //pop the window
                   Navigator.pop(context);
                   //show next dialog
@@ -163,8 +167,7 @@ class FeedbackButton extends StatelessWidget {
                               data: CloudDB.userFeedback(
                                 date: date,
                                 title: title,
-                                text:
-                                    Provider.of<AppData>(context).newDataInput,
+                                text: provAppDataFalse.newDataInput,
                                 type: type,
                                 platform: 'Platform:  ' +
                                     io.Platform.operatingSystem +
@@ -176,12 +179,12 @@ class FeedbackButton extends StatelessWidget {
                               collection: type,
                             );
                             //clear text for next entry
-                            Provider.of<AppData>(context).newDataInput = '';
+                            provAppDataFalse.newDataInput = '';
                             //pop the window
                             Navigator.pop(context);
                           },
                           onChange: (input) {
-                            Provider.of<AppData>(context).newDataInput = input;
+                            provAppDataFalse.newDataInput = input;
                           },
                           cancelText: 'Cancel',
                           hintText: null);
@@ -189,7 +192,7 @@ class FeedbackButton extends StatelessWidget {
                   );
                 },
                 onChange: (input) {
-                  Provider.of<AppData>(context).newDataInput = input;
+                  provAppDataFalse.newDataInput = input;
                 },
                 cancelText: 'Cancel',
                 hintText: null);

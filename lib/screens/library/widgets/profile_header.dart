@@ -16,8 +16,6 @@ import 'package:plant_collector/models/message.dart';
 import 'package:plant_collector/models/user.dart';
 import 'package:plant_collector/screens/dialog/dialog_screen_input.dart';
 import 'package:plant_collector/screens/library/widgets/stat_card.dart';
-import 'package:plant_collector/widgets/container_card.dart';
-import 'package:plant_collector/widgets/container_wrapper.dart';
 import 'package:plant_collector/widgets/tile_white.dart';
 import 'package:plant_collector/widgets/updates_row.dart';
 import 'package:provider/provider.dart';
@@ -28,6 +26,14 @@ class ProfileHeader extends StatelessWidget {
   ProfileHeader({@required this.connectionLibrary, @required this.user});
   @override
   Widget build(BuildContext context) {
+    //easy reference
+    AppData provAppDataFalse = Provider.of<AppData>(context, listen: false);
+    CloudDB provCloudDBFalse = Provider.of<CloudDB>(context, listen: false);
+    CloudStore provCloudStoreFalse =
+        Provider.of<CloudStore>(context, listen: false);
+    //easy scale
+    double width = MediaQuery.of(context).size.width;
+    //use the appropriate plant source
     //*****SET WIDGET VISIBILITY START*****//
 
     //enable dialogs only if library belongs to the current user
@@ -70,7 +76,7 @@ class ProfileHeader extends StatelessWidget {
 
     //*****SET WIDGET VISIBILITY END*****//
 
-    return ContainerWrapper(
+    return Container(
       child: Column(
         children: <Widget>[
           GestureDetector(
@@ -84,17 +90,16 @@ class ProfileHeader extends StatelessWidget {
                           acceptText: 'Update',
                           acceptOnPress: () {
                             //update user document with map
-                            Provider.of<CloudDB>(context).updateUserDocument(
+                            provCloudDBFalse.updateUserDocument(
                               data: AppData.updatePairFull(
                                   key: UserKeys.name,
-                                  value: Provider.of<AppData>(context)
-                                      .newDataInput),
+                                  value: provAppDataFalse.newDataInput),
                             );
                             //pop context
                             Navigator.pop(context);
                           },
                           onChange: (input) {
-                            Provider.of<AppData>(context).newDataInput = input;
+                            provAppDataFalse.newDataInput = input;
                           },
                           cancelText: 'Cancel',
                           hintText: user.name);
@@ -109,30 +114,25 @@ class ProfileHeader extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
+                        Container(
+                          margin: EdgeInsets.only(
+                            right: 5.0,
+                          ),
+                          width: 0.08 * width,
+                          child:
+                              UIBuilders.getBadge(userTotalPlants: user.plants),
+                        ),
                         Flexible(
                           child: Text(
                             displayName,
                             textAlign: TextAlign.center,
                             softWrap: true,
                             style: TextStyle(
-                              fontSize: 1.3 *
-                                  AppTextSize.huge *
-                                  MediaQuery.of(context).size.width,
+                              fontSize: 1.3 * AppTextSize.huge * width,
                               fontWeight: AppTextWeight.medium,
                             ),
                           ),
                         ),
-//                        (recentUpdate == true)
-//                            ? Padding(
-//                                padding: EdgeInsets.only(left: 5.0),
-//                                child: Icon(
-//                                  Icons.bubble_chart,
-//                                  size: AppTextSize.large *
-//                                      MediaQuery.of(context).size.width,
-//                                  color: kGreenMedium,
-//                                ),
-//                              )
-//                            : SizedBox(),
                       ],
                     ),
                     (showUniquePublicID == true)
@@ -146,8 +146,7 @@ class ProfileHeader extends StatelessWidget {
                                 style: TextStyle(
                                   color: AppTextColor.medium,
                                   fontWeight: AppTextWeight.heavy,
-                                  fontSize: AppTextSize.small *
-                                      MediaQuery.of(context).size.width,
+                                  fontSize: AppTextSize.small * width,
                                 ),
                               ),
                               Text(
@@ -157,8 +156,7 @@ class ProfileHeader extends StatelessWidget {
                                 style: TextStyle(
                                   color: kGreenMedium,
                                   fontWeight: AppTextWeight.heavy,
-                                  fontSize: AppTextSize.small *
-                                      MediaQuery.of(context).size.width,
+                                  fontSize: AppTextSize.small * width,
                                 ),
                               ),
                               Text(
@@ -168,20 +166,12 @@ class ProfileHeader extends StatelessWidget {
                                 style: TextStyle(
                                   color: AppTextColor.medium,
                                   fontWeight: AppTextWeight.heavy,
-                                  fontSize: AppTextSize.small *
-                                      MediaQuery.of(context).size.width,
+                                  fontSize: AppTextSize.small * width,
                                 ),
                               ),
                             ],
                           )
                         : SizedBox(),
-                    Container(
-                      margin: EdgeInsets.only(
-                        right: 5.0,
-                      ),
-                      width: 0.08 * MediaQuery.of(context).size.width,
-                      child: UIBuilders.getBadge(userTotalPlants: user.plants),
-                    ),
                     //spacer
                     SizedBox(
                       height: 5.0,
@@ -209,33 +199,30 @@ class ProfileHeader extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(
-            height: 5.0,
-          ),
           GestureDetector(
             onLongPress: () async {
               if (enableDialogs == true) {
                 //set userID for use in path generation
-                Provider.of<CloudStore>(context).setUserFolder(
-                    userID:
-                        (await Provider.of<UserAuth>(context).getCurrentUser())
-                            .uid);
+                provCloudStoreFalse.setUserFolder(
+                    userID: (await Provider.of<UserAuth>(context, listen: false)
+                            .getCurrentUser())
+                        .uid);
                 //get image from camera
-                File image = await Provider.of<CloudStore>(context)
-                    .getImageFile(fromCamera: false);
+                File image =
+                    await provCloudStoreFalse.getImageFile(fromCamera: false);
                 //check to make sure the user didn't back out
                 if (image != null) {
                   //upload image
-                  StorageUploadTask upload = Provider.of<CloudStore>(context)
-                      .uploadToUserSettingsTask(
+                  UploadTask upload =
+                      provCloudStoreFalse.uploadToUserSettingsTask(
                           imageFile: image, imageName: UserKeys.background);
                   //make sure upload completes
-                  StorageTaskSnapshot completion = await upload.onComplete;
+                  TaskSnapshot completion = await upload;
                   //get the url string
-                  String url = await Provider.of<CloudStore>(context)
-                      .getDownloadURL(snapshot: completion);
+                  String url = await provCloudStoreFalse.getDownloadURL(
+                      snapshot: completion);
                   //add image reference to plant document
-                  Provider.of<CloudDB>(context).updateUserDocument(
+                  provCloudDBFalse.updateUserDocument(
                     data: AppData.updatePairFull(
                       key: UserKeys.background,
                       value: url,
@@ -246,12 +233,7 @@ class ProfileHeader extends StatelessWidget {
             },
             child: Container(
               width: double.infinity,
-              margin: EdgeInsets.only(
-                left: 5.0,
-                right: 5.0,
-                top: 5.0,
-                bottom: 5.0,
-              ),
+              margin: EdgeInsets.symmetric(horizontal: 1.0),
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(5.0),
                   boxShadow: kShadowBox,
@@ -279,29 +261,27 @@ class ProfileHeader extends StatelessWidget {
                   onLongPress: () async {
                     if (enableDialogs == true) {
                       //set userID for use in path generation
-                      Provider.of<CloudStore>(context).setUserFolder(
-                          userID: (await Provider.of<UserAuth>(context)
+                      provCloudStoreFalse.setUserFolder(
+                          userID: (await Provider.of<UserAuth>(context,
+                                      listen: false)
                                   .getCurrentUser())
                               .uid);
                       //get image from camera
-                      File image = await Provider.of<CloudStore>(context)
-                          .getImageFile(fromCamera: false);
+                      File image = await provCloudStoreFalse.getImageFile(
+                          fromCamera: false);
                       //check to make sure the user didn't back out
                       if (image != null) {
                         //upload image
-                        StorageUploadTask upload =
-                            Provider.of<CloudStore>(context)
-                                .uploadToUserSettingsTask(
-                                    imageFile: image,
-                                    imageName: UserKeys.avatar);
+                        UploadTask upload =
+                            provCloudStoreFalse.uploadToUserSettingsTask(
+                                imageFile: image, imageName: UserKeys.avatar);
                         //make sure upload completes
-                        StorageTaskSnapshot completion =
-                            await upload.onComplete;
+                        TaskSnapshot completion = await upload;
                         //get the url string
-                        String url = await Provider.of<CloudStore>(context)
-                            .getDownloadURL(snapshot: completion);
+                        String url = await provCloudStoreFalse.getDownloadURL(
+                            snapshot: completion);
                         //add image reference to plant document
-                        Provider.of<CloudDB>(context).updateUserDocument(
+                        provCloudDBFalse.updateUserDocument(
                           data: AppData.updatePairFull(
                             key: UserKeys.avatar,
                             value: url,
@@ -316,19 +296,46 @@ class ProfileHeader extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       SizedBox(),
-                      CircleAvatar(
-                        radius: 80.0 *
-                            MediaQuery.of(context).size.width *
-                            kScaleFactor,
-                        backgroundColor:
-                            user.avatar != '' ? kGreenDark : Color(0x00000000),
-                        backgroundImage: user.avatar != ''
-                            ? CachedNetworkImageProvider(
-                                user.avatar,
-                              )
-                            : AssetImage(
-                                'assets/images/app_icon_white_512.png'),
+                      Container(
+                        width: 160 * width * kScaleFactor,
+                        height: 160 * width * kScaleFactor,
+                        decoration: BoxDecoration(
+                            boxShadow: [
+                              (user.avatar != '')
+                                  ? BoxShadow(
+                                      color: kShadowColor, blurRadius: 10.0)
+                                  : BoxShadow(color: Color(0x00000000))
+                            ],
+                            // border: Border.all(
+                            //   width: 1.0,
+                            //   color: AppTextColor.whitish,
+                            // ),
+                            borderRadius: BorderRadius.all(
+                                Radius.circular(80 * width * kScaleFactor)),
+                            color: user.avatar != ''
+                                ? kGreenDark
+                                : Color(0x00000000),
+                            image: DecorationImage(
+                              fit: BoxFit.cover,
+                              image: user.avatar != ''
+                                  ? CachedNetworkImageProvider(
+                                      user.avatar,
+                                    )
+                                  : AssetImage(
+                                      'assets/images/app_icon_white_512.png'),
+                            )),
                       ),
+                      // CircleAvatar(
+                      //   radius: 80.0 * width * kScaleFactor,
+                      //   backgroundColor:
+                      //       user.avatar != '' ? kGreenDark : Color(0x00000000),
+                      //   backgroundImage: user.avatar != ''
+                      //       ? CachedNetworkImageProvider(
+                      //           user.avatar,
+                      //         )
+                      //       : AssetImage(
+                      //           'assets/images/app_icon_white_512.png'),
+                      // ),
                       SizedBox(),
                     ],
                   ),
@@ -336,90 +343,94 @@ class ProfileHeader extends StatelessWidget {
               ),
             ),
           ),
-          //Display an about section but not for your own profile
-          (displayAbout == true || displayLink == true)
-              ? ContainerCard(
-                  color: AppTextColor.white,
-                  child: Container(
-                    width: double.infinity,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        (displayAbout == true)
-                            ? Text(
-                                user.about,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: AppTextSize.small *
-                                      MediaQuery.of(context).size.width,
-                                  fontWeight: AppTextWeight.medium,
-                                  color: AppTextColor.black,
-                                ),
-                              )
-                            : SizedBox(),
-                        (displayLink == true)
-                            ? GestureDetector(
-                                onTap: () {
-                                  Message.launchURL(url: user.link);
-                                },
-                                child: Text(
-                                  user.link,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: AppTextSize.small *
-                                        MediaQuery.of(context).size.width,
-                                    fontWeight: AppTextWeight.medium,
-                                    color: kGreenDark,
-                                    decoration: TextDecoration.underline,
-                                  ),
-                                ),
-                              )
-                            : SizedBox(),
-                      ],
-                    ),
-                  ),
-                )
-              : SizedBox(),
-          SizedBox(
-            height: 0.33 * MediaQuery.of(context).size.width,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          TileWhite(
+            child: Column(
               children: <Widget>[
-                Expanded(
-                  child: StatCard(
-                    cardLabel: user.plants == 1
-                        ? GlobalStrings.plant
-                        : GlobalStrings.plants,
-                    cardValue: user.plants != 0 ? user.plants.toString() : '0',
+                //Display an about section but not for your own profile
+                (displayAbout == true || displayLink == true)
+                    ? Container(
+                        padding: EdgeInsets.symmetric(
+                          vertical: 10.0,
+                        ),
+                        width: double.infinity,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            (displayAbout == true)
+                                ? Text(
+                                    user.about,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: AppTextSize.small * width,
+                                      fontWeight: AppTextWeight.medium,
+                                      color: AppTextColor.black,
+                                    ),
+                                  )
+                                : SizedBox(),
+                            (displayLink == true)
+                                ? GestureDetector(
+                                    onTap: () {
+                                      Message.launchURL(url: user.link);
+                                    },
+                                    child: Text(
+                                      user.link,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: AppTextSize.small * width,
+                                        fontWeight: AppTextWeight.medium,
+                                        color: kGreenDark,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                    ),
+                                  )
+                                : SizedBox(),
+                          ],
+                        ),
+                      )
+                    : SizedBox(),
+                SizedBox(
+                  height: 0.25 * width,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      SizedBox(
+                        width: 10.0,
+                      ),
+                      Expanded(
+                        child: StatCard(
+                          cardLabel: user.plants == 1
+                              ? GlobalStrings.plant
+                              : GlobalStrings.plants,
+                          cardValue:
+                              user.plants != 0 ? user.plants.toString() : '0',
+                        ),
+                      ),
+                      Expanded(
+                        child: StatCard(
+                          cardLabel: user.collections == 1
+                              ? GlobalStrings.collection
+                              : GlobalStrings.collections,
+                          cardValue: user.collections != 0
+                              ? user.collections.toString()
+                              : '0',
+                        ),
+                      ),
+                      Expanded(
+                        child: StatCard(
+                          cardLabel: user.photos == 1
+                              ? GlobalStrings.photo
+                              : GlobalStrings.photos,
+                          cardValue:
+                              user.photos != 0 ? user.photos.toString() : '0',
+                        ),
+                      ),
+                      SizedBox(
+                        width: 10.0,
+                      )
+                    ],
                   ),
                 ),
-                Expanded(
-                  child: StatCard(
-                    cardLabel: user.collections == 1
-                        ? GlobalStrings.collection
-                        : GlobalStrings.collections,
-                    cardValue: user.collections != 0
-                        ? user.collections.toString()
-                        : '0',
-                  ),
-                ),
-                Expanded(
-                  child: StatCard(
-                    cardLabel: user.photos == 1
-                        ? GlobalStrings.photo
-                        : GlobalStrings.photos,
-                    cardValue: user.photos != 0 ? user.photos.toString() : '0',
-                  ),
-                ),
-//              Expanded(
-//                child: StatCard(
-//                  cardLabel: 'Photo',
-//                  cardValue: data.getImageCount(
-//                    plants: data.plants,
-//                  ),
-//                ),
-//              ),
               ],
             ),
           ),

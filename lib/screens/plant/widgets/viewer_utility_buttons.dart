@@ -33,9 +33,8 @@ class ViewerUtilityButtons extends StatelessWidget {
     }
 
     return Container(
-      width: 0.98 * MediaQuery.of(context).size.width,
+      width: MediaQuery.of(context).size.width,
       child: TileWhite(
-        bottomPadding: 0.0,
         child: Column(
           children: <Widget>[
             Row(
@@ -64,7 +63,8 @@ class ViewerUtilityButtons extends StatelessWidget {
                                   Map data = AppData.cleanPlant(
                                       plantData: plant.toMap(),
                                       newPlantID: newPlantID,
-                                      newUserID: Provider.of<AppData>(context)
+                                      newUserID: Provider.of<AppData>(context,
+                                              listen: false)
                                           .currentUserInfo
                                           .id);
                                   //add new plant to userPlants
@@ -78,7 +78,8 @@ class ViewerUtilityButtons extends StatelessWidget {
                                   bool matchCollection = false;
                                   String collectionID = DBDefaultDocument.clone;
                                   for (CollectionData collection
-                                      in Provider.of<AppData>(context)
+                                      in Provider.of<AppData>(context,
+                                              listen: false)
                                           .currentUserCollections) {
                                     if (collection.id == collectionID)
                                       matchCollection = true;
@@ -89,7 +90,7 @@ class ViewerUtilityButtons extends StatelessWidget {
                                     collectionID: collectionID,
                                   ).toMap();
                                   //now complete cloning to collection
-                                  Provider.of<CloudDB>(context)
+                                  Provider.of<CloudDB>(context, listen: false)
                                       .updateDefaultDocumentL2(
                                     collectionL2: DBFolder.collections,
                                     documentL2: collectionID,
@@ -171,20 +172,25 @@ class ViewerUtilityButtons extends StatelessWidget {
                                                         //get document name
                                                         String document = Provider
                                                                 .of<CloudDB>(
-                                                                    context)
+                                                                    context,
+                                                                    listen:
+                                                                        false)
                                                             .conversationDocumentName(
                                                                 connectionId:
                                                                     friend);
                                                         //create message
                                                         MessageData message = AppData.createMessage(
-                                                            senderID: Provider.of<
-                                                                        AppData>(
-                                                                    context)
+                                                            senderID: Provider.of<AppData>(
+                                                                    context,
+                                                                    listen:
+                                                                        false)
                                                                 .currentUserInfo
                                                                 .id,
-                                                            senderName: Provider
-                                                                    .of<AppData>(
-                                                                        context)
+                                                            senderName: Provider.of<
+                                                                        AppData>(
+                                                                    context,
+                                                                    listen:
+                                                                        false)
                                                                 .currentUserInfo
                                                                 .name,
                                                             targetDevices: profile
@@ -335,23 +341,27 @@ class ViewerUtilityButtons extends StatelessWidget {
                   flex: 1,
                   child: StreamProvider<UserData>.value(
                     value: CloudDB.streamUserData(
-                        userID:
-                            Provider.of<AppData>(context).currentUserInfo.id),
+                        userID: Provider.of<AppData>(context, listen: false)
+                            .currentUserInfo
+                            .id),
                     child: Consumer<UserData>(builder: (context, user, _) {
                       if (user != null) {
                         //check if the current user owns the plant
                         bool ownPlant = (plant.owner ==
-                            Provider.of<AppData>(context).currentUserInfo.id);
+                            Provider.of<AppData>(context, listen: false)
+                                .currentUserInfo
+                                .id);
                         //check if the current user liked the plant
                         bool liked = (user.likedPlants.contains(plant.id));
                         return UtilityButton(
                           onPress: () {
                             //only allow onPress function if it isn't your plant
                             if (ownPlant == false)
-                              Provider.of<CloudDB>(context).updatePlantLike(
-                                  plantID: plant.id,
-                                  likes: plant.likes,
-                                  likeList: user.likedPlants);
+                              Provider.of<CloudDB>(context, listen: false)
+                                  .updatePlantLike(
+                                      plantID: plant.id,
+                                      likes: plant.likes,
+                                      likeList: user.likedPlants);
                           },
                           text: plant.likes.toString(),
                           icon: Icons.thumb_up,

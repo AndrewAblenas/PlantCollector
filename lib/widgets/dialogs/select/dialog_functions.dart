@@ -29,16 +29,18 @@ class DialogItemGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    //easy reference
+    CloudDB provCloudDBFalse = Provider.of<CloudDB>(context, listen: false);
     return DialogItem(
         buttonText: buttonText,
         onPress: () {
-          Provider.of<CloudDB>(context).updateArrayInDocumentInCollection(
+          provCloudDBFalse.updateArrayInDocumentInCollection(
               arrayKey: GroupKeys.collections,
               entries: [entryID],
               folder: DBFolder.groups,
               documentName: buttonPossibleParentID,
               action: true);
-          Provider.of<CloudDB>(context).updateArrayInDocumentInCollection(
+          provCloudDBFalse.updateArrayInDocumentInCollection(
               arrayKey: GroupKeys.collections,
               entries: [entryID],
               folder: DBFolder.groups,
@@ -64,17 +66,19 @@ class DialogItemCollection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    //easy reference
+    CloudDB provCloudDBFalse = Provider.of<CloudDB>(context, listen: false);
     return DialogItem(
         id: buttonPossibleParentID,
         buttonText: buttonText,
         onPress: () {
-          Provider.of<CloudDB>(context).updateArrayInDocumentInCollection(
+          provCloudDBFalse.updateArrayInDocumentInCollection(
               arrayKey: CollectionKeys.plants,
               entries: [entryID],
               folder: DBFolder.collections,
               documentName: buttonPossibleParentID,
               action: true);
-          Provider.of<CloudDB>(context).updateArrayInDocumentInCollection(
+          provCloudDBFalse.updateArrayInDocumentInCollection(
               arrayKey: CollectionKeys.plants,
               entries: [entryID],
               folder: DBFolder.collections,
@@ -95,6 +99,13 @@ class DialogItemCollection extends StatelessWidget {
             CloudDB.updateDocumentL1(
                 collection: DBFolder.plants, document: entryID, data: data);
           }
+          //if the plant was in compost list set sell to false after remove
+          if (currentParentID == DBDefaultDocument.compostList &&
+              buttonPossibleParentID != DBDefaultDocument.compostList) {
+            Map<String, dynamic> data = {PlantKeys.compost: false};
+            CloudDB.updateDocumentL1(
+                collection: DBFolder.plants, document: entryID, data: data);
+          }
           //WHEN MOVING INTO LIST
           //if the plant was in wishlist set wishList field to false on remove
           if (currentParentID != DBDefaultDocument.wishList &&
@@ -107,6 +118,13 @@ class DialogItemCollection extends StatelessWidget {
           if (currentParentID != DBDefaultDocument.sellList &&
               buttonPossibleParentID == DBDefaultDocument.sellList) {
             Map<String, dynamic> data = {PlantKeys.sell: true};
+            CloudDB.updateDocumentL1(
+                collection: DBFolder.plants, document: entryID, data: data);
+          }
+          //if the plant was in compost list set sell to false after remove
+          if (currentParentID != DBDefaultDocument.compostList &&
+              buttonPossibleParentID == DBDefaultDocument.compostList) {
+            Map<String, dynamic> data = {PlantKeys.compost: true};
             CloudDB.updateDocumentL1(
                 collection: DBFolder.plants, document: entryID, data: data);
           }
@@ -132,6 +150,8 @@ class DialogItemPlant extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    //easy reference
+    AppData provAppDataFalse = Provider.of<AppData>(context, listen: false);
     //*****SET WIDGET VISIBILITY START*****//
 
     //*****SET WIDGET VISIBILITY END*****//
@@ -152,7 +172,7 @@ class DialogItemPlant extends StatelessWidget {
             defaultList = [0, 0, 0];
           }
           //set to default to store future data
-          Provider.of<AppData>(context).newListInput = defaultList;
+          provAppDataFalse.newListInput = defaultList;
           showDialog(
               context: context,
               builder: (BuildContext context) {
@@ -171,7 +191,7 @@ class DialogItemPlant extends StatelessWidget {
               int value = date.millisecondsSinceEpoch;
               int update = CloudDB.delayUpdateWrites(
                   timeCreated: timeCreated,
-                  document: Provider.of<AppData>(context).currentUserInfo.id);
+                  document: provAppDataFalse.currentUserInfo.id);
               //update
               CloudDB.updateDocumentL1(
                 collection: DBFolder.plants,
@@ -191,7 +211,7 @@ class DialogItemPlant extends StatelessWidget {
               builder: (BuildContext context) {
                 int update = CloudDB.delayUpdateWrites(
                     timeCreated: timeCreated,
-                    document: Provider.of<AppData>(context).currentUserInfo.id);
+                    document: provAppDataFalse.currentUserInfo.id);
                 return DialogScreenInput(
                   title: 'Add Information',
                   acceptText: 'Add',
@@ -201,14 +221,14 @@ class DialogItemPlant extends StatelessWidget {
                         collection: DBFolder.plants,
                         document: plantID,
                         data: {
-                          buttonKey: Provider.of<AppData>(context).newDataInput,
+                          buttonKey: provAppDataFalse.newDataInput,
                           PlantKeys.update: update,
                         });
                     //pop context
                     Navigator.pop(context);
                   },
                   onChange: (input) {
-                    Provider.of<AppData>(context).newDataInput = input;
+                    provAppDataFalse.newDataInput = input;
                   },
                   cancelText: 'Cancel',
                   hintText: '',
@@ -240,7 +260,7 @@ class DialogItemPlant extends StatelessWidget {
 //collection: DBFolder.plants,
 //document: plantID,
 //data: {
-//buttonKey: Provider.of<AppData>(context).newListInput,
+//buttonKey: provAppDataFalse.newListInput,
 //PlantKeys.update: update,
 //});
 ////pop context

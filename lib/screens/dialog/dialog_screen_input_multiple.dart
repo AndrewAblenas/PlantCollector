@@ -45,7 +45,6 @@ class DialogScreenInputMultiple extends StatelessWidget {
             Expanded(
               child: FlatButton(
                 onPressed: () {
-//                  Provider.of<AppData>(context).newDataInput = null;
                   Navigator.pop(context);
                 },
                 child: Text(

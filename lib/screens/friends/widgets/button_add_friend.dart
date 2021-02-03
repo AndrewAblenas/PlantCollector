@@ -19,6 +19,8 @@ class ButtonAddFriend extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    //simpler AppData instance access
+    AppData provAppDataFalse = Provider.of<AppData>(context, listen: false);
     return ButtonAdd(
       scale: 0.6,
       textColor: AppTextColor.white,
@@ -26,11 +28,10 @@ class ButtonAddFriend extends StatelessWidget {
       buttonText: 'Add By Email',
       onPress: () {
         //determine if user data saved
-        bool userData = (Provider.of<AppData>(context).currentUserInfo != null);
+        bool userData = (provAppDataFalse.currentUserInfo != null);
         //determine if user name set
-        bool userNameSet =
-            (Provider.of<AppData>(context).currentUserInfo.name != null &&
-                Provider.of<AppData>(context).currentUserInfo.name != '');
+        bool userNameSet = (provAppDataFalse.currentUserInfo.name != null &&
+            provAppDataFalse.currentUserInfo.name != '');
         //first, direct user to create a user name
         if (userData && !userNameSet) {
           showDialog(
@@ -42,16 +43,17 @@ class ButtonAddFriend extends StatelessWidget {
                     acceptText: 'Add',
                     acceptOnPress: () {
                       //update user document to add user name
-                      Provider.of<CloudDB>(context).updateUserDocument(
+                      Provider.of<CloudDB>(context, listen: false)
+                          .updateUserDocument(
                         data: AppData.updatePairFull(
                             key: UserKeys.name,
-                            value: Provider.of<AppData>(context).newDataInput),
+                            value: provAppDataFalse.newDataInput),
                       );
                       //pop the context
                       Navigator.pop(context);
                     },
                     onChange: (input) {
-                      Provider.of<AppData>(context).newDataInput = input;
+                      provAppDataFalse.newDataInput = input;
                     },
                     cancelText: 'Cancel',
                     hintText: null);
@@ -66,57 +68,65 @@ class ButtonAddFriend extends StatelessWidget {
                     title: 'Type your friend\'s email.',
                     acceptText: 'Add',
                     acceptOnPress: () async {
-                      //try to find if user is registered from email
-                      UserData friendFromEmail = await CloudDB.getUserFromEmail(
-                          userEmail:
-                              Provider.of<AppData>(context).newDataInput);
-                      //look for ID in friend list
-                      bool check = false;
-                      for (String friend in friends) {
-                        if (friend == friendFromEmail.id) {
-                          check = true;
-                        }
-                      }
-                      //check if user is inputted their own email
-                      bool sameEmail = (Provider.of<AppData>(context)
-                              .newDataInput ==
-                          Provider.of<UserAuth>(context).signedInUser.email);
-                      Navigator.pop(context);
                       //determine dialog text
                       String title;
                       String dialogText;
                       String buttonText = 'OK';
                       Function onPressed = () {};
+                      //check if user is inputting their own email
+                      bool sameEmail = (provAppDataFalse.newDataInput ==
+                          Provider.of<UserAuth>(context, listen: false)
+                              .signedInUser
+                              .email);
+                      //if same email, notify
                       if (sameEmail == true) {
                         //so use can't send request to self
                         title = 'Cannot Send';
                         dialogText =
                             'It\'s great that you want to be friends with yourself!'
                             '\n\nUnfortunately you can\'t send yourself a request.';
-                      } else if (check == true) {
-                        //so user can't send another request to same friend
-                        title = 'Cannot Send';
-                        dialogText = 'That must be one great friend!'
-                            '\n\nYou\'re already connected so we won\'t send another request.';
-                      } else if (friendFromEmail != null) {
-                        //if all good send the request to friend
-                        Provider.of<CloudDB>(context).sendConnectionRequest(
-                            connectionID: friendFromEmail.id,
-                            connectionTokens: friendFromEmail.devicePushTokens);
-                        title = 'Request Sent';
-                        dialogText =
-                            'A request has been sent.  When it is accepted, your friend will show in the Connections list.';
                       } else {
-                        //if all else fails, send an invite via share
-                        title = 'Send Invite?';
-                        dialogText =
-                            'No user was found with this email address.  Would you like to invite them?';
-                        buttonText = 'Invite';
-                        onPressed = () {
-                          Share.share(
-                              'I\'m using Plant Collector to keep a record of my plants and share my collection with friends.\n\n'
-                              '${GlobalStrings.checkItOut}');
-                        };
+                        //try to find if user is registered from email
+                        UserData friendFromEmail =
+                            await CloudDB.getUserFromEmail(
+                                userEmail: provAppDataFalse.newDataInput);
+                        Navigator.pop(context);
+                        //look for ID in friend list
+                        bool check = false;
+                        for (String friend in friends) {
+                          if (friendFromEmail != null &&
+                              friend == friendFromEmail.id) {
+                            check = true;
+                          }
+                        }
+
+                        if (check == true) {
+                          //so user can't send another request to same friend
+                          title = 'Cannot Send';
+                          dialogText = 'That must be one great friend!'
+                              '\n\nYou\'re already connected so we won\'t send another request.';
+                        } else if (friendFromEmail != null) {
+                          //if all good send the request to friend
+                          Provider.of<CloudDB>(context, listen: false)
+                              .sendConnectionRequest(
+                                  connectionID: friendFromEmail.id,
+                                  connectionTokens:
+                                      friendFromEmail.devicePushTokens);
+                          title = 'Request Sent';
+                          dialogText =
+                              'A request has been sent.  When it is accepted, your friend will show in the Connections list.';
+                        } else {
+                          //if all else fails, send an invite via share
+                          title = 'Send Invite?';
+                          dialogText =
+                              'No user was found with this email address.  Would you like to invite them?';
+                          buttonText = 'Invite';
+                          onPressed = () {
+                            Share.share(
+                                'I\'m using Plant Collector to keep a record of my plants and share my collection with friends.\n\n'
+                                '${GlobalStrings.checkItOut}');
+                          };
+                        }
                       }
                       //show a dialog to provide feedback
                       showDialog(
@@ -136,7 +146,7 @@ class ButtonAddFriend extends StatelessWidget {
                       );
                     },
                     onChange: (input) {
-                      Provider.of<AppData>(context).newDataInput = input;
+                      provAppDataFalse.newDataInput = input;
                     },
                     cancelText: 'Cancel',
                     hintText: null);

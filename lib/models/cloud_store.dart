@@ -31,7 +31,7 @@ class CloudStore extends ChangeNotifier {
   //connection folder to view library
   String currentConnectionFolder;
 
-  StorageReference getStorageRef() {
+  Reference getStorageRef() {
     return _storage.ref();
   }
 
@@ -53,8 +53,8 @@ class CloudStore extends ChangeNotifier {
   }
 
 //  //GET REFERENCE FROM URL
-  Future<StorageReference> getReferenceFromURL({@required imageURL}) async {
-    return await _storage.getReferenceFromUrl(imageURL);
+  Future<Reference> getReferenceFromURL({@required imageURL}) async {
+    return _storage.refFromURL(imageURL);
   }
 
   //GET URL FROM REFERENCES
@@ -86,10 +86,9 @@ class CloudStore extends ChangeNotifier {
   }
 
   //DOWNLOAD IMAGE
-  Future<StorageFileDownloadTask> downloadImage(
-      {@required String url, @required File saveFile}) async {
-    StorageReference reference = await _storage.getReferenceFromUrl(url);
-    StorageFileDownloadTask download = reference.writeToFile(saveFile);
+  DownloadTask downloadImage({@required String url, @required File saveFile}) {
+    Reference reference = _storage.refFromURL(url);
+    DownloadTask download = reference.writeToFile(saveFile);
     print('downloadImage: Complete');
     return download;
   }
@@ -114,7 +113,7 @@ class CloudStore extends ChangeNotifier {
 //        //create temp file
 //        File tempFile = createTemp();
 //        //download the image
-//        StorageFileDownloadTask download =
+//        FileDownloadTask download =
 //            await downloadImage(url: link, saveFile: tempFile);
 //        //wait for download completion
 //        await download.future;
@@ -127,7 +126,7 @@ class CloudStore extends ChangeNotifier {
 //        //upload
 //        String path =
 //            '$mainFolder/$currentUserFolder/$plantsFolder/$plantIDFolder/images/$name.jpg';
-//        StorageUploadTask imageUpload =
+//        UploadTask imageUpload =
 //            _storage.ref().child(path).putData(uploadPackage);
 //        //check upload
 //        StorageTaskSnapshot uploadSnapshot = await imageUpload.onComplete;
@@ -148,7 +147,7 @@ class CloudStore extends ChangeNotifier {
     //get the thumbnail image name from the full sized image url
     String imageName = getThumbName(imageUrl: imageURL);
     //get the thumb ref
-    StorageReference thumbRef = getImageRef(
+    Reference thumbRef = getImageRef(
         imageName: imageName,
         imageExtension: 'jpg',
         plantIDFolder: plantID,
@@ -195,12 +194,12 @@ class CloudStore extends ChangeNotifier {
 //  }
 
   //get image ref
-  StorageReference getImageRef(
+  Reference getImageRef(
       {@required String imageName,
       @required String imageExtension,
       @required String plantIDFolder,
       @required String ownerID}) {
-    StorageReference ref;
+    Reference ref;
     try {
       ref = _storage.ref().child(
           '$mainFolder/$ownerID/$plantsFolder/$plantIDFolder/$imageFolder/$imageName.$imageExtension');
@@ -211,8 +210,7 @@ class CloudStore extends ChangeNotifier {
   }
 
   //get image url
-  static Future<String> getImageUrl(
-      {@required StorageReference reference}) async {
+  static Future<String> getImageUrl({@required Reference reference}) async {
     try {
       String url = await reference.getDownloadURL();
       return url;
@@ -226,7 +224,7 @@ class CloudStore extends ChangeNotifier {
 
   //UPLOAD A NEW IMAGE
   Future<String> getDownloadURL({
-    @required StorageTaskSnapshot snapshot,
+    @required TaskSnapshot snapshot,
   }) async {
     String url = await snapshot.ref.getDownloadURL();
     return url;
@@ -241,7 +239,7 @@ class CloudStore extends ChangeNotifier {
       //get the thumbnail image name for delete image and gridview display
       String thumbName = CloudStore.getThumbName(imageUrl: url);
       //get the thumb reference
-      StorageReference thumbRef = _storage.ref().child(
+      Reference thumbRef = _storage.ref().child(
           '$mainFolder/${plant.owner}/$plantsFolder/${plant.id}/$imageFolder/$thumbName.$imageExtension');
       //get the url
       String item = await CloudStore.getImageUrl(reference: thumbRef);
@@ -251,18 +249,18 @@ class CloudStore extends ChangeNotifier {
   }
 
   //UPLOAD TASK
-  StorageUploadTask uploadTask({
+  UploadTask uploadTask({
     @required File imageFile,
     @required List<int> imageCode,
     @required String imageExtension,
     @required String plantIDFolder,
     @required String subFolder,
   }) {
-    StorageUploadTask upload;
+    UploadTask upload;
     if (imageFile != null) {
       String imageName = generateImageName(plantID: plantIDFolder);
       //note image type not detection on iOS uploads defaults to applications/octet-stream
-      StorageMetadata metadata = StorageMetadata(contentType: 'image/jpeg');
+      SettableMetadata metadata = SettableMetadata(contentType: 'image/jpeg');
       String path =
           '$mainFolder/$currentUserFolder/$plantsFolder/$plantIDFolder/$subFolder/$imageName.$imageExtension';
       upload = _storage
@@ -281,12 +279,12 @@ class CloudStore extends ChangeNotifier {
   }
 
   //UPLOAD TASK
-  StorageUploadTask uploadToUserSettingsTask(
+  UploadTask uploadToUserSettingsTask(
       {@required File imageFile, @required String imageName}) {
-    StorageUploadTask upload;
+    UploadTask upload;
     if (imageFile != null) {
       //note image type not detection on iOS uploads defaults to applications/octet-stream
-      StorageMetadata metadata = StorageMetadata(contentType: 'image/jpeg');
+      SettableMetadata metadata = SettableMetadata(contentType: 'image/jpeg');
       String path =
           '$mainFolder/$currentUserFolder/$settingsFolder/$imageName.jpg';
       upload = _storage
@@ -319,7 +317,7 @@ class CloudStore extends ChangeNotifier {
 //  }
 
   //DELETE AN IMAGE
-  Future<void> deleteImage({@required StorageReference imageReference}) {
+  Future<void> deleteImage({@required Reference imageReference}) {
     return imageReference.delete();
   }
 
@@ -335,10 +333,10 @@ class CloudStore extends ChangeNotifier {
     String date;
     if (imageURL != null) {
       try {
-        StorageReference reference =
-            await getReferenceFromURL(imageURL: imageURL);
-        StorageMetadata meta = await reference.getMetadata();
-        date = dateFormat(msSinceEpoch: meta.creationTimeMillis);
+        Reference reference = await getReferenceFromURL(imageURL: imageURL);
+        FullMetadata meta = await reference.getMetadata();
+        date =
+            dateFormat(msSinceEpoch: meta.timeCreated.millisecondsSinceEpoch);
       } catch (e) {
         date = '';
         print(e);
@@ -357,47 +355,39 @@ class CloudStore extends ChangeNotifier {
 
   //METHOD TO LAUNCH IMAGE PICKER AND GET IMAGE
   Future<File> getImageFile({@required bool fromCamera}) async {
-    File image;
+    PickedFile image;
     try {
       if (fromCamera == true) {
-        image = await ImagePicker.pickImage(
+        image = await ImagePicker().getImage(
             source: ImageSource.camera,
             imageQuality: 90,
             maxWidth: cameraImageSize,
             maxHeight: cameraImageSize);
       } else {
-//        if (Platform.isAndroid) {
-//          print('Android');
-//          DeviceInfoPlugin deviceInfoInit = DeviceInfoPlugin();
-//          AndroidDeviceInfo deviceInfo = await deviceInfoInit.androidInfo;
-//          print('B');
-//          int versionNumber = deviceInfo.version.sdkInt;
-//          print('Android Version: $versionNumber');
-//          if (versionNumber >= 29) {
-//            image = await ImagePicker.pickImage(
-//                source: ImageSource.gallery,
-//                imageQuality: 90,
-//                maxWidth: cameraImageSize,
-//                maxHeight: cameraImageSize);
-//          }
-//        }
-        image = await ImagePicker.pickImage(
+        image = await ImagePicker().getImage(
             source: ImageSource.gallery,
             imageQuality: 90,
             maxWidth: cameraImageSize,
             maxHeight: cameraImageSize);
       }
+      //make sure the image took
+      if (image != null && image.path != null && Platform.isAndroid) {
+        //// ***Android - WORKAROUND - this must be enabled for proper image rotation, disable for iOS
+        final ExtendedImage.Image capturedImage =
+            ExtendedImage.decodeImage(await File(image.path).readAsBytes());
+        final ExtendedImage.Image orientedImage =
+            ExtendedImage.bakeOrientation(capturedImage);
+        return await File(image.path)
+            .writeAsBytes(ExtendedImage.encodeJpg(orientedImage));
+        //exif extension is not working correctly
+        // return await FlutterExifRotation.rotateImage(path: image.path);
+      } else {
+        return File(image.path);
+      }
     } catch (e) {
-      print('Error');
-      image = null;
+      print('Error with Image Capture');
+      return null;
     }
-    //make sure the image took
-    if (image != null && image.path != null && Platform.isAndroid) {
-      //// ***Android - WORKAROUND - this must be enabled for proper image rotation, disable for iOS
-//      image = await FlutterExifRotation.rotateAndSaveImage(path: image.path);
-      image = await FlutterExifRotation.rotateImage(path: image.path);
-    }
-    return image;
   }
 
   //END OF SECTION

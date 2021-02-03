@@ -10,14 +10,8 @@ class StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.all(5.0),
-      padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
+      padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
       constraints: BoxConstraints(maxWidth: double.infinity),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5.0),
-        boxShadow: kShadowBox,
-        color: kBackgroundLight,
-      ),
       child: Column(
         children: <Widget>[
           Expanded(

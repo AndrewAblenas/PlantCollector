@@ -4,7 +4,6 @@ import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/builders_general.dart';
 import 'package:plant_collector/models/data_types/communication_data.dart';
-import 'package:plant_collector/widgets/container_wrapper.dart';
 import 'package:plant_collector/widgets/tile_white.dart';
 import 'package:provider/provider.dart';
 
@@ -28,10 +27,8 @@ class Announcements extends StatelessWidget {
           //return the widget, only if more than 1 header
           if (widgets.length > 0) {
             return ExpandableNotifier(
-              initialExpanded: true,
-              child: ContainerWrapper(
-                color: color,
-                marginVertical: 0.0,
+              initialExpanded: false,
+              child: Container(
                 child: Expandable(
                   collapsed: AnnouncementsHeader(
                     title: title,
@@ -75,7 +72,7 @@ class AnnouncementArticle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TileWhite(
-      bottomPadding: 5.0,
+      bottomPadding: 0,
       child: Padding(
         padding: EdgeInsets.all(
           5.0,
@@ -137,29 +134,45 @@ class AnnouncementsHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TileWhite(
-      bottomPadding: 5.0,
+      bottomPadding: 0,
+      topPadding: 0,
       child: Padding(
         padding: const EdgeInsets.all(10.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: AppTextSize.huge * MediaQuery.of(context).size.width,
-                fontWeight: AppTextWeight.medium,
+            Expanded(
+              flex: 1,
+              child: SizedBox(),
+            ),
+            Expanded(
+              flex: 4,
+              child: Text(
+                title,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize:
+                      AppTextSize.huge * MediaQuery.of(context).size.width,
+                  fontWeight: AppTextWeight.medium,
+                  color: AppTextColor.dark,
+                ),
               ),
             ),
-            ExpandableButton(
-              child: CircleAvatar(
-                radius: 16.0 * MediaQuery.of(context).size.width * kScaleFactor,
-                backgroundColor: kGreenDark,
-                child: Icon(
-                  (expanded == true)
-                      ? Icons.keyboard_arrow_up
-                      : Icons.keyboard_arrow_down,
-                  size: 30.0 * MediaQuery.of(context).size.width * kScaleFactor,
-                  color: AppTextColor.white,
+            Expanded(
+              flex: 1,
+              child: ExpandableButton(
+                child: CircleAvatar(
+                  radius:
+                      16.0 * MediaQuery.of(context).size.width * kScaleFactor,
+                  backgroundColor: kGreenLight,
+                  child: Icon(
+                    (expanded == true)
+                        ? Icons.keyboard_arrow_up
+                        : Icons.keyboard_arrow_down,
+                    size:
+                        30.0 * MediaQuery.of(context).size.width * kScaleFactor,
+                    color: AppTextColor.white,
+                  ),
                 ),
               ),
             ),

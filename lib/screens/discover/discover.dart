@@ -66,20 +66,22 @@ class DiscoverScreen extends StatelessWidget {
                 ],
               ),
               Expanded(
-                child: SizedBox(
+                child: Container(
+                  color: kGreenLight,
                   child: ListView(
                     shrinkWrap: true,
                     primary: false,
                     children: <Widget>[
                       //determine what stream to show
-                      (Provider.of<AppData>(context).customFeedType ==
+                      (Provider.of<AppData>(context, listen: false)
+                                  .customFeedType ==
                               PlantData)
                           ?
                           //show PlantData stream
-                          //TODO issue here?  It called the field as int on startup
                           StreamProvider<List<PlantData>>.value(
                               value: CloudDB.streamCommunityPlantsTopDescending(
-                                  field: Provider.of<AppData>(context)
+                                  field: Provider.of<AppData>(context,
+                                          listen: false)
                                       .customFeedQueryField),
                               child: Consumer<List<PlantData>>(
                                 builder: (context, snap, _) {
@@ -87,7 +89,8 @@ class DiscoverScreen extends StatelessWidget {
                                     return SizedBox();
                                   } else {
                                     String tabText;
-                                    int value = Provider.of<AppData>(context)
+                                    int value = Provider.of<AppData>(context,
+                                            listen: false)
                                         .customFeedSelected;
                                     if (value == 1) {
                                       tabText = 'Most Cloned Plants';
@@ -110,26 +113,23 @@ class DiscoverScreen extends StatelessWidget {
                                         GridView.builder(
                                             shrinkWrap: true,
                                             primary: false,
-                                            padding: EdgeInsets.symmetric(
-                                              vertical: 1.0,
-                                            ),
+                                            padding: EdgeInsets.all(1.0),
                                             scrollDirection: Axis.vertical,
                                             itemCount: snap.length,
                                             gridDelegate:
                                                 SliverGridDelegateWithFixedCrossAxisCount(
+                                                    crossAxisSpacing: 1.0,
+                                                    mainAxisSpacing: 1.0,
                                                     crossAxisCount: 3),
                                             itemBuilder: (BuildContext context,
                                                 int index) {
-                                              return Padding(
-                                                padding: EdgeInsets.all(1.0),
-                                                child: PlantTile(
-                                                  connectionLibrary: true,
-                                                  communityView: true,
-                                                  collectionID: null,
-                                                  plant: snap[index],
-                                                  possibleParents: null,
-                                                  hideNew: true,
-                                                ),
+                                              return PlantTile(
+                                                connectionLibrary: true,
+                                                communityView: true,
+                                                collectionID: null,
+                                                plant: snap[index],
+                                                possibleParents: null,
+                                                hideNew: true,
                                               );
                                             }),
                                       ],

@@ -16,36 +16,31 @@ class SearchMyPlants extends StatelessWidget {
           height: 0.01 * MediaQuery.of(context).size.width,
         ),
         Expanded(
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: 0.01 * MediaQuery.of(context).size.width,
-            ),
-            child: Consumer<AppData>(
-              builder: (context, AppData data, _) {
-                bool hasPlants = (data.currentUserPlants != null &&
-                    data.currentUserPlants.length > 0);
-                Widget display = (hasPlants == true)
-                    ? ListView(
+          child: Consumer<AppData>(
+            builder: (context, AppData data, _) {
+              bool hasPlants = (data.currentUserPlants != null &&
+                  data.currentUserPlants.length > 0);
+              Widget display = (hasPlants == true)
+                  ? ListView(
 //                                        childAspectRatio: 5,
 //                                        crossAxisCount: 1,
-                        shrinkWrap: true,
-                        primary: false,
-                        children: UIBuilders.searchPlants(
-                          searchInput: data.searchBarLiveInput,
-                          plantData: data.currentUserPlants,
-                          collections: data.currentUserCollections,
-                        ),
-                      )
-                    : InfoTip(
-                        onPress: () {},
-                        showAlways: true,
-                        text:
-                            'You don\'t currently have any ${GlobalStrings.plants} to search through.  \n\n'
-                            'Add some in your ${GlobalStrings.library} (the bottom middle button).  \n\n'
-                            'Then you will be able to search through them live here.  ');
-                return display;
-              },
-            ),
+                      shrinkWrap: true,
+                      primary: false,
+                      children: UIBuilders.searchPlants(
+                        searchInput: data.searchBarLiveInput,
+                        plantData: data.currentUserPlants,
+                        collections: data.currentUserCollections,
+                      ),
+                    )
+                  : InfoTip(
+                      onPress: () {},
+                      showAlways: true,
+                      text:
+                          'You don\'t currently have any ${GlobalStrings.plants} to search through.  \n\n'
+                          'Add some in your ${GlobalStrings.library} (the bottom middle button).  \n\n'
+                          'Then you will be able to search through them live here.  ');
+              return display;
+            },
           ),
         ),
       ],

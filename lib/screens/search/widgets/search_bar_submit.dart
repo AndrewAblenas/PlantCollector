@@ -15,7 +15,7 @@ class SearchBarSubmit extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: 0.0,
+        horizontal: 1.0,
       ),
       child: SearchBarWrapper(
         marginVertical: 0.0,
@@ -47,7 +47,8 @@ class SearchBarSubmit extends StatelessWidget {
                       minLines: 1,
                       maxLines: 1,
                       onChanged: (value) {
-                        Provider.of<AppData>(context).newDataInput = value;
+                        Provider.of<AppData>(context, listen: false)
+                            .newDataInput = value;
                         int length = value.length;
                         if (value[length - 1] == '\n') onPress();
                       },

@@ -8,7 +8,6 @@ import 'package:plant_collector/models/data_types/message_data.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
 import 'package:plant_collector/screens/chat/chat.dart';
 import 'package:plant_collector/widgets/chat_avatar.dart';
-import 'package:plant_collector/widgets/container_wrapper.dart';
 import 'package:plant_collector/widgets/info_tip.dart';
 import 'package:plant_collector/widgets/notification_bubble.dart';
 import 'package:plant_collector/widgets/section_header.dart';
@@ -18,92 +17,87 @@ import 'package:provider/provider.dart';
 class SocialUpdates extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ContainerWrapper(
-      child: Column(
-        children: <Widget>[
-          SectionHeader(
-            title: 'Current Chats',
-          ),
-          SizedBox(
-            height: 5.0,
-          ),
-          Consumer<UserData>(
-            builder: (context, UserData user, _) {
-              if (user == null || user.chats.length <= 0) {
-                //show infotip otherwise show
-                return Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: InfoTip(
-                          onPress: () {},
-                          showAlways: true,
-                          text:
-                              'What\'s better than a plant person?  A community of plant people!  \n\n'
-                              'After you add a friend, and they accept, you\'ll be able to start a chat from the "Connections" section below.  \n\n'),
-                    ),
-                  ],
-                );
-              } else {
-                List<Widget> connectionList = [];
-                for (String friend in user.chats) {
-                  //check for message history
-                  //generate a widget
-                  if (Provider.of<AppData>(context)
-                      .currentUserInfo
-                      .chats
-                      .contains(friend)) {
-                    Widget conversationWidget = FutureProvider<Map>.value(
-                      value: CloudDB.getConnectionProfile(connectionID: friend),
-                      child: Consumer<Map>(builder: (context, Map friend, _) {
-                        if (friend == null) {
-                          return SizedBox();
-                        } else {
-                          UserData profile = UserData.fromMap(map: friend);
-                          return ChatBubble(user: profile);
-                        }
-                      }),
-                    );
-                    connectionList.add(conversationWidget);
-                  }
-                }
-                //if shorter than five, bail on gridview to allow center
-                if (connectionList.length < 5) {
-                  //new widget list
-                  List<Widget> connectionListRepack = [];
-                  //wrap in a sized box
-                  for (Widget item in connectionList) {
-                    Widget repack = SizedBox(
-                      height: 0.18 * MediaQuery.of(context).size.width,
-                      width: 0.18 * MediaQuery.of(context).size.width,
-                      child: item,
-                    );
-                    connectionListRepack.add(repack);
-                  }
-                  return TileWhite(
-                    bottomPadding: 5.0,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: connectionListRepack,
-                    ),
+    return Column(
+      children: <Widget>[
+        SectionHeader(
+          title: 'Current Chats',
+        ),
+        Consumer<UserData>(
+          builder: (context, UserData user, _) {
+            if (user == null || user.chats.length <= 0) {
+              //show infotip otherwise show
+              return Row(
+                children: <Widget>[
+                  Expanded(
+                    child: InfoTip(
+                        onPress: () {},
+                        showAlways: true,
+                        text:
+                            'What\'s better than a plant person?  A community of plant people!  \n\n'
+                            'After you add a friend, and they accept, you\'ll be able to start a chat from the "Connections" section below.  \n\n'),
+                  ),
+                ],
+              );
+            } else {
+              List<Widget> connectionList = [];
+              for (String friend in user.chats) {
+                //check for message history
+                //generate a widget
+                if (Provider.of<AppData>(context, listen: false)
+                    .currentUserInfo
+                    .chats
+                    .contains(friend)) {
+                  Widget conversationWidget = FutureProvider<Map>.value(
+                    value: CloudDB.getConnectionProfile(connectionID: friend),
+                    child: Consumer<Map>(builder: (context, Map friend, _) {
+                      if (friend == null) {
+                        return SizedBox();
+                      } else {
+                        UserData profile = UserData.fromMap(map: friend);
+                        return ChatBubble(user: profile);
+                      }
+                    }),
                   );
-                } else {
-                  return TileWhite(
-                    bottomPadding: 5.0,
-                    child: GridView.count(
-                      primary: false,
-                      shrinkWrap: true,
-                      crossAxisCount: 5,
-                      children: connectionList,
-                      childAspectRatio: 1,
-                    ),
-                  );
+                  connectionList.add(conversationWidget);
                 }
               }
-            },
-          ),
-        ],
-      ),
+              //if shorter than five, bail on gridview to allow center
+              if (connectionList.length < 5) {
+                //new widget list
+                List<Widget> connectionListRepack = [];
+                //wrap in a sized box
+                for (Widget item in connectionList) {
+                  Widget repack = SizedBox(
+                    height: 0.18 * MediaQuery.of(context).size.width,
+                    width: 0.18 * MediaQuery.of(context).size.width,
+                    child: item,
+                  );
+                  connectionListRepack.add(repack);
+                }
+                return TileWhite(
+                  bottomPadding: 5.0,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: connectionListRepack,
+                  ),
+                );
+              } else {
+                return TileWhite(
+                  bottomPadding: 5.0,
+                  child: GridView.count(
+                    primary: false,
+                    shrinkWrap: true,
+                    crossAxisCount: 5,
+                    children: connectionList,
+                    childAspectRatio: 1,
+                  ),
+                );
+              }
+            }
+          },
+        ),
+      ],
     );
   }
 }
@@ -124,15 +118,16 @@ class ChatBubble extends StatelessWidget {
           builder: (context, QuerySnapshot messages, _) {
 //                                      List<String> unreadList = [];
             if (messages != null &&
-                messages.documents != null &&
-                messages.documents.length > 0) {
+                messages.docs != null &&
+                messages.docs.length > 0) {
               List<String> unreadList = [];
-              for (DocumentSnapshot message in messages.documents) {
+              for (DocumentSnapshot message in messages.docs) {
                 //make sure message isn't empty, is from friend, and hasn't been read
                 if (message != null &&
-                    message.data[MessageKeys.sender] !=
-                        Provider.of<CloudDB>(context).currentUserFolder &&
-                    message.data[MessageKeys.read] == false) {
+                    message.data()[MessageKeys.sender] !=
+                        Provider.of<CloudDB>(context, listen: false)
+                            .currentUserFolder &&
+                    message.data()[MessageKeys.read] == false) {
                   unreadList.add(message.reference.path);
                 }
               }

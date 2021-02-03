@@ -1,6 +1,9 @@
-import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/text.dart';
+import 'package:plant_collector/models/app_data.dart';
+import 'package:plant_collector/models/button_dialogs.dart';
+import 'package:plant_collector/formats/colors.dart';
+import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/data_storage/firebase_folders.dart';
 import 'package:plant_collector/models/data_types/collection_data.dart';
 import 'package:plant_collector/models/data_types/plant/plant_data.dart';
@@ -11,9 +14,6 @@ import 'package:plant_collector/screens/dialog/dialog_screen_select.dart';
 import 'package:plant_collector/widgets/dialogs/dialog_confirm.dart';
 import 'package:plant_collector/widgets/get_image.dart';
 import 'package:provider/provider.dart';
-import 'package:plant_collector/models/app_data.dart';
-import 'package:plant_collector/models/cloud_db.dart';
-import 'package:plant_collector/formats/colors.dart';
 
 class AddPlant extends StatelessWidget {
   final String collectionID;
@@ -24,200 +24,153 @@ class AddPlant extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: kButtonBoxDecoration,
-      child: FlatButton(
-        padding: EdgeInsets.all(10.0),
-        child: CircleAvatar(
-          foregroundColor: kGreenDark,
-          backgroundColor: Colors.white,
-          radius: 20.0 * MediaQuery.of(context).size.width * kScaleFactor,
-          child: Icon(
-            Icons.add,
-            size: 35.0 * MediaQuery.of(context).size.width * kScaleFactor,
+        decoration: kButtonBoxDecoration,
+        child: FlatButton(
+          padding: EdgeInsets.all(10.0),
+          child: CircleAvatar(
+            foregroundColor: kGreenDark,
+            backgroundColor: Colors.white,
+            radius: 20.0 * MediaQuery.of(context).size.width * kScaleFactor,
+            child: Icon(
+              Icons.add,
+              size: 35.0 * MediaQuery.of(context).size.width * kScaleFactor,
+            ),
           ),
-        ),
-        onPressed: () async {
-          //check to make sure the user is online
-          ConnectivityResult connectivityResult =
-              await Connectivity().checkConnectivity();
+          onPressed: () async {
+            //continue
+            //if there is an active connection continue
+            bool active = await connectionActive();
+            if (active == true) {
+//initialize data here (generate only one ID here to prevent duplicate uploads on multiple button taps)
+              String newPlantID = AppData.generateID(prefix: 'plant_');
+//now present the add plant dialog
+              showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AppDialogNewPlantName(
+                      collectionID: collectionID,
+                      newPlantID: newPlantID,
+                      nextDialog: true,
+                    );
+                  });
+            }
+          },
+        ));
+  }
+}
 
-          //if there is an active connection continue
-          if (connectivityResult != ConnectivityResult.none) {
-            //initialize data here
-            //generate only one ID for a new plant to prevent multiple uploads
-            //if the add function fails and user keeps hitting Add Button
-            Map data;
-            String newPlantID = AppData.generateID(prefix: 'plant_');
-
-            //now show the dialog
-            showDialog(
-                context: context,
-                builder: (context) {
-                  return DialogScreenInput(
-                      title: 'Nickname your ${GlobalStrings.plant}',
-                      acceptText: 'Add',
-                      acceptOnPress: () async {
-                        //try
-                        try {
-                          //set the plant data
-                          data = Provider.of<AppData>(context).plantNew(
-                              collectionID: collectionID,
-                              newPlantID: newPlantID);
-
-                          //add new plant to userPlants
-                          await CloudDB.setDocumentL1(
-                            collection: DBFolder.plants,
-                            document: data[PlantKeys.id],
-                            data: data,
-                          );
-
-                          //add plant reference to collection
-                          await Provider.of<CloudDB>(context)
-                              .updateArrayInDocumentInCollection(
-                                  arrayKey: CollectionKeys.plants,
-                                  entries: [data[PlantKeys.id]],
-                                  folder: DBFolder.collections,
-                                  documentName: collectionID,
-                                  action: true);
-
-                          //add the last plant creation time to user file
-                          //first package the information
-                          Map<String, dynamic> update = {
-                            UserKeys.lastPlantAdd:
-                                DateTime.now().millisecondsSinceEpoch
-                          };
-
-                          //then update the user document
-                          await CloudDB.updateDocumentL1(
-                              collection: DBFolder.users,
-                              document: Provider.of<CloudDB>(context)
-                                  .currentUserFolder,
-                              data: update);
-
-                          //pop the first window
-                          Navigator.pop(context);
-
-                          //after adding the plant, ask to add an image
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return DialogScreenSelect(
-                                title: 'Add a Photo',
-                                items: [
-                                  GetImage(
-                                      imageFromCamera: true,
-                                      plantCreationDate:
-                                          data[PlantKeys.created],
-                                      largeWidget: false,
-                                      widgetScale: 1.0,
-                                      pop: true,
-                                      plantID: data[PlantKeys.id]),
-                                  SizedBox(
-                                    height: 20.0,
-                                  ),
-                                  GetImage(
-                                      imageFromCamera: false,
-                                      plantCreationDate:
-                                          data[PlantKeys.created],
-                                      largeWidget: false,
-                                      widgetScale: 1.0,
-                                      pop: true,
-                                      plantID: data[PlantKeys.id]),
-                                ],
-                              );
-                            },
-                          );
-                          //*****CHECK FOR ORPHANED PLANTS*****//
-
-                          //generate a list of plants not in a shelf
-                          List<String> orphaned = AppData.orphanedPlantCheck(
-                            collections: Provider.of<AppData>(context)
-                                .currentUserCollections,
-                            plants:
-                                Provider.of<AppData>(context).currentUserPlants,
-                          );
-
-                          //if there are orphaned plants
-                          if (orphaned.length > 0) {
-                            //first check if orphaned collection exists
-                            String id = DBDefaultDocument.orphaned;
-                            bool matchCollection = Provider.of<AppData>(context)
-                                .currentUserCollections
-                                .any((element) => element.id == id);
-
-                            //provide default document
-                            Map defaultCollection =
-                                AppData.newDefaultCollection(
-                              collectionID: id,
-                            ).toMap();
-
-                            //now complete cloning
-                            Provider.of<CloudDB>(context)
-                                .updateDefaultDocumentL2(
-                              collectionL2: DBFolder.collections,
-                              documentL2: id,
-                              key: CollectionKeys.plants,
-                              entries: orphaned,
-                              match: matchCollection,
-                              defaultDocument: defaultCollection,
-                            );
-                          }
-                        } catch (e) {
-                          //if there are any issues adding information or images
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return DialogConfirm(
-                                  title: 'Update Failed',
-                                  text:
-                                      'There was a problem adding this information.  '
-                                      'Make sure you are online and your current network isn\'t app features.  '
-                                      'Otherwise, try connecting to another network.',
-                                  hideCancel: true,
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  });
-                            },
-                          );
-                        }
-                      },
-                      onChange: (input) {
-                        Provider.of<AppData>(context).newDataInput = input;
-                      },
-                      cancelText: 'Cancel',
-                      hintText: null);
-                });
-          } else {
-            //2020-05-31
-            //if the network status is offline let the user know
-            //this is to prevent repeated additions of the same plant
-
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return DialogConfirm(
-                    title: 'Check Connection',
-                    text:
-                        'Make sure that you are online and that your network isn\'t blocking any app functions.  '
-                        '\n\nOtherwise, try connecting to a different network.',
-                    hideCancel: true,
-                    buttonText: 'OK',
-                    onPressed: () {
-                      Navigator.pop(context);
-                    });
-              },
-            );
-          }
+class AppDialogNewPlantName extends StatelessWidget {
+  final String collectionID;
+  final String newPlantID;
+  final bool nextDialog;
+  AppDialogNewPlantName(
+      {@required this.collectionID,
+      @required this.newPlantID,
+      this.nextDialog});
+  @override
+  Widget build(BuildContext context) {
+    return DialogScreenInput(
+        title: 'Nickname your ${GlobalStrings.plant}',
+        acceptText: 'Add',
+        onChange: (input) {
+          Provider.of<AppData>(context, listen: false).newDataInput = input;
         },
-//                    onChange: (input) {
-//                      Provider.of<AppData>(context).newDataInput = input;
-//                    },
-//                    cancelText: 'Cancel',
-//                    hintText: null);
-//              });
-//        },
-//      ),
-      ),
+        cancelText: 'Cancel',
+        hintText: null,
+        acceptOnPress: () async {
+//On submission of name continue
+          //package the plant data
+          Map data = Provider.of<AppData>(context, listen: false)
+              .plantNew(collectionID: collectionID, newPlantID: newPlantID);
+          try {
+//push a new plant to the server
+            await CloudDB.setDocumentL1(
+              collection: DBFolder.plants,
+              document: data[PlantKeys.id],
+              data: data,
+            );
+
+//next push a reference to the plant list of the collection/shelf (otherwise it won't be displayed)
+            await Provider.of<CloudDB>(context, listen: false)
+                .updateArrayInDocumentInCollection(
+                    arrayKey: CollectionKeys.plants,
+                    entries: [data[PlantKeys.id]],
+                    folder: DBFolder.collections,
+                    documentName: collectionID,
+                    action: true);
+
+//package next plant update time
+            Map<String, dynamic> update = {
+              UserKeys.lastPlantAdd: DateTime.now().millisecondsSinceEpoch
+            };
+
+//then push this time to user document
+            await CloudDB.updateDocumentL1(
+                collection: DBFolder.users,
+                document: Provider.of<CloudDB>(context, listen: false)
+                    .currentUserFolder,
+                data: update);
+            //show next dialog
+            if (nextDialog == true) {
+              print('TRUE');
+              await showDialog(
+                  context: context,
+                  builder: (BuildContext dialogContext) {
+                    return AppDialogUploadImage(data: data);
+                  });
+              Navigator.pop(context);
+            }
+            //now pop
+          } catch (e) {
+//if there are any issues adding information or images
+            dialogUpdateFailed(context: context);
+          }
+        });
+  }
+}
+
+class AppDialogUploadImage extends StatelessWidget {
+  final Map data;
+  AppDialogUploadImage({@required this.data});
+  @override
+  Widget build(BuildContext context) {
+    return DialogScreenSelect(
+      title: 'Add a Photo',
+      items: [
+        GetImage(
+            imageFromCamera: true,
+            plantCreationDate: data[PlantKeys.created],
+            largeWidget: false,
+            widgetScale: 1.0,
+            pop: true,
+            plantID: data[PlantKeys.id]),
+        SizedBox(
+          height: 20.0,
+        ),
+        GetImage(
+            imageFromCamera: false,
+            plantCreationDate: data[PlantKeys.created],
+            largeWidget: false,
+            widgetScale: 1.0,
+            pop: true,
+            plantID: data[PlantKeys.id]),
+      ],
     );
+  }
+}
+
+class AppDialogCheckNetwork extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return DialogConfirm(
+        title: 'Check Connection',
+        text:
+            'Make sure that you are online and that your network isn\'t blocking any app functions.  '
+            '\n\nOtherwise, try connecting to a different network.',
+        hideCancel: true,
+        buttonText: 'OK',
+        onPressed: () {
+          Navigator.pop(context);
+        });
   }
 }

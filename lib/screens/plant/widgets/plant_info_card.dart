@@ -34,6 +34,7 @@ class PlantInfoCard extends StatelessWidget {
       this.showContainer = true});
   @override
   Widget build(BuildContext context) {
+    AppData provAppDataFalse = Provider.of<AppData>(context, listen: false);
     //*****SET WIDGET VISIBILITY START*****//
 
     //enable dialogs only if library belongs to the current user
@@ -70,13 +71,11 @@ class PlantInfoCard extends StatelessWidget {
                 title: 'Remove Information',
                 text: 'Are you sure you would like to remove this information?',
                 onPressed: () {
-                  Provider.of<AppData>(context).newDataInput = null;
+                  provAppDataFalse.newDataInput = null;
                   CloudDB.updateDocumentL1(
                       collection: DBFolder.plants,
                       document: plantID,
-                      data: {
-                        cardKey: Provider.of<AppData>(context).newDataInput
-                      });
+                      data: {cardKey: provAppDataFalse.newDataInput});
                   Navigator.pop(context);
                 },
               );
@@ -86,7 +85,6 @@ class PlantInfoCard extends StatelessWidget {
       },
       child: (showContainer == true)
           ? TileWhite(
-              bottomPadding: 0.0,
               child: contents,
             )
           : contents,
@@ -119,6 +117,10 @@ class PlantInfoCardContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    //easy reference
+    AppData provAppDataFalse = Provider.of<AppData>(context, listen: false);
+    //easy scale
+    double relativeWidth = MediaQuery.of(context).size.width;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
@@ -130,7 +132,7 @@ class PlantInfoCardContent extends StatelessWidget {
             style: TextStyle(
               fontStyle:
                   (italicize == true) ? FontStyle.italic : FontStyle.normal,
-              fontSize: AppTextSize.huge * MediaQuery.of(context).size.width,
+              fontSize: AppTextSize.huge * relativeWidth,
               fontWeight: AppTextWeight.medium,
               color: AppTextColor.black,
 //                  shadows: kShadowText,
@@ -138,7 +140,7 @@ class PlantInfoCardContent extends StatelessWidget {
           ),
         ),
         Container(
-          height: 24.0 * MediaQuery.of(context).size.width * kScaleFactor,
+          height: 24.0 * relativeWidth * kScaleFactor,
           child: FlatButton(
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -147,20 +149,18 @@ class PlantInfoCardContent extends StatelessWidget {
                 (showEditIcon == true)
                     ? Icon(
                         Icons.edit,
-                        size: AppTextSize.tiny *
-                            MediaQuery.of(context).size.width,
+                        size: AppTextSize.tiny * relativeWidth,
                         color: AppTextColor.light,
                       )
                     : SizedBox(),
                 SizedBox(
-                  width: 5.0 * MediaQuery.of(context).size.width * kScaleFactor,
+                  width: 5.0 * relativeWidth * kScaleFactor,
                 ),
                 Text(
                   '$displayLabel',
                   textAlign: TextAlign.start,
                   style: TextStyle(
-                    fontSize:
-                        AppTextSize.small * MediaQuery.of(context).size.width,
+                    fontSize: AppTextSize.small * relativeWidth,
                     fontWeight: AppTextWeight.heavy,
                     color: AppTextColor.light,
                   ),
@@ -189,9 +189,7 @@ class PlantInfoCardContent extends StatelessWidget {
                         cardKey: value,
                         PlantKeys.update: CloudDB.delayUpdateWrites(
                             timeCreated: dateCreated,
-                            document: Provider.of<AppData>(context)
-                                .currentUserInfo
-                                .id)
+                            document: provAppDataFalse.currentUserInfo.id)
                       },
                     );
                   }
@@ -205,8 +203,7 @@ class PlantInfoCardContent extends StatelessWidget {
                             acceptText: 'Update',
                             acceptOnPress: () {
                               //format search categories to lower case
-                              String value =
-                                  Provider.of<AppData>(context).newDataInput;
+                              String value = provAppDataFalse.newDataInput;
 
                               //empty check
                               if (value != null && value != '') {
@@ -228,20 +225,18 @@ class PlantInfoCardContent extends StatelessWidget {
                                     cardKey: value,
                                     PlantKeys.update: CloudDB.delayUpdateWrites(
                                         timeCreated: dateCreated,
-                                        document: Provider.of<AppData>(context)
-                                            .currentUserInfo
-                                            .id)
+                                        document:
+                                            provAppDataFalse.currentUserInfo.id)
                                   },
                                 );
                               }
                               //clear data
-                              Provider.of<AppData>(context).newDataInput = null;
+                              provAppDataFalse.newDataInput = null;
                               //pop context
                               Navigator.pop(context);
                             },
                             onChange: (input) {
-                              Provider.of<AppData>(context).newDataInput =
-                                  input;
+                              provAppDataFalse.newDataInput = input;
                             },
                             cancelText: 'Cancel',
                             //in the case of variety, don't pass the single quotes and spaces

@@ -40,8 +40,8 @@ class AppTextColor {
 //AppBar
 class AppBarFormatting {
   static const Color color = Colors.white;
-  static const double fontSize = 25.0 * kScaleFactor;
-  static const FontWeight fontWeight = FontWeight.w300;
+  static const double fontSize = 30.0 * kScaleFactor;
+  static const FontWeight fontWeight = FontWeight.w600;
 }
 
 //Header

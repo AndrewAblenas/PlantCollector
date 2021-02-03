@@ -55,13 +55,15 @@ class DBDefaultDocument {
   static const String orphaned = 'orphaned';
   static const String wishList = 'wishList';
   static const String sellList = 'sellList';
+  static const String compostList = 'compostList';
   static const List<String> collectionHideEmpty = [clone, orphaned];
   static const List<String> collectionAutoGen = [
     clone,
     import,
     orphaned,
     wishList,
-    sellList
+    sellList,
+    compostList
   ];
   static const List<String> collectionPreventMoveInto = [
     clone,
@@ -72,5 +74,6 @@ class DBDefaultDocument {
     clone,
     orphaned,
     wishList,
+    compostList
   ];
 }

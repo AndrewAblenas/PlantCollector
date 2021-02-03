@@ -18,7 +18,6 @@ import 'package:plant_collector/models/global.dart';
 import 'package:plant_collector/screens/dialog/dialog_item_bloom.dart';
 import 'package:plant_collector/screens/dialog/dialog_screen_select.dart';
 import 'package:plant_collector/screens/library/widgets/collection_card.dart';
-import 'package:plant_collector/screens/plant/widgets/add_journal_button.dart';
 import 'package:plant_collector/screens/plant/widgets/journal_tile.dart';
 import 'package:plant_collector/screens/plant/widgets/plant_flowering.dart';
 import 'package:plant_collector/screens/plant/widgets/plant_photo_default.dart';
@@ -152,6 +151,27 @@ class UIBuilders extends ChangeNotifier {
 //    return groupColumn;
 //  }
 
+  //SORT COLLECTIONS
+  static List<CollectionData> sortCollections(
+      {@required List<CollectionData> userCollections}) {
+    //remove special collections to display at bottom
+    List<CollectionData> special = [];
+    List<CollectionData> user = [];
+    for (CollectionData collection in userCollections) {
+      if (DBDefaultDocument.collectionAutoGen.contains(collection.id)) {
+        special.add(collection);
+      } else {
+        user.add(collection);
+      }
+    }
+    //sort user created alphabetically
+    user.sort((a, b) => (a.name).compareTo((b.name)));
+    //sort special reverse alphabetically
+    special.sort((a, b) => (b.name).compareTo((a.name)));
+    //now merge with special collections
+    return user + special;
+  }
+
   //GENERATE COLLECTION WIDGETS
   static Column displayCollections({
     @required List<CollectionData> userCollections,
@@ -167,7 +187,7 @@ class UIBuilders extends ChangeNotifier {
     if (userCollections != null && userCollections.length > 0) {
       //sort if needed
       if (user.sortAlphabetically == true) {
-        userCollections.sort((a, b) => (a.name).compareTo((b.name)));
+        userCollections = sortCollections(userCollections: userCollections);
       }
       for (CollectionData collection in userCollections) {
         //connection view check for defaults
@@ -176,11 +196,13 @@ class UIBuilders extends ChangeNotifier {
         //hide default collections when empty
         bool hidePublicNoPlants =
             ((defaultView == true && collection.plants.length == 0));
-        //user can decide to hide sell and wish lists
+        //user can decide to hide sell, wish and compost lists
         bool hideUserChoice = (user.showSellList == false &&
                 collection.id == DBDefaultDocument.sellList) ||
             (user.showWishList == false &&
-                collection.id == DBDefaultDocument.wishList);
+                collection.id == DBDefaultDocument.wishList) ||
+            (user.showCompostList == false &&
+                collection.id == DBDefaultDocument.compostList);
         if (hidePublicNoPlants == false && hideUserChoice == false) {
           //add collection card for each collection
           collectionList.add(
@@ -194,6 +216,7 @@ class UIBuilders extends ChangeNotifier {
               groupID: groupID,
               showSellList: user.showSellList,
               showWishList: user.showWishList,
+              showCompostList: user.showCompostList,
             ),
           );
         }
@@ -278,7 +301,8 @@ class UIBuilders extends ChangeNotifier {
   }
 
   //REFORMAT PLANT INFO TO SHARE
-  static String shareList({@required List<PlantData> shelfPlants}) {
+  static String shareList(
+      {@required List<PlantData> shelfPlants, @required String shelfName}) {
     //final text
     String finalList = '';
 
@@ -318,15 +342,19 @@ class UIBuilders extends ChangeNotifier {
       plantNames.sort((a, b) => a.compareTo(b));
 
       //add to final list
-      int count = 0;
-      for (String name in plantNames) {
-        count++;
-        finalList = finalList + '\n${count.toString()} ) ' + name;
-      }
+      // int count = 0;
+      // for (String name in plantNames) {
+      //   count++;
+      //   finalList = finalList +
+      //       '\n'
+      //       '${count.toString()} ) '
+      //       +
+      //       name;
+      // }
     } else {
       finalList = 'There aren\'t any Plants yet.';
     }
-    return finalList + '\n\n${GlobalStrings.getTheApp}';
+    return shelfName + '\n\n' + finalList + '\n\n' + GlobalStrings.getTheApp;
   }
 
   //RETURN STRING WITH CAPITALIZED FIRST LETTERS
@@ -464,10 +492,9 @@ class UIBuilders extends ChangeNotifier {
               combinedNameList.length > 0) {
             infoCardList.add(
               TileWhite(
-                  bottomPadding: 0.0,
                   child: Column(
-                    children: combinedNameList,
-                  )),
+                children: combinedNameList,
+              )),
             );
             //after add, reset list to blank
             combinedNameList = [];
@@ -588,17 +615,6 @@ class UIBuilders extends ChangeNotifier {
         ),
       );
     }
-    //now include the add button only for user library
-    journalEntries.add((connectionLibrary == false)
-        ? AddJournalButton(
-            documentID: documentID,
-            collection: DBFolder.plants,
-            documentKey: PlantKeys.journal)
-        : SizedBox());
-    //add the header for all
-    journalEntries.add(SectionHeader(
-      title: 'JOURNAL',
-    ));
 
     //return the entries in a column
     return Column(
@@ -609,6 +625,7 @@ class UIBuilders extends ChangeNotifier {
 
   static Column displayActivityJournalTiles(
       {@required List journals,
+      @required int userPlantCount,
       @required String documentID,
       @required bool connectionLibrary,
       int limit,
@@ -619,22 +636,12 @@ class UIBuilders extends ChangeNotifier {
     //initialize blank list of widgets
     List<Widget> journalWidgets = [SizedBox()];
 
-    //provide the add button
-    if (connectionLibrary == false) {
-      journalWidgets.add(
-        AddJournalButton(
-            documentID: documentID,
-            collection: DBFolder.users,
-            documentKey: UserKeys.journal),
-      );
-    }
-
     if (limit != null) {
       //get min journal length if less than limit
       int journalCount = journalsReversed.length;
       int displayLimit = (limit > journalCount) ? journalCount : limit;
 
-      if (journalCount == 0) {
+      if (journalCount == 0 && userPlantCount <= 2) {
         if (connectionLibrary == false) {
           journalWidgets.add(InfoTip(
             text:
@@ -928,6 +935,7 @@ class UIBuilders extends ChangeNotifier {
     @required List<CollectionData> possibleParents,
   }) {
     List<Widget> widgetList = [];
+    possibleParents = sortCollections(userCollections: possibleParents);
     for (CollectionData collection in possibleParents) {
       if (collection.id != currentParentID) {
         widgetList.add(

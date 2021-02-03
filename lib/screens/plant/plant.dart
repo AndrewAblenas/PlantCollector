@@ -1,3 +1,4 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_collector/formats/text.dart';
@@ -10,17 +11,17 @@ import 'package:plant_collector/models/data_types/plant/growth_data.dart';
 import 'package:plant_collector/models/data_types/plant/image_data.dart';
 import 'package:plant_collector/models/data_types/plant/plant_data.dart';
 import 'package:plant_collector/models/data_types/user_data.dart';
+import 'package:plant_collector/screens/plant/widgets/add_journal_button.dart';
 import 'package:plant_collector/screens/plant/widgets/add_photo.dart';
-import 'package:plant_collector/screens/plant/widgets/carousel_standard.dart';
 import 'package:plant_collector/screens/plant/widgets/plant_flowering.dart';
 import 'package:plant_collector/screens/plant/widgets/viewer_utility_buttons.dart';
 import 'package:plant_collector/screens/search/widgets/search_tile_user.dart';
 import 'package:plant_collector/screens/template/screen_template.dart';
 import 'package:plant_collector/widgets/admin_button.dart';
 import 'package:plant_collector/screens/plant/widgets/action_button.dart';
-import 'package:plant_collector/widgets/container_wrapper.dart';
 import 'package:plant_collector/widgets/dialogs/dialog_confirm.dart';
 import 'package:plant_collector/widgets/get_image.dart';
+import 'package:plant_collector/widgets/section_header.dart';
 import 'package:plant_collector/widgets/tile_white.dart';
 import 'package:provider/provider.dart';
 import 'package:plant_collector/models/cloud_db.dart';
@@ -46,9 +47,11 @@ class PlantScreen extends StatelessWidget {
     int changeToGridView = 9;
 
     //only display certain elements for admin
-    bool showAdmin = (Provider.of<AppData>(context).currentUserInfo.type ==
-            UserTypes.creator ||
-        Provider.of<AppData>(context).currentUserInfo.type == UserTypes.admin);
+    bool showAdmin =
+        (Provider.of<AppData>(context, listen: false).currentUserInfo.type ==
+                UserTypes.creator ||
+            Provider.of<AppData>(context, listen: false).currentUserInfo.type ==
+                UserTypes.admin);
 
     //only show add image if user created plant
     bool showAddImage = (connectionLibrary == false);
@@ -66,230 +69,234 @@ class PlantScreen extends StatelessWidget {
       child: StreamProvider<UserData>.value(
         value: Provider.of<CloudDB>(context).streamCurrentUser(),
         child: ScreenTemplate(
-          backgroundColor: kGreenLight,
+          backgroundColor: kGreenMedium,
           screenTitle: 'Plant Profile',
           body: ListView(
             children: <Widget>[
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 10),
-                child: Consumer<DocumentSnapshot>(
-                  builder: (context, DocumentSnapshot plantSnap, _) {
-                    if (plantSnap != null) {
-                      //convert snap into something useful
-                      PlantData plant = PlantData.fromMap(map: plantSnap.data);
-                      //images
-                      List<ImageData> listImageData = (plant.imageSets != null)
-                          ? plant.imageSets.reversed.toList()
-                          : null;
-                      //check number of images to decide whether to build carousel or grid
-                      bool carouselView = (plant.imageSets != null &&
-                              plant.imageSets.length >= changeToGridView)
-                          ? false
-                          : true;
-                      List<Widget> imageWidgets =
-                          UIBuilders.generateImageTileWidgets(
-                        plantOwner: plant.owner,
-                        connectionLibrary: connectionLibrary,
-                        plantID: plantID,
-                        thumbnail: plant != null ? plant.thumbnail : '',
-                        //the below check is necessary for deleting a plant via the button on plant screen
-                        //reversed the image list so most recent photos are first
-                        imageSets: listImageData,
-                        largeWidget: carouselView,
+              Consumer<DocumentSnapshot>(
+                builder: (context, DocumentSnapshot plantSnap, _) {
+                  if (plantSnap != null) {
+                    //convert snap into something useful
+                    PlantData plant = PlantData.fromMap(map: plantSnap.data());
+                    //images
+                    List<ImageData> listImageData = (plant.imageSets != null)
+                        ? plant.imageSets.reversed.toList()
+                        : null;
+                    //check number of images to decide whether to build carousel or grid
+                    bool carouselView = (plant.imageSets != null &&
+                            plant.imageSets.length >= changeToGridView)
+                        ? false
+                        : true;
+                    List<Widget> imageWidgets =
+                        UIBuilders.generateImageTileWidgets(
+                      plantOwner: plant.owner,
+                      connectionLibrary: connectionLibrary,
+                      plantID: plantID,
+                      thumbnail: plant != null ? plant.thumbnail : '',
+                      //the below check is necessary for deleting a plant via the button on plant screen
+                      //reversed the image list so most recent photos are first
+                      imageSets: listImageData,
+                      largeWidget: carouselView,
+                    );
+                    //if there are too many photos, it's annoying to scroll.
+                    //create a grid view to display instead
+                    if (carouselView == false) {
+                      return Container(
+                        color: kGreenMedium,
+                        child: Column(
+                          children: <Widget>[
+                            GridView.count(
+                              padding: EdgeInsets.all(1),
+                              crossAxisCount: 3,
+                              primary: false,
+                              shrinkWrap: true,
+                              mainAxisSpacing: 1,
+                              crossAxisSpacing: 1,
+                              children: imageWidgets,
+                            ),
+                          ],
+                        ),
                       );
-                      //if there are too many photos, it's annoying to scroll.
-                      //create a grid view to display instead
-                      if (carouselView == false) {
-                        return Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal:
-                                  0.01 * MediaQuery.of(context).size.width),
-                          child: ContainerWrapper(
-                            color: kGreenMedium,
-                            marginVertical: 0.0,
-                            child: Column(
-                              children: <Widget>[
-                                GridView.count(
-                                  padding: EdgeInsets.only(
-                                    left: 0.01 *
-                                        MediaQuery.of(context).size.width,
-                                    right: 0.01 *
-                                        MediaQuery.of(context).size.width,
-                                    top: 0.01 *
-                                        MediaQuery.of(context).size.width,
-                                    bottom: 0.02 *
-                                        MediaQuery.of(context).size.width,
-                                  ),
-                                  crossAxisCount: 3,
-                                  primary: false,
-                                  shrinkWrap: true,
-                                  mainAxisSpacing:
-                                      0.005 * MediaQuery.of(context).size.width,
-                                  crossAxisSpacing:
-                                      0.005 * MediaQuery.of(context).size.width,
-                                  children: imageWidgets,
-                                ),
-                              ],
-                            ),
+                    } else {
+                      //add an image add button to the list for user library
+                      if (showAddImage == true) {
+                        //place image add at the beginning for carousel
+                        imageWidgets.insert(
+                          0,
+                          AddPhoto(
+                            plantCreationDate: plant.created,
+                            plantID: plantID,
+                            largeWidget: carouselView,
                           ),
-                        );
-                      } else {
-                        //add an image add button to the list for user library
-                        if (showAddImage == true) {
-                          //place image add at the beginning for carousel
-                          imageWidgets.insert(
-                            0,
-                            AddPhoto(
-                              plantCreationDate: plant.created,
-                              plantID: plantID,
-                              largeWidget: carouselView,
-                            ),
-                          );
-                        }
-                        return CarouselStandard(
-                          items: imageWidgets,
-                          connectionLibrary: connectionLibrary,
                         );
                       }
-                    } else {
-                      return SizedBox();
-                    }
-//                          },
-//                        ),
-//                      );
-//                    } else {
-//                      return SizedBox();
-//                    }
-                  },
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(
-                    horizontal: 0.01 * MediaQuery.of(context).size.width),
-                child: Consumer<DocumentSnapshot>(
-                  builder: (context, DocumentSnapshot plantSnap, _) {
-                    //check for data as well so that if delete plant no error calling owner later for admin
-                    if (plantSnap != null && plantSnap.data != null) {
-                      PlantData plant = PlantData.fromMap(map: plantSnap.data);
-
-                      //show plant status for other users only
-                      bool showPlantStatus = (connectionLibrary == true &&
-                          (plant.sell == true || plant.want == true));
-
-                      //unpack bloom to display each widget
-                      List<Map> bloomSequence = [];
-                      plant.sequenceBloom
-                          .forEach((item) => bloomSequence.add(item.toMap()));
-
-                      //unpack growth to display widget
-                      List<Map> growthSequence = [];
-                      plant.sequenceGrowth
-                          .forEach((item) => growthSequence.add(item.toMap()));
-                      return Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          ContainerWrapper(
-                            child: Column(
-                              children: <Widget>[
-                                Row(
-                                  children: <Widget>[
-                                    ViewerUtilityButtons(
-                                      plant: plant,
-                                      showPlantStatus: showPlantStatus,
-                                    ),
-                                  ],
-                                ),
-                                //make sure this is the same number as carousel
-                                (showAddImage == true &&
-                                        plant.imageSets.length >=
-                                            changeToGridView)
-                                    ? GridViewAddImages(plant: plant)
-                                    : SizedBox(),
-                                //BLOOM SEQUENCE
-                                (plant.sequenceBloom.length > 0)
-                                    ? PlantSequence(
-                                        plantID: plant.id,
-                                        sequenceData: bloomSequence,
-                                        dataType: BloomData,
-                                        connectionLibrary: connectionLibrary,
-                                      )
-                                    : SizedBox(),
-                                //GROWTH SEQUENCE
-                                (plant.sequenceGrowth.length > 0)
-                                    ? PlantSequence(
-                                        plantID: plant.id,
-                                        sequenceData: growthSequence,
-                                        dataType: GrowthData,
-                                        connectionLibrary: connectionLibrary,
-                                      )
-                                    : SizedBox(),
-                                UIBuilders.displayInfoCards(
-                                  connectionLibrary: connectionLibrary,
-                                  plant: plant,
-                                  context: context,
-                                ),
-                                (showOwnerUserInfo == true)
-                                    ? FutureProvider<UserData>.value(
-                                        value: CloudDB.futureUserData(
-                                          userID: plant.owner,
-                                        ),
-                                        child: Consumer<UserData>(
-                                          builder: (context, plantOwner, _) {
-                                            if (plantOwner == null) {
-                                              return SizedBox();
-                                            } else {
-                                              return Padding(
-                                                padding: EdgeInsets.all(5.0),
-                                                child: StreamProvider<
-                                                        UserData>.value(
-                                                    value:
-                                                        CloudDB.streamUserData(
-                                                      userID:
-                                                          Provider.of<AppData>(
-                                                                  context)
-                                                              .currentUserInfo
-                                                              .id,
-                                                    ),
-                                                    child: SearchUserTile(
-                                                        user: plantOwner)),
-                                              );
-                                            }
-                                          },
-                                        ),
-                                      )
-                                    : SizedBox(),
-                                //ADMIN AND CREATOR ONLY FUNCTION!
-                                (showAdmin == true)
-                                    ? PlantAdminFunctions(
-                                        plant: plant, plantID: plantID)
-                                    : SizedBox(),
-                              ],
-                            ),
+                      //initial slide index
+                      //if current user library and at least two items (Add Image Buttons and an image)
+                      //Then start at index 1, the first image
+                      int initialSlideIndex = (imageWidgets.length >= 2 &&
+                              connectionLibrary == false)
+                          ? 1
+                          : 0;
+                      return Container(
+                        // color: kGreenDark,
+                        decoration: BoxDecoration(
+                            gradient: kGradientGreenVerticalMedDark),
+                        child: CarouselSlider(
+                          items: imageWidgets,
+                          options: CarouselOptions(
+                            enlargeCenterPage: true,
+                            enlargeStrategy: CenterPageEnlargeStrategy.height,
+                            //index 0 is add image, default to index 0 if no images, otherwise start at 1
+                            //this will mean take image will be one scroll away
+                            initialPage: initialSlideIndex,
+                            height: MediaQuery.of(context).size.width * 0.94,
+                            viewportFraction: 0.97,
+                            enableInfiniteScroll: false,
                           ),
+                        ),
+                      );
+                    }
+                  } else {
+                    return SizedBox();
+                  }
+                },
+              ),
+              Consumer<DocumentSnapshot>(
+                builder: (context, DocumentSnapshot plantSnap, _) {
+                  //check for data as well so that if delete plant no error calling owner later for admin
+                  if (plantSnap != null && plantSnap.data() != null) {
+                    PlantData plant = PlantData.fromMap(map: plantSnap.data());
+
+                    //show plant status for other users only
+                    bool showPlantStatus = (connectionLibrary == true &&
+                        (plant.sell == true || plant.want == true));
+
+                    //unpack bloom to display each widget
+                    List<Map> bloomSequence = [];
+                    plant.sequenceBloom
+                        .forEach((item) => bloomSequence.add(item.toMap()));
+
+                    //unpack growth to display widget
+                    List<Map> growthSequence = [];
+                    plant.sequenceGrowth
+                        .forEach((item) => growthSequence.add(item.toMap()));
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Container(
+                          color: kGreenMedium,
+                          padding: EdgeInsets.symmetric(vertical: 1.0),
+                          child: Column(
+                            children: <Widget>[
+                              Row(
+                                children: <Widget>[
+                                  ViewerUtilityButtons(
+                                    plant: plant,
+                                    showPlantStatus: showPlantStatus,
+                                  ),
+                                ],
+                              ),
+                              //make sure this is the same number as carousel
+                              (showAddImage == true &&
+                                      plant.imageSets.length >=
+                                          changeToGridView)
+                                  ? GridViewAddImages(plant: plant)
+                                  : SizedBox(),
+                              //BLOOM SEQUENCE
+                              (plant.sequenceBloom.length > 0)
+                                  ? PlantSequence(
+                                      plantID: plant.id,
+                                      sequenceData: bloomSequence,
+                                      dataType: BloomData,
+                                      connectionLibrary: connectionLibrary,
+                                    )
+                                  : SizedBox(),
+                              //GROWTH SEQUENCE
+                              (plant.sequenceGrowth.length > 0)
+                                  ? PlantSequence(
+                                      plantID: plant.id,
+                                      sequenceData: growthSequence,
+                                      dataType: GrowthData,
+                                      connectionLibrary: connectionLibrary,
+                                    )
+                                  : SizedBox(),
+                              UIBuilders.displayInfoCards(
+                                connectionLibrary: connectionLibrary,
+                                plant: plant,
+                                context: context,
+                              ),
+                              (showOwnerUserInfo == true)
+                                  ? FutureProvider<UserData>.value(
+                                      value: CloudDB.futureUserData(
+                                        userID: plant.owner,
+                                      ),
+                                      child: Consumer<UserData>(
+                                        builder: (context, plantOwner, _) {
+                                          if (plantOwner == null) {
+                                            return SizedBox();
+                                          } else {
+                                            return StreamProvider<
+                                                    UserData>.value(
+                                                value: CloudDB.streamUserData(
+                                                  userID: Provider.of<AppData>(
+                                                          context)
+                                                      .currentUserInfo
+                                                      .id,
+                                                ),
+                                                child: SearchUserTile(
+                                                    user: plantOwner));
+                                          }
+                                        },
+                                      ),
+                                    )
+                                  : SizedBox(),
+                              //ADMIN AND CREATOR ONLY FUNCTION!
+                              (showAdmin == true)
+                                  ? PlantAdminFunctions(
+                                      plant: plant, plantID: plantID)
+                                  : SizedBox(),
+                            ],
+                          ),
+                        ),
 //                          (connectionLibrary == true)
 //                              ? SizedBox()
 //                              :
-                          //display nothing for connection if no journal entries
-                          (connectionLibrary == true &&
-                                  plant.journal.length == 0)
-                              ? SizedBox()
-                              : ContainerWrapper(
-                                  child: Column(
-                                    children: <Widget>[
-                                      UIBuilders.displayJournalTiles(
-                                          connectionLibrary: connectionLibrary,
-                                          journals: plant.journal,
-                                          documentID: plant.id)
-                                    ],
-                                  ),
+                        //display nothing for connection if no journal entries
+                        (connectionLibrary == true && plant.journal.length == 0)
+                            ? SizedBox()
+                            : Container(
+                                child: Column(
+                                  children: <Widget>[
+                                    //add the header for all
+                                    SectionHeader(
+                                      title: 'JOURNAL',
+                                      trailing:
+                                          //now include the add button only for user library
+                                          (connectionLibrary == false)
+                                              ? AddJournalButton(
+                                                  documentID: plant.id,
+                                                  collection: DBFolder.plants,
+                                                  documentKey:
+                                                      PlantKeys.journal)
+                                              : SizedBox(),
+                                    ),
+                                    SizedBox(
+                                      height: 1.0,
+                                    ),
+                                    UIBuilders.displayJournalTiles(
+                                        connectionLibrary: connectionLibrary,
+                                        journals: plant.journal,
+                                        documentID: plant.id)
+                                  ],
                                 ),
-                        ],
-                      );
-                    } else {
-                      return SizedBox();
-                    }
-                  },
-                ),
+                              ),
+                      ],
+                    );
+                  } else {
+                    return SizedBox();
+                  }
+                },
+                // ),
               ),
               SizedBox(
                 height: 10,
@@ -297,7 +304,7 @@ class PlantScreen extends StatelessWidget {
               Consumer<DocumentSnapshot>(
                 builder: (context, DocumentSnapshot plantSnap, _) {
                   if (plantSnap != null) {
-                    PlantData plant = PlantData.fromMap(map: plantSnap.data);
+                    PlantData plant = PlantData.fromMap(map: plantSnap.data());
 
                     //now check to make sure the ID exists
                     //this is for case where plant was deleted while you are viewing
@@ -326,7 +333,8 @@ class PlantScreen extends StatelessWidget {
                                             //pop dialog
                                             Navigator.pop(context);
                                             if (plant.owner ==
-                                                Provider.of<AppData>(context)
+                                                Provider.of<AppData>(context,
+                                                        listen: false)
                                                     .currentUserInfo
                                                     .id) {
                                               //delete plant
@@ -334,7 +342,8 @@ class PlantScreen extends StatelessWidget {
                                                   document: plantID,
                                                   collection: DBFolder.plants);
                                               //remove plant reference from collection
-                                              Provider.of<CloudDB>(context)
+                                              Provider.of<CloudDB>(context,
+                                                      listen: false)
                                                   .updateArrayInDocumentInCollection(
                                                       arrayKey:
                                                           CollectionKeys.plants,
@@ -393,7 +402,8 @@ class PlantScreen extends StatelessWidget {
                             icon: Icons.share,
                             action: () {
                               Share.share(
-                                UIBuilders.sharePlant(plantMap: plantSnap.data),
+                                UIBuilders.sharePlant(
+                                    plantMap: plantSnap.data()),
                                 subject: 'Check out this plant!',
                               );
                             },
@@ -440,10 +450,8 @@ class GridViewAddImages extends StatelessWidget {
       children: <Widget>[
         Expanded(
           child: TileWhite(
-            bottomPadding: 0.0,
-            rightPadding: 2.5,
             child: GetImage(
-                iconColor: AppTextColor.dark,
+                iconColor: kGreenDark,
                 imageFromCamera: false,
                 plantCreationDate: plant.created,
                 largeWidget: false,
@@ -453,10 +461,8 @@ class GridViewAddImages extends StatelessWidget {
         ),
         Expanded(
           child: TileWhite(
-            bottomPadding: 0.0,
-            leftPadding: 2.5,
             child: GetImage(
-                iconColor: AppTextColor.dark,
+                iconColor: kGreenDark,
                 imageFromCamera: true,
                 plantCreationDate: plant.created,
                 largeWidget: false,
@@ -501,9 +507,10 @@ class PlantAdminFunctions extends StatelessWidget {
                         //report user
                         CloudDB.reportUser(
                             userID: plant.owner,
-                            reportingUser: Provider.of<AppData>(context)
-                                .currentUserInfo
-                                .id);
+                            reportingUser:
+                                Provider.of<AppData>(context, listen: false)
+                                    .currentUserInfo
+                                    .id);
                         //get the collection
                         List<CollectionData> collections =
                             await CloudDB.futureCollectionsData(

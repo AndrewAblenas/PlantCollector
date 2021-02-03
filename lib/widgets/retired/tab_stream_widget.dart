@@ -32,13 +32,14 @@ class TabStreamWidget extends StatelessWidget {
                     size: AppTextSize.huge * MediaQuery.of(context).size.width,
                   ),
                   onPress: () {
-                    Provider.of<AppData>(context)
+                    Provider.of<AppData>(context, listen: false)
                         .setInputCustomTabSelected(tabNumber: 1);
-                    Provider.of<AppData>(context)
+                    Provider.of<AppData>(context, listen: false)
                         .setPlantQueryField(queryField: PlantKeys.clones);
                   },
                   tabNumber: 1,
-                  tabSelected: Provider.of<AppData>(context).customTabSelected,
+                  tabSelected: Provider.of<AppData>(context, listen: false)
+                      .customTabSelected,
                 ),
                 CustomTab(
                   symbol: Icon(
@@ -47,13 +48,14 @@ class TabStreamWidget extends StatelessWidget {
                     size: AppTextSize.huge * MediaQuery.of(context).size.width,
                   ),
                   onPress: () {
-                    Provider.of<AppData>(context)
+                    Provider.of<AppData>(context, listen: false)
                         .setInputCustomTabSelected(tabNumber: 2);
-                    Provider.of<AppData>(context)
+                    Provider.of<AppData>(context, listen: false)
                         .setPlantQueryField(queryField: PlantKeys.id);
                   },
                   tabNumber: 2,
-                  tabSelected: Provider.of<AppData>(context).customTabSelected,
+                  tabSelected: Provider.of<AppData>(context, listen: false)
+                      .customTabSelected,
                 ),
                 CustomTab(
                   symbol: Icon(
@@ -62,13 +64,14 @@ class TabStreamWidget extends StatelessWidget {
                     size: AppTextSize.huge * MediaQuery.of(context).size.width,
                   ),
                   onPress: () {
-                    Provider.of<AppData>(context)
+                    Provider.of<AppData>(context, listen: false)
                         .setInputCustomTabSelected(tabNumber: 3);
-                    Provider.of<AppData>(context)
+                    Provider.of<AppData>(context, listen: false)
                         .setPlantQueryField(queryField: PlantKeys.likes);
                   },
                   tabNumber: 3,
-                  tabSelected: Provider.of<AppData>(context).customTabSelected,
+                  tabSelected: Provider.of<AppData>(context, listen: false)
+                      .customTabSelected,
                 ),
               ],
             ),

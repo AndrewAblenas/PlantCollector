@@ -29,7 +29,7 @@ class _LocalNotificationWrapperState extends State<LocalNotificationWrapper> {
           onSelectNotification(payload),
     );
     final initializationSettings =
-        new InitializationSettings(settingsAndroid, settingIOS);
+        new InitializationSettings(android: settingsAndroid, iOS: settingIOS);
 
     notifications.initialize(initializationSettings,
         onSelectNotification: onSelectNotification);
@@ -51,7 +51,7 @@ class _LocalNotificationWrapperState extends State<LocalNotificationWrapper> {
   }
 
   Widget build(BuildContext context) {
-    Provider.of<AppData>(context).notifications = notifications;
+    Provider.of<AppData>(context, listen: false).notifications = notifications;
     return widget.child;
   }
 }

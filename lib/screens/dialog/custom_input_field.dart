@@ -35,7 +35,8 @@ class CustomInputField extends StatelessWidget {
         maxLines: maxLines,
         onChanged: (change) {
           (inputIndex != null)
-              ? Provider.of<AppData>(context).newListInput[inputIndex] = change
+              ? Provider.of<AppData>(context, listen: false)
+                  .newListInput[inputIndex] = change
               : onChange(change);
         },
         style: smallText == true

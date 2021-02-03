@@ -10,6 +10,8 @@ import 'package:provider/provider.dart';
 class SetUsernameBundle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    //easy reference
+    AppData provAppDataFalse = Provider.of<AppData>(context, listen: false);
     return DialogConfirm(
       title: 'Set Unique Username',
       text:
@@ -20,7 +22,7 @@ class SetUsernameBundle extends StatelessWidget {
         //update the value with map
         CloudDB.updateDocumentL1(
             collection: DBFolder.users,
-            document: Provider.of<AppData>(context).currentUserInfo.id,
+            document: provAppDataFalse.currentUserInfo.id,
             data: {
               UserKeys.uniquePublicID: 'not set',
             });
@@ -36,9 +38,7 @@ class SetUsernameBundle extends StatelessWidget {
                   acceptText: 'Submit',
                   acceptOnPress: () async {
                     //get the input
-                    String input = Provider.of<AppData>(context)
-                        .newDataInput
-                        .toLowerCase();
+                    String input = provAppDataFalse.newDataInput.toLowerCase();
 
                     //validate input
                     if (AppData.validateUsernameLength(input) == true &&
@@ -67,9 +67,7 @@ class SetUsernameBundle extends StatelessWidget {
                         //update the value with map
                         CloudDB.updateDocumentL1(
                             collection: DBFolder.users,
-                            document: Provider.of<AppData>(context)
-                                .currentUserInfo
-                                .id,
+                            document: provAppDataFalse.currentUserInfo.id,
                             data: {
                               UserKeys.uniquePublicID: input,
                             });
@@ -97,7 +95,7 @@ class SetUsernameBundle extends StatelessWidget {
                     }
                   },
                   onChange: (input) {
-                    Provider.of<AppData>(context).newDataInput = input;
+                    provAppDataFalse.newDataInput = input;
                   },
                   cancelText: 'Cancel',
                   hintText: null);

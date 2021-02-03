@@ -15,16 +15,18 @@ import 'package:plant_collector/widgets/dialogs/dialog_confirm.dart';
 class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    //easy provider
+    UserAuth provUserAuthFalse = Provider.of<UserAuth>(context, listen: false);
     //email input
     InputCard emailInput = InputCard(
       keyboardType: TextInputType.emailAddress,
       cardPrompt: 'User Email',
       onChanged: (input) {
-        Provider.of<UserAuth>(context).email = input;
+        provUserAuthFalse.email = input;
       },
       validator: (input) {
         String response;
-        if (Provider.of<UserAuth>(context).email.contains('@')) {
+        if (provUserAuthFalse.email.contains('@')) {
           response = 'Please double check your email';
         }
         return response;
@@ -37,7 +39,7 @@ class LoginScreen extends StatelessWidget {
       cardPrompt: 'Password',
       obscureText: true,
       onChanged: (input) {
-        Provider.of<UserAuth>(context).password = input;
+        provUserAuthFalse.password = input;
       },
     );
 
@@ -71,7 +73,7 @@ class LoginScreen extends StatelessWidget {
               text: 'Send an email to reset your password?',
               buttonText: 'Yes',
               onPressed: () {
-                Provider.of<UserAuth>(context).sendPasswordReset();
+                provUserAuthFalse.sendPasswordReset();
                 Navigator.pop(context);
               },
             );
@@ -83,39 +85,41 @@ class LoginScreen extends StatelessWidget {
     //login button
     ButtonAuth loginButton = ButtonAuth(
       text: 'Log In',
-      onPress: () async {
+      onPress: () {
         //log user in
-        FirebaseUser user = (await Provider.of<UserAuth>(context).loginUser());
-        //check if verified
-        bool verified =
-            Provider.of<UserAuth>(context).userIsVerified(user: user);
-        //if user is logged in and verified
-        if (user != null && verified == true) {
-          //have to sent to loading first to then sent to route and initiate first stream
-          Navigator.pushNamed(context, 'loading');
-        } else {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return DialogConfirm(
-                title: 'Sign in Issue',
-                text:
-                    'We had trouble signing you in. Please make sure your email and password are correct.'
-                    '\n\nIf you recently registered, please respond to the email we sent you.',
-                buttonText: 'OK',
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              );
-            },
-          );
-        }
+        provUserAuthFalse.loginUser().then((user) {
+          //check if verified
+          // bool verified = UserAuth.userIsVerified(user: user);
+          //if user is logged in and verified
+          if (user != null
+              // && verified == true
+              ) {
+            //have to sent to loading first to then sent to route and initiate first stream
+            Navigator.pushNamed(context, 'loading');
+          } else {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return DialogConfirm(
+                  title: 'Sign in Issue',
+                  text:
+                      'We had trouble signing you in. Please make sure your email and password are correct.'
+                      '\n\nIf you recently registered, please respond to the email we sent you.',
+                  buttonText: 'OK',
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                );
+              },
+            );
+          }
+        });
       },
     );
 
     return StatefulWrapper(
       onInit: () {
-        Provider.of<UserAuth>(context).signInAttempts = 0;
+        provUserAuthFalse.signInAttempts = 0;
       },
       child: LoginTemplate(
         leadingGraphic: FlareActor('assets/animations/grow_border.flr',

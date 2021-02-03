@@ -9,7 +9,7 @@ class UserAuth extends ChangeNotifier {
   String email;
   String password;
   String passwordValidate;
-  FirebaseUser signedInUser;
+  User signedInUser;
   bool showPasswordReset;
   int signInAttempts;
   bool passwordHelper;
@@ -66,7 +66,7 @@ class UserAuth extends ChangeNotifier {
   //validate app for google sign in console.developers.google.com/apis
   //plant collector, settings, android, add fingerprint
   //SIGN IN THE USER WITH GOOGLE
-//  Future<FirebaseUser> signInWithGoogle() async {
+//  Future<User> signInWithGoogle() async {
 //    final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
 //    final GoogleSignInAuthentication googleSignInAuthentication =
 //        await googleSignInAccount.authentication;
@@ -80,12 +80,12 @@ class UserAuth extends ChangeNotifier {
 //    //now generate a firebase user from the retrieved credentials
 //    final AuthResult authResult =
 //        await _firebaseAuth.signInWithCredential(credential);
-//    final FirebaseUser user = authResult.user;
+//    final User user = authResult.user;
 //
 //    assert(!user.isAnonymous);
 //    assert(await user.getIdToken() != null);
 //
-//    signedInUser = await _firebaseAuth.currentUser();
+//    signedInUser = await _firebaseAuth.currentUser;
 //    assert(user.uid == signedInUser.uid);
 //
 //    return signedInUser;
@@ -98,13 +98,13 @@ class UserAuth extends ChangeNotifier {
   //*****************USER METHODS*****************//
 
   //REGISTER THE USER
-  Future<FirebaseUser> userRegister() async {
+  Future<User> userRegister() async {
     if (email != null &&
         passwordHelper == true &&
         password == passwordValidate) {
       try {
-        AuthResult result = await _firebaseAuth.createUserWithEmailAndPassword(
-            email: email, password: password);
+        UserCredential result = await _firebaseAuth
+            .createUserWithEmailAndPassword(email: email, password: password);
         try {
           signedInUser = result.user;
           email = null;
@@ -125,8 +125,8 @@ class UserAuth extends ChangeNotifier {
   }
 
   //LOG THE USER IN
-  Future<FirebaseUser> loginUser() async {
-    AuthResult result;
+  Future<User> loginUser() async {
+    UserCredential result;
     try {
       result = await _firebaseAuth.signInWithEmailAndPassword(
           email: email, password: password);
@@ -146,16 +146,16 @@ class UserAuth extends ChangeNotifier {
   }
 
   //reauthenticate
-  Future<AuthResult> reauthenticateUser({@required String password}) {
+  Future<UserCredential> reauthenticateUser({@required String password}) {
     //get credentials
-    AuthCredential credentials = EmailAuthProvider.getCredential(
+    AuthCredential credentials = EmailAuthProvider.credential(
         email: signedInUser.email, password: password);
     return signedInUser.reauthenticateWithCredential(credentials);
   }
 
   //GET CURRENT USER
-  Future<FirebaseUser> getCurrentUser() async {
-    signedInUser = await _firebaseAuth.currentUser();
+  Future<User> getCurrentUser() async {
+    signedInUser = _firebaseAuth.currentUser;
     print('getCurrentUser: Complete');
     return signedInUser;
   }
@@ -173,33 +173,33 @@ class UserAuth extends ChangeNotifier {
 
   //SEND EMAIL FOR VERIFICATION
   Future<void> userSendEmail() async {
-    FirebaseUser user = await _firebaseAuth.currentUser();
+    User user = _firebaseAuth.currentUser;
     user.sendEmailVerification();
   }
 
   //UPDATE PASSWORD
   Future<void> userUpdatePassword({@required String password}) async {
-    FirebaseUser user = await _firebaseAuth.currentUser();
+    User user = _firebaseAuth.currentUser;
     user.updatePassword(password);
   }
 
   //UPDATE EMAIL
   Future<void> userUpdateEmail({@required String email}) async {
-    FirebaseUser user = await _firebaseAuth.currentUser();
+    User user = _firebaseAuth.currentUser;
     user.updateEmail(email);
   }
 
   //DELETE ACCOUNT
   Future<void> userDelete() async {
-    FirebaseUser user = await _firebaseAuth.currentUser();
+    User user = _firebaseAuth.currentUser;
     user.delete();
   }
 
 //CHECK IF EMAIL HAS BEEN VERIFIED
-  bool userIsVerified({@required FirebaseUser user}) {
+  static bool userIsVerified({@required User user}) {
     bool verified;
     if (user != null) {
-      verified = user.isEmailVerified;
+      verified = user.emailVerified;
     } else {
       verified = false;
     }

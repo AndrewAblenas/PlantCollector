@@ -19,12 +19,15 @@ class SearchScreen extends StatelessWidget {
 //  SearchScreen({@required this.searchResults});
   @override
   Widget build(BuildContext context) {
+    //
+    AppData provAppDataFalse = Provider.of<AppData>(context, listen: false);
     return ScreenTemplate(
+      backgroundColor: kGreenLight,
       implyLeading: false,
       bottomBar: BottomBar(selectionNumber: 4),
       screenTitle: 'Search',
       body: Provider<int>.value(
-        value: Provider.of<AppData>(context).tabBarTopSelected,
+        value: Provider.of<AppData>(context, listen: true).tabBarTopSelected,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
@@ -34,7 +37,7 @@ class SearchScreen extends StatelessWidget {
                     label: 'My Plants',
                     onPress: () {
                       //reset map
-                      Provider.of<AppData>(context).searchQueryInput = {};
+                      provAppDataFalse.searchQueryInput = {};
                     },
                     queryField: null,
                     type: null),
@@ -42,7 +45,7 @@ class SearchScreen extends StatelessWidget {
                     label: 'All Plants',
                     onPress: () {
                       //reset map
-                      Provider.of<AppData>(context).searchQueryInput = {};
+                      provAppDataFalse.searchQueryInput = {};
                     },
                     queryField: null,
                     type: null),
@@ -76,12 +79,7 @@ class SearchScreen extends StatelessWidget {
                             decoration: BoxDecoration(
                                 gradient: kGradientGreenVerticalDarkMed),
                             width: double.infinity,
-                            margin: EdgeInsets.symmetric(
-                              vertical:
-                                  0.02 * MediaQuery.of(context).size.width,
-                              horizontal:
-                                  0.01 * MediaQuery.of(context).size.width,
-                            ),
+                            margin: EdgeInsets.all(1.0),
                             padding: EdgeInsets.symmetric(
                                 horizontal:
                                     0.02 * MediaQuery.of(context).size.width,
@@ -103,19 +101,17 @@ class SearchScreen extends StatelessWidget {
                                 onChange: (value) {
                                   if (value == '') {
                                     //remove if user deletes text but doesn't uncheck
-                                    Provider.of<AppData>(context)
-                                        .searchQueryInput
+                                    provAppDataFalse.searchQueryInput
                                         .remove(query);
                                   } else {
-                                    Provider.of<AppData>(context)
-                                        .searchQueryInput[query] = value;
+                                    provAppDataFalse.searchQueryInput[query] =
+                                        value;
 //                                    print(Provider.of<AppData>(context)
 //                                        .searchQueryInput);
                                   }
                                 },
                                 onTap: () {
-                                  Provider.of<AppData>(context)
-                                      .searchQueryInput
+                                  provAppDataFalse.searchQueryInput
                                       .remove(query);
                                 },
                               ),
@@ -125,9 +121,7 @@ class SearchScreen extends StatelessWidget {
                     }
                     //now the search button
                     widgets.add(Padding(
-                      padding: EdgeInsets.symmetric(
-                        vertical: 0.05 * MediaQuery.of(context).size.width,
-                      ),
+                      padding: EdgeInsets.all(1.0),
                       child: ButtonAdd(
                           buttonText: 'Search Plants',
                           icon: Icons.search,
@@ -135,7 +129,7 @@ class SearchScreen extends StatelessWidget {
                             //NOTE copy this to QueryTile onSubmit
                             //package the data
                             Map<String, dynamic> queryMap =
-                                Provider.of<AppData>(context).searchQueryInput;
+                                provAppDataFalse.searchQueryInput;
                             //make sure not null
                             if (queryMap != null &&
                                 queryMap.keys.toList().length > 0) {
@@ -250,7 +244,8 @@ class _QueryTileState extends State<QueryTile> {
                         onFieldSubmitted: (value) {
                           //package the data
                           Map<String, dynamic> queryMap =
-                              Provider.of<AppData>(context).searchQueryInput;
+                              Provider.of<AppData>(context, listen: false)
+                                  .searchQueryInput;
                           //make sure not null
                           if (queryMap != null &&
                               queryMap.keys.toList().length > 0) {

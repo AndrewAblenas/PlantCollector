@@ -53,6 +53,7 @@ class UserKeys {
   static const String lastActive = 'lastActive';
   static const String showWishList = 'showWishList';
   static const String showSellList = 'showSellList';
+  static const String showCompostList = 'showCompostList';
   static const String link = 'link';
   static const String devicePushTokens = 'devicePushTokens';
   static const String journal = 'journal';
@@ -92,6 +93,7 @@ class UserKeys {
     lastActive: 'Date of User Last Activity',
     showWishList: 'Show Wishlist',
     showSellList: 'Show Sell List',
+    showCompostList: 'Show Compost List',
     link: 'Link or Website',
     devicePushTokens: 'Unique Device IDs to Push Notifications',
     //local only
@@ -134,6 +136,7 @@ class UserData {
   final int lastActive;
   final bool showWishList;
   final bool showSellList;
+  final bool showCompostList;
   final String link;
   final List devicePushTokens;
   final List journal;
@@ -174,6 +177,7 @@ class UserData {
       this.lastActive,
       this.showWishList,
       this.showSellList,
+      this.showCompostList,
       this.link,
       this.devicePushTokens,
       this.journal
@@ -215,6 +219,7 @@ class UserData {
       UserKeys.lastActive: lastActive,
       UserKeys.showWishList: showWishList,
       UserKeys.showSellList: showSellList,
+      UserKeys.showCompostList: showCompostList,
       UserKeys.link: link,
       UserKeys.devicePushTokens: devicePushTokens,
       UserKeys.journal: journal
@@ -263,6 +268,7 @@ class UserData {
         showWishList:
             DV.isBool(value: map[UserKeys.showWishList], fallback: true),
         showSellList: DV.isBool(value: map[UserKeys.showSellList]),
+        showCompostList: DV.isBool(value: map[UserKeys.showCompostList]),
         link: DV.isString(value: map[UserKeys.link]),
         devicePushTokens: DV.isList(value: map[UserKeys.devicePushTokens]),
         journal: DV.isList(value: map[UserKeys.journal]),

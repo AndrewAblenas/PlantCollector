@@ -36,6 +36,7 @@ class PlantKeys {
   static const String created = 'PlantCreationDate';
   static const String want = 'plantWant';
   static const String sell = 'plantSell';
+  static const String compost = 'plantCompost';
   static const String isVisible = 'isVisible';
   static const String isFlagged = 'isFlagged';
   static const String isHousePlant = 'isHousePlant';
@@ -136,6 +137,7 @@ class PlantKeys {
     created: 'Addition Date',
     want: 'On Wishlist',
     sell: 'For Sale',
+    compost: 'Is Compost',
     isVisible: 'Visible In Feed',
     isFlagged: 'Flagged Innappropriate',
     isHousePlant: 'Grown Indoors',
@@ -175,6 +177,7 @@ class PlantData {
   final int created;
   final bool want;
   final bool sell;
+  final bool compost;
   final bool isVisible;
   final bool isFlagged;
   final bool isHousePlant;
@@ -212,6 +215,7 @@ class PlantData {
     @required this.created,
     this.want,
     this.sell,
+    this.compost,
     @required this.isVisible,
     this.isFlagged,
     this.isHousePlant,
@@ -269,6 +273,7 @@ class PlantData {
       PlantKeys.created: created,
       PlantKeys.want: want,
       PlantKeys.sell: sell,
+      PlantKeys.compost: compost,
       PlantKeys.isVisible: isVisible,
       PlantKeys.isFlagged: isFlagged,
       PlantKeys.isHousePlant: isHousePlant,
@@ -331,6 +336,7 @@ class PlantData {
         created: DV.isInt(value: map[PlantKeys.created]),
         want: DV.isBool(value: map[PlantKeys.want]),
         sell: DV.isBool(value: map[PlantKeys.sell]),
+        compost: DV.isBool(value: map[PlantKeys.compost]),
         isVisible: DV.isBool(value: map[PlantKeys.isVisible]),
         isFlagged: DV.isBool(value: map[PlantKeys.isFlagged]),
         isHousePlant: DV.isBool(value: map[PlantKeys.isHousePlant]),

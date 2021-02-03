@@ -21,44 +21,39 @@ class _SearchBarLiveState extends State<SearchBarLive> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: 0.01 * MediaQuery.of(context).size.width,
-      ),
-      child: SearchBarWrapper(
-        marginVertical: 0.0,
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Row(
-            children: <Widget>[
-              Icon(
-                Icons.search,
-                size: AppTextSize.large * MediaQuery.of(context).size.width,
-                color: AppTextColor.white,
-              ),
-              SizedBox(
-                width: 0.04 * MediaQuery.of(context).size.width,
-              ),
-              SizedBox(
-                width: 0.75 * MediaQuery.of(context).size.width,
-                child: TextField(
-                  style: TextStyle(
-                    decoration: TextDecoration.none,
-                    color: AppTextColor.white,
-                    fontSize:
-                        AppTextSize.medium * MediaQuery.of(context).size.width,
-                    fontWeight: AppTextWeight.medium,
-                  ),
-                  minLines: 1,
-                  maxLines: 50,
-                  onChanged: (value) {
-                    Provider.of<AppData>(context)
-                        .setInputSearchBarLive(value.toLowerCase());
-                  },
+    return SearchBarWrapper(
+      marginVertical: 0.0,
+      child: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Row(
+          children: <Widget>[
+            Icon(
+              Icons.search,
+              size: AppTextSize.large * MediaQuery.of(context).size.width,
+              color: AppTextColor.white,
+            ),
+            SizedBox(
+              width: 0.04 * MediaQuery.of(context).size.width,
+            ),
+            SizedBox(
+              width: 0.75 * MediaQuery.of(context).size.width,
+              child: TextField(
+                style: TextStyle(
+                  decoration: TextDecoration.none,
+                  color: AppTextColor.white,
+                  fontSize:
+                      AppTextSize.medium * MediaQuery.of(context).size.width,
+                  fontWeight: AppTextWeight.medium,
                 ),
+                minLines: 1,
+                maxLines: 50,
+                onChanged: (value) {
+                  Provider.of<AppData>(context, listen: false)
+                      .setInputSearchBarLive(value.toLowerCase());
+                },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

@@ -45,13 +45,13 @@ class GetImageGallery extends StatelessWidget {
       ),
       onPressed: () async {
         //get image from camera
-        File image = await Provider.of<CloudStore>(context)
+        File image = await Provider.of<CloudStore>(context, listen: false)
             .getImageFile(fromCamera: false);
         //check to make sure the user didn't back out
         if (image != null) {
           print('Image file is not null');
           //upload image
-          StorageUploadTask upload = Provider.of<CloudStore>(context)
+          UploadTask upload = Provider.of<CloudStore>(context, listen: false)
               .uploadTask(
                   imageCode: null,
                   imageFile: image,
@@ -59,9 +59,9 @@ class GetImageGallery extends StatelessWidget {
                   plantIDFolder: plantID,
                   subFolder: DBDocument.images);
           //make sure upload completes
-          StorageTaskSnapshot completion = await upload.onComplete;
+          TaskSnapshot completion = await upload;
           //get the url string
-          String url = await Provider.of<CloudStore>(context)
+          String url = await Provider.of<CloudStore>(context, listen: false)
               .getDownloadURL(snapshot: completion);
           //add image reference to plant document
           await CloudDB.updateDocumentL1Array(
@@ -77,7 +77,9 @@ class GetImageGallery extends StatelessWidget {
               data: {
                 PlantKeys.update: CloudDB.delayUpdateWrites(
                     timeCreated: plantCreationDate,
-                    document: Provider.of<AppData>(context).currentUserInfo.id),
+                    document: Provider.of<AppData>(context, listen: false)
+                        .currentUserInfo
+                        .id),
               });
           //pop context
           if (pop == true) {

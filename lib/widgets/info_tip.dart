@@ -19,7 +19,7 @@ class InfoTip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     //if show tips is true display tip otherwise empty widget
-    return (Provider.of<AppData>(context).showTips == true ||
+    return (Provider.of<AppData>(context, listen: false).showTips == true ||
             showAlways == true)
         ? TileWhite(
             child: FlatButton(

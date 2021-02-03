@@ -34,6 +34,12 @@ class GetImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    //easy reference
+    AppData provAppDataFalse = Provider.of<AppData>(context, listen: false);
+    CloudStore provCloudStoreFalse =
+        Provider.of<CloudStore>(context, listen: false);
+    //easy scale
+    double relativeWidth = MediaQuery.of(context).size.width * kScaleFactor;
     //*****SET WIDGET VISIBILITY START*****//
 
     //determine icon
@@ -47,19 +53,15 @@ class GetImage extends StatelessWidget {
       child: CircleAvatar(
         foregroundColor: iconColor,
         backgroundColor: backgroundColor,
-        radius:
-            60 * MediaQuery.of(context).size.width * kScaleFactor * widgetScale,
+        radius: 60 * relativeWidth * widgetScale,
         child: Icon(
           icon,
-          size: 80.0 *
-              MediaQuery.of(context).size.width *
-              kScaleFactor *
-              widgetScale,
+          size: 80.0 * relativeWidth * widgetScale,
         ),
       ),
       onPressed: () async {
         //get image from camera
-        Provider.of<CloudStore>(context)
+        provCloudStoreFalse
             .getImageFile(fromCamera: imageFromCamera)
             .then((image) async {
           //check to make sure the user didn't back out and is online
@@ -83,14 +85,13 @@ class GetImage extends StatelessWidget {
             //check connectivity in dialog input screen
             //upload image
             //wait for completion
-            Provider.of<CloudStore>(context)
+            provCloudStoreFalse
                 .uploadTask(
                     imageCode: null,
                     imageFile: image,
                     imageExtension: 'jpg',
                     plantIDFolder: plantID,
                     subFolder: DBDocument.images)
-                .onComplete
                 .then((completion) {
               //delete the temporary image
               try {
@@ -101,16 +102,14 @@ class GetImage extends StatelessWidget {
               }
 
               //get the url string
-              Provider.of<CloudStore>(context)
-                  .getDownloadURL(snapshot: completion)
-                  .then(
+              provCloudStoreFalse.getDownloadURL(snapshot: completion).then(
                     (url) =>
                         //NOW GET DATE, THUMB URL AND UPLOAD
-                        Provider.of<CloudDB>(context).generateImageMapAndUpload(
-                            ref: Provider.of<CloudStore>(context)
-                                .getStorageRef(),
-                            url: url,
-                            plantID: plantID),
+                        Provider.of<CloudDB>(context, listen: false)
+                            .generateImageMapAndUpload(
+                                ref: provCloudStoreFalse.getStorageRef(),
+                                url: url,
+                                plantID: plantID),
                   );
               //update document last updated time
               CloudDB.updateDocumentL1(
@@ -119,8 +118,7 @@ class GetImage extends StatelessWidget {
                   data: {
                     PlantKeys.update: CloudDB.delayUpdateWrites(
                         timeCreated: plantCreationDate,
-                        document:
-                            Provider.of<AppData>(context).currentUserInfo.id),
+                        document: provAppDataFalse.currentUserInfo.id),
                   });
               //pop the
               if (pop == true) {

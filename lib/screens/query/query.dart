@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:plant_collector/formats/colors.dart';
 import 'package:plant_collector/formats/text.dart';
 import 'package:plant_collector/models/cloud_db.dart';
 import 'package:plant_collector/models/data_types/plant/plant_data.dart';
@@ -41,8 +42,6 @@ class QueryScreen extends StatelessWidget {
                   for (PlantData plant in results) {
                     widgets.add(
                       Container(
-                        padding: EdgeInsets.all(1.0),
-                        color: AppTextColor.white,
                         child: PlantTile(
                           connectionLibrary: true,
                           communityView: true,
@@ -53,12 +52,16 @@ class QueryScreen extends StatelessWidget {
                       ),
                     );
                   }
-                  return GridView.count(
-                    crossAxisCount: 3,
-//                      padding: EdgeInsets.all(1.0),
-                    primary: false,
-                    shrinkWrap: true,
-                    children: widgets,
+                  return Container(
+                    color: kGreenDark,
+                    child: GridView.count(
+                      crossAxisSpacing: 1.0,
+                      mainAxisSpacing: 1.0,
+                      crossAxisCount: 3,
+                      primary: false,
+                      shrinkWrap: true,
+                      children: widgets,
+                    ),
                   );
                 }
               },
